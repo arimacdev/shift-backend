@@ -1,0 +1,1 @@
+CREATE TABLE `pm-tool`.`project` ( `project_id` VARCHAR(255) NOT NULL , `project_name` VARCHAR(255) NOT NULL , `client_id` VARCHAR(255) NOT NULL , `start_date` TIMESTAMP NOT NULL , `end_date` TIMESTAMP NOT NULL , `status` VARCHAR(255) NOT NULL ) ENGINE = InnoDB;
