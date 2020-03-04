@@ -11,4 +11,5 @@ public interface TransactionRepository {
     Project createProject(Project project);
     List<ProjectUserResponseDto> getAllProjects();
     List<ProjectUserResponseDto> getAllProjectsByUser(String userId);
+    void assignUserToProject(String projectId, Project_User project_user);
 }

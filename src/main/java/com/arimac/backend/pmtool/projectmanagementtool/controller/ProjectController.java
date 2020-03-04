@@ -5,7 +5,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserAssignDto;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,7 @@ public class ProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping
     public ResponseEntity<Object> getAllProjects(@RequestParam("userId")String user){
-        logger.info("HIT - GET /projects?userId={} --- getAllProjects",user);
+        logger.info("HIT - GET /projects?userId=<user> ---> getAllProjects | userId: {}",user);
         return sendResponse(projectService.getAllProjects(user));
     }
 
@@ -48,4 +50,13 @@ public class ProjectController extends ResponseController {
 //        logger.info("HIT - /project/{} GET project", projectId);
 //        return sendResponse(projectService.getProject());
 //    }
+
+    @ApiOperation(value = "Assign a user to a project", notes = "Assign a user to a project, allocate a role, specify administrator/non-administrator roles")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/{projectId}/users")
+    public ResponseEntity<Object> assignUserToProject(@PathVariable("projectId")String projectId, @RequestBody UserAssignDto userAssignDto){
+        logger.info("HIT - GET /<projectId>/users ---> assignUserToProject | projectId: {} | dto: {}", projectId, userAssignDto);
+        return sendResponse(projectService.assignUserToProject(projectId, userAssignDto));
+    }
+
 }

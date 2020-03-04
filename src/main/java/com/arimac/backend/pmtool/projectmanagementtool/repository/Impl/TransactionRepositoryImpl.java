@@ -50,12 +50,28 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         return projects;
     }
 
+    @Override
+    public void assignUserToProject(String projectId, Project_User project_user) {
+       jdbcTemplate.update(connection -> {
+           PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_User(projectId, assigneeId, assignedAt, isAdmin, assigneeProjectRole) values (?,?,?,?,?)");
+           preparedStatement.setString(1, project_user.getProjectId());
+           preparedStatement.setString(2, project_user.getAssigneeId());
+           preparedStatement.setTimestamp(3, project_user.getAssignedAt());
+           preparedStatement.setBoolean(4, project_user.getIsAdmin());
+           preparedStatement.setString(5, project_user.getAssigneeProjectRole());
+
+           return preparedStatement;
+       });
+
+    }
+
+
     private RowMapper query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
         projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
         projectUserResponseDto.setAssignedAt(resultSet.getTimestamp("assignedAt"));
-        projectUserResponseDto.setUserId(resultSet.getString("userId"));
+        projectUserResponseDto.setAssigneeId(resultSet.getString("assigneeId"));
         projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
 
         return projectUserResponseDto;

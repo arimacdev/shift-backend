@@ -4,16 +4,22 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserAssignDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TransactionRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -52,11 +58,29 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<ProjectUserResponseDto> projectList;
 
-//        projectList = transactionRepository.getAllProjectsByUser(userId);
+        projectList = transactionRepository.getAllProjectsByUser(userId);
+//        projectList = transactionRepository.getAllProjects();
 
-        projectList = transactionRepository.getAllProjects();
+        if (projectList.isEmpty())
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST,projectList);
+//            return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST, projectList);
+        return new Response(ResponseMessage.SUCCESS, projectList);
 
-        return projectList;
+    }
+
+    @Override
+    public Object assignUserToProject(String projectId, UserAssignDto userAssignDto) {
+        //TODO check admin role
+        Project_User assignment = new Project_User();
+        assignment.setProjectId(projectId);
+        assignment.setAssigneeId(userAssignDto.getAssigneeId());
+        assignment.setAssignedAt(utilsService.getCurrentTimestamp());
+        assignment.setIsAdmin(userAssignDto.getAdmin());
+        assignment.setAssigneeProjectRole(userAssignDto.getAssigneeProjectRole());
+
+        transactionRepository.assignUserToProject(projectId,assignment);
+
+       return new Response(ResponseMessage.SUCCESS);
 
     }
 }

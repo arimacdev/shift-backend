@@ -3,19 +3,19 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 import java.sql.Timestamp;
 
 public class ProjectUserResponseDto {
-    private String userId;
+    private String assigneeId;
     private String projectId;
     private Timestamp assignedAt;
     private String projectName;
     private String projectStatus;
 
 
-    public String getUserId() {
-        return userId;
+    public String getAssigneeId() {
+        return assigneeId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAssigneeId(String assigneeId) {
+        this.assigneeId = assigneeId;
     }
 
     public String getProjectId() {
