@@ -1,11 +1,15 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TransactionRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class TransactionRepositoryImpl implements TransactionRepository {
@@ -31,4 +35,31 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         });
         return project;
     }
+
+    @Override
+    public List<ProjectUserResponseDto> getAllProjects() {
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId";
+        List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
+        return  projects;
+    }
+
+    @Override
+    public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.userId=?";
+        List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
+        return projects;
+    }
+
+    private RowMapper query = (resultSet, i) -> {
+        ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
+        projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
+        projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
+        projectUserResponseDto.setAssignedAt(resultSet.getTimestamp("assignedAt"));
+        projectUserResponseDto.setUserId(resultSet.getString("userId"));
+        projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
+
+        return projectUserResponseDto;
+    };
+
+
 }

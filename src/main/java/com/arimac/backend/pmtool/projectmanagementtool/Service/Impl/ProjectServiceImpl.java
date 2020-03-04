@@ -3,14 +3,18 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TransactionRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -29,6 +33,8 @@ public class ProjectServiceImpl implements ProjectService {
     public Object createProject(ProjectDto projectDto) {
         Project project = new Project();
 
+        //TODO check role of user
+
         project.setProjectId(utilsService.getUUId());
         project.setProjectName(projectDto.getProjectName());
         project.setClientId(projectDto.getClientId());
@@ -38,5 +44,19 @@ public class ProjectServiceImpl implements ProjectService {
         transactionRepository.createProject(project);
 
         return new Response(ResponseMessage.SUCCESS, project);
+    }
+
+    @Override
+    public Object getAllProjects(String userId) {
+        //TODO check role of a user
+
+        List<ProjectUserResponseDto> projectList;
+
+//        projectList = transactionRepository.getAllProjectsByUser(userId);
+
+        projectList = transactionRepository.getAllProjects();
+
+        return projectList;
+
     }
 }

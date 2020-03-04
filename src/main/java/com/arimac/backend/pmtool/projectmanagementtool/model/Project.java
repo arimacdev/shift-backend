@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.model;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
