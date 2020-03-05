@@ -5,9 +5,10 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserDeleteDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserAssignDto;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +56,26 @@ public class ProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/users")
     public ResponseEntity<Object> assignUserToProject(@PathVariable("projectId")String projectId, @RequestBody UserAssignDto userAssignDto){
-        logger.info("HIT - GET /<projectId>/users ---> assignUserToProject | projectId: {} | dto: {}", projectId, userAssignDto);
+        logger.info("HIT - POST /<projectId>/users ---> assignUserToProject | projectId: {} | dto: {}", projectId, userAssignDto);
         return sendResponse(projectService.assignUserToProject(projectId, userAssignDto));
     }
+
+    @ApiOperation(value = "Update a user assigned to a project", notes = "Update job role/project role of an assignee")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/users/{userId}")
+    public ResponseEntity<Object> updateAssigneeProjectRole(@PathVariable("projectId")String projectId,@PathVariable("userId") String userId, @RequestBody ProjectUserUpdateDto updateDto){
+        logger.info("HIT - PUT /<projectId>/users/<userId> ---> updateAssigneeProjectRole | projectId: {} | userId: {} | dto: {}", projectId, userId, updateDto);
+        return sendResponse(projectService.updateAssigneeProjectRole(projectId, userId, updateDto));
+    }
+
+    @ApiOperation(value = "Delete a user assigned to a project", notes = "Remove user assignment from a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{projectId}/users/{userId}")
+    public ResponseEntity<Object> removeProjectAssignee(@PathVariable("projectId")String projectId,@PathVariable("userId") String assignee, @RequestBody ProjectUserDeleteDto deleteDto){
+        logger.info("HIT - DELETE /<projectId>/users/<userId> ---> removeProjectAssignee | projectId: {} | userId: {} | dto: {}", projectId, assignee, deleteDto);
+        return sendResponse(projectService.removeProjectAssignee(projectId, assignee, deleteDto));
+    }
+
+
 
 }

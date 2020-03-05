@@ -1,8 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
-public class UserAssignDto {
+public class ProjectUserUpdateDto {
     private String assignerId;
-    private String assigneeId;
     private int assigneeProjectRole;
     private String assigneeJobRole;
 
@@ -12,14 +11,6 @@ public class UserAssignDto {
 
     public void setAssignerId(String assignerId) {
         this.assignerId = assignerId;
-    }
-
-    public String getAssigneeId() {
-        return assigneeId;
-    }
-
-    public void setAssigneeId(String assigneeId) {
-        this.assigneeId = assigneeId;
     }
 
     public int getAssigneeProjectRole() {

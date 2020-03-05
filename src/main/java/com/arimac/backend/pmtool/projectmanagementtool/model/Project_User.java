@@ -11,17 +11,17 @@ public class Project_User implements RowMapper<Project_User> {
     private String projectId;
     private String assigneeId;
     private Timestamp assignedAt;
-    private Boolean isAdmin;
-    private String assigneeProjectRole;
+    private String assigneeJobRole;
+    private int assigneeProjectRole;
 
     public Project_User() {
     }
 
-    public Project_User(String projectId, String assigneeId, Timestamp assignedAt, Boolean isAdmin, String assigneeProjectRole) {
+    public Project_User(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assignedAt = assignedAt;
-        this.isAdmin = isAdmin;
+        this.assigneeJobRole = assigneeJobRole;
         this.assigneeProjectRole = assigneeProjectRole;
     }
 
@@ -49,19 +49,19 @@ public class Project_User implements RowMapper<Project_User> {
         this.assignedAt = assignedAt;
     }
 
-    public Boolean getIsAdmin() {
-        return isAdmin;
+    public String getAssigneeJobRole() {
+        return assigneeJobRole;
     }
 
-    public void setIsAdmin(Boolean admin) {
-        isAdmin = admin;
+    public void setAssigneeJobRole(String assigneeJobRole) {
+        this.assigneeJobRole = assigneeJobRole;
     }
 
-    public String getAssigneeProjectRole() {
+    public int getAssigneeProjectRole() {
         return assigneeProjectRole;
     }
 
-    public void setAssigneeProjectRole(String assigneeProjectRole) {
+    public void setAssigneeProjectRole(int assigneeProjectRole) {
         this.assigneeProjectRole = assigneeProjectRole;
     }
 
@@ -71,8 +71,8 @@ public class Project_User implements RowMapper<Project_User> {
                 resultSet.getString("projectId"),
                 resultSet.getString("userId"),
                 resultSet.getTimestamp("assignedAt"),
-                resultSet.getBoolean("isAdmin"),
-                resultSet.getString("userProjectRole")
-        );
+                resultSet.getString("assigneeJobRole"),
+                resultSet.getInt("assigneeProjectRole")
+                );
     }
 }

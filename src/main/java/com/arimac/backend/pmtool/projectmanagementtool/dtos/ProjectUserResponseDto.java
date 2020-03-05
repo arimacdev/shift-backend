@@ -10,8 +10,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private String projectId;
     private String assigneeId;
     private Timestamp assignedAt;
-    private boolean isAdmin;
-    private String assigneeProjectRole;
+    private String assigneeJobRole;
+    private int assigneeProjectRole;
     private String projectName;
     private String projectStatus;
     private Timestamp projectStartDate;
@@ -20,11 +20,11 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     public ProjectUserResponseDto() {
     }
 
-    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, boolean isAdmin, String assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate) {
+    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assignedAt = assignedAt;
-        this.isAdmin = isAdmin;
+        this.assigneeJobRole = assigneeJobRole;
         this.assigneeProjectRole = assigneeProjectRole;
         this.projectName = projectName;
         this.projectStatus = projectStatus;
@@ -32,19 +32,19 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectEndDate = projectEndDate;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
+    public String getAssigneeJobRole() {
+        return assigneeJobRole;
     }
 
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
+    public void setAssigneeJobRole(String assigneeJobRole) {
+        this.assigneeJobRole = assigneeJobRole;
     }
 
-    public String getAssigneeProjectRole() {
+    public int getAssigneeProjectRole() {
         return assigneeProjectRole;
     }
 
-    public void setAssigneeProjectRole(String assigneeProjectRole) {
+    public void setAssigneeProjectRole(int assigneeProjectRole) {
         this.assigneeProjectRole = assigneeProjectRole;
     }
 
@@ -110,8 +110,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getString("projectId"),
                 resultSet.getString("assigneeId"),
                 resultSet.getTimestamp("assignedAt"),
-                resultSet.getBoolean("isAdmin"),
-                resultSet.getString("assigneeProjectRole"),
+                resultSet.getString("assigneeJobRole"),
+                resultSet.getInt("assigneeProjectRole"),
                 resultSet.getString("projectName"),
                 resultSet.getString("projectStatus"),
                 resultSet.getTimestamp("projectStartDate"),
