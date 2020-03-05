@@ -1,9 +1,13 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.ProjectServiceImpl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TransactionRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -12,11 +16,14 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 @Service
-public class TransactionRepositoryImpl implements TransactionRepository {
+public class ProjectRepositoryImpl implements ProjectRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProjectRepositoryImpl.class);
+
 
     private final JdbcTemplate jdbcTemplate;
 
-    public TransactionRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    public ProjectRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -37,6 +44,26 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     }
 
     @Override
+    public ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId) {
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=?";
+        ProjectUserResponseDto project;
+        try {
+            project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            logger.info("Error {}", e.getLocalizedMessage());
+            return null;
+        }
+        return project;
+    }
+
+//    @Override
+//    public Project getProjectById(String projectId) {
+//        String sql = "SELECT * FROM Project_User WHERE projectId=? AND assigneeId=?";
+//        Project_User project_user = jdbcTemplate.queryForObject(sql, new Project_User(), "p1", "u1");
+//        return Project_User;
+//    }
+
+    @Override
     public List<ProjectUserResponseDto> getAllProjects() {
         String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
@@ -45,7 +72,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.userId=?";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=?";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
     }
@@ -65,15 +92,17 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     }
 
-
-    private RowMapper query = (resultSet, i) -> {
+    private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
         projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
+        projectUserResponseDto.setProjectStartDate(resultSet.getTimestamp("projectStartDate"));
+        projectUserResponseDto.setProjectEndDate(resultSet.getTimestamp("projectEndDate"));
+        projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
         projectUserResponseDto.setAssignedAt(resultSet.getTimestamp("assignedAt"));
         projectUserResponseDto.setAssigneeId(resultSet.getString("assigneeId"));
-        projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
-
+        projectUserResponseDto.setAdmin(resultSet.getBoolean("isAdmin"));
+        projectUserResponseDto.setAssigneeProjectRole(resultSet.getString("assigneeProjectRole"));
         return projectUserResponseDto;
     };
 

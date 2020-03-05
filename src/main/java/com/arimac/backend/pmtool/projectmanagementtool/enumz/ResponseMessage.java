@@ -2,7 +2,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 
 public enum ResponseMessage {
     SUCCESS("success"),
-    NO_RECORD("No Record");
+    NO_RECORD("No Record"),
+    ALREADY_ASSIGNED("Already Assigned");
 
     private String message;
     private ResponseMessage(String message){

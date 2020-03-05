@@ -10,16 +10,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TransactionRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -27,11 +24,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
-    private final TransactionRepository transactionRepository;
+    private final ProjectRepository projectRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TransactionRepository transactionRepository, UtilsService utilsService) {
-        this.transactionRepository = transactionRepository;
+    public ProjectServiceImpl(ProjectRepository projectRepository, UtilsService utilsService) {
+        this.projectRepository = projectRepository;
         this.utilsService = utilsService;
     }
 
@@ -47,7 +44,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
         project.setProjectStatus(ProjectStatusEnum.presales.toString());
-        transactionRepository.createProject(project);
+        projectRepository.createProject(project);
 
         return new Response(ResponseMessage.SUCCESS, project);
     }
@@ -58,7 +55,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<ProjectUserResponseDto> projectList;
 
-        projectList = transactionRepository.getAllProjectsByUser(userId);
+        projectList = projectRepository.getAllProjectsByUser(userId);
 //        projectList = transactionRepository.getAllProjects();
 
         if (projectList.isEmpty())
@@ -71,6 +68,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Object assignUserToProject(String projectId, UserAssignDto userAssignDto) {
         //TODO check admin role
+
+        ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssignerId()); // Check project assigner is assigned & isAdmin
+        if (assignerProject == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        if (!assignerProject.isAdmin())
+            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+        if (userAssignDto.getAssignerId().equals(userAssignDto.getAssigneeId()))
+            return new ErrorMessage("You can't assign yourself to this project", HttpStatus.BAD_REQUEST);
+        ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssigneeId()); // Check project assignee is vacant
+        if (assigneeProject != null)
+            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.BAD_REQUEST);
+
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
         assignment.setAssigneeId(userAssignDto.getAssigneeId());
@@ -78,7 +87,7 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setIsAdmin(userAssignDto.getAdmin());
         assignment.setAssigneeProjectRole(userAssignDto.getAssigneeProjectRole());
 
-        transactionRepository.assignUserToProject(projectId,assignment);
+        projectRepository.assignUserToProject(projectId,assignment);
 
        return new Response(ResponseMessage.SUCCESS);
 
