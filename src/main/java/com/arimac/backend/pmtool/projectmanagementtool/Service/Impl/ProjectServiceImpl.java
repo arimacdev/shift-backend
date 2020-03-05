@@ -63,10 +63,18 @@ public class ProjectServiceImpl implements ProjectService {
 
         if (projectList.isEmpty())
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST,projectList);
-//            return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST, projectList);
+//      return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST, projectList);
         return new Response(ResponseMessage.SUCCESS, projectList);
 
     }
+
+//    @Override
+//    public Object getProjectByUser(String projectId, String userId) {
+//        ProjectUserResponseDto userProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
+//        if (userProject == null)
+//            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+////         projectRepository.get
+//    }
 
     @Override
     public Object assignUserToProject(String projectId, UserAssignDto userAssignDto) {

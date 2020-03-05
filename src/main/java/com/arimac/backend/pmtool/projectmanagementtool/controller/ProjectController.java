@@ -36,21 +36,21 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.createProject(projectDto));
     }
 
-    @ApiOperation(value = "Get all Projects", notes = "Get all projects of an organization")
+    @ApiOperation(value = "Get all Projects by user", notes = "Get all projects of an organization")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping
-    public ResponseEntity<Object> getAllProjects(@RequestParam("userId")String user){
+    public ResponseEntity<Object> getAllProjectsByUser(@RequestParam("userId")String user){
         logger.info("HIT - GET /projects?userId=<user> ---> getAllProjects | userId: {}",user);
         return sendResponse(projectService.getAllProjects(user));
     }
 
-//    @ApiOperation(value = "Get a single project", notes = "Get a single project specified by a projectId")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @GetMapping
-//    public ResponseEntity<Object> getProject(@PathVariable("projectId") String projectId){
-//        logger.info("HIT - /project/{} GET project", projectId);
-//        return sendResponse(projectService.getProject());
-//    }
+    @ApiOperation(value = "Get a single project", notes = "Get a single project specified by a projectId")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping
+    public ResponseEntity<Object> getProjectByUser(@PathVariable("projectId") String projectId, @RequestHeader("user") String userId){
+        logger.info("HIT - GET /project/{} ---> getProjectByUser | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(projectService.getProjectByUser(projectId, userId));
+    }
 
     @ApiOperation(value = "Assign a user to a project", notes = "Assign a user to a project, allocate a role, specify administrator/non-administrator roles")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
