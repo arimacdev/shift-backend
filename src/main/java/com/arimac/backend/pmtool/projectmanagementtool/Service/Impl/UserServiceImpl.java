@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-
     private final IdpUserService idpUserService;
 
     public UserServiceImpl(IdpUserService idpUserService) {
@@ -20,7 +19,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object createUser(UserRegistrationDto userRegistrationDto) {
-        idpUserService.createUser(userRegistrationDto);
+        String idpUserId = idpUserService.createUser(userRegistrationDto, true);
         return null;
     }
 }

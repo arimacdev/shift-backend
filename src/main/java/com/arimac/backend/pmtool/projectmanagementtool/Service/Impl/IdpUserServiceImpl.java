@@ -2,8 +2,10 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.Charset;
@@ -24,18 +28,11 @@ public class IdpUserServiceImpl implements IdpUserService {
     private static final String CLIENT_CREDENTIALS = "client_credentials";
     private static final String ACCESS_TOKEN = "access_token";
 
+    private static String clientAccessToken = null;
     private final RestTemplate restTemplate;
 
     public IdpUserServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-    }
-
-    @Override
-    public Object createUser(UserRegistrationDto userRegistrationDto) {
-        try {
-            String token = getClientAccessToken();
-        }
-        return null;
     }
 
     private HttpHeaders getHeader() {
@@ -47,7 +44,7 @@ public class IdpUserServiceImpl implements IdpUserService {
         return httpHeaders;
     }
 
-    private String getClientAccessToken(){
+    private void getClientAccessToken(){
         HttpHeaders httpHeaders = getHeader();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -59,6 +56,88 @@ public class IdpUserServiceImpl implements IdpUserService {
         url.append("/protocol/openid-connect/token");
         logger.info("Access token URL : {}", url);
         ResponseEntity<String> exchange = restTemplate.exchange(url.toString(), HttpMethod.POST, new HttpEntity<>(map, httpHeaders), String.class);
-        return new JSONObject(exchange.getBody()).getString("access_token");
+        clientAccessToken = new JSONObject(exchange.getBody()).getString("access_token");
     }
+
+    @Override
+    public String createUser(UserRegistrationDto userRegistrationDto, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Authorization", "Bearer " + clientAccessToken);
+            httpHeaders.set("Content-Type", "application/json");
+            JSONObject payload = new JSONObject();
+            payload.put("username", userRegistrationDto.getUserName());
+            payload.put("enabled", true);
+            payload.put("email", userRegistrationDto.getEmail());
+            JSONArray credentials = new JSONArray();
+            JSONObject user = new JSONObject();
+            user.put("type", "password");
+            user.put("value", userRegistrationDto.getPassword());
+            user.put("temporary", false);
+            credentials.put(user);
+            payload.put("credentials", credentials);
+
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+            StringBuilder userCreateUrl = new StringBuilder();
+            userCreateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userCreateUrl.append("auth/admin/realms/");
+            userCreateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userCreateUrl.append("/users");
+            logger.info("User Create URL {}", userCreateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userCreateUrl.toString(), HttpMethod.POST, entity, String.class);
+
+            return getIdpUserId(httpHeaders, userRegistrationDto, true);
+
+            }
+            catch(HttpClientErrorException | HttpServerErrorException e) {
+                String response = e.getResponseBodyAsString();
+                logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+                if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                    getClientAccessToken();
+                    return createUser(userRegistrationDto, false);
+                }
+               throw new PMException(e.getResponseBodyAsString());
+             } catch (Exception e) {
+                logger.error(e.getMessage());
+                throw new PMException(e);
+              }
+    }
+
+    private String getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userGetEntity = new HttpEntity<>(null, httpHeaders);
+            StringBuilder userRetrieveUrl = new StringBuilder();
+            userRetrieveUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userRetrieveUrl.append("auth/admin/realms/");
+            userRetrieveUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userRetrieveUrl.append("/users?username=");
+            userRetrieveUrl.append(userRegistrationDto.getUserName());
+            logger.info("User Retrieval Url : {}", userRetrieveUrl);
+            ResponseEntity<String> userResult = restTemplate.exchange(userRetrieveUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
+            String response = userResult.getBody();
+            String idpUserId = null;
+            JSONArray jsonArray = new JSONArray(response);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jo = jsonArray.getJSONObject(i);
+                String userName = jo.getString("username");
+                if (userName.equals(userRegistrationDto.getUserName()))
+                    idpUserId = jo.getString("id");
+            }
+            logger.info("Idp userID : {}", idpUserId);
+            return idpUserId;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getIdpUserId(httpHeaders, userRegistrationDto, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+
 }
