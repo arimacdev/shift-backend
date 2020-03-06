@@ -1,13 +1,12 @@
-package com.arimac.backend.pmtool.projectmanagementtool.Service;
+package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 
 import java.util.List;
 
-public interface UserService {
-    Object createUser(UserRegistrationDto userRegistrationDto);
+public interface UserRepository {
+    Object createUser(User user);
     List<User> getAllUsers();
     Object getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
