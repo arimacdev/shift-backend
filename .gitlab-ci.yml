@@ -1,0 +1,37 @@
+variables:
+  DOCKER_DRIVER: overlay
+  CONTAINER_IMAGE: asia.gcr.io/arimac-staging/pmtool-backend
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+stages:
+  - build
+  - package
+
+maven-build:
+  image: maven:3-jdk-8
+  stage: build
+  script:
+  - mvn package -B -DskipTests
+  artifacts:
+    paths:
+      - target/*.jar
+  cache:
+    paths:
+    - .m2/repository
+  only:
+  - development
+
+docker-build:
+  stage: package
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+  - docker build -t $CONTAINER_IMAGE .
+  - echo "$GCP_CI_KEY" > key.json
+  - docker login -u _json_key --password-stdin https://asia.gcr.io < key.json
+  - docker tag $CONTAINER_IMAGE $CONTAINER_IMAGE:v${CI_PIPELINE_IID}
+  - docker push $CONTAINER_IMAGE
+  - docker push $CONTAINER_IMAGE:v${CI_PIPELINE_IID}
+  only:
+  - development
