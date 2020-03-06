@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL}/pm-tool
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
