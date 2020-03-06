@@ -44,6 +44,15 @@ public class IdpUserServiceImpl implements IdpUserService {
         return httpHeaders;
     }
 
+    private HttpHeaders getIdpTokenHeader(){
+        if (clientAccessToken == null)
+            getClientAccessToken();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Authorization", "Bearer " + clientAccessToken);
+        httpHeaders.set("Content-Type", "application/json");
+        return httpHeaders;
+    }
+
     private void getClientAccessToken(){
         HttpHeaders httpHeaders = getHeader();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -104,6 +113,64 @@ public class IdpUserServiceImpl implements IdpUserService {
                 logger.error(e.getMessage());
                 throw new PMException(e);
               }
+    }
+
+    @Override
+    public JSONObject getUserByIdpUserId(String idpUserId, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userGetEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder userRetrieveUrl = new StringBuilder();
+            userRetrieveUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userRetrieveUrl.append("auth/admin/realms/");
+            userRetrieveUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userRetrieveUrl.append("/users/");
+            userRetrieveUrl.append(idpUserId);
+            logger.info("User Retrieval Url : {}", userRetrieveUrl);
+            ResponseEntity<String> idpUser = restTemplate.exchange(userRetrieveUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
+            return new JSONObject(idpUser.getBody());
+        }
+        catch(HttpClientErrorException | HttpServerErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                return getUserByIdpUserId(idpUserId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new PMException(e);
+        }
+    }
+
+    @Override
+    public void updateUserPassword(String idpUserId) {
+
+    }
+
+    @Override
+    public void updateUserEmail(String idpUserId, String email, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject updatePayload = new JSONObject();
+            updatePayload.put("email",email);
+
+            HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
+            StringBuilder userUpdateUrl = new StringBuilder();
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userUpdateUrl.append("auth/admin/realms/");
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userUpdateUrl.append("/users/");
+            userUpdateUrl.append(idpUserId);
+            logger.info("User update URL {}", userUpdateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userUpdateUrl.toString(), HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                updateUserEmail(idpUserId, email, false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
     }
 
     private String getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {

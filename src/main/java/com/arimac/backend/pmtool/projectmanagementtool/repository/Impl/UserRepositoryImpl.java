@@ -41,7 +41,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Object getUserByUserId(String userId) {
+    public User getUserByUserId(String userId) {
         String sql = "SELECT * FROM User WHERE userId=?";
         User user = jdbcTemplate.queryForObject(sql,new User(), userId);
         return user;
@@ -54,6 +54,7 @@ public class UserRepositoryImpl implements UserRepository {
             preparedStatement.setString(1, userUpdateDto.getFirstName());
             preparedStatement.setString(2, userUpdateDto.getLastName());
             preparedStatement.setString(3, userUpdateDto.getEmail());
+            preparedStatement.setString(4, userId);
 
             return preparedStatement;
         });
