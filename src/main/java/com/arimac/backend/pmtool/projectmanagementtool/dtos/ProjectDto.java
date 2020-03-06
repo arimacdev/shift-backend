@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 import java.sql.Timestamp;
 
 public class ProjectDto {
+    private String projectOwner;
     private String projectName;
     private String clientId;
     private Timestamp projectStartDate;
@@ -10,6 +11,14 @@ public class ProjectDto {
 
 
     public ProjectDto() {
+    }
+
+    public String getProjectOwner() {
+        return projectOwner;
+    }
+
+    public void setProjectOwner(String projectOwner) {
+        this.projectOwner = projectOwner;
     }
 
     public String getProjectName() {

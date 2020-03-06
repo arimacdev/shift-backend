@@ -68,6 +68,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
 
+    @Override
+    public Object getProjectByUser(String projectId, String userId) {
+        return null;
+    }
+
 //    @Override
 //    public Object getProjectByUser(String projectId, String userId) {
 //        ProjectUserResponseDto userProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
