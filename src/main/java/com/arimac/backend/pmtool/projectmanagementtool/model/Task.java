@@ -13,26 +13,26 @@ public class Task implements RowMapper<Task> {
     private String projectId;
     private String taskAssignee;
     private String taskInitiator;
+    private String taskNote;
+    private String taskStatus;
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
-    private String note;
-    private String status;
 
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String note, String status) {
+    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
         this.taskAssignee = taskAssignee;
         this.taskInitiator = taskInitiator;
+        this.taskNote = taskNote;
+        this.taskStatus = taskStatus;
         this.taskCreatedAt = taskCreatedAt;
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
-        this.note = note;
-        this.status = status;
     }
 
     public String getTaskId() {
@@ -75,6 +75,22 @@ public class Task implements RowMapper<Task> {
         this.taskInitiator = taskInitiator;
     }
 
+    public String getTaskNote() {
+        return taskNote;
+    }
+
+    public void setTaskNote(String taskNote) {
+        this.taskNote = taskNote;
+    }
+
+    public String getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(String taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
     public Timestamp getTaskCreatedAt() {
         return taskCreatedAt;
     }
@@ -99,24 +115,20 @@ public class Task implements RowMapper<Task> {
         this.taskReminderAt = taskReminderAt;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     @Override
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
-        return null;
+        return new Task(
+                resultSet.getString("taskId"),
+                resultSet.getString("taskName"),
+                resultSet.getString("projectId"),
+                resultSet.getString("taskAssignee"),
+                resultSet.getString("taskInitiator"),
+                resultSet.getString("taskNote"),
+                resultSet.getString("taskStatus"),
+                resultSet.getTimestamp("taskCreatedAt"),
+                resultSet.getTimestamp("taskDueDateAt"),
+                resultSet.getTimestamp("taskReminderAt")
+        );
     }
+
 }

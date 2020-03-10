@@ -7,12 +7,14 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +38,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Object createUser(UserRegistrationDto userRegistrationDto) {
         String idpUserId = idpUserService.createUser(userRegistrationDto, true);
-
         User user = new User();
         user.setUserId(utilsService.getUUId());
         user.setIdpUserId(idpUserId);
@@ -58,6 +59,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Object getUserByUserId(String userId) {
         User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+
         JSONObject IdpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setUserName(IdpUser.getString(USERNAME));
@@ -71,6 +75,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto) {
         User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         UserUpdateDto dto = new UserUpdateDto();
         if (userUpdateDto.getEmail() != null){
             dto.setEmail(userUpdateDto.getEmail());

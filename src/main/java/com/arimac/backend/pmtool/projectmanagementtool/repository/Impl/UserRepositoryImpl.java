@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,11 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User getUserByUserId(String userId) {
         String sql = "SELECT * FROM User WHERE userId=?";
-        User user = jdbcTemplate.queryForObject(sql,new User(), userId);
+        User user = null;
+        try {
+            user = jdbcTemplate.queryForObject(sql,new User(), userId);
+        } catch (EmptyResultDataAccessException e){
+        }
         return user;
     }
 

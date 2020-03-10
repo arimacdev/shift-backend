@@ -8,10 +8,11 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
-import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectRole;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.RoleRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,13 @@ public class ProjectServiceImpl implements ProjectService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, RoleRepository roleRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, RoleRepository roleRepository, UtilsService utilsService) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.utilsService = utilsService;
     }
@@ -70,24 +73,23 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object getProjectByUser(String projectId, String userId) {
-        return null;
+        ProjectUserResponseDto userProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (userProject == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        return new Response(ResponseMessage.SUCCESS, userProject);
+//         projectRepository.get
     }
-
-//    @Override
-//    public Object getProjectByUser(String projectId, String userId) {
-//        ProjectUserResponseDto userProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
-//        if (userProject == null)
-//            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-////         projectRepository.get
-//    }
 
     @Override
     public Object assignUserToProject(String projectId, UserAssignDto userAssignDto) {
         //TODO check admin role
+        User assigner = userRepository.getUserByUserId(userAssignDto.getAssigneeId());
+        if (assigner == null)
+            return new ErrorMessage("Assigner doesn't exist", HttpStatus.NOT_FOUND);
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssignerId()); // Check project assigner is assigned & isAdmin
         if (assignerProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        if ( !((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("Assigner doesn't belong to the project", HttpStatus.BAD_REQUEST);
+        if (!((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
         if (userAssignDto.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
             return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.FORBIDDEN);

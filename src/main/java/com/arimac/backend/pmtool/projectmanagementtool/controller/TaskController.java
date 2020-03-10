@@ -1,0 +1,34 @@
+package com.arimac.backend.pmtool.projectmanagementtool.controller;
+
+import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/projects")
+public class TaskController extends ResponseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
+
+    private final TaskService taskService;
+
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @ApiOperation(value = "Add task to a project", notes = "Create a project for an organization")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/{projectId}/tasks")
+    public ResponseEntity<Object> addTaskToProject(@PathVariable("projectId") String projectId, @RequestBody TaskDto taskDto){
+        logger.info("HIT - POST /projects/<projectId>/tasks ---> addTaskToProject | projectId: {} |  dto: {}", projectId, taskDto);
+        return sendResponse(taskService.addTaskToProject(projectId, taskDto));
+    }
+}
