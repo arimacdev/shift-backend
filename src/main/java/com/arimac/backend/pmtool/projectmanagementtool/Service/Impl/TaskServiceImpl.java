@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
@@ -67,6 +69,27 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-       return taskRepository.getAllProjectTasksByUser(userId, projectId);
+       List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
+       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
+    }
+
+    @Override
+    public Object getAllUserAssignedTasks(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        List<Task> taskList = taskRepository.getAllUserAssignedTasks(userId, projectId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
+    }
+
+    @Override
+    public Object getProjectTask(String userId, String projectId, String taskId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 }

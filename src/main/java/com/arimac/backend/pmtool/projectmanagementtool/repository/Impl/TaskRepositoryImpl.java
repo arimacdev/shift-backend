@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +39,28 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId) {
+    public List<Task> getAllProjectTasksByUser(String projectId) {
         String sql = "SELECT * FROM Task WHERE projectId=?";
         List<Task> taskList = jdbcTemplate.query(sql, new Task(), projectId);
         return  taskList;
+    }
+
+    @Override
+    public List<Task> getAllUserAssignedTasks(String userId, String projectId) {
+       String sql = "SELECT * FROM Task WHERE projectId=? AND taskAssignee=?";
+       List<Task> taskList = jdbcTemplate.query(sql, new Task(), projectId, userId);
+       return taskList;
+    }
+
+    @Override
+    public Task getProjectTask(String taskId) {
+        String sql = "SELECT * FROM Task WHERE taskId=?";
+        Task task;
+        try {
+            task = jdbcTemplate.queryForObject(sql, new Task(), taskId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        return task;
     }
 }
