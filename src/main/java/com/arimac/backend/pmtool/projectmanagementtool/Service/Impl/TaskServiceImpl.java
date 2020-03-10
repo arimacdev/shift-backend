@@ -4,6 +4,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -91,5 +93,34 @@ public class TaskServiceImpl implements TaskService {
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
+    }
+
+    @Override
+    public Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin
+            return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
+
+        if (taskUpdateDto.getTaskName() == null)
+            taskUpdateDto.setTaskName(task.getTaskName());
+        if (taskUpdateDto.getTaskAssignee() == null)
+            taskUpdateDto.setTaskAssignee(task.getTaskAssignee());
+        if (taskUpdateDto.getTaskNotes() == null)
+            taskUpdateDto.setTaskNotes(task.getTaskNote());
+        if (taskUpdateDto.getTaskStatus() == null)
+            taskUpdateDto.setTaskStatus(TaskStatusEnum.valueOf(task.getTaskStatus()));
+        if (taskUpdateDto.getTaskDueDate() == null)
+            taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
+        if (taskUpdateDto.getTaskRemindOnDate() == null)
+            taskUpdateDto.setTaskRemindOnDate(task.getTaskReminderAt());
+
+        Object updateTask = taskRepository.updateProjectTask(taskId, taskUpdateDto);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
     }
 }

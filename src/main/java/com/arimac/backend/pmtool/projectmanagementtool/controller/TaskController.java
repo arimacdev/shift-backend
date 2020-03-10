@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -54,6 +55,14 @@ public class TaskController extends ResponseController {
     public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId> ---> getProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(taskService.getProjectTask(userId, projectId, taskId));
+    }
+
+    @ApiOperation(value = "Update a single Task", notes = "Update a single task of a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/tasks/{taskId}")
+    public ResponseEntity<Object> updateProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskUpdateDto taskUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId> ---> updateProjectTask | projectId: {} | userId: {} | taskId: {} | taskUpdateDto: {}", projectId, userId, taskId, taskUpdateDto);
+        return sendResponse(taskService.updateProjectTask(userId, projectId, taskId, taskUpdateDto));
     }
 
 }
