@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class TaskRepositoryImpl implements TaskRepository {
@@ -34,5 +35,12 @@ public class TaskRepositoryImpl implements TaskRepository {
             return preparedStatement;
         });
         return task;
+    }
+
+    @Override
+    public Object getAllProjectTasksByUser(String userId, String projectId) {
+        String sql = "SELECT * FROM Task WHERE projectId=?";
+        List<Task> taskList = jdbcTemplate.query(sql, new Task(), projectId);
+        return  taskList;
     }
 }

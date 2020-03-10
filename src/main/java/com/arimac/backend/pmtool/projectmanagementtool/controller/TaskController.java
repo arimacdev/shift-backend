@@ -24,11 +24,21 @@ public class TaskController extends ResponseController {
         this.taskService = taskService;
     }
 
-    @ApiOperation(value = "Add task to a project", notes = "Create a project for an organization")
+    @ApiOperation(value = "Add task to a project", notes = "Create tasks for a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks")
     public ResponseEntity<Object> addTaskToProject(@PathVariable("projectId") String projectId, @RequestBody TaskDto taskDto){
         logger.info("HIT - POST /projects/<projectId>/tasks ---> addTaskToProject | projectId: {} |  dto: {}", projectId, taskDto);
         return sendResponse(taskService.addTaskToProject(projectId, taskDto));
     }
+
+    @ApiOperation(value = "Get all Tasks of a project for a user", notes = "Get all Tasks in a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks")
+    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId));
+    }
+
+
 }
