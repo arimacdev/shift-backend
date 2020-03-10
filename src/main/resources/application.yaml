@@ -9,3 +9,13 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+keycloak:
+  auth-server-url: http://pmtool.devops.arimac.xyz/auth
+  ssl-required: none
+  realm: pm-tool
+  resource: user-service
+  bearer-only: true
+  confidential-port: 0
+  use-resource-role-mappings: false
+  principal-attribute: preferred_username
+  cors: true

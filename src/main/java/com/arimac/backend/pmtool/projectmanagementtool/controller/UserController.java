@@ -11,12 +11,14 @@ import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController extends ResponseController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
