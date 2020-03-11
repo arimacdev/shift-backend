@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskCompletionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -18,7 +19,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -57,7 +61,7 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskAssignee(taskDto.getTaskAssignee());
         }
         task.setTaskNote(taskDto.getTaskNotes());
-        task.setTaskStatus(TaskStatusEnum.pending.toString());
+        task.setTaskStatus(TaskStatusEnum.pending);
         task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         task.setTaskDueDateAt(taskDto.getTaskDueDate());
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
@@ -113,7 +117,7 @@ public class TaskServiceImpl implements TaskService {
         if (taskUpdateDto.getTaskNotes() == null)
             taskUpdateDto.setTaskNotes(task.getTaskNote());
         if (taskUpdateDto.getTaskStatus() == null)
-            taskUpdateDto.setTaskStatus(TaskStatusEnum.valueOf(task.getTaskStatus()));
+            taskUpdateDto.setTaskStatus(task.getTaskStatus());
         if (taskUpdateDto.getTaskDueDate() == null)
             taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
         if (taskUpdateDto.getTaskRemindOnDate() == null)
@@ -134,5 +138,40 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
         taskRepository.deleteTask(taskId);
         return new Response(ResponseMessage.SUCCESS);
+    }
+
+    @Override
+    public Object getProjectTaskCompletionByUser(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
+        Map<String, TaskCompletionDto> userTaskCompletionMap = new HashMap<>();
+        String user = null;
+        for (int i = 0 ; i < taskList.size(); i++){
+            Task task = taskList.get(i);
+            user = task.getTaskAssignee();
+            TaskCompletionDto taskCompletionDto = new TaskCompletionDto();
+             if (userTaskCompletionMap.get(user) != null){
+                taskCompletionDto = userTaskCompletionMap.get(user);
+                 int completed = taskCompletionDto.getCompleted();
+                 int total = taskCompletionDto.getTotalTasks();
+                if (task.getTaskStatus().equals(TaskStatusEnum.closed))
+                    completed += 1;
+                total += 1;
+                taskCompletionDto.setCompleted(completed);
+                taskCompletionDto.setTotalTasks(total);
+                userTaskCompletionMap.put(user, taskCompletionDto);
+             } else {
+                  if (task.getTaskStatus().equals(TaskStatusEnum.closed)){
+                      taskCompletionDto.setCompleted(1);
+                  } else {
+                      taskCompletionDto.setCompleted(0);
+                  }
+                  taskCompletionDto.setTotalTasks(1);
+                 userTaskCompletionMap.put(user, taskCompletionDto);
+             }
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskCompletionMap);
     }
 }

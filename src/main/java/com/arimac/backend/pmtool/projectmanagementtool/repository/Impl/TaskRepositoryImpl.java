@@ -29,7 +29,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setString(4, task.getTaskInitiator());
             preparedStatement.setString(5, task.getTaskAssignee());
             preparedStatement.setString(6, task.getTaskNote());
-            preparedStatement.setString(7, task.getTaskStatus());
+            preparedStatement.setString(7, task.getTaskStatus().toString());
             preparedStatement.setTimestamp(8, task.getTaskCreatedAt());
             preparedStatement.setTimestamp(9, task.getTaskDueDateAt());
             preparedStatement.setTimestamp(10, task.getTaskReminderAt());
