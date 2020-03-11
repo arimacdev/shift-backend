@@ -65,4 +65,10 @@ public class SubTaskRepositoryImpl implements SubTaskRepository {
         });
         return subTask;
     }
+
+    @Override
+    public void deleteSubTaskOfaTask(String subTaskId) {
+        String sql = "DELETE FROM SubTask WHERE subTaskId=?";
+        jdbcTemplate.update(sql, subTaskId);
+    }
 }

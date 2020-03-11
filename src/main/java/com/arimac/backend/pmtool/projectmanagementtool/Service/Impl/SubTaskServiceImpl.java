@@ -94,4 +94,22 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     }
 
+    @Override
+    public Object deleteSubTaskOfATask(String userId, String projectId, String taskId, String subTaskId) {
+        SubTask subTask = subTaskRepository.getSubTaskById(subTaskId);
+        if (subTask == null)
+            return new ErrorMessage("SubTask not found", HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage("Task not Found", HttpStatus.NOT_FOUND);
+        ProjectUserResponseDto taskRemover = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (taskRemover == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) ||  (taskRemover.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())  || (taskRemover.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("You don't have access", HttpStatus.UNAUTHORIZED);
+        subTaskRepository.deleteSubTaskOfaTask(subTaskId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
 }

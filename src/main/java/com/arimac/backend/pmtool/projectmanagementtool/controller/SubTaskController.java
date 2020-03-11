@@ -49,5 +49,14 @@ public class SubTaskController extends ResponseController {
         return sendResponse(subTaskService.updateSubTaskOfATask(user,projectId, taskId, subtaskId, subTaskUpdateDto));
     }
 
+    @ApiOperation(value = "Delete SubTask", notes = "Delete SubTask of a Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
+    public ResponseEntity<Object> deleteSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> deleteSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {}" , projectId, taskId, subtaskId);
+        return sendResponse(subTaskService.deleteSubTaskOfATask(user,projectId, taskId, subtaskId));
+    }
+
+
 
 }
