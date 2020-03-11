@@ -32,10 +32,6 @@ public class Response {
         this(message.toString(), data);
     }
 
-    public Response(ResponseMessage message, String requestId) {
-        this(message.toString());
-    }
-
     public Response(String message, Object data) {
         this.message = message;
         this.data = data;
