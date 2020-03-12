@@ -88,7 +88,7 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
                 .and()
                 .authorizeRequests();
 
-        expressionInterceptUrlRegistry = expressionInterceptUrlRegistry.antMatchers("/users/**").hasRole("SUPER_ADMIN");
+  //      expressionInterceptUrlRegistry = expressionInterceptUrlRegistry.antMatchers("/users/**").hasRole("SUPER_ADMIN");
 //        expressionInterceptUrlRegistry = expressionInterceptUrlRegistry.antMatchers("/projects/**").hasRole("SUPER_ADMIN");
 
 
