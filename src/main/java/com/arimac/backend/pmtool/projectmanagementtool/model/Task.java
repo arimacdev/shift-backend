@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -14,7 +15,7 @@ public class Task implements RowMapper<Task> {
     private String taskAssignee;
     private String taskInitiator;
     private String taskNote;
-    private String taskStatus;
+    private TaskStatusEnum taskStatus;
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
@@ -22,7 +23,7 @@ public class Task implements RowMapper<Task> {
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt) {
+    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
@@ -83,11 +84,11 @@ public class Task implements RowMapper<Task> {
         this.taskNote = taskNote;
     }
 
-    public String getTaskStatus() {
+    public TaskStatusEnum getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(String taskStatus) {
+    public void setTaskStatus(TaskStatusEnum taskStatus) {
         this.taskStatus = taskStatus;
     }
 
@@ -124,7 +125,7 @@ public class Task implements RowMapper<Task> {
                 resultSet.getString("taskAssignee"),
                 resultSet.getString("taskInitiator"),
                 resultSet.getString("taskNote"),
-                resultSet.getString("taskStatus"),
+                TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt")

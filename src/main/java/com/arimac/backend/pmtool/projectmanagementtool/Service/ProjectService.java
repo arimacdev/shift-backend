@@ -5,7 +5,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserDeleteDto
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserAssignDto;
 
-import java.util.List;
 
 public interface ProjectService {
     Object createProject(ProjectDto projectDto);

@@ -1,6 +1,5 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.ProjectServiceImpl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -55,13 +54,6 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
         return project;
     }
-
-//    @Override
-//    public Project getProjectById(String projectId) {
-//        String sql = "SELECT * FROM Project_User WHERE projectId=? AND assigneeId=?";
-//        Project_User project_user = jdbcTemplate.queryForObject(sql, new Project_User(), "p1", "u1");
-//        return Project_User;
-//    }
 
     @Override
     public List<ProjectUserResponseDto> getAllProjects() {
