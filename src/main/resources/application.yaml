@@ -5,12 +5,12 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL}/pm-tool
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
 keycloak:
-  auth-server-url: http://pmtool.devops.arimac.xyz/auth
+  auth-server-url: ${KEYCLOAK_HOST}
   ssl-required: none
   realm: pm-tool
   resource: user-service
