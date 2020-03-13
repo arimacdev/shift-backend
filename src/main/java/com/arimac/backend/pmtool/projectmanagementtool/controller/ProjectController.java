@@ -77,6 +77,14 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.removeProjectAssignee(projectId, assignee, deleteDto));
     }
 
+    @ApiOperation(value = "Delete a project", notes = "Flag a project, along with tasks and subtasks")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Object> flagProject(@RequestHeader("user") String userId,@PathVariable("projectId")String projectId){
+        logger.info("HIT - DELETE /<projectId>/ ---> deleteProject | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(projectService.flagProject(userId, projectId));
+    }
+
 
 
 }

@@ -13,5 +13,6 @@ public interface ProjectService {
     Object assignUserToProject(String projectId, UserAssignDto userAssignDto);
     Object updateAssigneeProjectRole(String projectId, String userId, ProjectUserUpdateDto updateDto );
     Object removeProjectAssignee(String projectId, String assignee, ProjectUserDeleteDto deleteDto);
+    Object flagProject(String userId, String projectId);
 
 }

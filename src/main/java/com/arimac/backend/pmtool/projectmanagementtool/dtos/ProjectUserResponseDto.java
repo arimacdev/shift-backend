@@ -16,11 +16,12 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private String projectStatus;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
+    private boolean isDeleted;
 
     public ProjectUserResponseDto() {
     }
 
-    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate) {
+    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assignedAt = assignedAt;
@@ -30,6 +31,7 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectStatus = projectStatus;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
+        this.isDeleted = isDeleted;
     }
 
     public String getAssigneeJobRole() {
@@ -104,6 +106,14 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectStatus = projectStatus;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
@@ -115,7 +125,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getString("projectName"),
                 resultSet.getString("projectStatus"),
                 resultSet.getTimestamp("projectStartDate"),
-                resultSet.getTimestamp("projectEndDate")
+                resultSet.getTimestamp("projectEndDate"),
+                resultSet.getBoolean("isDeleted")
         );
     }
 }

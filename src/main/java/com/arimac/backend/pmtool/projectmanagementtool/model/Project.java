@@ -14,17 +14,19 @@ public class Project implements RowMapper<Project> {
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
     private String projectStatus;
+    private boolean isDeleted;
 
     public Project() {
     }
 
-    public Project(String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String projectStatus) {
+    public Project(String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String projectStatus, boolean isDeleted) {
         this.projectId = projectId;
         this.projectName = projectName;
         this.clientId = clientId;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
         this.projectStatus = projectStatus;
+        this.isDeleted = isDeleted;
     }
 
     public String getProjectId() {
@@ -75,6 +77,13 @@ public class Project implements RowMapper<Project> {
         this.projectStatus = projectStatus;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
 
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -84,7 +93,8 @@ public class Project implements RowMapper<Project> {
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
-                resultSet.getString("projectStatus")
+                resultSet.getString("projectStatus"),
+                resultSet.getBoolean("isDeleted")
         );
     }
 }

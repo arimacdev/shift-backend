@@ -7,12 +7,11 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.RoleRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +28,16 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final TaskRepository taskRepository;
+    private final SubTaskRepository subTaskRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, RoleRepository roleRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, RoleRepository roleRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.taskRepository = taskRepository;
+        this.subTaskRepository = subTaskRepository;
         this.utilsService = utilsService;
     }
 
@@ -50,6 +53,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
         project.setProjectStatus(ProjectStatusEnum.presales.toString());
+        project.setIsDeleted(false);
         projectRepository.createProject(project);
 
         Project_User assignment = new Project_User();
@@ -98,6 +102,8 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssignerId()); // Check project assigner is assigned & isAdmin
         if (assignerProject == null)
             return new ErrorMessage("Assigner doesn't belong to the project", HttpStatus.BAD_REQUEST);
+//        if (assignerProject.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         if (!((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
         if (userAssignDto.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
@@ -126,6 +132,8 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, updateDto.getAssignerId());
         if (assignerProject == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+//        if (assignerProject.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (assigneeProject == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -152,6 +160,8 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, deleteDto.getAssignerId());
         if (assignerProject == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+//        if (assignerProject.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, assignee);
         if (assigneeProject == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -161,5 +171,16 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.removeProjectAssignee(projectId, assignee);
 
         return new Response(ResponseMessage.SUCCESS);
+    }
+
+    @Override
+    public Object flagProject(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if ( !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) )
+            return new ErrorMessage("You don't have privileges for this operation", HttpStatus.UNAUTHORIZED);
+            projectRepository.flagProject(projectId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

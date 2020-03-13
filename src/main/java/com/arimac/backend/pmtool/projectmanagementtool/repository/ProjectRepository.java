@@ -15,4 +15,6 @@ public interface ProjectRepository {
     void assignUserToProject(String projectId, Project_User project_user);
     void updateAssigneeProjectRole(Project_User project_user);
     void removeProjectAssignee(String projectId, String assigneeId);
+    void flagProject(String projectId);
+    void unFlagProject(String projectId);
 }

@@ -19,11 +19,12 @@ public class Task implements RowMapper<Task> {
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
+    private boolean isDeleted;
 
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt) {
+    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
@@ -34,6 +35,15 @@ public class Task implements RowMapper<Task> {
         this.taskCreatedAt = taskCreatedAt;
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
+        this.isDeleted = isDeleted;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public String getTaskId() {
@@ -128,7 +138,8 @@ public class Task implements RowMapper<Task> {
                 TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
-                resultSet.getTimestamp("taskReminderAt")
+                resultSet.getTimestamp("taskReminderAt"),
+                resultSet.getBoolean("isDeleted")
         );
     }
 

@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 public enum ResponseMessage {
     SUCCESS("success"),
     NO_RECORD("No Record"),
+    NO_ACCESS("Records cannot be accessed"),
     ALREADY_ASSIGNED("Already Assigned"),
     INVALID_REQUEST_BODY("Invalid Request Body"),
     ASSIGNER_NOT_MEMBER("Assigner doesn't belong to the project"),

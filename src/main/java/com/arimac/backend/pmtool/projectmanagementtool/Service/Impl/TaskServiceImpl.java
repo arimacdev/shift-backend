@@ -42,11 +42,13 @@ public class TaskServiceImpl implements TaskService {
         if (taskDto.getTaskName() == null || taskDto.getProjectId() == null || taskDto.getTaskInitiator()== null)
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
+        if (taskInitiator == null)
+            return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+//        if (taskInitiator.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto taskAssignee = null;
         if (taskDto.getTaskAssignee() != null)
             taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
-        if (taskInitiator == null)
-            return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if (taskAssignee == null)
             return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
         Task task = new Task();
@@ -73,7 +75,9 @@ public class TaskServiceImpl implements TaskService {
     public Object getAllProjectTasksByUser(String userId, String projectId) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+//        if (projectUser.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
@@ -83,6 +87,8 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+//        if (projectUser.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         List<Task> taskList = taskRepository.getAllUserAssignedTasks(userId, projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
@@ -92,6 +98,8 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+//        if (projectUser.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
@@ -100,15 +108,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto) {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+//        if (projectUser.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin
             return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
-
         if (taskUpdateDto.getTaskName() == null)
             taskUpdateDto.setTaskName(task.getTaskName());
         if (taskUpdateDto.getTaskAssignee() == null)
@@ -129,10 +138,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object deleteProjectTask(String userId, String projectId, String taskId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+//        if (projectUser.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
             return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
         taskRepository.deleteTask(taskId);
@@ -144,6 +157,8 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+//        if (projectUser.getIsDeleted())
+//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
         Map<String, TaskCompletionDto> userTaskCompletionMap = new HashMap<>();
         String user = null;

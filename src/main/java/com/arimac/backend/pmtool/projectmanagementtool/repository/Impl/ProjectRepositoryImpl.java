@@ -44,7 +44,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=?";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false";
         ProjectUserResponseDto project;
         try {
             project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
@@ -57,14 +57,14 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public List<ProjectUserResponseDto> getAllProjects() {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
         return  projects;
     }
 
     @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=?";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
     }
@@ -105,6 +105,18 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         jdbcTemplate.update(sql, projectId, assigneeId);
     }
 
+    @Override
+    public void flagProject(String projectId) {
+        String sql = "UPDATE project SET isDeleted=true WHERE projectId=?";
+        jdbcTemplate.update(sql,projectId);
+    }
+
+    @Override
+    public void unFlagProject(String projectId) {
+        String sql = "UPDATE project SET isDeleted=false WHERE projectId=?";
+        jdbcTemplate.update(sql, projectId);
+    }
+
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
@@ -112,6 +124,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setProjectStartDate(resultSet.getTimestamp("projectStartDate"));
         projectUserResponseDto.setProjectEndDate(resultSet.getTimestamp("projectEndDate"));
         projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
+        projectUserResponseDto.setIsDeleted(resultSet.getBoolean("isDeleted"));
         projectUserResponseDto.setAssignedAt(resultSet.getTimestamp("assignedAt"));
         projectUserResponseDto.setAssigneeId(resultSet.getString("assigneeId"));
         projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
