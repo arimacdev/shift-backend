@@ -43,14 +43,23 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = new Project();
 
         //TODO check role of user
-
-        project.setProjectId(utilsService.getUUId());
+        String projectId = utilsService.getUUId();
+        project.setProjectId(projectId);
         project.setProjectName(projectDto.getProjectName());
         project.setClientId(projectDto.getClientId());
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
         project.setProjectStatus(ProjectStatusEnum.presales.toString());
         projectRepository.createProject(project);
+
+        Project_User assignment = new Project_User();
+        assignment.setProjectId(projectId);
+        assignment.setAssigneeId(projectDto.getProjectOwner());
+        assignment.setAssignedAt(utilsService.getCurrentTimestamp());
+        assignment.setAssigneeJobRole("ADMIN");
+        assignment.setAssigneeProjectRole(ProjectRoleEnum.owner.getRoleValue());
+
+        projectRepository.assignUserToProject(projectId,assignment);
 
         return new Response(ResponseMessage.SUCCESS, project);
     }
