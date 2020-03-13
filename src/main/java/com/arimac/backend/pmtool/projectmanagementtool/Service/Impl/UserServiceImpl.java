@@ -101,5 +101,11 @@ public class UserServiceImpl implements UserService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
+    @Override
+    public Object getAllProjectUsers(String projectId) {
+        List<User> userList = userRepository.getAllProjectUsers(projectId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userList);
+    }
+
 
 }

@@ -10,4 +10,5 @@ public interface UserRepository {
     List<User> getAllUsers();
     User getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
+    List<User> getAllProjectUsers(String projectId);
 }

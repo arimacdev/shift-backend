@@ -61,4 +61,12 @@ public class UserController extends ResponseController {
         return sendResponse(userService.updateUserByUserId(userId, userUpdateDto));
     }
 
+    @ApiOperation(value = "Get all users of a project", notes = "Get all users of a project")
+    @ApiResponse(code = 200, message = "Success", response = User.class)
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<Object> getAllProjectUsers(@PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /users/<userId> ---> getAllProjectUsers | projectId: {}",projectId);
+        return sendResponse(userService.getAllProjectUsers(projectId));
+    }
+
 }

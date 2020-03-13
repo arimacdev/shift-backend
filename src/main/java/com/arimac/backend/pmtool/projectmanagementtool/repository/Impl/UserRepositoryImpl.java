@@ -66,4 +66,11 @@ public class UserRepositoryImpl implements UserRepository {
 
         return  userUpdateDto;
     }
+
+    @Override
+    public List<User> getAllProjectUsers(String projectId) {
+        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?";
+        List<User> userList = jdbcTemplate.query(sql, new User(), projectId);
+        return userList;
+    }
 }

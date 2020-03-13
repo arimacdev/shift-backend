@@ -11,4 +11,5 @@ public interface UserService {
     Object getAllUsers();
     Object getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
+    Object getAllProjectUsers(String projectId);
 }
