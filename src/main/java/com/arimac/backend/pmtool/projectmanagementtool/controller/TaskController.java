@@ -67,9 +67,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Delete a single Task", notes = "Delete a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}/tasks/{taskId}")
-    public ResponseEntity<Object> deleteProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
-        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId> ---> deleteProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
-        return sendResponse(taskService.deleteProjectTask(userId, projectId, taskId));
+    public ResponseEntity<Object> flagProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId> ---> flagProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
+        return sendResponse(taskService.flagProjectTask(userId, projectId, taskId));
     }
 
     @ApiOperation(value = "Get Task completion of a Project By User", notes = "Get Task completion of a Project By User")

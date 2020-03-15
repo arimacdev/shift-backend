@@ -53,6 +53,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         newSubTask.setTaskId(taskId);
         newSubTask.setSubtaskName(subTaskDto.getSubtaskName());
         newSubTask.setSubtaskStatus(false);
+        newSubTask.setIsDeleted(false);
 
         Object subTask = subTaskRepository.addSubTaskToProject(newSubTask);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTask);
@@ -95,7 +96,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     }
 
     @Override
-    public Object deleteSubTaskOfATask(String userId, String projectId, String taskId, String subTaskId) {
+    public Object flagSubTaskOfATask(String userId, String projectId, String taskId, String subTaskId) {
         SubTask subTask = subTaskRepository.getSubTaskById(subTaskId);
         if (subTask == null)
             return new ErrorMessage("SubTask not found", HttpStatus.NOT_FOUND);
@@ -107,7 +108,7 @@ public class SubTaskServiceImpl implements SubTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) ||  (taskRemover.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())  || (taskRemover.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("You don't have access", HttpStatus.UNAUTHORIZED);
-        subTaskRepository.deleteSubTaskOfaTask(subTaskId);
+        subTaskRepository.flagSubTaskOfATask(subTaskId);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }

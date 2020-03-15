@@ -8,5 +8,5 @@ public interface SubTaskService {
     Object addSubTaskToProject(String projectId, String taskId, SubTaskDto subTaskDto);
     Object getAllSubTaksOfATask(String userId, String projectId, String taskId);
     Object updateSubTaskOfATask(String userId, String projectId, String taskId, String subtaskId, SubTaskUpdateDto subTaskUpdateDto);
-    Object deleteSubTaskOfATask(String userId, String projectId, String taskId, String subTaskId);
+    Object flagSubTaskOfATask(String userId, String projectId, String taskId, String subTaskId);
 }

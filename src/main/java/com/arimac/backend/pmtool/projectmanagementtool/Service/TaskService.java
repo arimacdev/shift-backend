@@ -9,6 +9,6 @@ public interface TaskService {
     Object getAllUserAssignedTasks(String userId, String projectId);
     Object getProjectTask(String userId, String projectId, String taskId);
     Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto);
-    Object deleteProjectTask(String userId, String projectId, String taskId);
+    Object flagProjectTask(String userId, String projectId, String taskId);
     Object getProjectTaskCompletionByUser(String userId, String projectId);
 }

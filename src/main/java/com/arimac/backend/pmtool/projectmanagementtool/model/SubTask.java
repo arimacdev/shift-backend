@@ -11,16 +11,19 @@ public class SubTask implements RowMapper<SubTask> {
     private String taskId;
     private String subtaskName;
     private boolean subtaskStatus;
+    private boolean isDeleted;
 
     public SubTask() {
     }
 
-    public SubTask(String subtaskId, String taskId, String subtaskName, boolean subtaskStatus) {
+    public SubTask(String subtaskId, String taskId, String subtaskName, boolean subtaskStatus, boolean isDeleted) {
         this.subtaskId = subtaskId;
         this.taskId = taskId;
         this.subtaskName = subtaskName;
         this.subtaskStatus = subtaskStatus;
+        this.isDeleted = isDeleted;
     }
+
 
     public String getSubtaskId() {
         return subtaskId;
@@ -54,6 +57,13 @@ public class SubTask implements RowMapper<SubTask> {
         this.subtaskStatus = subtaskStatus;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
 
     @Override
     public SubTask mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -61,7 +71,8 @@ public class SubTask implements RowMapper<SubTask> {
                 resultSet.getString("subtaskId"),
                 resultSet.getString("taskId"),
                 resultSet.getString("subtaskName"),
-                resultSet.getBoolean("subtaskStatus")
+                resultSet.getBoolean("subtaskStatus"),
+                resultSet.getBoolean("isDeleted")
         );
     }
 }

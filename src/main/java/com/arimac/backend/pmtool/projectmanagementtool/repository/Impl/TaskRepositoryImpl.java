@@ -83,8 +83,8 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public void deleteTask(String taskId) {
-        String sql = "DELETE FROM Task WHERE taskId=?";
+    public void flagProjectTask(String taskId) {
+        String sql = "UPDATE Task SET isDeleted=true WHERE taskId=?";
         jdbcTemplate.update(sql, taskId);
     }
 }

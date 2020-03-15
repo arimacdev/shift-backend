@@ -34,14 +34,14 @@ public class SubTaskRepositoryImpl implements SubTaskRepository {
 
     @Override
     public List<SubTask> getAllSubTaksOfATask(String taskId) {
-        String sql = "SELECT * FROM SubTask WHERE taskId=?";
+        String sql = "SELECT * FROM SubTask WHERE taskId=? AND isDeleted=false";
         List<SubTask> subTaskList = jdbcTemplate.query(sql, new SubTask(), taskId);
         return  subTaskList;
     }
 
     @Override
     public SubTask getSubTaskById(String subTaskId) {
-        String sql = "SELECT * FROM SubTask WHERE subTaskId=?";
+        String sql = "SELECT * FROM SubTask WHERE subTaskId=? AND isDeleted=false";
         SubTask subTask = null;
         try {
             subTask = jdbcTemplate.queryForObject(sql, new SubTask(), subTaskId);
@@ -67,8 +67,8 @@ public class SubTaskRepositoryImpl implements SubTaskRepository {
     }
 
     @Override
-    public void deleteSubTaskOfaTask(String subTaskId) {
-        String sql = "DELETE FROM SubTask WHERE subTaskId=?";
+    public void flagSubTaskOfATask(String subTaskId) {
+        String sql = "UPDATE SubTask SET isDeleted=true WHERE subTaskId=?";
         jdbcTemplate.update(sql, subTaskId);
     }
 }
