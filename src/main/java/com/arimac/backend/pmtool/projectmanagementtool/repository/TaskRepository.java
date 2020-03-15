@@ -12,4 +12,6 @@ public interface TaskRepository {
     Task getProjectTask(String taskId);
     Object updateProjectTask(String taskId,TaskUpdateDto taskUpdateDto);
     void flagProjectTask(String taskId);
+    void flagProjectBoundTasks(String projectId);
+
 }

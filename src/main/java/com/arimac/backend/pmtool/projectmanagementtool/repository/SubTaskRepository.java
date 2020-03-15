@@ -11,4 +11,5 @@ public interface SubTaskRepository {
     SubTask getSubTaskById(String subTaskId);
     SubTask updateSubTaskById(SubTask subTask);
     void flagSubTaskOfATask(String subTaskId);
+    void flagTaskBoundSubTasks(String taskId);
 }

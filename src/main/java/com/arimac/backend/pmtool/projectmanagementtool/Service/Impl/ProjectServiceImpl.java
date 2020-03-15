@@ -2,14 +2,15 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
@@ -25,6 +26,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
+    private final TaskService taskService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -32,7 +34,8 @@ public class ProjectServiceImpl implements ProjectService {
     private final SubTaskRepository subTaskRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, RoleRepository roleRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, ProjectRepository projectRepository, UserRepository userRepository, RoleRepository roleRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService) {
+        this.taskService = taskService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -181,6 +184,10 @@ public class ProjectServiceImpl implements ProjectService {
         if ( !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) )
             return new ErrorMessage("You don't have privileges for this operation", HttpStatus.UNAUTHORIZED);
             projectRepository.flagProject(projectId);
+            List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
+            for(Task task : taskList) {
+                taskService.flagProjectTask(userId, projectId, task.getTaskId());
+            }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

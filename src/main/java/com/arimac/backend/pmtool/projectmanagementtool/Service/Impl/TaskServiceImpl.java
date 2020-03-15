@@ -12,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.SubTaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -27,11 +28,13 @@ import java.util.Map;
 public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
+    private final SubTaskRepository subTaskRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UtilsService utilsService;
 
-    public TaskServiceImpl(TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
+        this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.utilsService = utilsService;
@@ -66,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         task.setTaskDueDateAt(taskDto.getTaskDueDate());
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
-
+        task.setIsDeleted(false);
         taskRepository.addTaskToProject(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
@@ -149,6 +152,8 @@ public class TaskServiceImpl implements TaskService {
         if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
             return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
         taskRepository.flagProjectTask(taskId);
+        subTaskRepository.flagTaskBoundSubTasks(taskId);
+
         return new Response(ResponseMessage.SUCCESS);
     }
 

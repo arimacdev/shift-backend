@@ -22,7 +22,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Task addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt) VALUES (?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -33,6 +33,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setTimestamp(8, task.getTaskCreatedAt());
             preparedStatement.setTimestamp(9, task.getTaskDueDateAt());
             preparedStatement.setTimestamp(10, task.getTaskReminderAt());
+            preparedStatement.setBoolean(11, task.getIsDeleted());
 
             return preparedStatement;
         });
@@ -41,21 +42,21 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<Task> getAllProjectTasksByUser(String projectId) {
-        String sql = "SELECT * FROM Task WHERE projectId=?";
+        String sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted=false";
         List<Task> taskList = jdbcTemplate.query(sql, new Task(), projectId);
         return  taskList;
     }
 
     @Override
     public List<Task> getAllUserAssignedTasks(String userId, String projectId) {
-       String sql = "SELECT * FROM Task WHERE projectId=? AND taskAssignee=?";
+       String sql = "SELECT * FROM Task WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
        List<Task> taskList = jdbcTemplate.query(sql, new Task(), projectId, userId);
        return taskList;
     }
 
     @Override
     public Task getProjectTask(String taskId) {
-        String sql = "SELECT * FROM Task WHERE taskId=?";
+        String sql = "SELECT * FROM Task WHERE taskId=? AND isDeleted=false";
         Task task;
         try {
             task = jdbcTemplate.queryForObject(sql, new Task(), taskId);
@@ -86,5 +87,11 @@ public class TaskRepositoryImpl implements TaskRepository {
     public void flagProjectTask(String taskId) {
         String sql = "UPDATE Task SET isDeleted=true WHERE taskId=?";
         jdbcTemplate.update(sql, taskId);
+    }
+
+    @Override
+    public void flagProjectBoundTasks(String projectId) {
+        String sql = "UPDATE Task SET isDeleted=true WHERE projectId=?";
+        jdbcTemplate.update(sql, projectId);
     }
 }

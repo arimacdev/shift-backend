@@ -21,12 +21,12 @@ public class SubTaskRepositoryImpl implements SubTaskRepository {
     @Override
     public Object addSubTaskToProject(SubTask subTask) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SubTask (subtaskId, taskId, subtaskName, subtaskStatus) VALUES (?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SubTask (subtaskId, taskId, subtaskName, subtaskStatus, isDeleted) VALUES (?,?,?,?,?)");
             preparedStatement.setString(1, subTask.getSubtaskId());
             preparedStatement.setString(2, subTask.getTaskId());
             preparedStatement.setString(3, subTask.getSubtaskName());
             preparedStatement.setBoolean(4, subTask.isSubtaskStatus());
-
+            preparedStatement.setBoolean(5, subTask.getIsDeleted());
             return preparedStatement;
         });
         return subTask;
@@ -70,5 +70,11 @@ public class SubTaskRepositoryImpl implements SubTaskRepository {
     public void flagSubTaskOfATask(String subTaskId) {
         String sql = "UPDATE SubTask SET isDeleted=true WHERE subTaskId=?";
         jdbcTemplate.update(sql, subTaskId);
+    }
+
+    @Override
+    public void flagTaskBoundSubTasks(String taskId) {
+        String sql = "UPDATE SubTask SET isDeleted=true WHERE taskId=?";
+        jdbcTemplate.update(sql, taskId);
     }
 }
