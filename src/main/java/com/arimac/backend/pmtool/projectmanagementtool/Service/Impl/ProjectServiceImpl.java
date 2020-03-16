@@ -123,6 +123,7 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssignedAt(utilsService.getCurrentTimestamp());
         assignment.setAssigneeJobRole(userAssignDto.getAssigneeJobRole());
         assignment.setAssigneeProjectRole(userAssignDto.getAssigneeProjectRole());
+        assignment.setIsBlocked(false);
 
         projectRepository.assignUserToProject(projectId,assignment);
 
@@ -189,5 +190,19 @@ public class ProjectServiceImpl implements ProjectService {
                 taskService.flagProjectTask(userId, projectId, task.getTaskId());
             }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object blockOrUnBlockProjectUser(String userId, String projectId, ProjectUserBlockDto projectUserBlockDto) {
+        ProjectUserResponseDto executor = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (executor == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if ( !((executor.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (executor.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+        if (projectUserBlockDto.getExecutorId().equals(projectUserBlockDto.getBlockedUserId()))
+            return new ErrorMessage("You can't block/unblock yourself", HttpStatus.FORBIDDEN);
+         projectRepository.blockOrUnBlockProjectUser(projectUserBlockDto.getBlockedUserId(), projectId, projectUserBlockDto.getBlockedStatus());
+
+         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

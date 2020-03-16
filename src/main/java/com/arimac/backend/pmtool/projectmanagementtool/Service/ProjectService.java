@@ -1,9 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserDeleteDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserAssignDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 
 
 public interface ProjectService {
@@ -14,5 +11,6 @@ public interface ProjectService {
     Object updateAssigneeProjectRole(String projectId, String userId, ProjectUserUpdateDto updateDto );
     Object removeProjectAssignee(String projectId, String assignee, ProjectUserDeleteDto deleteDto);
     Object flagProject(String userId, String projectId);
+    Object blockOrUnBlockProjectUser(String userId, String projectId, ProjectUserBlockDto projectUserBlockDto);
 
 }

@@ -4,10 +4,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserDeleteDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserAssignDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -81,8 +78,16 @@ public class ProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Object> flagProject(@RequestHeader("user") String userId,@PathVariable("projectId")String projectId){
-        logger.info("HIT - DELETE /<projectId>/ ---> deleteProject | projectId: {} | userId: {}", projectId, userId);
+        logger.info("HIT - DELETE /<projectId>/ ---> flagProject | projectId: {} | userId: {}", projectId, userId);
         return sendResponse(projectService.flagProject(userId, projectId));
+    }
+
+    @ApiOperation(value = "Block/Unblock a user from a project", notes = "Block/Unblock a user")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/{projectId}/users/{userId}/block")
+    public ResponseEntity<Object> blockOrUnBlockProjectUser(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId, @RequestBody ProjectUserBlockDto projectUserBlockDto){
+        logger.info("HIT - POST /<projectId>/users/<userId>/block ---> blockOrUnBlockProjectUser | projectId: {} | userId: {} | dto: {}", projectId, userId, projectUserBlockDto);
+        return sendResponse(projectService.blockOrUnBlockProjectUser(userId, projectId, projectUserBlockDto));
     }
 
 

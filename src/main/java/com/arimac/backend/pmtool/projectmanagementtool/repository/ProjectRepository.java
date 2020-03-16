@@ -17,4 +17,5 @@ public interface ProjectRepository {
     void removeProjectAssignee(String projectId, String assigneeId);
     void flagProject(String projectId);
     void unFlagProject(String projectId);
+    void blockOrUnBlockProjectUser(String userId, String projectId, boolean status);
 }

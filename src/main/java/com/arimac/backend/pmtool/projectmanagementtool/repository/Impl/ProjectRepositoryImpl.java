@@ -44,7 +44,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
         ProjectUserResponseDto project;
         try {
             project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
@@ -57,14 +57,14 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public List<ProjectUserResponseDto> getAllProjects() {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
         return  projects;
     }
 
     @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
     }
@@ -72,12 +72,13 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public void assignUserToProject(String projectId, Project_User project_user) {
        jdbcTemplate.update(connection -> {
-           PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_User(projectId, assigneeId, assignedAt, assigneeJobRole, assigneeProjectRole) values (?,?,?,?,?)");
+           PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_User(projectId, assigneeId, assignedAt, assigneeJobRole, assigneeProjectRole, isBlocked) values (?,?,?,?,?,?)");
            preparedStatement.setString(1, project_user.getProjectId());
            preparedStatement.setString(2, project_user.getAssigneeId());
            preparedStatement.setTimestamp(3, project_user.getAssignedAt());
            preparedStatement.setString(4, project_user.getAssigneeJobRole());
            preparedStatement.setInt(5, project_user.getAssigneeProjectRole());
+           preparedStatement.setBoolean(6, project_user.getIsBlocked());
 
            return preparedStatement;
        });
@@ -117,6 +118,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         jdbcTemplate.update(sql, projectId);
     }
 
+    @Override
+    public void blockOrUnBlockProjectUser(String userId, String projectId, boolean status) {
+        String sql = "update Project_User SET isBlocked=? WHERE projectId=? AND assigneeId=?";
+        jdbcTemplate.update(sql, status, projectId, userId);
+    }
+
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
@@ -129,6 +136,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setAssigneeId(resultSet.getString("assigneeId"));
         projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
         projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
+        projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
         return projectUserResponseDto;
     };
 

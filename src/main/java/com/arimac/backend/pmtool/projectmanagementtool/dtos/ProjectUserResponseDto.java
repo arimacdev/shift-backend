@@ -17,11 +17,12 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
     private boolean isDeleted;
+    private boolean blockedStatus;
 
     public ProjectUserResponseDto() {
     }
 
-    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted) {
+    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assignedAt = assignedAt;
@@ -32,6 +33,7 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
         this.isDeleted = isDeleted;
+        this.blockedStatus = blockedStatus;
     }
 
     public String getAssigneeJobRole() {
@@ -114,6 +116,14 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         isDeleted = deleted;
     }
 
+    public boolean getBlockedStatus() {
+        return blockedStatus;
+    }
+
+    public void setBlockedStatus(boolean blockedStatus) {
+        this.blockedStatus = blockedStatus;
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
@@ -126,7 +136,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getString("projectStatus"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                resultSet.getBoolean("blockedStatus")
         );
     }
 }
