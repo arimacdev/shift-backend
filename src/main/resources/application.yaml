@@ -2,12 +2,16 @@ server:
   port: 8080
   servlet:
     context-path: /api/pm-service
-
 spring:
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 #keycloak:
 #  auth-server-url: ${KEYCLOAK_HOST}
