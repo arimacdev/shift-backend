@@ -1,10 +1,13 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+
 import java.sql.Timestamp;
 
 public class TaskDto {
     private String taskName;
     private String projectId;
+    private TaskStatusEnum taskStatus;
     private String taskInitiator;
     private String taskAssignee;
     private String taskNotes;
@@ -67,16 +70,23 @@ public class TaskDto {
         this.taskRemindOnDate = taskRemindOnDate;
     }
 
-    @Override
-    public String toString() {
-        return "TaskDto{" +
-                "taskName='" + taskName + '\'' +
-                ", projectId='" + projectId + '\'' +
-                ", taskInitiator='" + taskInitiator + '\'' +
-                ", taskAssignee='" + taskAssignee + '\'' +
-                ", taskNotes='" + taskNotes + '\'' +
-                ", taskDueDate=" + taskDueDate +
-                ", taskRemindOnDate=" + taskRemindOnDate +
-                '}';
+
+    public TaskStatusEnum getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(TaskStatusEnum taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
+    public TaskDto(String taskName, String projectId, TaskStatusEnum taskStatus, String taskInitiator, String taskAssignee, String taskNotes, Timestamp taskDueDate, Timestamp taskRemindOnDate) {
+        this.taskName = taskName;
+        this.projectId = projectId;
+        this.taskStatus = taskStatus;
+        this.taskInitiator = taskInitiator;
+        this.taskAssignee = taskAssignee;
+        this.taskNotes = taskNotes;
+        this.taskDueDate = taskDueDate;
+        this.taskRemindOnDate = taskRemindOnDate;
     }
 }

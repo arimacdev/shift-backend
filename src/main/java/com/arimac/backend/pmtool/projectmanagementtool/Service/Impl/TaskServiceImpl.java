@@ -65,7 +65,11 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskAssignee(taskDto.getTaskAssignee());
         }
         task.setTaskNote(taskDto.getTaskNotes());
-        task.setTaskStatus(TaskStatusEnum.pending);
+        if (taskDto.getTaskStatus() == null){
+            task.setTaskStatus(TaskStatusEnum.pending);
+        } else {
+            task.setTaskStatus(taskDto.getTaskStatus());
+        }
         task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         task.setTaskDueDateAt(taskDto.getTaskDueDate());
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
