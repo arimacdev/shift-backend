@@ -57,14 +57,14 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public List<ProjectUserResponseDto> getAllProjects() {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false pu.isBlocked=false";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
         return  projects;
     }
 
     @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false pu.isBlocked=false";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
     }
