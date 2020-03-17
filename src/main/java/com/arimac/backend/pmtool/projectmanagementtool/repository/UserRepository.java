@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 
@@ -11,4 +12,5 @@ public interface UserRepository {
     User getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
     List<User> getAllProjectUsers(String projectId);
+    List<UserProjectDto> getUsersProjectDetails(String projectId);
 }

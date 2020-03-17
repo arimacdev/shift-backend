@@ -81,4 +81,12 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.getProjectTaskCompletionByUser(userId, projectId));
     }
 
+    @ApiOperation(value = "Get Task completion of a Project By User", notes = "Get Task completion of a Project By User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/{userId}/completion/details")
+    public ResponseEntity<Object> getProjectTaskCompletionUserDetails(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion/details ---> getProjectTaskCompletionUserDetails | projectId: {} | userId: {} ", projectId, userId);
+        return sendResponse(taskService.getProjectTaskCompletionUserDetails(userId, projectId));
+    }
+
 }
