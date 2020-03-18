@@ -20,10 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -238,5 +237,43 @@ public class TaskServiceImpl implements TaskService {
             userTaskStatusList.add(userTaskStatus);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
+    }
+
+    @Override
+    public Object getProjectTaskCompletion(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
+        int dueToday = 0;
+        int overDue = 0;
+        int left = 0;
+        int assigned = 0;
+        int completed = 0;
+        for (Task task : taskList){
+           long due = task.getTaskDueDateAt().getTime();
+           long now = new Date().getTime();
+           if (due < now){
+               overDue += 1;
+           } else if (due == now) {
+               dueToday += 1;
+           }
+           if (task.getTaskStatus().equals(TaskStatusEnum.closed)){
+               completed +=1;
+           } else {
+               left += 1;
+           }
+           if (task.getTaskAssignee().equals(userId)){
+               assigned += 1;
+           }
+        }
+        ProjectTaskCompletionDto completionResponse = new ProjectTaskCompletionDto();
+        completionResponse.setTasksDueToday(dueToday);
+        completionResponse.setTasksOverDue(overDue);
+        completionResponse.setTasksLeft(left);
+        completionResponse.setTasksAssigned(assigned);
+        completionResponse.setTasksCompleted(completed);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, completionResponse);
     }
 }
