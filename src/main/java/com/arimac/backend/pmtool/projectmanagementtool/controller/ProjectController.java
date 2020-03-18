@@ -36,6 +36,7 @@ public class ProjectController extends ResponseController {
     @ApiOperation(value = "Get all Projects by user", notes = "Get all projects of an organization")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getAllProjectsByUser(@RequestParam("userId")String user){
         logger.info("HIT - GET /projects?userId=<user> ---> getAllProjects | userId: {}",user);
         return sendResponse(projectService.getAllProjects(user));
