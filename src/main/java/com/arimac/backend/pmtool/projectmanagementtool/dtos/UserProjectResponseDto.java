@@ -6,6 +6,8 @@ public class UserProjectResponseDto {
     private String assigneeFirstName;
     private String assigneeLastName;
     private String projectRoleName;
+    private String projectJobRoleName;
+    private String projectRoleId;
     private int tasksCompleted;
     private int totalTasks;
 
@@ -63,5 +65,21 @@ public class UserProjectResponseDto {
 
     public void setTotalTasks(int totalTasks) {
         this.totalTasks = totalTasks;
+    }
+
+    public String getProjectJobRoleName() {
+        return projectJobRoleName;
+    }
+
+    public void setProjectJobRoleName(String projectJobRoleName) {
+        this.projectJobRoleName = projectJobRoleName;
+    }
+
+    public String getProjectRoleId() {
+        return projectRoleId;
+    }
+
+    public void setProjectRoleId(String projectRoleId) {
+        this.projectRoleId = projectRoleId;
     }
 }

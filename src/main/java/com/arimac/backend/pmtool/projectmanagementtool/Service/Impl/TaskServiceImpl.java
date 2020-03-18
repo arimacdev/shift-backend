@@ -224,8 +224,10 @@ public class TaskServiceImpl implements TaskService {
             userTaskStatus.setProjectId(projectId);
             userTaskStatus.setAssigneeId(projectUserDetails.getAssigneeId());
             userTaskStatus.setAssigneeFirstName(projectUserDetails.getAssigneeFirstName());
-            userTaskStatus.setAssigneeLastName(projectUserDetails.getAssigneeFirstName());
+            userTaskStatus.setAssigneeLastName(projectUserDetails.getAssigneeLastName());
+            userTaskStatus.setProjectRoleId(projectUserDetails.getProjectRoleId());
             userTaskStatus.setProjectRoleName(projectUserDetails.getProjectRoleName());
+            userTaskStatus.setProjectJobRoleName(projectUserDetails.getProjectJobRoleName());
             userTaskStatus.setTasksCompleted(taskStatus.getCompleted());
             userTaskStatus.setTotalTasks(taskStatus.getTotalTasks());
             userTaskStatusList.add(userTaskStatus);

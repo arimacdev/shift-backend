@@ -2,7 +2,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -12,16 +11,20 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
     private String assigneeFirstName;
     private String assigneeLastName;
     private String projectRoleName;
+    private String projectJobRoleName;
+    private String projectRoleId;
 
     public UserProjectDto() {
     }
 
-    public UserProjectDto(String projectId, String assigneeId, String assigneeFirstName, String assigneeLastName, String projectRoleName) {
+    public UserProjectDto(String projectId, String assigneeId, String assigneeFirstName, String assigneeLastName, String projectRoleName, String projectJobRoleName, String projectRoleId) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assigneeFirstName = assigneeFirstName;
         this.assigneeLastName = assigneeLastName;
         this.projectRoleName = projectRoleName;
+        this.projectJobRoleName = projectJobRoleName;
+        this.projectRoleId = projectRoleId;
     }
 
     public String getProjectId() {
@@ -64,6 +67,22 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
         this.projectRoleName = projectRoleName;
     }
 
+    public String getProjectJobRoleName() {
+        return projectJobRoleName;
+    }
+
+    public void setProjectJobRoleName(String projectJobRoleName) {
+        this.projectJobRoleName = projectJobRoleName;
+    }
+
+    public String getProjectRoleId() {
+        return projectRoleId;
+    }
+
+    public void setProjectRoleId(String projectRoleId) {
+        this.projectRoleId = projectRoleId;
+    }
+
     @Override
     public UserProjectDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new UserProjectDto(
@@ -71,7 +90,9 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
           resultSet.getString("assigneeId"),
           resultSet.getString("firstName"),
           resultSet.getString("lastName"),
-          resultSet.getString("projectRoleName")
+          resultSet.getString("projectRoleName"),
+          resultSet.getString("assigneeJobRole"),
+          resultSet.getString("projectRoleId")
         );
     }
 }

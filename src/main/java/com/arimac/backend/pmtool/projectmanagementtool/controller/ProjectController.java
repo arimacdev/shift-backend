@@ -61,6 +61,7 @@ public class ProjectController extends ResponseController {
     @ApiOperation(value = "Update a user assigned to a project", notes = "Update job role/project role of an assignee")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/users/{userId}")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Object> updateAssigneeProjectRole(@PathVariable("projectId")String projectId,@PathVariable("userId") String userId, @RequestBody ProjectUserUpdateDto updateDto){
         logger.info("HIT - PUT /<projectId>/users/<userId> ---> updateAssigneeProjectRole | projectId: {} | userId: {} | dto: {}", projectId, userId, updateDto);
         return sendResponse(projectService.updateAssigneeProjectRole(projectId, userId, updateDto));
@@ -74,6 +75,7 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.removeProjectAssignee(projectId, assignee, deleteDto));
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @ApiOperation(value = "Delete a project", notes = "Flag a project, along with tasks and subtasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}")
@@ -85,6 +87,7 @@ public class ProjectController extends ResponseController {
     @ApiOperation(value = "Block/Unblock a user from a project", notes = "Block/Unblock a user")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/users/{userId}/block")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Object> blockOrUnBlockProjectUser(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId, @RequestBody ProjectUserBlockDto projectUserBlockDto){
         logger.info("HIT - POST /<projectId>/users/<userId>/block ---> blockOrUnBlockProjectUser | projectId: {} | userId: {} | dto: {}", projectId, userId, projectUserBlockDto);
         return sendResponse(projectService.blockOrUnBlockProjectUser(userId, projectId, projectUserBlockDto));

@@ -24,7 +24,7 @@ public class TaskController extends ResponseController {
         this.taskService = taskService;
     }
 
-//    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ApiOperation(value = "Add task to a project", notes = "Create tasks for a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks")
