@@ -55,7 +55,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setClientId(projectDto.getClientId());
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
-        project.setProjectStatus(ProjectStatusEnum.presales.toString());
+        project.setProjectStatus(ProjectStatusEnum.presales);
         project.setIsDeleted(false);
         projectRepository.createProject(project);
 
@@ -129,6 +129,44 @@ public class ProjectServiceImpl implements ProjectService {
 
        return new Response(ResponseMessage.SUCCESS);
 
+    }
+
+    @Override
+    public Object updateProject(String projectId, ProjectEditDto projectEditDto) {
+        ProjectUserResponseDto modifierProject = projectRepository.getProjectByIdAndUserId(projectId, projectEditDto.getModifierId());
+        if (modifierProject == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!((modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+        Project updatedProject = new Project();
+        if (projectEditDto.getProjectName() != null){
+            updatedProject.setProjectName(projectEditDto.getProjectName());
+        } else {
+            updatedProject.setProjectName(modifierProject.getProjectName());
+        }
+        if (projectEditDto.getClientId() != null){
+            updatedProject.setClientId(projectEditDto.getClientId());
+        } else {
+            updatedProject.setClientId(modifierProject.getClientId());
+        }
+        if (projectEditDto.getProjectStatus() != null){
+            updatedProject.setProjectStatus(projectEditDto.getProjectStatus());
+        } else {
+            updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(modifierProject.getProjectStatus()));
+        }
+        if (projectEditDto.getProjectStartDate() != null){
+            updatedProject.setProjectStartDate(projectEditDto.getProjectStartDate());
+        } else {
+            updatedProject.setProjectStartDate(modifierProject.getProjectStartDate());
+        }
+        if (projectEditDto.getProjectEndDate() != null){
+            updatedProject.setProjectEndDate(projectEditDto.getProjectEndDate());
+        } else {
+            updatedProject.setProjectEndDate(modifierProject.getProjectEndDate());
+        }
+        projectRepository.updateProject(updatedProject, projectId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     @Override

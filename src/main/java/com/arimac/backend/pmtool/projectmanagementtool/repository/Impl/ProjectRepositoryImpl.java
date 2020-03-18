@@ -35,7 +35,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             preparedStatement.setString(3, project.getClientId());
             preparedStatement.setTimestamp(4, project.getProjectStartDate());
             preparedStatement.setTimestamp(5, project.getProjectEndDate());
-            preparedStatement.setString(6, project.getProjectStatus());
+            preparedStatement.setString(6, project.getProjectStatus().toString());
 
             return preparedStatement;
         });
@@ -67,6 +67,21 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
+    }
+
+    @Override
+    public void updateProject(Project project, String projectId) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=? WHERE projectId=?");
+            preparedStatement.setString(1, project.getProjectName());
+            preparedStatement.setString(2, project.getClientId());
+            preparedStatement.setTimestamp(3, project.getProjectStartDate());
+            preparedStatement.setTimestamp(4, project.getProjectEndDate());
+            preparedStatement.setString(5, project.getProjectStatus().toString());
+            preparedStatement.setString(6, projectId);
+
+            return preparedStatement;
+        });
     }
 
     @Override

@@ -33,7 +33,6 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.createProject(projectDto));
     }
 
-
     @ApiOperation(value = "Get all Projects by user", notes = "Get all projects of an organization")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping
@@ -57,6 +56,15 @@ public class ProjectController extends ResponseController {
         logger.info("HIT - POST /<projectId>/users ---> assignUserToProject | projectId: {} | dto: {}", projectId, userAssignDto);
         return sendResponse(projectService.assignUserToProject(projectId, userAssignDto));
     }
+
+    @ApiOperation(value = "Get a single project", notes = "Get a single project specified by a projectId")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}")
+    public ResponseEntity<Object> updateProject(@PathVariable("projectId") String projectId, @RequestBody ProjectEditDto projectEditDto){
+        logger.info("HIT - GET /project/ ---> updateProject | projectId: {} | projectUpdateDto: {}", projectId, projectEditDto);
+        return sendResponse(projectService.updateProject(projectId, projectEditDto));
+    }
+
 
     @ApiOperation(value = "Update a user assigned to a project", notes = "Update job role/project role of an assignee")
     @ApiResponse(code = 200, message = "Success", response = Response.class)

@@ -92,6 +92,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Project Task completion status", notes = "Get Task completion of a Project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/completion")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Object> getProjectTaskCompletion(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks/completion ---> getProjectTaskCompletion | projectId: {} | userId: {} ", projectId, userId);
         return sendResponse(taskService.getProjectTaskCompletion(userId, projectId));

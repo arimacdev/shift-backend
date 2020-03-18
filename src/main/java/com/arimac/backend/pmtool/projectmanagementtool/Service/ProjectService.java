@@ -8,6 +8,7 @@ public interface ProjectService {
     Object getAllProjects(String userId);
     Object getProjectByUser(String projectId, String userId);
     Object assignUserToProject(String projectId, UserAssignDto userAssignDto);
+    Object updateProject(String projectId, ProjectEditDto projectEditDto);
     Object updateAssigneeProjectRole(String projectId, String userId, ProjectUserUpdateDto updateDto );
     Object removeProjectAssignee(String projectId, String assignee, ProjectUserDeleteDto deleteDto);
     Object flagProject(String userId, String projectId);

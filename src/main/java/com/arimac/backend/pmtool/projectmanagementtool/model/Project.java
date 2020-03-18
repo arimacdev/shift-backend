@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.io.Serializable;
@@ -13,13 +14,13 @@ public class Project implements RowMapper<Project> {
     private String clientId;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
-    private String projectStatus;
+    private ProjectStatusEnum projectStatus;
     private boolean isDeleted;
 
     public Project() {
     }
 
-    public Project(String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String projectStatus, boolean isDeleted) {
+    public Project(String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted) {
         this.projectId = projectId;
         this.projectName = projectName;
         this.clientId = clientId;
@@ -69,11 +70,11 @@ public class Project implements RowMapper<Project> {
         this.projectEndDate = projectEndDate;
     }
 
-    public String getProjectStatus() {
+    public ProjectStatusEnum getProjectStatus() {
         return projectStatus;
     }
 
-    public void setProjectStatus(String projectStatus) {
+    public void setProjectStatus(ProjectStatusEnum projectStatus) {
         this.projectStatus = projectStatus;
     }
 
@@ -93,7 +94,7 @@ public class Project implements RowMapper<Project> {
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
-                resultSet.getString("projectStatus"),
+                ProjectStatusEnum.valueOf(resultSet.getString("projectStatus")),
                 resultSet.getBoolean("isDeleted")
         );
     }

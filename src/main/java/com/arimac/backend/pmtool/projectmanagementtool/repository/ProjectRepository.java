@@ -12,6 +12,7 @@ public interface ProjectRepository {
     ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId);
     List<ProjectUserResponseDto> getAllProjects();
     List<ProjectUserResponseDto> getAllProjectsByUser(String userId);
+    void updateProject(Project project, String projectId);
     void assignUserToProject(String projectId, Project_User project_user);
     void updateAssigneeProjectRole(Project_User project_user);
     void removeProjectAssignee(String projectId, String assigneeId);

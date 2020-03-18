@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 
 public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto> {
     private String projectId;
+    private String clientId;
     private String assigneeId;
     private Timestamp assignedAt;
     private String assigneeJobRole;
@@ -22,8 +23,10 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     public ProjectUserResponseDto() {
     }
 
-    public ProjectUserResponseDto(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus) {
+
+    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus) {
         this.projectId = projectId;
+        this.clientId = clientId;
         this.assigneeId = assigneeId;
         this.assignedAt = assignedAt;
         this.assigneeJobRole = assigneeJobRole;
@@ -124,10 +127,19 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.blockedStatus = blockedStatus;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
                 resultSet.getString("projectId"),
+                resultSet.getString("clientId"),
                 resultSet.getString("assigneeId"),
                 resultSet.getTimestamp("assignedAt"),
                 resultSet.getString("assigneeJobRole"),
