@@ -143,6 +143,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
         projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
+        projectUserResponseDto.setClientId(resultSet.getString("clientId"));
         projectUserResponseDto.setProjectStartDate(resultSet.getTimestamp("projectStartDate"));
         projectUserResponseDto.setProjectEndDate(resultSet.getTimestamp("projectEndDate"));
         projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));

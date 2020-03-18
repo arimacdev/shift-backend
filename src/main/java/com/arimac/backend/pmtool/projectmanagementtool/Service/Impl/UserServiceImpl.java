@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserListResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -53,7 +55,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public Object getAllUsers() { //Access for all users
         List<User> userList = userRepository.getAllUsers();
-        return new Response(ResponseMessage.SUCCESS, userList);
+        List<UserListResponseDto> userResponseList = new ArrayList<>();
+        for (User user : userList){
+            JSONObject idpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
+            UserListResponseDto userResponse = new UserListResponseDto();
+            userResponse.setUserId(user.getUserId());
+            userResponse.setFirstName(user.getFirstName());
+            userResponse.setLastName(user.getLastName());
+            userResponse.setEmail(user.getEmail());
+            userResponse.setIdpUserId(user.getIdpUserId());
+            userResponse.setIdpUserId(user.getIdpUserId());
+            userResponse.setUserName(idpUser.getString("username"));
+            userResponseList.add(userResponse);
+        }
+        return new Response(ResponseMessage.SUCCESS, userResponseList);
     }
 
     @Override

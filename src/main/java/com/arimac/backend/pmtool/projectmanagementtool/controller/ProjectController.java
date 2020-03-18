@@ -52,14 +52,16 @@ public class ProjectController extends ResponseController {
     @ApiOperation(value = "Assign a user to a project", notes = "Assign a user to a project, allocate a role, specify administrator/non-administrator roles")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/users")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Object> assignUserToProject(@PathVariable("projectId")String projectId, @RequestBody UserAssignDto userAssignDto){
         logger.info("HIT - POST /<projectId>/users ---> assignUserToProject | projectId: {} | dto: {}", projectId, userAssignDto);
         return sendResponse(projectService.assignUserToProject(projectId, userAssignDto));
     }
 
-    @ApiOperation(value = "Get a single project", notes = "Get a single project specified by a projectId")
+    @ApiOperation(value = "Update a single project", notes = "Get a single project specified by a projectId")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Object> updateProject(@PathVariable("projectId") String projectId, @RequestBody ProjectEditDto projectEditDto){
         logger.info("HIT - GET /project/ ---> updateProject | projectId: {} | projectUpdateDto: {}", projectId, projectEditDto);
         return sendResponse(projectService.updateProject(projectId, projectEditDto));
