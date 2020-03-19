@@ -60,6 +60,16 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.getProjectTask(userId, projectId, taskId));
     }
 
+    @ApiOperation(value = "Get a files of a single Task", notes = "Get file of  single task in a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/{taskId}/files")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
+    public ResponseEntity<Object> getProjectTaskFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/files ---> getProjectTaskFiles | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
+        return sendResponse(taskService.getProjectTaskFiles(userId, projectId, taskId));
+    }
+
+
     @ApiOperation(value = "Update a single Task", notes = "Update a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}")

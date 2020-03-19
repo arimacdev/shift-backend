@@ -12,4 +12,5 @@ public interface UserService {
     Object getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
     Object getAllProjectUsers(String projectId);
+    Object getAllBlockedProjectUsers(String projectId);
 }

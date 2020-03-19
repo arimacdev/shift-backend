@@ -10,7 +10,7 @@ public class TaskUpdateDto {
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
     private String taskNotes;
-    private TaskStatusEnum taskStatus;
+    private String taskStatus;
 
     public String getTaskName() {
         return taskName;
@@ -52,11 +52,11 @@ public class TaskUpdateDto {
         this.taskNotes = taskNotes;
     }
 
-    public TaskStatusEnum getTaskStatus() {
+    public String getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(TaskStatusEnum taskStatus) {
+    public void setTaskStatus(String taskStatus) {
         this.taskStatus = taskStatus;
     }
 }

@@ -8,20 +8,14 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.SubTaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -32,13 +26,15 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, UtilsService utilsService) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.taskFileRepository = taskFileRepository;
         this.utilsService = utilsService;
     }
 
@@ -116,6 +112,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Object getProjectTaskFiles(String userId, String projectId, String taskId) {
+        Object fileList = taskFileRepository.getAllTaskFiles(taskId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
+    }
+
+    @Override
     public Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
@@ -127,14 +129,14 @@ public class TaskServiceImpl implements TaskService {
 //            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin
             return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
-        if (taskUpdateDto.getTaskName() == null)
+        if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
             taskUpdateDto.setTaskName(task.getTaskName());
-        if (taskUpdateDto.getTaskAssignee() == null)
+        if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty())
             taskUpdateDto.setTaskAssignee(task.getTaskAssignee());
-        if (taskUpdateDto.getTaskNotes() == null)
+        if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty())
             taskUpdateDto.setTaskNotes(task.getTaskNote());
-        if (taskUpdateDto.getTaskStatus() == null)
-            taskUpdateDto.setTaskStatus(task.getTaskStatus());
+        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty())
+            taskUpdateDto.setTaskStatus(task.getTaskStatus().toString());
         if (taskUpdateDto.getTaskDueDate() == null)
             taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
         if (taskUpdateDto.getTaskRemindOnDate() == null)

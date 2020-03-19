@@ -74,4 +74,13 @@ public class UserController extends ResponseController {
         return sendResponse(userService.getAllProjectUsers(projectId));
     }
 
+    @ApiOperation(value = "Get all blocked users of a project", notes = "Get all users of a project")
+    @ApiResponse(code = 200, message = "Success", response = User.class)
+    @GetMapping("/project/{projectId}/blocked")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
+    public ResponseEntity<Object> getAllBlockedProjectUsers(@PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /users/<userId>/blocked ---> getAllBlockedProjectUsers | projectId: {}",projectId);
+        return sendResponse(userService.getAllBlockedProjectUsers(projectId));
+    }
+
 }

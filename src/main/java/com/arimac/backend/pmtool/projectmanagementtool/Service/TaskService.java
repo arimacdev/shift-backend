@@ -8,6 +8,7 @@ public interface TaskService {
     Object getAllProjectTasksByUser(String userId, String projectId);
     Object getAllUserAssignedTasks(String userId, String projectId);
     Object getProjectTask(String userId, String projectId, String taskId);
+    Object getProjectTaskFiles(String userId, String projectId, String taskId);
     Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto);
     Object flagProjectTask(String userId, String projectId, String taskId);
     Object getProjectTaskCompletionByUser(String userId, String projectId);

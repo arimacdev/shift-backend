@@ -122,5 +122,10 @@ public class UserServiceImpl implements UserService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userList);
     }
 
+    @Override
+    public Object getAllBlockedProjectUsers(String projectId) {
+        return null;
+    }
+
 
 }

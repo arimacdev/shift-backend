@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class TaskFileRepositoryImpl implements TaskFileRepository {
@@ -29,5 +30,12 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
             return preparedStatement;
         });
         return taskFile;
+    }
+
+    @Override
+    public Object getAllTaskFiles(String taskId) {
+        String sql = "SELECT * FROM TaskFile WHERE taskId=?";
+        List<TaskFile> taskFileList = jdbcTemplate.query(sql, new TaskFile(), taskId);
+        return taskFileList;
     }
 }
