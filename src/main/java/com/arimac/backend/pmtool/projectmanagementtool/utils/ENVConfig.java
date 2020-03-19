@@ -15,5 +15,4 @@ public class ENVConfig {
     public static final String AWS_ACCESS_KEY = System.getenv("AWS_ACCESS_KEY");
     public static final String AWS_SECRET_KEY = System.getenv("AWS_SECRET_KEY");
 
-
 }

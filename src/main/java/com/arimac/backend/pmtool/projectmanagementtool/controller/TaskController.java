@@ -24,7 +24,7 @@ public class TaskController extends ResponseController {
         this.taskService = taskService;
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     @ApiOperation(value = "Add task to a project", notes = "Create tasks for a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks")
@@ -36,6 +36,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "Get all Tasks in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
         return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId));
@@ -44,6 +45,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all Tasks of a project assigned to a user", notes = "Get all Tasks in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/user")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getAllUserAssignedTask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
         return sendResponse(taskService.getAllUserAssignedTasks(userId, projectId));
@@ -52,6 +54,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get a single Task", notes = "Get single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId> ---> getProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(taskService.getProjectTask(userId, projectId, taskId));
@@ -60,6 +63,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Update a single Task", notes = "Update a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> updateProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskUpdateDto taskUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId> ---> updateProjectTask | projectId: {} | userId: {} | taskId: {} | taskUpdateDto: {}", projectId, userId, taskId, taskUpdateDto);
         return sendResponse(taskService.updateProjectTask(userId, projectId, taskId, taskUpdateDto));
@@ -68,6 +72,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Delete a single Task", notes = "Delete a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}/tasks/{taskId}")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> flagProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
         logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId> ---> flagProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(taskService.flagProjectTask(userId, projectId, taskId));
@@ -76,6 +81,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Task completion of a Project By User", notes = "Get Task completion of a Project By User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{userId}/completion")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getProjectTaskCompletionByUser(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion ---> getProjectTaskCompletionByUser | projectId: {} | userId: {} ", projectId, userId);
         return sendResponse(taskService.getProjectTaskCompletionByUser(userId, projectId));
@@ -84,6 +90,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Task completion of a Project By User", notes = "Get Task completion of a Project By User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{userId}/completion/details")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getProjectTaskCompletionUserDetails(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion/details ---> getProjectTaskCompletionUserDetails | projectId: {} | userId: {} ", projectId, userId);
         return sendResponse(taskService.getProjectTaskCompletionUserDetails(userId, projectId));
@@ -92,7 +99,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Project Task completion status", notes = "Get Task completion of a Project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/completion")
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getProjectTaskCompletion(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks/completion ---> getProjectTaskCompletion | projectId: {} | userId: {} ", projectId, userId);
         return sendResponse(taskService.getProjectTaskCompletion(userId, projectId));

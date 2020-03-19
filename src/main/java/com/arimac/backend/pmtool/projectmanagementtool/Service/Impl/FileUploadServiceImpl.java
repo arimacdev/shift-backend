@@ -51,7 +51,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public Object uploadFileToTask(String userId, String projectId, String taskId, FileUploadEnum fileType, MultipartFile[] multipartFiles) throws IOException {
+    public Object uploadFileToTask(String userId, String projectId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) throws IOException {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null){
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -60,18 +60,18 @@ public class FileUploadServiceImpl implements FileUploadService {
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
             List<String> fileUrlList = new ArrayList<>();
-            for (MultipartFile currentMultipartFile : multipartFiles){
-                String taskUrl = fileQueue(currentMultipartFile, fileType);
+//            for (MultipartFile currentMultipartFile : multipartFiles){
+                String taskUrl = fileQueue(multipartFiles, fileType);
                 fileUrlList.add(taskUrl);
                 TaskFile taskFile = new TaskFile();
                 taskFile.setTaskFileId(utilsService.getUUId());
                 taskFile.setTaskId(taskId);
-                taskFile.setTaskFileName(currentMultipartFile.getOriginalFilename());
+                taskFile.setTaskFileName(multipartFiles.getOriginalFilename());
                 taskFile.setTaskFileUrl(taskUrl);
                 taskFile.setTaskFileCreator(userId);
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
                 taskFileRepository.uploadTaskFile(taskFile);
-            }
+//            }
 
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileUrlList);
         }

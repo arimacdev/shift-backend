@@ -30,7 +30,7 @@ public class FileUploadController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks/{taskId}/upload")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile[] multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) throws IOException {
+    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) throws IOException {
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, fileType, multipartFile));
     }

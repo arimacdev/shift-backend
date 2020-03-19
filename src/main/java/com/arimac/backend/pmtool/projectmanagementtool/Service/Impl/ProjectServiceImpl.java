@@ -139,18 +139,18 @@ public class ProjectServiceImpl implements ProjectService {
         if (!((modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
         Project updatedProject = new Project();
-        if (projectEditDto.getProjectName() != null){
+        if (projectEditDto.getProjectName() != null && !projectEditDto.getProjectName().isEmpty()){
             updatedProject.setProjectName(projectEditDto.getProjectName());
         } else {
             updatedProject.setProjectName(modifierProject.getProjectName());
         }
-        if (projectEditDto.getClientId() != null){
+        if (projectEditDto.getClientId() != null && !projectEditDto.getClientId().isEmpty()){
             updatedProject.setClientId(projectEditDto.getClientId());
         } else {
             updatedProject.setClientId(modifierProject.getClientId());
         }
-        if (projectEditDto.getProjectStatus() != null){
-            updatedProject.setProjectStatus(projectEditDto.getProjectStatus());
+        if (projectEditDto.getProjectStatus() != null && !projectEditDto.getProjectStatus().isEmpty()){
+            updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(projectEditDto.getProjectStatus()));
         } else {
             updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(modifierProject.getProjectStatus()));
         }

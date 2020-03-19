@@ -8,7 +8,7 @@ public class ProjectEditDto {
     private String modifierId;
     private String projectName;
     private String clientId;
-    private ProjectStatusEnum projectStatus;
+    private String projectStatus;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
 
@@ -36,11 +36,11 @@ public class ProjectEditDto {
         this.clientId = clientId;
     }
 
-    public ProjectStatusEnum getProjectStatus() {
+    public String getProjectStatus() {
         return projectStatus;
     }
 
-    public void setProjectStatus(ProjectStatusEnum projectStatus) {
+    public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
 

@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = userRepository.getAllUsers();
         List<UserListResponseDto> userResponseList = new ArrayList<>();
         for (User user : userList){
-            JSONObject idpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
+//            JSONObject idpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
             UserListResponseDto userResponse = new UserListResponseDto();
             userResponse.setUserId(user.getUserId());
             userResponse.setFirstName(user.getFirstName());
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
             userResponse.setEmail(user.getEmail());
             userResponse.setIdpUserId(user.getIdpUserId());
             userResponse.setIdpUserId(user.getIdpUserId());
-            userResponse.setUserName(idpUser.getString("username"));
+            userResponse.setUserName("idpUserName");
             userResponseList.add(userResponse);
         }
         return new Response(ResponseMessage.SUCCESS, userResponseList);
