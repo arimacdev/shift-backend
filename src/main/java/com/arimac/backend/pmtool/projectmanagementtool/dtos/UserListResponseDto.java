@@ -7,6 +7,7 @@ public class UserListResponseDto {
     private String lastName;
     private String email;
     private String userName;
+    private String profileImage;
 
     public String getUserId() {
         return userId;
@@ -54,5 +55,13 @@ public class UserListResponseDto {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

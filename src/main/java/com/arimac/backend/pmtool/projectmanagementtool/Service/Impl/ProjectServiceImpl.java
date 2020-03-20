@@ -80,8 +80,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectList = projectRepository.getAllProjectsByUser(userId);
 //        projectList = transactionRepository.getAllProjects();
 
-        if (projectList.isEmpty())
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST,projectList);
+//        if (projectList.isEmpty())
+//            return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST,projectList);
 //      return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST, projectList);
         return new Response(ResponseMessage.SUCCESS, projectList);
 

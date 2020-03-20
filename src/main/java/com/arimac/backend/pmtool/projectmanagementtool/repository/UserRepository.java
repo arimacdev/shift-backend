@@ -11,6 +11,7 @@ public interface UserRepository {
     List<User> getAllUsers();
     User getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
+    void updateProfilePicture(String userId, String profilePictureUrl);
     List<User> getAllProjectUsers(String projectId);
     List<UserProjectDto> getUsersProjectDetails(String projectId);
 }

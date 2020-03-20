@@ -8,4 +8,5 @@ import java.io.IOException;
 
 public interface FileUploadService {
     Object uploadFileToTask(String userId, String projectId , String taskId, FileUploadEnum fileType, MultipartFile multipartFile) throws IOException;
+    Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile);
 }

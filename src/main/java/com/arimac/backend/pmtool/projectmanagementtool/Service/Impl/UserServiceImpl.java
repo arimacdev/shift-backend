@@ -9,7 +9,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.json.JSONObject;
@@ -26,14 +28,17 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private static final String USERNAME = "username";
+    private static final String DEFAULT_PROJECT = "a36e22fa-16c3-49c3-b1fd-b546c0bf1092";
 
     private final IdpUserService idpUserService;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
     private final UtilsService utilsService;
 
-    public UserServiceImpl(IdpUserService idpUserService, UserRepository userRepository, UtilsService utilsService) {
+    public UserServiceImpl(IdpUserService idpUserService, UserRepository userRepository, ProjectRepository projectRepository, UtilsService utilsService) {
         this.idpUserService = idpUserService;
         this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
         this.utilsService = utilsService;
     }
 
@@ -53,6 +58,14 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userRegistrationDto.getEmail());
 
         userRepository.createUser(user);
+        Project_User assignToDefault = new Project_User();
+        assignToDefault.setProjectId(DEFAULT_PROJECT);
+        assignToDefault.setAssigneeId(userUUID);
+        assignToDefault.setAssigneeId(userUUID);
+        assignToDefault.setAssigneeJobRole("Guest");
+        assignToDefault.setAssigneeProjectRole(3);
+        assignToDefault.setAssignedAt(utilsService.getCurrentTimestamp());
+        projectRepository.assignUserToProject(DEFAULT_PROJECT, assignToDefault);
 
         return new Response(ResponseMessage.SUCCESS);
     }
@@ -70,7 +83,8 @@ public class UserServiceImpl implements UserService {
             userResponse.setEmail(user.getEmail());
             userResponse.setIdpUserId(user.getIdpUserId());
             userResponse.setIdpUserId(user.getIdpUserId());
-            userResponse.setUserName("idpUserName");
+            userResponse.setUserName(user.getIdpUserId());
+            userResponse.setProfileImage(user.getProfileImage());
             userResponseList.add(userResponse);
         }
         return new Response(ResponseMessage.SUCCESS, userResponseList);
@@ -88,6 +102,7 @@ public class UserServiceImpl implements UserService {
         userResponseDto.setFirstName(user.getFirstName());
         userResponseDto.setLastName(user.getLastName());
         userResponseDto.setEmail(user.getEmail());
+        userResponseDto.setProfileImage(user.getProfileImage());
 
         return new Response(ResponseMessage.SUCCESS, userResponseDto);
     }

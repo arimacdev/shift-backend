@@ -16,6 +16,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -41,13 +42,15 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final TaskRepository taskRepository;
     private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
+    private final UserRepository userRepository;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
+    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository) {
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.taskFileRepository = taskFileRepository;
         this.utilsService = utilsService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -76,7 +79,15 @@ public class FileUploadServiceImpl implements FileUploadService {
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileUrlList);
         }
 
-        private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
+    @Override
+    public Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile) {
+        String url = fileQueue(multipartFile, fileType);
+        userRepository.updateProfilePicture(userId, url);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, url);
+    }
+
+    private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
             try {
                 File file = convertMultiPartToFile(multipartFile);
                 String fileName = generateFileName(multipartFile, fileType);

@@ -11,16 +11,18 @@ public class User implements RowMapper<User> {
     private String firstName;
     private String lastName;
     private String email;
+    private String profileImage;
 
     public User() {
     }
 
-    public User(String userId, String idpUserId, String firstName, String lastName, String email) {
+    public User(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage) {
         this.userId = userId;
         this.idpUserId = idpUserId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.profileImage = profileImage;
     }
 
     public String getIdpUserId() {
@@ -63,6 +65,14 @@ public class User implements RowMapper<User> {
         this.email = email;
     }
 
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
     @Override
     public User mapRow(ResultSet resultSet, int i) throws SQLException {
         return new User(
@@ -70,7 +80,8 @@ public class User implements RowMapper<User> {
                 resultSet.getString("idpUserId"),
                 resultSet.getString("firstName"),
                 resultSet.getString("lastName"),
-                resultSet.getString("email")
+                resultSet.getString("email"),
+                resultSet.getString("profileImage")
         );
     }
 }

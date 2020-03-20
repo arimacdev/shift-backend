@@ -5,6 +5,7 @@ public class UserResponseDto {
     private String lastName;
     private String userName;
     private String email;
+    private String profileImage;
 
     public String getFirstName() {
         return firstName;
@@ -36,5 +37,13 @@ public class UserResponseDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

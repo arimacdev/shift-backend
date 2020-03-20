@@ -69,6 +69,17 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public void updateProfilePicture(String userId, String profilePictureUrl) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE User SET profileImage=? WHERE userId=?");
+            preparedStatement.setString(1, profilePictureUrl);
+            preparedStatement.setString(2, userId);
+
+            return preparedStatement;
+        });
+    }
+
+    @Override
     public List<User> getAllProjectUsers(String projectId) {
         String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?";
         List<User> userList = jdbcTemplate.query(sql, new User(), projectId);
