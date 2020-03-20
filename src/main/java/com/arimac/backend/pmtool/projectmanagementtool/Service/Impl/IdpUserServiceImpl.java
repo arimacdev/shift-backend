@@ -18,6 +18,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class IdpUserServiceImpl implements IdpUserService {
@@ -69,7 +71,7 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
-    public String createUser(UserRegistrationDto userRegistrationDto, boolean firstRequest) {
+    public String createUser(UserRegistrationDto userRegistrationDto, String UUID,  boolean firstRequest) {
         try {
             if (clientAccessToken == null)
                 getClientAccessToken();
@@ -88,6 +90,9 @@ public class IdpUserServiceImpl implements IdpUserService {
             user.put("temporary", false);
             credentials.put(user);
             payload.put("credentials", credentials);
+            Map<String,String> attributes = new HashMap<>();
+            attributes.put("userId", UUID);
+            payload.put("attributes",attributes);
 
             HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
             StringBuilder userCreateUrl = new StringBuilder();
@@ -106,7 +111,7 @@ public class IdpUserServiceImpl implements IdpUserService {
                 logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
                 if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                     getClientAccessToken();
-                    return createUser(userRegistrationDto, false);
+                    return createUser(userRegistrationDto, UUID,false);
                 }
                throw new PMException(e.getResponseBodyAsString());
              } catch (Exception e) {

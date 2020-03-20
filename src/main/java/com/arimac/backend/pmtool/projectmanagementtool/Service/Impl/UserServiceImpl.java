@@ -39,10 +39,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object createUser(UserRegistrationDto userRegistrationDto) {
-        String idpUserId = idpUserService.createUser(userRegistrationDto, true);
+        String userUUID = utilsService.getUUId();
+        String idpUserId = idpUserService.createUser(userRegistrationDto,  userUUID, true);
         User user = new User();
-        user.setUserId(utilsService.getUUId());
-        user.setIdpUserId(idpUserId);
+        user.setUserId(userUUID);
+        if (idpUserId != null){
+            user.setIdpUserId(idpUserId);
+        } else {
+            user.setIdpUserId("idpUserId");
+        }
         user.setFirstName(userRegistrationDto.getFirstName());
         user.setLastName(userRegistrationDto.getLastName());
         user.setEmail(userRegistrationDto.getEmail());
