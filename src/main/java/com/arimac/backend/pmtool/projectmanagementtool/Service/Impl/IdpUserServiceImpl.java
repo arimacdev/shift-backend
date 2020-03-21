@@ -97,7 +97,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
             StringBuilder userCreateUrl = new StringBuilder();
             userCreateUrl.append(ENVConfig.KEYCLOAK_HOST);
-            userCreateUrl.append("auth/admin/realms/");
+            userCreateUrl.append("/auth/admin/realms/");
             userCreateUrl.append(ENVConfig.KEYCLOAK_REALM);
             userCreateUrl.append("/users");
             logger.info("User Create URL {}", userCreateUrl);
@@ -126,7 +126,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             HttpEntity<Object> userGetEntity = new HttpEntity<>(null, getIdpTokenHeader());
             StringBuilder userRetrieveUrl = new StringBuilder();
             userRetrieveUrl.append(ENVConfig.KEYCLOAK_HOST);
-            userRetrieveUrl.append("auth/admin/realms/");
+            userRetrieveUrl.append("/auth/admin/realms/");
             userRetrieveUrl.append(ENVConfig.KEYCLOAK_REALM);
             userRetrieveUrl.append("/users/");
             userRetrieveUrl.append(idpUserId);
@@ -162,7 +162,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
             StringBuilder userUpdateUrl = new StringBuilder();
             userUpdateUrl.append(ENVConfig.KEYCLOAK_HOST);
-            userUpdateUrl.append("auth/admin/realms/");
+            userUpdateUrl.append("/auth/admin/realms/");
             userUpdateUrl.append(ENVConfig.KEYCLOAK_REALM);
             userUpdateUrl.append("/users/");
             userUpdateUrl.append(idpUserId);
@@ -183,7 +183,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             HttpEntity<Object> userGetEntity = new HttpEntity<>(null, httpHeaders);
             StringBuilder userRetrieveUrl = new StringBuilder();
             userRetrieveUrl.append(ENVConfig.KEYCLOAK_HOST);
-            userRetrieveUrl.append("auth/admin/realms/");
+            userRetrieveUrl.append("/auth/admin/realms/");
             userRetrieveUrl.append(ENVConfig.KEYCLOAK_REALM);
             userRetrieveUrl.append("/users?username=");
             userRetrieveUrl.append(userRegistrationDto.getUserName());
