@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface UserService {
     Object createUser(UserRegistrationDto userRegistrationDto);
+    Object createFirstUser(UserRegistrationDto userRegistrationDto);
     Object getAllUsers();
     Object getUserByUserId(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);

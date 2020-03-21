@@ -37,6 +37,14 @@ public class UserController extends ResponseController {
         return sendResponse(userService.createUser(userRegistrationDto));
     }
 
+    @ApiOperation(value = "Create first User", notes = "Creates the initial user")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/first")
+    public ResponseEntity<Object> createFirstUser(@RequestBody UserRegistrationDto userRegistrationDto){
+        logger.info("HIT - POST /users ---> createFirstUser | dto: {}", userRegistrationDto);
+        return sendResponse(userService.createFirstUser(userRegistrationDto));
+    }
+
     @ApiOperation(value = "Get all users", notes = "Get all users")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping
