@@ -76,7 +76,7 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
 
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileUrlList);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
         }
 
     @Override
