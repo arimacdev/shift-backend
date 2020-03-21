@@ -81,7 +81,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAllProjectUsers(String projectId) {
-        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?";
+        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=false";
         List<User> userList = jdbcTemplate.query(sql, new User(), projectId);
         return userList;
     }
@@ -91,6 +91,13 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM Project_User as pu LEFT JOIN User as u ON pu.assigneeId = u.userId LEFT JOIN ProjectRole as pr ON pu.assigneeProjectRole = pr.projectRoleId WHERE pu.projectId = ?";
         List<UserProjectDto> userProjectDtoList = jdbcTemplate.query(sql ,new UserProjectDto(), projectId);
         return userProjectDtoList;
+    }
+
+    @Override
+    public Object getAllBlockedProjectUsers(String projectId) {
+        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=true";
+        
+        return null;
     }
 
 }

@@ -28,7 +28,6 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Add sub-task to a task", notes = "Create a sub-task for a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks/{taskId}/subtask")
-    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> addSubTaskToProject(@PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody SubTaskDto subTaskDto){
         logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask ---> addSubTaskToProject | projectId: {} |  taskId: {} | subTaskDto {}", projectId, taskId, subTaskDto);
         return sendResponse(subTaskService.addSubTaskToProject(projectId, taskId, subTaskDto));
@@ -37,7 +36,6 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Get all subtasks of a task", notes = "Get all subtasks belonging to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}/subtask")
-    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> getAllSubTaksOfATask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
         logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask?userId={userId} ---> getAllSubTaksOfATask | projectId: {} |  taskId: {} | userId {}", projectId, taskId, userId);
         return sendResponse(subTaskService.getAllSubTaksOfATask(userId, projectId, taskId));
@@ -46,7 +44,6 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Update SubTask", notes = "Update SubTask of a Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
-    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> updateSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId,@RequestBody SubTaskUpdateDto subTaskUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> updateSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" , projectId, taskId, subtaskId, subTaskUpdateDto);
         return sendResponse(subTaskService.updateSubTaskOfATask(user,projectId, taskId, subtaskId, subTaskUpdateDto));
@@ -55,7 +52,6 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
-    @CrossOrigin(origins = "http://pmtool.devops.arimac.xyz")
     public ResponseEntity<Object> flagSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId){
         logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> flagSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {}" , projectId, taskId, subtaskId);
         return sendResponse(subTaskService.flagSubTaskOfATask(user,projectId, taskId, subtaskId));

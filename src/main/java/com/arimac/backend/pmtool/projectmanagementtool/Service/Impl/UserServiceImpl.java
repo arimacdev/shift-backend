@@ -145,6 +145,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object getAllBlockedProjectUsers(String projectId) {
+        userRepository.getAllBlockedProjectUsers(projectId);
         return null;
     }
 

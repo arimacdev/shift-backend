@@ -14,4 +14,5 @@ public interface UserRepository {
     void updateProfilePicture(String userId, String profilePictureUrl);
     List<User> getAllProjectUsers(String projectId);
     List<UserProjectDto> getUsersProjectDetails(String projectId);
+    Object getAllBlockedProjectUsers(String projectId);
 }
