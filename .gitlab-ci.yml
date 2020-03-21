@@ -20,6 +20,7 @@ maven-build:
     - .m2/repository
   only:
   - development
+  - release
 
 docker-build:
   stage: package
@@ -27,11 +28,26 @@ docker-build:
   services:
     - docker:dind
   script:
-  - docker build -t $CONTAINER_IMAGE .
+  - docker build -t $CONTAINER_IMAGE:latest .
   - echo "$GCP_CI_KEY" > key.json
   - docker login -u _json_key --password-stdin https://asia.gcr.io < key.json
   - docker tag $CONTAINER_IMAGE $CONTAINER_IMAGE:v${CI_PIPELINE_IID}
-  - docker push $CONTAINER_IMAGE
+  - docker push $CONTAINER_IMAGE:latest
   - docker push $CONTAINER_IMAGE:v${CI_PIPELINE_IID}
   only:
   - development
+
+docker-build-release:
+  stage: package
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+  - docker build -t $CONTAINER_IMAGE:release .
+  - echo "$GCP_CI_KEY" > key.json
+  - docker login -u _json_key --password-stdin https://asia.gcr.io < key.json
+  - docker tag $CONTAINER_IMAGE:release $CONTAINER_IMAGE:v${CI_PIPELINE_IID}
+  - docker push $CONTAINER_IMAGE:release
+  - docker push $CONTAINER_IMAGE:r${CI_PIPELINE_IID}
+  only:
+  - release
