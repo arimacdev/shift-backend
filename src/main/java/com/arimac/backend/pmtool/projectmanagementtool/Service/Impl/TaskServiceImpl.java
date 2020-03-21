@@ -127,8 +127,8 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
 //        if (projectUser.getIsDeleted())
 //            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
-        if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin
-            return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
+//        if (projectUser.getAssigneeProjectRole() != ProjectRoleEnum.owner.getRoleValue()) // check for super admin
+//            return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
             taskUpdateDto.setTaskName(task.getTaskName());
         if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty())

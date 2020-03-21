@@ -1,11 +1,20 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
 public class UserResponseDto {
+    private String userId;
     private  String firstName;
     private String lastName;
     private String userName;
     private String email;
     private String profileImage;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public String getFirstName() {
         return firstName;

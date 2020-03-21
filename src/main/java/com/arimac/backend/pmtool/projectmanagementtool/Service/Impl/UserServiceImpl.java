@@ -98,6 +98,7 @@ public class UserServiceImpl implements UserService {
 
         JSONObject IdpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
         UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setUserId(user.getUserId());
         userResponseDto.setUserName(IdpUser.getString(USERNAME));
         userResponseDto.setFirstName(user.getFirstName());
         userResponseDto.setLastName(user.getLastName());
