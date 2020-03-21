@@ -62,7 +62,7 @@ public class IdpUserServiceImpl implements IdpUserService {
         map.add(GRANT_TYPE, CLIENT_CREDENTIALS);
         StringBuilder url = new StringBuilder();
         url.append(ENVConfig.KEYCLOAK_HOST);
-        url.append("auth/realms/");
+        url.append("/auth/realms/");
         url.append(ENVConfig.KEYCLOAK_REALM);
         url.append("/protocol/openid-connect/token");
         logger.info("Access token URL : {}", url);
