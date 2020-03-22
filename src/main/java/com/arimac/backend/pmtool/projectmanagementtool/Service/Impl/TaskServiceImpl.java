@@ -253,13 +253,15 @@ public class TaskServiceImpl implements TaskService {
         int assigned = 0;
         int completed = 0;
         for (Task task : taskList){
-           long due = task.getTaskDueDateAt().getTime();
-           long now = new Date().getTime();
-           if (due < now){
-               overDue += 1;
-           } else if (due == now) {
-               dueToday += 1;
-           }
+            if (task.getTaskDueDateAt() != null) {
+                long due = task.getTaskDueDateAt().getTime();
+                long now = new Date().getTime();
+                if (due < now) {
+                    overDue += 1;
+                } else if (due == now) {
+                    dueToday += 1;
+                }
+            }
            if (task.getTaskStatus().equals(TaskStatusEnum.closed)){
                completed +=1;
            } else {
