@@ -87,7 +87,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             JSONObject user = new JSONObject();
             user.put("type", "password");
             user.put("value", userRegistrationDto.getPassword());
-            user.put("temporary", false);
+            user.put("temporary", true);
             credentials.put(user);
             payload.put("credentials", credentials);
             Map<String,String> attributes = new HashMap<>();
