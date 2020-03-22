@@ -29,7 +29,7 @@ public class IdpUserServiceImpl implements IdpUserService {
     private static final String GRANT_TYPE = "grant_type";
     private static final String CLIENT_CREDENTIALS = "client_credentials";
     private static final String ACCESS_TOKEN = "access_token";
-    private static final String DEFAULT_PASSWORD = "DEFAULT_PASSWORD";
+    private static final String DEFAULT_PASSWORD = "123456";
 
     private static String clientAccessToken = null;
     private final RestTemplate restTemplate;
