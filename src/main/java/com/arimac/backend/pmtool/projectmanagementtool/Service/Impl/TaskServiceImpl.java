@@ -83,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
 //        if (projectUser.getIsDeleted())
 //            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
-       List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
+       List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
 
@@ -94,7 +94,7 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
 //        if (projectUser.getIsDeleted())
 //            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
-        List<Task> taskList = taskRepository.getAllUserAssignedTasks(userId, projectId);
+        List<TaskUserResponseDto> taskList = taskRepository.getAllUserAssignedTasksWithProfile(userId, projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
 

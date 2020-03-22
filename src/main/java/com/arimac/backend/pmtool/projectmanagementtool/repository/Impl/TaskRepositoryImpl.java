@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -48,10 +49,24 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId) {
+        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false";
+        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
+        return  taskList;
+    }
+
+    @Override
     public List<Task> getAllUserAssignedTasks(String userId, String projectId) {
        String sql = "SELECT * FROM Task WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
        List<Task> taskList = jdbcTemplate.query(sql, new Task(), projectId, userId);
        return taskList;
+    }
+
+    @Override
+    public List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId) {
+        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false";
+        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, userId);
+        return  taskList;
     }
 
     @Override
