@@ -29,6 +29,7 @@ public class IdpUserServiceImpl implements IdpUserService {
     private static final String GRANT_TYPE = "grant_type";
     private static final String CLIENT_CREDENTIALS = "client_credentials";
     private static final String ACCESS_TOKEN = "access_token";
+    private static final String DEFAULT_PASSWORD = "DEFAULT_PASSWORD";
 
     private static String clientAccessToken = null;
     private final RestTemplate restTemplate;
@@ -102,10 +103,12 @@ public class IdpUserServiceImpl implements IdpUserService {
             userCreateUrl.append("/users");
             logger.info("User Create URL {}", userCreateUrl);
             ResponseEntity<String> exchange = restTemplate.exchange(userCreateUrl.toString(), HttpMethod.POST, entity, String.class);
+            String idpUserId =  getIdpUserId(httpHeaders, userRegistrationDto, true);
+            setTemporaryPassword(idpUserId, true);
 
-            return getIdpUserId(httpHeaders, userRegistrationDto, true);
+            return idpUserId;
 
-            }
+        }
             catch(HttpClientErrorException | HttpServerErrorException e) {
                 String response = e.getResponseBodyAsString();
                 logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
@@ -138,6 +141,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             String response = e.getResponseBodyAsString();
             logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
                 return getUserByIdpUserId(idpUserId, false);
             }
             throw new PMException(e.getResponseBodyAsString());
@@ -170,6 +174,7 @@ public class IdpUserServiceImpl implements IdpUserService {
             ResponseEntity<String> exchange = restTemplate.exchange(userUpdateUrl.toString(), HttpMethod.PUT, entity, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
                 updateUserEmail(idpUserId, email, false);
             }
             throw new PMException(e.getLocalizedMessage());
@@ -208,6 +213,46 @@ public class IdpUserServiceImpl implements IdpUserService {
             throw new PMException(e.getResponseBodyAsString());
         } catch (Exception e) {
             throw new PMException(e.getMessage());
+        }
+    }
+
+    private void setTemporaryPassword(String idpUserId, boolean firstRequest){
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Authorization", "Bearer " + clientAccessToken);
+            httpHeaders.set("Content-Type", "application/json");
+            JSONObject credentailsPayload = new JSONObject();
+            credentailsPayload.put("type", "password");
+            credentailsPayload.put("value", DEFAULT_PASSWORD);
+            credentailsPayload.put("temporary", true);
+
+            HttpEntity<Object> entity = new HttpEntity<>(credentailsPayload.toString(), httpHeaders);
+            StringBuilder passwordResetUrl = new StringBuilder();
+            passwordResetUrl.append(ENVConfig.KEYCLOAK_HOST);
+            passwordResetUrl.append("/auth/admin/realms/");
+            passwordResetUrl.append(ENVConfig.KEYCLOAK_REALM);
+            passwordResetUrl.append("/users/");
+            passwordResetUrl.append(idpUserId);
+            passwordResetUrl.append("/reset-password");
+
+            logger.info("Password Reset URL {}", passwordResetUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(passwordResetUrl.toString(), HttpMethod.PUT, entity, String.class);
+//            return getIdpUserId(httpHeaders, userRegistrationDto, true);
+        }
+        catch(HttpClientErrorException | HttpServerErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                setTemporaryPassword(idpUserId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new PMException(e);
         }
     }
 
