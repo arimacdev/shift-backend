@@ -40,7 +40,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object addTaskToProject(String projectId, TaskDto taskDto) {
-        if (taskDto.getTaskName() == null || taskDto.getProjectId() == null || taskDto.getTaskInitiator()== null)
+        if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) || (taskDto.getProjectId() == null || taskDto.getProjectId().isEmpty()) || (taskDto.getTaskInitiator()== null || taskDto.getTaskInitiator().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
         if (taskInitiator == null)
