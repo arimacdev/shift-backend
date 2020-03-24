@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -108,5 +110,11 @@ public class TaskRepositoryImpl implements TaskRepository {
     public void flagProjectBoundTasks(String projectId) {
         String sql = "UPDATE Task SET isDeleted=true WHERE projectId=?";
         jdbcTemplate.update(sql, projectId);
+    }
+
+    @Override
+    public List<TaskAlertDto> getTaskAlertList() {
+        String sql = "SELECT * FROM Task as t LEFT JOIN project as p ON t.projectId = p.projectId LEFT JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false";
+        return jdbcTemplate.query(sql, new TaskAlertDto(), "closed");
     }
 }

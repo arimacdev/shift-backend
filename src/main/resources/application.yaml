@@ -13,6 +13,8 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+
+
 #keycloak:
 #  auth-server-url: ${KEYCLOAK_HOST}
 #  ssl-required: none

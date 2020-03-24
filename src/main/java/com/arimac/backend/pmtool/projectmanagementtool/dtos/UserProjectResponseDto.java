@@ -5,6 +5,7 @@ public class UserProjectResponseDto {
     private String assigneeId;
     private String assigneeFirstName;
     private String assigneeLastName;
+    private String assigneeProfileImage;
     private String projectRoleName;
     private String projectJobRoleName;
     private String projectRoleId;
@@ -81,5 +82,13 @@ public class UserProjectResponseDto {
 
     public void setProjectRoleId(String projectRoleId) {
         this.projectRoleId = projectRoleId;
+    }
+
+    public String getAssigneeProfileImage() {
+        return assigneeProfileImage;
+    }
+
+    public void setAssigneeProfileImage(String assigneeProfileImage) {
+        this.assigneeProfileImage = assigneeProfileImage;
     }
 }

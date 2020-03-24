@@ -8,14 +8,18 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -29,13 +33,16 @@ public class TaskServiceImpl implements TaskService {
     private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
+    private final RestTemplate restTemplate;
+
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, RestTemplate restTemplate) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskFileRepository = taskFileRepository;
         this.utilsService = utilsService;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -226,6 +233,7 @@ public class TaskServiceImpl implements TaskService {
             userTaskStatus.setAssigneeId(projectUserDetails.getAssigneeId());
             userTaskStatus.setAssigneeFirstName(projectUserDetails.getAssigneeFirstName());
             userTaskStatus.setAssigneeLastName(projectUserDetails.getAssigneeLastName());
+            userTaskStatus.setAssigneeProfileImage(projectUserDetails.getAssigneeProfileImage());
             userTaskStatus.setProjectRoleId(projectUserDetails.getProjectRoleId());
             userTaskStatus.setProjectRoleName(projectUserDetails.getProjectRoleName());
             userTaskStatus.setProjectJobRoleName(projectUserDetails.getProjectJobRoleName());
@@ -279,5 +287,48 @@ public class TaskServiceImpl implements TaskService {
         completionResponse.setTasksCompleted(completed);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, completionResponse);
+    }
+
+    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
+        public void run() {
+
+        Date date = new Date();
+        long currentTime = new Timestamp(date.getTime()).getTime();
+        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
+        for(TaskAlertDto taskAlert : taskAlertList) {
+            if (taskAlert.getTaskDue() != null) {
+//                long taskReminder = taskAlert.getTaskDue().getTime();
+                long taskReminder = taskAlert.getTaskDue().toInstant().atZone( ZoneId.of( "UTC" )).toEpochSecond();
+
+                if (taskReminder > currentTime) {
+//                    logger.info("current time ---> {}", currentTime);
+//                    logger.info("reminder time ---> {}", taskReminder);
+//                    long difference = ((taskReminder - currentTime)) / (1000 * 60);
+//                    logger.info("Time difference in minutes --> {}", difference);
+//                    if (difference < 30) {
+                        HttpHeaders httpHeaders = new HttpHeaders();
+                        httpHeaders.set("Authorization", "Bearer " + "xoxb-345426929140-1018006515684-vthqTkN55akhuMZdMmrcMwug");
+                        httpHeaders.set("Content-Type", "application/json");
+                        JSONObject payload = new JSONObject();
+                        payload.put("channel", "UGQ0FGZ5F");
+                        payload.put("text", "Your Task will be due in 30 minutes");
+                        String url = "https://slack.com/api/chat.postMessage";
+                        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+                        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+//                    }
+                }
+            }
+        }
+
+//        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.set("Authorization", "Bearer " + "xoxb-345426929140-1018006515684-vthqTkN55akhuMZdMmrcMwug");
+//        httpHeaders.set("Content-Type", "application/json");
+//        JSONObject payload = new JSONObject();
+//        payload.put("text", "task reminder");
+//        String url = "https://hooks.slack.com/services/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";
+//        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+//        ResponseEntity<String> exchange = restTemplate.exchange(url , HttpMethod.POST, entity, String.class);
+
+        logger.info("Current time is :: " + System.currentTimeMillis());
     }
 }

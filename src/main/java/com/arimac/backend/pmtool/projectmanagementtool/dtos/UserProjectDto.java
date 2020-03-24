@@ -10,6 +10,7 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
     private String assigneeId;
     private String assigneeFirstName;
     private String assigneeLastName;
+    private String assigneeProfileImage;
     private String projectRoleName;
     private String projectJobRoleName;
     private String projectRoleId;
@@ -17,14 +18,24 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
     public UserProjectDto() {
     }
 
-    public UserProjectDto(String projectId, String assigneeId, String assigneeFirstName, String assigneeLastName, String projectRoleName, String projectJobRoleName, String projectRoleId) {
+
+    public UserProjectDto(String projectId, String assigneeId, String assigneeFirstName, String assigneeLastName, String assigneeProfileImage, String projectRoleName, String projectJobRoleName, String projectRoleId) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assigneeFirstName = assigneeFirstName;
         this.assigneeLastName = assigneeLastName;
+        this.assigneeProfileImage = assigneeProfileImage;
         this.projectRoleName = projectRoleName;
         this.projectJobRoleName = projectJobRoleName;
         this.projectRoleId = projectRoleId;
+    }
+
+    public String getAssigneeProfileImage() {
+        return assigneeProfileImage;
+    }
+
+    public void setAssigneeProfileImage(String assigneeProfileImage) {
+        this.assigneeProfileImage = assigneeProfileImage;
     }
 
     public String getProjectId() {
@@ -90,6 +101,7 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
           resultSet.getString("assigneeId"),
           resultSet.getString("firstName"),
           resultSet.getString("lastName"),
+          resultSet.getString("profileImage"),
           resultSet.getString("projectRoleName"),
           resultSet.getString("assigneeJobRole"),
           resultSet.getString("projectRoleId")
