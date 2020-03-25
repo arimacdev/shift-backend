@@ -81,6 +81,7 @@ public class NotificationServiceImpl implements NotificationService {
                     StringBuilder url = new StringBuilder();
                     url.append(ENVConfig.SLACK_BASE_URL);
                     url.append("/chat.postMessage");
+                    logger.info("Slack Message Url {}", url);
                     HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
                     ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
 //                    }

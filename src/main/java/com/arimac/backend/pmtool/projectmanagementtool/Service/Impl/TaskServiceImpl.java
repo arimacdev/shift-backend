@@ -76,8 +76,12 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskStatus(taskDto.getTaskStatus());
         }
         task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
-        task.setTaskDueDateAt(taskDto.getTaskDueDate());
-        task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
+        if (taskDto.getTaskDueDate() != null){
+            task.setTaskDueDateAt(taskDto.getTaskDueDate());
+        }
+        if (taskDto.getTaskRemindOnDate() != null){
+            task.setTaskReminderAt(task.getTaskReminderAt());
+        }
         task.setIsDeleted(false);
         taskRepository.addTaskToProject(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
