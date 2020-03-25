@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -110,6 +111,17 @@ public class UserRepositoryImpl implements UserRepository {
 
             return preparedStatement;
         });
+    }
+
+    @Override
+    public void updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE User SET notification=? WHERE userId=?");
+            preparedStatement.setBoolean(1, slackNotificationDto.getNotificationStatus());
+            preparedStatement.setString(2, userId);
+
+            return preparedStatement;
+    });
     }
 
 }

@@ -4,6 +4,7 @@ public class SlackNotificationDto {
     private String slackAssignerId;
     private String slackAssigneeId;
     private String assigneeSlackId;
+    private boolean notificationStatus;
 
     public String getSlackAssignerId() {
         return slackAssignerId;
@@ -29,12 +30,21 @@ public class SlackNotificationDto {
         this.assigneeSlackId = assigneeSlackId;
     }
 
+    public boolean getNotificationStatus() {
+        return notificationStatus;
+    }
+
+    public void setNotificationStatus(boolean notificationStatus) {
+        this.notificationStatus = notificationStatus;
+    }
+
     @Override
     public String toString() {
         return "SlackNotificationDto{" +
                 "slackAssignerId='" + slackAssignerId + '\'' +
                 ", slackAssigneeId='" + slackAssigneeId + '\'' +
                 ", assigneeSlackId='" + assigneeSlackId + '\'' +
+                ", notificationStatus=" + notificationStatus +
                 '}';
     }
 }

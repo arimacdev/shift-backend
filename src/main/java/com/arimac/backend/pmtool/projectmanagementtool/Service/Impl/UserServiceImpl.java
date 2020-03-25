@@ -193,13 +193,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto) {
-        if (slackNotificationDto.getAssigneeSlackId().equals(slackNotificationDto.getSlackAssignerId()))
+        if (!slackNotificationDto.getSlackAssignerId().equals(slackNotificationDto.getSlackAssigneeId()))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssignerId());
+        User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssigneeId());
         if (user == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         userRepository.addSlackIdToUser(userId, slackNotificationDto.getAssigneeSlackId());
         return new Response(ResponseMessage.SUCCESS);
+    }
+
+    @Override
+    public Object updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto) {
+        User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssigneeId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!slackNotificationDto.getSlackAssignerId().equals(slackNotificationDto.getSlackAssigneeId()))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        if (user.getUserSlackId() == null)
+            return new ErrorMessage("You haven't activated slack notifications", HttpStatus.UNAUTHORIZED);
+        userRepository.updateNotificationStatus(slackNotificationDto.getSlackAssigneeId(), slackNotificationDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
 }

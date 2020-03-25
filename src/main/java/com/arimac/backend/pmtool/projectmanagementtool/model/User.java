@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -12,17 +13,22 @@ public class User implements RowMapper<User> {
     private String lastName;
     private String email;
     private String profileImage;
+    private String userSlackId;
+    @JsonProperty
+    private boolean notification;
 
     public User() {
     }
 
-    public User(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage) {
+    public User(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage, String userSlackId, boolean notification) {
         this.userId = userId;
         this.idpUserId = idpUserId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.profileImage = profileImage;
+        this.userSlackId = userSlackId;
+        this.notification = notification;
     }
 
     public String getIdpUserId() {
@@ -73,6 +79,22 @@ public class User implements RowMapper<User> {
         this.profileImage = profileImage;
     }
 
+    public String getUserSlackId() {
+        return userSlackId;
+    }
+
+    public void setUserSlackId(String userSlackId) {
+        this.userSlackId = userSlackId;
+    }
+
+    public boolean isNotification() {
+        return notification;
+    }
+
+    public void setNotification(boolean notification) {
+        this.notification = notification;
+    }
+
     @Override
     public User mapRow(ResultSet resultSet, int i) throws SQLException {
         return new User(
@@ -81,7 +103,9 @@ public class User implements RowMapper<User> {
                 resultSet.getString("firstName"),
                 resultSet.getString("lastName"),
                 resultSet.getString("email"),
-                resultSet.getString("profileImage")
+                resultSet.getString("profileImage"),
+                resultSet.getString("userSlackId"),
+                resultSet.getBoolean("notification")
         );
     }
 }

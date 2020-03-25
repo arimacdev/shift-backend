@@ -16,4 +16,5 @@ public interface UserService {
     Object getAllProjectUsers(String projectId);
     Object getAllBlockedProjectUsers(String projectId);
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
+    Object updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto);
 }
