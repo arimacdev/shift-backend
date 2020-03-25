@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -83,6 +84,14 @@ public class UserController extends ResponseController {
     public ResponseEntity<Object> getAllBlockedProjectUsers(@PathVariable("projectId") String projectId){
         logger.info("HIT - GET /users/<userId>/blocked ---> getAllBlockedProjectUsers | projectId: {}",projectId);
         return sendResponse(userService.getAllBlockedProjectUsers(projectId));
+    }
+
+    @ApiOperation(value = "Add Slack Id to User", notes = "User and SlackId mapping")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{userId}/slack")
+    public ResponseEntity<Object> addSlackIdToUser(@PathVariable("userId") String userId, @RequestBody SlackNotificationDto slackNotificationDto){
+        logger.info("HIT - PUT /users/<userId>/slack ---> addSlackIdToUser | userId: {}| dto: {}",userId,slackNotificationDto);
+        return sendResponse(userService.addSlackIdToUser(userId, slackNotificationDto));
     }
 
 }

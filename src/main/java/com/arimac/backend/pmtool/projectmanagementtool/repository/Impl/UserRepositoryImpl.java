@@ -100,4 +100,15 @@ public class UserRepositoryImpl implements UserRepository {
         return null;
     }
 
+    @Override
+    public void addSlackIdToUser(String userId, String slackId) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE User SET userSlackId=? WHERE userId=?");
+            preparedStatement.setString(1, slackId);
+            preparedStatement.setString(2, userId);
+
+            return preparedStatement;
+        });
+    }
+
 }

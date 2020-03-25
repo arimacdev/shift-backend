@@ -15,4 +15,5 @@ public interface UserRepository {
     List<User> getAllProjectUsers(String projectId);
     List<UserProjectDto> getUsersProjectDetails(String projectId);
     Object getAllBlockedProjectUsers(String projectId);
+    void addSlackIdToUser(String userId, String slackId);
 }

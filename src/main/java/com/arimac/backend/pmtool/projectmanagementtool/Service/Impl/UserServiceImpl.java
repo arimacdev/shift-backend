@@ -3,10 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserListResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -192,6 +189,17 @@ public class UserServiceImpl implements UserService {
     public Object getAllBlockedProjectUsers(String projectId) {
         userRepository.getAllBlockedProjectUsers(projectId);
         return null;
+    }
+
+    @Override
+    public Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto) {
+        if (slackNotificationDto.getAssigneeSlackId().equals(slackNotificationDto.getSlackAssignerId()))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssignerId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        userRepository.addSlackIdToUser(userId, slackNotificationDto.getAssigneeSlackId());
+        return new Response(ResponseMessage.SUCCESS);
     }
 
 }

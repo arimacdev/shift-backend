@@ -311,7 +311,13 @@ public class TaskServiceImpl implements TaskService {
                         httpHeaders.set("Content-Type", "application/json");
                         JSONObject payload = new JSONObject();
                         payload.put("channel", "UGQ0FGZ5F");
-                        payload.put("text", "Your Task will be due in 30 minutes");
+                        StringBuilder message = new StringBuilder();
+                        message.append("Your Task: ");
+                        message.append(taskAlert.getTaskName());
+                        message.append(" of project ");
+                        message.append(taskAlert.getProjectId());
+                        message.append(" will be due in 30 minutes");
+                        payload.put("text",message.toString());
                         String url = "https://slack.com/api/chat.postMessage";
                         HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
                         ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
