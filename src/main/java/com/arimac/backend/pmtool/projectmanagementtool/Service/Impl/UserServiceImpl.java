@@ -146,6 +146,8 @@ public class UserServiceImpl implements UserService {
         userResponseDto.setLastName(user.getLastName());
         userResponseDto.setEmail(user.getEmail());
         userResponseDto.setProfileImage(user.getProfileImage());
+        userResponseDto.setUserSlackId(user.getUserSlackId());
+        userResponseDto.setNotification(user.getNotification());
 
         return new Response(ResponseMessage.SUCCESS, userResponseDto);
     }

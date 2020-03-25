@@ -16,11 +16,13 @@ public class TaskAlertDto implements RowMapper<TaskAlertDto> {
     private String projectName;
     private String assigneeFirstName;
     private String assigneeLastName;
+    private String assigneeSlackId;
+    private boolean assigneeNotification;
 
     public TaskAlertDto() {
     }
 
-    public TaskAlertDto(String taskId, String projectId, String assigneeId, String taskName, Timestamp taskReminder, Timestamp taskDue, String projectName, String assigneeFirstName, String assigneeLastName) {
+    public TaskAlertDto(String taskId, String projectId, String assigneeId, String taskName, Timestamp taskReminder, Timestamp taskDue, String projectName, String assigneeFirstName, String assigneeLastName, String assigneeSlackId, boolean assigneeNotification) {
         this.taskId = taskId;
         this.projectId = projectId;
         this.assigneeId = assigneeId;
@@ -30,6 +32,8 @@ public class TaskAlertDto implements RowMapper<TaskAlertDto> {
         this.projectName = projectName;
         this.assigneeFirstName = assigneeFirstName;
         this.assigneeLastName = assigneeLastName;
+        this.assigneeSlackId = assigneeSlackId;
+        this.assigneeNotification = assigneeNotification;
     }
 
     public String getTaskId() {
@@ -104,6 +108,22 @@ public class TaskAlertDto implements RowMapper<TaskAlertDto> {
         this.assigneeLastName = assigneeLastName;
     }
 
+    public String getAssigneeSlackId() {
+        return assigneeSlackId;
+    }
+
+    public void setAssigneeSlackId(String assigneeSlackId) {
+        this.assigneeSlackId = assigneeSlackId;
+    }
+
+    public boolean isAssigneeNotification() {
+        return assigneeNotification;
+    }
+
+    public void setAssigneeNotification(boolean assigneeNotification) {
+        this.assigneeNotification = assigneeNotification;
+    }
+
     @Override
     public TaskAlertDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskAlertDto(
@@ -115,7 +135,9 @@ public class TaskAlertDto implements RowMapper<TaskAlertDto> {
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getString("projectName"),
                 resultSet.getString("firstName"),
-                resultSet.getString("lastName")
+                resultSet.getString("lastName"),
+                resultSet.getString("userSlackId"),
+                resultSet.getBoolean("notification")
         );
     }
 }

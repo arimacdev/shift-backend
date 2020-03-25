@@ -7,6 +7,8 @@ public class UserResponseDto {
     private String userName;
     private String email;
     private String profileImage;
+    private String userSlackId;
+    private boolean notification;
 
     public String getUserId() {
         return userId;
@@ -54,5 +56,21 @@ public class UserResponseDto {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getUserSlackId() {
+        return userSlackId;
+    }
+
+    public void setUserSlackId(String userSlackId) {
+        this.userSlackId = userSlackId;
+    }
+
+    public boolean isNotification() {
+        return notification;
+    }
+
+    public void setNotification(boolean notification) {
+        this.notification = notification;
     }
 }

@@ -14,5 +14,9 @@ public class ENVConfig {
     public static final String AWS_REGION = System.getenv("AWS_REGION");
     public static final String AWS_ACCESS_KEY = System.getenv("AWS_ACCESS_KEY");
     public static final String AWS_SECRET_KEY = System.getenv("AWS_SECRET_KEY");
+    public static final String SLACK_BASE_URL = System.getenv("SLACK_BASE_URL");
+    public static final String SLACK_BOT_TOKEN = System.getenv("SLACK_BOT_TOKEN");
+
+
 
 }

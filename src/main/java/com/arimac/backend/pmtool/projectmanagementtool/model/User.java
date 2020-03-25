@@ -87,7 +87,7 @@ public class User implements RowMapper<User> {
         this.userSlackId = userSlackId;
     }
 
-    public boolean isNotification() {
+    public boolean getNotification() {
         return notification;
     }
 
