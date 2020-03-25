@@ -138,10 +138,10 @@ public class UserServiceImpl implements UserService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
 
-        JSONObject IdpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
+        //JSONObject IdpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setUserId(user.getUserId());
-        userResponseDto.setUserName(IdpUser.getString(USERNAME));
+        userResponseDto.setUserName(user.getIdpUserId());
         userResponseDto.setFirstName(user.getFirstName());
         userResponseDto.setLastName(user.getLastName());
         userResponseDto.setEmail(user.getEmail());
