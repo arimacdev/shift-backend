@@ -43,6 +43,13 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
+    public Project getProjectById(String projectId) {
+        String sql = "SELECT * FROM project WHERE projectId=?";
+        Project project =jdbcTemplate.queryForObject(sql, new Project(), projectId);
+        return project;
+    }
+
+    @Override
     public ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId) {
         String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
         ProjectUserResponseDto project;

@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskLogUser;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskLogRespository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,9 +25,9 @@ public class TaskLogRepositoryImpl implements TaskLogRespository {
             preparedStatement.setString(1, taskLog.getTaskLogId());
             preparedStatement.setString(2, taskLog.getProjectId());
             preparedStatement.setString(3, taskLog.getTasklogInitiator());
-            preparedStatement.setString(4, taskLog.getTaskLogEntity());
+            preparedStatement.setInt(4, taskLog.getTaskLogEntity());
             preparedStatement.setString(5, taskLog.getTaskLogEntityId());
-            preparedStatement.setString(6, taskLog.getOperation());
+            preparedStatement.setInt(6, taskLog.getOperation());
             preparedStatement.setString(7, taskLog.getPrevious());
             preparedStatement.setString(8, taskLog.getModified());
             preparedStatement.setTimestamp(9, taskLog.getTimestamp());
@@ -37,9 +38,10 @@ public class TaskLogRepositoryImpl implements TaskLogRespository {
     }
 
     @Override
-    public List<TaskLog> getAllLogs(String projectId) {
-        String sql = "SELECT * FROM TaskLog WHERE projectId=?";
-        List<TaskLog> taskLogs = jdbcTemplate.query(sql, new TaskLog(), projectId);
+    public List<TaskLogUser> getAllLogs(String projectId) {
+        String sql = "SELECT * FROM TaskLog AS tl LEFT JOIN User AS u ON tl.tasklogInitiator = u.userId WHERE tl.projectId=?";
+//        String sql = "SELECT * FROM TaskLog AS tl WHERE projectId=? LEFT JOIN User AS u ON tl.tasklogInitiator = u.userId";
+        List<TaskLogUser> taskLogs = jdbcTemplate.query(sql, new TaskLogUser(), projectId);
 
         return taskLogs;
     }

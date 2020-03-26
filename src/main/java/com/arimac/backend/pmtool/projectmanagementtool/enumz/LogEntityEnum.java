@@ -2,8 +2,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 
 public enum  LogEntityEnum {
     Project("Project",1),
-    Task("Project",2),
-    SubTask("Project",3);
+    Task("Task",2),
+    SubTask("SubTask",3);
 
 
     private String entity;

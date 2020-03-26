@@ -82,7 +82,7 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
         taskRepository.addTaskToProject(task);
-        taskLogService.addTaskLog(task);
+//        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 

@@ -84,6 +84,18 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public Task getProjectTaskWithDeleted(String taskId) {
+        String sql = "SELECT * FROM Task WHERE taskId=?";
+        Task task;
+        try {
+            task = jdbcTemplate.queryForObject(sql, new Task(), taskId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        return task;
+    }
+
+    @Override
     public Object updateProjectTask(String taskId, TaskUpdateDto taskUpdateDto) {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=? WHERE taskId=?");

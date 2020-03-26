@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.model;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -6,41 +6,38 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class TaskLog implements RowMapper<TaskLog> {
+public class TaskLogUser  implements RowMapper<TaskLogUser> {
     private String taskLogId;
     private String tasklogInitiator;
     private String projectId;
     private int taskLogEntity;
-    private int operation;
     private String taskLogEntityId;
-    private String modifiedField;
+    private int operation;
     private String previous;
     private String modified;
     private Timestamp timestamp;
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String profileImage;
 
-
-    public TaskLog() {
+    public TaskLogUser() {
     }
 
-    public TaskLog(String taskLogId, String tasklogInitiator, String projectId, int taskLogEntity, int operation, String taskLogEntityId, String modifiedField, String previous, String modified, Timestamp timestamp) {
+    public TaskLogUser(String taskLogId, String tasklogInitiator, String projectId, int taskLogEntity, String taskLogEntityId, int operation, String previous, String modified, Timestamp timestamp, String userId, String firstName, String lastName, String profileImage) {
         this.taskLogId = taskLogId;
         this.tasklogInitiator = tasklogInitiator;
         this.projectId = projectId;
         this.taskLogEntity = taskLogEntity;
-        this.operation = operation;
         this.taskLogEntityId = taskLogEntityId;
-        this.modifiedField = modifiedField;
+        this.operation = operation;
         this.previous = previous;
         this.modified = modified;
         this.timestamp = timestamp;
-    }
-
-    public String getModifiedField() {
-        return modifiedField;
-    }
-
-    public void setModifiedField(String modifiedField) {
-        this.modifiedField = modifiedField;
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.profileImage = profileImage;
     }
 
     public String getTaskLogId() {
@@ -115,21 +112,54 @@ public class TaskLog implements RowMapper<TaskLog> {
         this.timestamp = timestamp;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
     @Override
-    public TaskLog mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new TaskLog(
+    public TaskLogUser mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new TaskLogUser(
                 resultSet.getString("taskLogId"),
                 resultSet.getString("tasklogInitiator"),
                 resultSet.getString("projectId"),
                 resultSet.getInt("taskLogEntity"),
-                resultSet.getInt("operation"),
                 resultSet.getString("taskLogEntityId"),
-                resultSet.getString("modifiedField"),
+                resultSet.getInt("operation"),
                 resultSet.getString("previous"),
                 resultSet.getString("modified"),
-                resultSet.getTimestamp("timestamp")
+                resultSet.getTimestamp("timestamp"),
+                resultSet.getString("userId"),
+                resultSet.getString("firstName"),
+                resultSet.getString("lastName"),
+                resultSet.getString("profileImage")
         );
     }
 }
-
-
