@@ -61,7 +61,7 @@ public class TaskServiceImpl implements TaskService {
         task.setProjectId(taskDto.getProjectId());
         task.setTaskName(taskDto.getTaskName());
         task.setTaskInitiator(taskDto.getTaskInitiator());
-        if (task.getTaskAssignee() == null || task.getTaskAssignee().isEmpty()){
+        if (taskDto.getTaskAssignee() == null || taskDto.getTaskAssignee().isEmpty()){
             task.setTaskAssignee(taskDto.getTaskInitiator());
         } else {
             task.setTaskAssignee(taskDto.getTaskAssignee());
