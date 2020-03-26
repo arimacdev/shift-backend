@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -10,16 +11,12 @@ import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -31,16 +28,18 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskFileRepository taskFileRepository;
+    private final TaskLogService taskLogService;
     private final UtilsService utilsService;
 
     private final RestTemplate restTemplate;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, RestTemplate restTemplate) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, RestTemplate restTemplate) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskFileRepository = taskFileRepository;
+        this.taskLogService = taskLogService;
         this.utilsService = utilsService;
         this.restTemplate = restTemplate;
     }
@@ -52,8 +51,6 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
         if (taskInitiator == null)
             return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-//        if (taskInitiator.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto taskAssignee = null;
         if (taskDto.getTaskAssignee() != null)
             taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
@@ -82,8 +79,10 @@ public class TaskServiceImpl implements TaskService {
         if (taskDto.getTaskRemindOnDate() != null){
             task.setTaskReminderAt(task.getTaskReminderAt());
         }
+        task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
         taskRepository.addTaskToProject(task);
+        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 

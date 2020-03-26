@@ -10,6 +10,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
+import org.joda.time.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,55 +50,56 @@ public class NotificationServiceImpl implements NotificationService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
-    public void run() {
-
-        Date date = new Date();
-        long currentTime = new Timestamp(date.getTime()).getTime();
-        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
-        for(TaskAlertDto taskAlert : taskAlertList) {
-            if (taskAlert.getTaskDue() != null) {
-//                long taskReminder = taskAlert.getTaskDue().getTime();
-                long taskReminder = taskAlert.getTaskDue().toInstant().atZone( ZoneId.of( "UTC" )).toEpochSecond();
-
-//                if (taskReminder > currentTime) {
-//                    logger.info("current time ---> {}", currentTime);
-//                    logger.info("reminder time ---> {}", taskReminder);
-//                    long difference = ((taskReminder - currentTime)) / (1000 * 60);
-//                    logger.info("Time difference in minutes --> {}", difference);
-//                    if (difference < 30) {
-                    HttpHeaders httpHeaders = new HttpHeaders();
-                    httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
-                    httpHeaders.set("Content-Type", "application/json");
-                    JSONObject payload = new JSONObject();
-                    payload.put("channel", "UGQ0FGZ5F");
-                    StringBuilder message = new StringBuilder();
-                    message.append("Your Task: ");
-                    message.append(taskAlert.getTaskName());
-                    message.append(" of project ");
-                    message.append(taskAlert.getProjectId());
-                    message.append(" will be due in 30 minutes");
-                    payload.put("text",message.toString());
-                    StringBuilder url = new StringBuilder();
-                    url.append(ENVConfig.SLACK_BASE_URL);
-                    url.append("/chat.postMessage");
-                    logger.info("Slack Message Url {}", url);
-                    HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
-                    ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+//    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
+//    public void run() {
+//
+//        Date date = new Date();
+//        long currentTime = new Timestamp(date.getTime()).getTime();
+//        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
+//        for(TaskAlertDto taskAlert : taskAlertList) {
+//            if (taskAlert.getTaskDue() != null) {
+//
+//                long due = taskAlert.getTaskDue().getTime();
+//                DateTime duedate = new DateTime(due, DateTimeZone.forID("UTC"));
+//                DateTime now1 = DateTime.now();
+//                DateTime dt2 = new DateTime(now1, DateTimeZone.forID("UTC"));
+//                DateTime dt = DateTime.now().withZone(DateTimeZone.UTC);
+//
+//                Duration duration = new Duration(duedate, dt);
+//                int mins = (int)duration.getStandardMinutes();
+//                Minutes minutes = Minutes.minutesBetween(dt, duedate);
+//                int difference = (int) duration.getStandardMinutes() + 330;
+//                logger.info("days {} | {}", minutes,(int) duration.getStandardMinutes());
+//                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
+//                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
+//
+//                if (difference > -60){
+//                    try {
+//                        HttpHeaders httpHeaders = new HttpHeaders();
+//                        httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
+//                        httpHeaders.set("Content-Type", "application/json");
+//                        JSONObject payload = new JSONObject();
+//                        payload.put("channel", taskAlert.getAssigneeSlackId());
+//                        StringBuilder message = new StringBuilder();
+//                        message.append("Your Task: ");
+//                        message.append(taskAlert.getTaskName());
+//                        message.append(" of project ");
+//                        message.append(taskAlert.getProjectId());
+//                        message.append(" will be due in 30 minutes");
+//                        payload.put("text",message.toString());
+//                        StringBuilder url = new StringBuilder();
+//                        url.append(ENVConfig.SLACK_BASE_URL);
+//                        url.append("/chat.postMessage");
+//                        logger.info("Slack Message Url {}", url);
+//                        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+//                        ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+//                    } catch (Exception e){
+//                        logger.info("Error calling Slack API");
 //                    }
+//
 //                }
-            }
-        }
-
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.set("Authorization", "Bearer " + "xoxb-345426929140-1018006515684-vthqTkN55akhuMZdMmrcMwug");
-//        httpHeaders.set("Content-Type", "application/json");
-//        JSONObject payload = new JSONObject();
-//        payload.put("text", "task reminder");
-//        String url = "https://hooks.slack.com/services/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";
-//        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
-//        ResponseEntity<String> exchange = restTemplate.exchange(url , HttpMethod.POST, entity, String.class);
-
-        logger.info("Current time is :: " + System.currentTimeMillis());
-    }
+//            }
+//        }
+//
+//    }
 }

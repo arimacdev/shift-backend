@@ -14,6 +14,9 @@ public class TaskDto {
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
 
+    public TaskDto() {
+    }
+
     public String getTaskName() {
         return taskName;
     }
