@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.WorkLoadTaskStatusDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -129,5 +130,12 @@ public class TaskRepositoryImpl implements TaskRepository {
 //        String sql = "SELECT * FROM Task as t LEFT JOIN project as p ON t.projectId = p.projectId LEFT JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false";
         String sql = "SELECT * FROM Task as t LEFT JOIN project as p ON t.projectId = p.projectId LEFT JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL and  u.notification = true";
         return jdbcTemplate.query(sql, new TaskAlertDto(), "closed");
+    }
+
+    @Override
+    public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion() {
+        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false";
+        List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto());
+        return workLoadList;
     }
 }

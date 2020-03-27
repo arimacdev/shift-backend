@@ -9,6 +9,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
+import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -91,8 +92,6 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-//        if (projectUser.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
        List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
@@ -102,8 +101,6 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-//        if (projectUser.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         List<TaskUserResponseDto> taskList = taskRepository.getAllUserAssignedTasksWithProfile(userId, projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
@@ -113,8 +110,6 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-//        if (projectUser.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
@@ -135,8 +130,6 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-//        if (projectUser.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
 //        if (projectUser.getAssigneeProjectRole() != ProjectRoleEnum.owner.getRoleValue()) // check for super admin
 //            return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
@@ -160,8 +153,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Object flagProjectTask(String userId, String projectId, String taskId) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-//        if (projectUser.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         Task task = taskRepository.getProjectTask(taskId);
@@ -290,5 +281,45 @@ public class TaskServiceImpl implements TaskService {
         completionResponse.setTasksCompleted(completed);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, completionResponse);
+    }
+
+    @Override
+    public Object getAllUsersWithTaskCompletion(String userId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null){
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        }
+        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUsersWithTaskCompletion();
+        if (workLoadList.isEmpty())
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, workLoadList);
+        Map<String, UserWorkLoadDto> workStatusMap = new HashMap<>();
+        for (WorkLoadTaskStatusDto workLoadItem: workLoadList){
+            UserWorkLoadDto mapItem = workStatusMap.get(workLoadItem.getUserId());
+            if (mapItem != null){
+                    if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)){
+                        mapItem.setTotalTasks(mapItem.getTotalTasks() +1);
+                        mapItem.setTasksCompleted(mapItem.getTotalTasks() +1);
+                    } else {
+                        mapItem.setTotalTasks(mapItem.getTotalTasks() + 1);
+                    }
+                    workStatusMap.put(workLoadItem.getUserId(), mapItem);
+            } else {
+                UserWorkLoadDto userWorkLoad = new UserWorkLoadDto();
+                userWorkLoad.setUserId(workLoadItem.getUserId());
+                userWorkLoad.setFirstName(workLoadItem.getFirstName());
+                userWorkLoad.setLastName(workLoadItem.getLastName());
+                userWorkLoad.setEmail(workLoadItem.getEmail());
+                userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
+                if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)){
+                    userWorkLoad.setTasksCompleted(1);
+                    userWorkLoad.setTotalTasks(1);
+                } else{
+                    userWorkLoad.setTasksCompleted(0);
+                    userWorkLoad.setTotalTasks(0);
+                }
+                workStatusMap.put(workLoadItem.getUserId(), userWorkLoad);
+            }
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, workStatusMap);
     }
 }

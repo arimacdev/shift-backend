@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.WorkLoadTaskStatusDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
 import java.sql.Timestamp;
@@ -20,5 +21,6 @@ public interface TaskRepository {
     void flagProjectTask(String taskId);
     void flagProjectBoundTasks(String projectId);
     List<TaskAlertDto> getTaskAlertList();
+    List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
 
 }
