@@ -315,7 +315,7 @@ public class TaskServiceImpl implements TaskService {
                     userWorkLoad.setTotalTasks(1);
                 } else{
                     userWorkLoad.setTasksCompleted(0);
-                    userWorkLoad.setTotalTasks(0);
+                    userWorkLoad.setTotalTasks(1);
                 }
                 workStatusMap.put(workLoadItem.getUserId(), userWorkLoad);
             }
@@ -337,9 +337,12 @@ public class TaskServiceImpl implements TaskService {
         for (WorkLoadTaskStatusDto workLoadTaskItem : workLoadList){
             UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
             if (mapItem != null){
-                if (workLoadTaskItem.getTaskStatus().equals(TaskStatusEnum.closed)){
+                if (workLoadTaskItem.getTaskStatus().equals(TaskStatusEnum.closed)) {
                     mapItem.setCompleted(mapItem.getCompleted() + 1);
-                    mapItem.setTotal(mapItem.getTotal() +1);
+                    mapItem.setTotal(mapItem.getTotal() + 1);
+                } else {
+                    mapItem.setTotal(mapItem.getTotal() + 1);
+                }
                     ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
                     projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
                     projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
@@ -348,10 +351,9 @@ public class TaskServiceImpl implements TaskService {
                     projectTaskWorkLoad.setDueDate(workLoadTaskItem.getProjectEndDate());
                     List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
                     taskList.add(projectTaskWorkLoad);
-                    mapItem.setTaskList(taskList);
+                    mapItem.setTaskList(taskList); /** check here */
                     userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
-//                    mapItem.setTaskList(mapItem.getTaskList().add(projectTaskWorkLoad));
-                }
+//                }
             } else {
                 UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
                 projectWorkLoad.setUserId(workLoadTaskItem.getUserId());
