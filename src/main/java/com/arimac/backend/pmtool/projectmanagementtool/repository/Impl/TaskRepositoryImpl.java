@@ -138,4 +138,11 @@ public class TaskRepositoryImpl implements TaskRepository {
         List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto());
         return workLoadList;
     }
+
+    @Override
+    public List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId) {
+        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=?";
+        List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId);
+        return workLoadList;
+    }
 }

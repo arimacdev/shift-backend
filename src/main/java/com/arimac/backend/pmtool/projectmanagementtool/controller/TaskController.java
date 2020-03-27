@@ -32,22 +32,6 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.addTaskToProject(projectId, taskDto));
     }
 
-    @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "(All Tasks) Get all Tasks in a project")
-    @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/{projectId}/tasks")
-    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
-        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
-        return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId));
-    }
-
-    @ApiOperation(value = "Get all Tasks of a project assigned to a user", notes = "(My Tasks) Get all Tasks in a project assigned to user")
-    @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/{projectId}/tasks/user")
-    public ResponseEntity<Object> getAllUserAssignedTask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
-        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
-        return sendResponse(taskService.getAllUserAssignedTasks(userId, projectId));
-    }
-
     @ApiOperation(value = "Get a single Task", notes = "Get single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}")
@@ -89,6 +73,22 @@ public class TaskController extends ResponseController {
 //        return sendResponse(taskService.getProjectTaskCompletionByUser(userId, projectId));
 //    }
 
+    @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "(All Tasks) Get all Tasks in a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks")
+    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId));
+    }
+
+    @ApiOperation(value = "Get all Tasks of a project assigned to a user", notes = "(My Tasks) Get all Tasks in a project assigned to user")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/user")
+    public ResponseEntity<Object> getAllUserAssignedTask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(taskService.getAllUserAssignedTasks(userId, projectId));
+    }
+
     @ApiOperation(value = "Get Task completion of a Project By User", notes = "(People Tab) Get Task completion of a Project By User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{userId}/completion/details")
@@ -112,5 +112,14 @@ public class TaskController extends ResponseController {
         logger.info("HIT - GET /projects/tasks/users/workload ---> getAllUsersWithTaskCompletion | userId: {} ",  userId);
         return sendResponse(taskService.getAllUsersWithTaskCompletion(userId));
     }
+
+    @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/tasks/users/{userId}/workload")
+    public ResponseEntity<Object> getAllUserAssignedTaskWithCompletion(@PathVariable("userId") String userId, @RequestHeader("user") String user){
+        logger.info("HIT - GET /projects/tasks/users/<userId>/workload ---> getAllUserAssignedTaskWithCompletion | from user: {} || about userId: {}",  user, userId);
+        return sendResponse(taskService.getAllUserAssignedTaskWithCompletion(user,userId));
+    }
+
 
 }

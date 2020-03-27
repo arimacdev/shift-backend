@@ -22,5 +22,6 @@ public interface TaskRepository {
     void flagProjectBoundTasks(String projectId);
     List<TaskAlertDto> getTaskAlertList();
     List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
+    List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId);
 
 }
