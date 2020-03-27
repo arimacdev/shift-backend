@@ -46,6 +46,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object createProject(ProjectDto projectDto) {
+        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty())
+            return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         Project project = new Project();
 
         //TODO check role of user
