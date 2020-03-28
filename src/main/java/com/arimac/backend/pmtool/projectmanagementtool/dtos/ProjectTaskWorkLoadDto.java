@@ -9,6 +9,7 @@ public class ProjectTaskWorkLoadDto {
     private String taskName;
     private String assigneeId;
     private TaskStatusEnum taskStatus;
+    private String taskNotes;
     private Timestamp dueDate;
 
     public String getTaskId() {
@@ -49,5 +50,13 @@ public class ProjectTaskWorkLoadDto {
 
     public void setDueDate(Timestamp dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public String getTaskNotes() {
+        return taskNotes;
+    }
+
+    public void setTaskNotes(String taskNotes) {
+        this.taskNotes = taskNotes;
     }
 }

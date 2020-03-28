@@ -298,7 +298,7 @@ public class TaskServiceImpl implements TaskService {
             if (mapItem != null){
                     if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)){
                         mapItem.setTotalTasks(mapItem.getTotalTasks() +1);
-                        mapItem.setTasksCompleted(mapItem.getTotalTasks() +1);
+                        mapItem.setTasksCompleted(mapItem.getTasksCompleted() +1);
                     } else {
                         mapItem.setTotalTasks(mapItem.getTotalTasks() + 1);
                     }
@@ -349,6 +349,7 @@ public class TaskServiceImpl implements TaskService {
                     projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
                     projectTaskWorkLoad.setTaskStatus(workLoadTaskItem.getTaskStatus());
                     projectTaskWorkLoad.setDueDate(workLoadTaskItem.getProjectEndDate());
+                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                     List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
                     taskList.add(projectTaskWorkLoad);
                     mapItem.setTaskList(taskList); /** check here */
@@ -365,6 +366,7 @@ public class TaskServiceImpl implements TaskService {
                 projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
                 projectTaskWorkLoad.setTaskStatus(workLoadTaskItem.getTaskStatus());
                 projectTaskWorkLoad.setDueDate(workLoadTaskItem.getProjectEndDate());
+                projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                 List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
                 taskList.add(projectTaskWorkLoad);
                 projectWorkLoad.setTaskList(taskList);
