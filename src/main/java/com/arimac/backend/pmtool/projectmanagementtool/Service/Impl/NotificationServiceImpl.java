@@ -58,22 +58,19 @@ public class NotificationServiceImpl implements NotificationService {
 //        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
 //        for(TaskAlertDto taskAlert : taskAlertList) {
 //            if (taskAlert.getTaskDue() != null) {
-//
 //                long due = taskAlert.getTaskDue().getTime();
-//                DateTime duedate = new DateTime(due, DateTimeZone.forID("UTC"));
-//                DateTime now1 = DateTime.now();
-//                DateTime dt2 = new DateTime(now1, DateTimeZone.forID("UTC"));
-//                DateTime dt = DateTime.now().withZone(DateTimeZone.UTC);
-//
-//                Duration duration = new Duration(duedate, dt);
-//                int mins = (int)duration.getStandardMinutes();
-//                Minutes minutes = Minutes.minutesBetween(dt, duedate);
-//                int difference = (int) duration.getStandardMinutes() + 330;
-//                logger.info("days {} | {}", minutes,(int) duration.getStandardMinutes());
-//                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
-//                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
-//
-//                if (difference > -60){
+//                DateTime duedate = new DateTime(due);
+//                DateTime now = DateTime.now();
+////                DateTime dt2 = new DateTime(now1, DateTimeZone.forID("UTC"));
+////                DateTime dt = DateTime.now().withZone(DateTimeZone.UTC);
+//                Duration duration = new Duration(now, duedate);
+////                int mins = (int)duration.getStandardMinutes();
+////                Minutes minutes = Minutes.minutesBetween(dt, duedate);
+//                int difference = (int) duration.getStandardMinutes();
+////                logger.info("days {} | {}", minutes,(int) duration.getStandardMinutes());
+////                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
+////                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
+//                if (difference < 60){
 //                    try {
 //                        HttpHeaders httpHeaders = new HttpHeaders();
 //                        httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);

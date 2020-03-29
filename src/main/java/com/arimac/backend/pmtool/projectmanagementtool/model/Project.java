@@ -7,20 +7,21 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class Project implements RowMapper<Project> {
     private String projectId;
     private String projectName;
     private String clientId;
-    private Timestamp projectStartDate;
-    private Timestamp projectEndDate;
+    private Date projectStartDate;
+    private Date projectEndDate;
     private ProjectStatusEnum projectStatus;
     private boolean isDeleted;
 
     public Project() {
     }
 
-    public Project(String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted) {
+    public Project(String projectId, String projectName, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted) {
         this.projectId = projectId;
         this.projectName = projectName;
         this.clientId = clientId;
@@ -54,20 +55,28 @@ public class Project implements RowMapper<Project> {
         this.clientId = clientId;
     }
 
-    public Timestamp getProjectStartDate() {
+    public Date getProjectStartDate() {
         return projectStartDate;
     }
 
-    public void setProjectStartDate(Timestamp projectStartDate) {
+    public void setProjectStartDate(Date projectStartDate) {
         this.projectStartDate = projectStartDate;
     }
 
-    public Timestamp getProjectEndDate() {
+    public Date getProjectEndDate() {
         return projectEndDate;
     }
 
-    public void setProjectEndDate(Timestamp projectEndDate) {
+    public void setProjectEndDate(Date projectEndDate) {
         this.projectEndDate = projectEndDate;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public ProjectStatusEnum getProjectStatus() {

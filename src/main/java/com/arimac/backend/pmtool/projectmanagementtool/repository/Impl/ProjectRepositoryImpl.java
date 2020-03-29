@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Test;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -33,14 +36,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             preparedStatement.setString(1, project.getProjectId());
             preparedStatement.setString(2, project.getProjectName());
             preparedStatement.setString(3, project.getClientId());
-            preparedStatement.setTimestamp(4, project.getProjectStartDate());
-            preparedStatement.setTimestamp(5, project.getProjectEndDate());
+            preparedStatement.setTimestamp(4,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
+            preparedStatement.setTimestamp(5, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
             preparedStatement.setString(6, project.getProjectStatus().toString());
 
             return preparedStatement;
         });
         return project;
     }
+
 
     @Override
     public Project getProjectById(String projectId) {
@@ -82,8 +86,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=? WHERE projectId=?");
             preparedStatement.setString(1, project.getProjectName());
             preparedStatement.setString(2, project.getClientId());
-            preparedStatement.setTimestamp(3, project.getProjectStartDate());
-            preparedStatement.setTimestamp(4, project.getProjectEndDate());
+            preparedStatement.setTimestamp(3,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
+            preparedStatement.setTimestamp(4, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
             preparedStatement.setString(5, project.getProjectStatus().toString());
             preparedStatement.setString(6, projectId);
 
