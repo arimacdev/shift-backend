@@ -3,7 +3,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Test;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Service
