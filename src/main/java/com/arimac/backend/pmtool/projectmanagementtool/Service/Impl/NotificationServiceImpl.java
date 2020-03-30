@@ -50,53 +50,61 @@ public class NotificationServiceImpl implements NotificationService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-//    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
-//    public void run() {
-//
-//        Date date = new Date();
-//        long currentTime = new Timestamp(date.getTime()).getTime();
-//        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
-//        for(TaskAlertDto taskAlert : taskAlertList) {
-//            if (taskAlert.getTaskDue() != null) {
-//                long due = taskAlert.getTaskDue().getTime();
-//                DateTime duedate = new DateTime(due);
-//                DateTime now = DateTime.now();
-////                DateTime dt2 = new DateTime(now1, DateTimeZone.forID("UTC"));
-////                DateTime dt = DateTime.now().withZone(DateTimeZone.UTC);
-//                Duration duration = new Duration(now, duedate);
-////                int mins = (int)duration.getStandardMinutes();
-////                Minutes minutes = Minutes.minutesBetween(dt, duedate);
-//                int difference = (int) duration.getStandardMinutes();
-////                logger.info("days {} | {}", minutes,(int) duration.getStandardMinutes());
-////                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
-////                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
-//                if (difference < 60){
-//                    try {
-//                        HttpHeaders httpHeaders = new HttpHeaders();
-//                        httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
-//                        httpHeaders.set("Content-Type", "application/json");
-//                        JSONObject payload = new JSONObject();
-//                        payload.put("channel", taskAlert.getAssigneeSlackId());
-//                        StringBuilder message = new StringBuilder();
-//                        message.append("Your Task: ");
-//                        message.append(taskAlert.getTaskName());
-//                        message.append(" of project ");
-//                        message.append(taskAlert.getProjectId());
-//                        message.append(" will be due in 30 minutes");
-//                        payload.put("text",message.toString());
-//                        StringBuilder url = new StringBuilder();
-//                        url.append(ENVConfig.SLACK_BASE_URL);
-//                        url.append("/chat.postMessage");
-//                        logger.info("Slack Message Url {}", url);
-//                        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
-//                        ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
-//                    } catch (Exception e){
-//                        logger.info("Error calling Slack API");
-//                    }
-//
-//                }
-//            }
-//        }
-//
-//    }
+    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
+    public void run() {
+
+        Date date = new Date();
+        long currentTime = new Timestamp(date.getTime()).getTime();
+        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
+        for(TaskAlertDto taskAlert : taskAlertList) {
+            if (taskAlert.getTaskDue() != null) {
+                long due = taskAlert.getTaskDue().getTime();
+                DateTime duedate = new DateTime(due);
+                DateTime now = DateTime.now();
+                DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
+                logger.info("nowUTC {}",nowUTC);
+                DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+                logger.info("nowCol {}",nowCol);
+                DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+                logger.info("dueUtc {}",dueUtc);
+                DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
+                logger.info("dueCol {}",dueCol);
+                Duration duration = new Duration(nowCol, dueUtc);
+//                int mins = (int)duration.getStandardMinutes();
+//                Minutes minutes = Minutes.minutesBetween(dt, duedate);
+                int difference = (int) duration.getStandardMinutes();
+//                logger.info("days {} | {}", minutes,(int) duration.getStandardMinutes());
+//                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
+//                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
+                logger.info("difference {}",difference);
+                if (difference < 60){
+                    try {
+                        HttpHeaders httpHeaders = new HttpHeaders();
+                        httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
+                        httpHeaders.set("Content-Type", "application/json");
+                        JSONObject payload = new JSONObject();
+                        payload.put("channel", taskAlert.getAssigneeSlackId());
+                        StringBuilder message = new StringBuilder();
+                        message.append("Your Task: ");
+                        message.append(taskAlert.getTaskName());
+                        message.append(" of project ");
+                        message.append(taskAlert.getProjectName());
+                        message.append(" will be due at ");
+                        message.append(taskAlert.getTaskDue());
+                        payload.put("text",message.toString());
+                        StringBuilder url = new StringBuilder();
+                        url.append(ENVConfig.SLACK_BASE_URL);
+                        url.append("/chat.postMessage");
+                        logger.info("Slack Message Url {}", url);
+                        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+                        ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+                    } catch (Exception e){
+                        logger.info("Error calling Slack API");
+                    }
+
+                }
+            }
+        }
+
+    }
 }

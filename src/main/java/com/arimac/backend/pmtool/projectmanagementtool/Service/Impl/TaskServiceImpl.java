@@ -348,7 +348,7 @@ public class TaskServiceImpl implements TaskService {
                     projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
                     projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
                     projectTaskWorkLoad.setTaskStatus(workLoadTaskItem.getTaskStatus());
-                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getProjectEndDate());
+                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
                     projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                     List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
                     taskList.add(projectTaskWorkLoad);
@@ -365,7 +365,7 @@ public class TaskServiceImpl implements TaskService {
                 projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
                 projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
                 projectTaskWorkLoad.setTaskStatus(workLoadTaskItem.getTaskStatus());
-                projectTaskWorkLoad.setDueDate(workLoadTaskItem.getProjectEndDate());
+                projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
                 projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                 List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
                 taskList.add(projectTaskWorkLoad);
