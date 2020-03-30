@@ -52,4 +52,15 @@ public class ProjectDto {
     public void setProjectEndDate(Timestamp projectEndDate) {
         this.projectEndDate = projectEndDate;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectDto{" +
+                "projectOwner='" + projectOwner + '\'' +
+                ", projectName='" + projectName + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", projectStartDate=" + projectStartDate +
+                ", projectEndDate=" + projectEndDate +
+                '}';
+    }
 }

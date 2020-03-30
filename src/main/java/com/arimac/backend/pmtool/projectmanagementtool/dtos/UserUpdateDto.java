@@ -39,6 +39,13 @@ public class UserUpdateDto {
         this.password = password;
     }
 
-
-
+    @Override
+    public String toString() {
+        return "UserUpdateDto{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

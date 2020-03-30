@@ -28,4 +28,13 @@ public class ProjectUserUpdateDto {
     public void setAssigneeJobRole(String assigneeJobRole) {
         this.assigneeJobRole = assigneeJobRole;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectUserUpdateDto{" +
+                "assignerId='" + assignerId + '\'' +
+                ", assigneeProjectRole=" + assigneeProjectRole +
+                ", assigneeJobRole='" + assigneeJobRole + '\'' +
+                '}';
+    }
 }

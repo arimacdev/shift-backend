@@ -59,4 +59,16 @@ public class TaskUpdateDto {
     public void setTaskStatus(String taskStatus) {
         this.taskStatus = taskStatus;
     }
+
+    @Override
+    public String toString() {
+        return "TaskUpdateDto{" +
+                "taskName='" + taskName + '\'' +
+                ", taskAssignee='" + taskAssignee + '\'' +
+                ", taskDueDate=" + taskDueDate +
+                ", taskRemindOnDate=" + taskRemindOnDate +
+                ", taskNotes='" + taskNotes + '\'' +
+                ", taskStatus='" + taskStatus + '\'' +
+                '}';
+    }
 }

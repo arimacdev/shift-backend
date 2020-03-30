@@ -10,4 +10,11 @@ public class ProjectUserDeleteDto {
     public void setAssignerId(String assignerId) {
         this.assignerId = assignerId;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectUserDeleteDto{" +
+                "assignerId='" + assignerId + '\'' +
+                '}';
+    }
 }

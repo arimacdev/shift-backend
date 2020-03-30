@@ -59,4 +59,16 @@ public class ProjectEditDto {
     public void setProjectEndDate(Timestamp projectEndDate) {
         this.projectEndDate = projectEndDate;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectEditDto{" +
+                "modifierId='" + modifierId + '\'' +
+                ", projectName='" + projectName + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", projectStatus='" + projectStatus + '\'' +
+                ", projectStartDate=" + projectStartDate +
+                ", projectEndDate=" + projectEndDate +
+                '}';
+    }
 }

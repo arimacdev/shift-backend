@@ -37,4 +37,14 @@ public class UserAssignDto {
     public void setAssigneeJobRole(String assigneeJobRole) {
         this.assigneeJobRole = assigneeJobRole;
     }
+
+    @Override
+    public String toString() {
+        return "UserAssignDto{" +
+                "assignerId='" + assignerId + '\'' +
+                ", assigneeId='" + assigneeId + '\'' +
+                ", assigneeProjectRole=" + assigneeProjectRole +
+                ", assigneeJobRole='" + assigneeJobRole + '\'' +
+                '}';
+    }
 }

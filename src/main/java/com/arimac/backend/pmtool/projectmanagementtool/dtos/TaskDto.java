@@ -92,4 +92,18 @@ public class TaskDto {
         this.taskDueDate = taskDueDate;
         this.taskRemindOnDate = taskRemindOnDate;
     }
+
+    @Override
+    public String toString() {
+        return "TaskDto{" +
+                "taskName='" + taskName + '\'' +
+                ", projectId='" + projectId + '\'' +
+                ", taskStatus=" + taskStatus +
+                ", taskInitiator='" + taskInitiator + '\'' +
+                ", taskAssignee='" + taskAssignee + '\'' +
+                ", taskNotes='" + taskNotes + '\'' +
+                ", taskDueDate=" + taskDueDate +
+                ", taskRemindOnDate=" + taskRemindOnDate +
+                '}';
+    }
 }
