@@ -58,6 +58,7 @@ public class NotificationServiceImpl implements NotificationService {
         List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
         for(TaskAlertDto taskAlert : taskAlertList) {
             if (taskAlert.getTaskDue() != null) {
+                logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
                 long due = taskAlert.getTaskDue().getTime();
                 DateTime duedate = new DateTime(due);
                 DateTime now = DateTime.now();
@@ -77,7 +78,10 @@ public class NotificationServiceImpl implements NotificationService {
 //                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
 //                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
                 logger.info("difference {}",difference);
-                if (difference < 60){
+                int timeFixDifference = difference - 330;
+                logger.info("fix difference {}",timeFixDifference);
+                logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
+                if (timeFixDifference < 60 && timeFixDifference > 0){
                     try {
                         HttpHeaders httpHeaders = new HttpHeaders();
                         httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
