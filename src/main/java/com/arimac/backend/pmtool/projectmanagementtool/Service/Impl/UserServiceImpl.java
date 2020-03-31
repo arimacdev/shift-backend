@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
         project.setClientId(CLIENT_ID);
         project.setProjectStartDate(utilsService.getCurrentTimestamp());
         project.setProjectEndDate(utilsService.getCurrentTimestamp());
-        project.setProjectStatus(ProjectStatusEnum.presalesPD);
+        project.setProjectStatus(ProjectStatusEnum.presales);
         project.setIsDeleted(false);
         projectRepository.createProject(project);
 

@@ -43,85 +43,85 @@ public class TaskLogServiceImpl implements TaskLogService {
         this.utilsService = utilsService;
     }
 
-    @Override
-    public Object addTaskLog(Task task) {
-        TaskLog log = new TaskLog();
-        log.setTaskLogId(utilsService.getUUId());
-        log.setTasklogInitiator(task.getTaskInitiator());
-        log.setProjectId(task.getProjectId());
-        log.setTaskLogEntity(LogEntityEnum.Task.getEntityId());
-        log.setTaskLogEntityId(task.getTaskId());
-        log.setOperation(LogOperationEnum.CREATE.getOperationId());
-        log.setTimestamp(utilsService.getCurrentTimestamp());
-        taskLogRespository.addTaskLog(log);
-        return null;
-    }
-
-    @Override
-    public Object getAllLogs(String projectId) {
-        //Check project existence
-        List<TaskLogUser> taskLogList = taskLogRespository.getAllLogs(projectId);
-        List<TaskLogResponse> taskLogResponseList = new ArrayList<>();
-        for (TaskLogUser taskLog : taskLogList){
-            switch (taskLog.getTaskLogEntity()){
-                case (2):
-                    Task task = taskRepository.getProjectTaskWithDeleted(taskLog.getTaskLogEntityId());
-                    if (task != null){
-                        TaskLogResponse taskLogResponse = new TaskLogResponse();
-                        //Entity Details
-                        taskLogResponse.setTaskLogEntity(taskLog.getTaskLogEntity());
-                        taskLogResponse.setTaskLogEntityId(taskLog.getTaskLogEntityId());
-                        taskLogResponse.setOperation(taskLog.getOperation());
-                        taskLogResponse.setTaskLogEntityName(task.getTaskName());
-                        //Initiator Details
-                        taskLogResponse.setTasklogInitiator(taskLog.getTasklogInitiator());
-                        taskLogResponse.setUserId(taskLog.getTasklogInitiator());
-                        taskLogResponse.setFirstName(taskLog.getFirstName());
-                        taskLogResponse.setLastName(taskLog.getLastName());
-                        taskLogResponse.setProfileImage(taskLog.getProfileImage());
-                        //Task Log details
-                        taskLogResponse.setTaskLogId(taskLog.getTaskLogId());
-                        if (taskLog.getOperation() == UPDATE){ // If operation is update
-                            taskLogResponse.setModifiedField(taskLog.getModified());
-                            taskLogResponse.setPrevious(taskLog.getPrevious());
-                            taskLogResponse.setModified(taskLog.getModified());
-                        }
-                        taskLogResponse.setTimestamp(taskLog.getTimestamp());
-
-                        taskLogResponseList.add(taskLogResponse);
-                        break;
-
-                    }
-                case (1):
-                    Project project = projectRepository.getProjectById(projectId);
-                    //Entity Details
-                    TaskLogResponse taskLogResponse = new TaskLogResponse();
-                    taskLogResponse.setTaskLogEntity(taskLog.getTaskLogEntity());
-                    taskLogResponse.setTaskLogEntityId(taskLog.getTaskLogEntityId());
-                    taskLogResponse.setOperation(taskLog.getOperation());
-                    taskLogResponse.setTaskLogEntityName(project.getProjectName());
-                    //Initiator Details
-                    taskLogResponse.setTasklogInitiator(taskLog.getTasklogInitiator());
-                    taskLogResponse.setUserId(taskLog.getTasklogInitiator());
-                    taskLogResponse.setFirstName(taskLog.getFirstName());
-                    taskLogResponse.setLastName(taskLog.getLastName());
-                    taskLogResponse.setProfileImage(taskLog.getProfileImage());
-                    //Task Log details
-                    taskLogResponse.setTaskLogId(taskLog.getTaskLogId());
-                    if (taskLog.getOperation() == UPDATE){ // If operation is update
-                        taskLogResponse.setPrevious(taskLog.getPrevious());
-                        taskLogResponse.setModified(taskLog.getModified());
-                    }
-                    taskLogResponse.setTimestamp(taskLog.getTimestamp());
-
-                    taskLogResponseList.add(taskLogResponse);
-            }
-
-        }
-//        List<TaskLog> sortedUsers = taskLogList.stream()
-//                .sorted(Comparator.comparing(TaskLog::getTimestamp))
-//                .collect(Collectors.toList());
-//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, sortedUsers);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResponseList);
-    }
+//    @Override
+//    public Object addTaskLog(Task task) {
+//        TaskLog log = new TaskLog();
+//        log.setTaskLogId(utilsService.getUUId());
+//        log.setTasklogInitiator(task.getTaskInitiator());
+//        log.setProjectId(task.getProjectId());
+//        log.setTaskLogEntity(LogEntityEnum.Task.getEntityId());
+//        log.setTaskLogEntityId(task.getTaskId());
+//        log.setOperation(LogOperationEnum.CREATE.getOperationId());
+//        log.setTimestamp(utilsService.getCurrentTimestamp());
+//        taskLogRespository.addTaskLog(log);
+//        return null;
+//    }
+//
+//    @Override
+//    public Object getAllLogs(String projectId) {
+//        //Check project existence
+//        List<TaskLogUser> taskLogList = taskLogRespository.getAllLogs(projectId);
+//        List<TaskLogResponse> taskLogResponseList = new ArrayList<>();
+//        for (TaskLogUser taskLog : taskLogList){
+//            switch (taskLog.getTaskLogEntity()){
+//                case (2):
+//                    Task task = taskRepository.getProjectTaskWithDeleted(taskLog.getTaskLogEntityId());
+//                    if (task != null){
+//                        TaskLogResponse taskLogResponse = new TaskLogResponse();
+//                        //Entity Details
+//                        taskLogResponse.setTaskLogEntity(taskLog.getTaskLogEntity());
+//                        taskLogResponse.setTaskLogEntityId(taskLog.getTaskLogEntityId());
+//                        taskLogResponse.setOperation(taskLog.getOperation());
+//                        taskLogResponse.setTaskLogEntityName(task.getTaskName());
+//                        //Initiator Details
+//                        taskLogResponse.setTasklogInitiator(taskLog.getTasklogInitiator());
+//                        taskLogResponse.setUserId(taskLog.getTasklogInitiator());
+//                        taskLogResponse.setFirstName(taskLog.getFirstName());
+//                        taskLogResponse.setLastName(taskLog.getLastName());
+//                        taskLogResponse.setProfileImage(taskLog.getProfileImage());
+//                        //Task Log details
+//                        taskLogResponse.setTaskLogId(taskLog.getTaskLogId());
+//                        if (taskLog.getOperation() == UPDATE){ // If operation is update
+//                            taskLogResponse.setModifiedField(taskLog.getModified());
+//                            taskLogResponse.setPrevious(taskLog.getPrevious());
+//                            taskLogResponse.setModified(taskLog.getModified());
+//                        }
+//                        taskLogResponse.setTimestamp(taskLog.getTimestamp());
+//
+//                        taskLogResponseList.add(taskLogResponse);
+//                        break;
+//
+//                    }
+//                case (1):
+//                    Project project = projectRepository.getProjectById(projectId);
+//                    //Entity Details
+//                    TaskLogResponse taskLogResponse = new TaskLogResponse();
+//                    taskLogResponse.setTaskLogEntity(taskLog.getTaskLogEntity());
+//                    taskLogResponse.setTaskLogEntityId(taskLog.getTaskLogEntityId());
+//                    taskLogResponse.setOperation(taskLog.getOperation());
+//                    taskLogResponse.setTaskLogEntityName(project.getProjectName());
+//                    //Initiator Details
+//                    taskLogResponse.setTasklogInitiator(taskLog.getTasklogInitiator());
+//                    taskLogResponse.setUserId(taskLog.getTasklogInitiator());
+//                    taskLogResponse.setFirstName(taskLog.getFirstName());
+//                    taskLogResponse.setLastName(taskLog.getLastName());
+//                    taskLogResponse.setProfileImage(taskLog.getProfileImage());
+//                    //Task Log details
+//                    taskLogResponse.setTaskLogId(taskLog.getTaskLogId());
+//                    if (taskLog.getOperation() == UPDATE){ // If operation is update
+//                        taskLogResponse.setPrevious(taskLog.getPrevious());
+//                        taskLogResponse.setModified(taskLog.getModified());
+//                    }
+//                    taskLogResponse.setTimestamp(taskLog.getTimestamp());
+//
+//                    taskLogResponseList.add(taskLogResponse);
+//            }
+//
+//        }
+////        List<TaskLog> sortedUsers = taskLogList.stream()
+////                .sorted(Comparator.comparing(TaskLog::getTimestamp))
+////                .collect(Collectors.toList());
+////        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, sortedUsers);
+//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResponseList);
+//    }
 }

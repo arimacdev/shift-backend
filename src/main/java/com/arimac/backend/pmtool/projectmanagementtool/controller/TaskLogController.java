@@ -27,11 +27,11 @@ public class TaskLogController extends ResponseController {
     }
 
 
-    @ApiOperation(value = "Get all logs", notes = "Get all logs")
-    @ApiResponse(code = 200, message = "Success", response = List.class)
-    @GetMapping("/{projectId}")
-    public ResponseEntity<Object> getAllLogs(@PathVariable("projectId") String projectId){
-        logger.info("HIT - GET /logs ---> getAllLogs {}", projectId);
-        return sendResponse(taskLogService.getAllLogs(projectId));
-    }
+//    @ApiOperation(value = "Get all logs", notes = "Get all logs")
+//    @ApiResponse(code = 200, message = "Success", response = List.class)
+//    @GetMapping("/{projectId}")
+//    public ResponseEntity<Object> getAllLogs(@PathVariable("projectId") String projectId){
+//        logger.info("HIT - GET /logs ---> getAllLogs {}", projectId);
+//        return sendResponse(taskLogService.getAllLogs(projectId));
+//    }
 }
