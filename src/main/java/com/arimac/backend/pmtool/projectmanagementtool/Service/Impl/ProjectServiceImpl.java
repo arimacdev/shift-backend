@@ -57,7 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setClientId(projectDto.getClientId());
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
-        project.setProjectStatus(ProjectStatusEnum.presales);
+        project.setProjectStatus(ProjectStatusEnum.presalesPD);
         project.setIsDeleted(false);
         projectRepository.createProject(project);
 
@@ -95,7 +95,6 @@ public class ProjectServiceImpl implements ProjectService {
         if (userProject == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
         return new Response(ResponseMessage.SUCCESS, userProject);
-//         projectRepository.get
     }
 
     @Override
@@ -107,8 +106,6 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssignerId()); // Check project assigner is assigned & isAdmin
         if (assignerProject == null)
             return new ErrorMessage("Assigner doesn't belong to the project", HttpStatus.BAD_REQUEST);
-//        if (assignerProject.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
         if (!((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
         if (userAssignDto.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())

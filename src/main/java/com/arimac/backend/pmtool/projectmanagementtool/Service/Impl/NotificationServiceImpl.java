@@ -50,7 +50,7 @@ public class NotificationServiceImpl implements NotificationService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
+    @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
     public void run() {
 
         Date date = new Date();
