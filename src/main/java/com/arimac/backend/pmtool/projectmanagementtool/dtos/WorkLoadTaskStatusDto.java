@@ -22,7 +22,7 @@ public class WorkLoadTaskStatusDto implements RowMapper<WorkLoadTaskStatusDto> {
     private String taskAssignee;
     private String taskInitiator;
     private String taskNote;
-    private TaskStatusEnum taskStatus;
+    private String taskStatus;
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
@@ -36,7 +36,7 @@ public class WorkLoadTaskStatusDto implements RowMapper<WorkLoadTaskStatusDto> {
     public WorkLoadTaskStatusDto() {
     }
 
-    public WorkLoadTaskStatusDto(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage, String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate) {
+    public WorkLoadTaskStatusDto(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage, String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate) {
         this.userId = userId;
         this.idpUserId = idpUserId;
         this.firstName = firstName;
@@ -147,11 +147,11 @@ public class WorkLoadTaskStatusDto implements RowMapper<WorkLoadTaskStatusDto> {
         this.taskNote = taskNote;
     }
 
-    public TaskStatusEnum getTaskStatus() {
+    public String getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(TaskStatusEnum taskStatus) {
+    public void setTaskStatus(String taskStatus) {
         this.taskStatus = taskStatus;
     }
 
@@ -233,7 +233,7 @@ public class WorkLoadTaskStatusDto implements RowMapper<WorkLoadTaskStatusDto> {
                 resultSet.getString("taskAssignee"),
                 resultSet.getString("taskInitiator"),
                 resultSet.getString("taskNote"),
-                TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
+                resultSet.getString("taskStatus"),
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),

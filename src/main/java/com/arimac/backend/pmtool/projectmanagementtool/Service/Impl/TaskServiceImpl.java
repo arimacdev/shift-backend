@@ -304,18 +304,28 @@ public class TaskServiceImpl implements TaskService {
                     }
                     workStatusMap.put(workLoadItem.getUserId(), mapItem);
             } else {
-                UserWorkLoadDto userWorkLoad = new UserWorkLoadDto();
-                userWorkLoad.setUserId(workLoadItem.getUserId());
-                userWorkLoad.setFirstName(workLoadItem.getFirstName());
-                userWorkLoad.setLastName(workLoadItem.getLastName());
-                userWorkLoad.setEmail(workLoadItem.getEmail());
-                userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
-                if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)){
-                    userWorkLoad.setTasksCompleted(1);
-                    userWorkLoad.setTotalTasks(1);
-                } else{
+                    UserWorkLoadDto userWorkLoad = new UserWorkLoadDto();
+                if (workLoadItem.getTaskId() != null) {
+                    userWorkLoad.setUserId(workLoadItem.getUserId());
+                    userWorkLoad.setFirstName(workLoadItem.getFirstName());
+                    userWorkLoad.setLastName(workLoadItem.getLastName());
+                    userWorkLoad.setEmail(workLoadItem.getEmail());
+                    userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
+                    if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)) {
+                        userWorkLoad.setTasksCompleted(1);
+                        userWorkLoad.setTotalTasks(1);
+                    } else {
+                        userWorkLoad.setTasksCompleted(0);
+                        userWorkLoad.setTotalTasks(1);
+                    }
+                } else  {
+                    userWorkLoad.setUserId(workLoadItem.getUserId());
+                    userWorkLoad.setFirstName(workLoadItem.getFirstName());
+                    userWorkLoad.setLastName(workLoadItem.getLastName());
+                    userWorkLoad.setEmail(workLoadItem.getEmail());
+                    userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
                     userWorkLoad.setTasksCompleted(0);
-                    userWorkLoad.setTotalTasks(1);
+                    userWorkLoad.setTotalTasks(0);
                 }
                 workStatusMap.put(workLoadItem.getUserId(), userWorkLoad);
             }
@@ -347,7 +357,7 @@ public class TaskServiceImpl implements TaskService {
                     projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
                     projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
                     projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                    projectTaskWorkLoad.setTaskStatus(workLoadTaskItem.getTaskStatus());
+                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
                     projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
                     projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                     List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
@@ -364,7 +374,7 @@ public class TaskServiceImpl implements TaskService {
                 projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
                 projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
                 projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                projectTaskWorkLoad.setTaskStatus(workLoadTaskItem.getTaskStatus());
+                projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
                 projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
                 projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                 List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
