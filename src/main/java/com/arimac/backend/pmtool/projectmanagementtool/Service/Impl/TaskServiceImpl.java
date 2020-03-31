@@ -296,7 +296,7 @@ public class TaskServiceImpl implements TaskService {
         for (WorkLoadTaskStatusDto workLoadItem: workLoadList){
             UserWorkLoadDto mapItem = workStatusMap.get(workLoadItem.getUserId());
             if (mapItem != null){
-                    if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)){
+                    if (workLoadItem.getTaskStatus().equals("closed")){
                         mapItem.setTotalTasks(mapItem.getTotalTasks() +1);
                         mapItem.setTasksCompleted(mapItem.getTasksCompleted() +1);
                     } else {
@@ -311,7 +311,7 @@ public class TaskServiceImpl implements TaskService {
                     userWorkLoad.setLastName(workLoadItem.getLastName());
                     userWorkLoad.setEmail(workLoadItem.getEmail());
                     userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
-                    if (workLoadItem.getTaskStatus().equals(TaskStatusEnum.closed)) {
+                    if (workLoadItem.getTaskStatus().equals("closed")) {
                         userWorkLoad.setTasksCompleted(1);
                         userWorkLoad.setTotalTasks(1);
                     } else {
@@ -380,7 +380,7 @@ public class TaskServiceImpl implements TaskService {
                 List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
                 taskList.add(projectTaskWorkLoad);
                 projectWorkLoad.setTaskList(taskList);
-                if (workLoadTaskItem.getTaskStatus().equals(TaskStatusEnum.closed)){
+                if (workLoadTaskItem.getTaskStatus().equals("closed")){
                     projectWorkLoad.setCompleted(1);
                     projectWorkLoad.setTotal(1);
                 } else {
