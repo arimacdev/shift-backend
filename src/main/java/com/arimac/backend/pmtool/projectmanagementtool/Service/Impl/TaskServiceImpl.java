@@ -347,7 +347,7 @@ public class TaskServiceImpl implements TaskService {
         for (WorkLoadTaskStatusDto workLoadTaskItem : workLoadList){
             UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
             if (mapItem != null){
-                if (workLoadTaskItem.getTaskStatus().equals(TaskStatusEnum.closed)) {
+                if (workLoadTaskItem.getTaskStatus().equals("closed")) {
                     mapItem.setCompleted(mapItem.getCompleted() + 1);
                     mapItem.setTotal(mapItem.getTotal() + 1);
                 } else {
