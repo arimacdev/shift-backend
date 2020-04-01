@@ -11,6 +11,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import org.joda.time.*;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +96,7 @@ public class NotificationServiceImpl implements NotificationService {
                         message.append(" of project ");
                         message.append(taskAlert.getProjectName());
                         message.append(" will be due at ");
-                        message.append(dueUtc.toString());
+                        message.append(getDueDate(dueUtc));
                         payload.put("text",message.toString());
                         StringBuilder url = new StringBuilder();
                         url.append(ENVConfig.SLACK_BASE_URL);
@@ -109,6 +111,20 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }
         }
+    }
+
+    private String getDueDate(DateTime dueUtc){
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        String dueFormatted = fmt.print(dueUtc);
+
+//        int year = dueUtc.getYear();
+//        int month = dueUtc.getMonthOfYear();
+//        dueUtc.getDayOfMonth();
+//        dueUtc.getHourOfDay();
+//        dueUtc.getMinuteOfHour();
+
+        return dueFormatted;
 
     }
 }
