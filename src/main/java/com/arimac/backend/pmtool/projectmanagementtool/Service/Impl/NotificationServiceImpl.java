@@ -94,7 +94,7 @@ public class NotificationServiceImpl implements NotificationService {
                         message.append(" of project ");
                         message.append(taskAlert.getProjectName());
                         message.append(" will be due at ");
-                        message.append(taskAlert.getTaskDue());
+                        message.append(dueUtc.toString());
                         payload.put("text",message.toString());
                         StringBuilder url = new StringBuilder();
                         url.append(ENVConfig.SLACK_BASE_URL);

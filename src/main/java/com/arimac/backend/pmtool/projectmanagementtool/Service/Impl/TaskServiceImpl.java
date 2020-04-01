@@ -12,6 +12,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -246,8 +248,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Object getProjectTaskCompletion(String userId, String projectId) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+//        if (projectUser == null)
+//            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
         int dueToday = 0;
         int overDue = 0;
@@ -256,9 +258,15 @@ public class TaskServiceImpl implements TaskService {
         int completed = 0;
         for (Task task : taskList){
             if (task.getTaskDueDateAt() != null) {
-                long due = task.getTaskDueDateAt().getTime();
                 long now = new Date().getTime();
-                if (due < now) {
+                long due = task.getTaskDueDateAt().getTime();
+                DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
+//                DateTime nowColombo = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+//                DateTime dueColombo = new DateTime(due, DateTimeZone.forID("Asia/Colombo"));
+                DateTime dueUTC = new DateTime(due, DateTimeZone.forID("UTC"));
+                DateTime newDueUTC = dueUTC.minusMinutes(330);
+                boolean yes = newDueUTC.isBefore(nowUTC);
+                if (newDueUTC.isBefore(nowUTC)) {
                     overDue += 1;
                 } else if (due == now) {
                     dueToday += 1;
