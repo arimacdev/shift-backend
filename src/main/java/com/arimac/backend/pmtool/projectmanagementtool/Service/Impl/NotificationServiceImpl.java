@@ -56,11 +56,10 @@ public class NotificationServiceImpl implements NotificationService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-    @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
+//    @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
+    @Scheduled(initialDelay = 1000, fixedRate = 30000)
     public void run() {
 
-        Date date = new Date();
-        long currentTime = new Timestamp(date.getTime()).getTime();
         List<TaskAlertDto> taskAlertList = notificationRepository.getTaskAlertList();
         for(TaskAlertDto taskAlert : taskAlertList) {
             if (taskAlert.getTaskDue() != null) {
@@ -87,7 +86,6 @@ public class NotificationServiceImpl implements NotificationService {
                 int timeFixDifference = difference - 330;
                 logger.info("fix difference {}",timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
-
                 if(timeFixDifference < 60 && !taskAlert.getIsDaily()){
                     //send notification
                     NotificationUpdateDto updateDto = new NotificationUpdateDto();
@@ -96,47 +94,50 @@ public class NotificationServiceImpl implements NotificationService {
                     updateDto.setIsHourly(true);
                     notificationRepository.updateTaskNotification(updateDto);
                 }
-
                 if (timeFixDifference < 1440 && timeFixDifference > 0){
+                    NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                    updateDto.setTaskId(taskAlert.getTaskId());
                     if (timeFixDifference < 60){
-                        NotificationUpdateDto updateDto = new NotificationUpdateDto();
-                        updateDto.setTaskId(taskAlert.getTaskId());
+                        //Hourly Notification
                         updateDto.setIsDaily(true);
                         updateDto.setIsHourly(true);
-//                        notificationRepository.updateTaskNotification();
-                        //send notification //hourly
-                    } else {
-//                        notificationRepository.updateTaskNotification();
+                        notificationRepository.updateTaskNotification(updateDto);
+                        sendSlackNotification(taskAlert, dueUtc);
+                    } else if (!taskAlert.getIsDaily()){
+                        //Daily Notification
+                        updateDto.setIsDaily(true);
+                        updateDto.setIsHourly(false);
+                        notificationRepository.updateTaskNotification(updateDto);
+                        sendSlackNotification(taskAlert, dueUtc);
                     }
-                }
-
-                if (timeFixDifference < 60 && timeFixDifference > 0){
-                    try {
-                        HttpHeaders httpHeaders = new HttpHeaders();
-                        httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
-                        httpHeaders.set("Content-Type", "application/json");
-                        JSONObject payload = new JSONObject();
-                        payload.put("channel", taskAlert.getAssigneeSlackId());
-                        StringBuilder message = new StringBuilder();
-                        message.append("Your Task: ");
-                        message.append(taskAlert.getTaskName());
-                        message.append(" of project ");
-                        message.append(taskAlert.getProjectName());
-                        message.append(" will be due at ");
-                        message.append(getDueDate(dueUtc));
-                        payload.put("text",message.toString());
-                        StringBuilder url = new StringBuilder();
-                        url.append(ENVConfig.SLACK_BASE_URL);
-                        url.append("/chat.postMessage");
-                        logger.info("Slack Message Url {}", url);
-                        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
-                        ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
-                    } catch (Exception e){
-                        logger.info("Error calling Slack API");
-                    }
-
                 }
             }
+        }
+    }
+
+    private void sendSlackNotification(TaskAlertDto taskAlert, DateTime dueUtc){
+        try {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
+            httpHeaders.set("Content-Type", "application/json");
+            JSONObject payload = new JSONObject();
+            payload.put("channel", taskAlert.getAssigneeSlackId());
+            StringBuilder message = new StringBuilder();
+            message.append("Your Task: ");
+            message.append(taskAlert.getTaskName());
+            message.append(" of project ");
+            message.append(taskAlert.getProjectName());
+            message.append(" will be due at ");
+            message.append(getDueDate(dueUtc));
+            payload.put("text",message.toString());
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+            ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        } catch (Exception e){
+            logger.info("Error calling Slack API");
         }
     }
 
