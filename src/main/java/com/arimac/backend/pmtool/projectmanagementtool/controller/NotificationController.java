@@ -22,6 +22,7 @@ public class NotificationController extends ResponseController {
         this.notificationService = notificationService;
     }
 
+    @Deprecated
     @ApiOperation(value = "Add Slack Id to User", notes = "User and SlackId mapping")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/user/{userId}/slack")

@@ -5,52 +5,97 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class Notification implements RowMapper<Notification> {
-    private String userId;
-    private String userSlackId;
-    @JsonProperty
-    private boolean notificationStatus;
+    private String notificationId;
+    private String assigneeId;
+    private String taskId;
+    private Timestamp taskDueDateAt;
+    private boolean hourly;
+    private boolean daily;
 
     public Notification() {
     }
 
-    public Notification(String userId, String userSlackId, boolean notificationStatus) {
-        this.userId = userId;
-        this.userSlackId = userSlackId;
-        this.notificationStatus = notificationStatus;
+    public Notification(String notificationId, String assigneeId, String taskId, Timestamp taskDueDateAt, boolean hourly, boolean daily) {
+        this.notificationId = notificationId;
+        this.assigneeId = assigneeId;
+        this.taskId = taskId;
+        this.taskDueDateAt = taskDueDateAt;
+        this.hourly = hourly;
+        this.daily = daily;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getNotificationId() {
+        return notificationId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
     }
 
-    public String getUserSlackId() {
-        return userSlackId;
+    public String getAssigneeId() {
+        return assigneeId;
     }
 
-    public void setUserSlackId(String userSlackId) {
-        this.userSlackId = userSlackId;
+    public void setAssigneeId(String assigneeId) {
+        this.assigneeId = assigneeId;
     }
 
-    public boolean getNotificationStatus() {
-        return notificationStatus;
+    public String getTaskId() {
+        return taskId;
     }
 
-    public void setNotificationStatus(boolean notificationStatus) {
-        this.notificationStatus = notificationStatus;
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public Timestamp getTaskDueDateAt() {
+        return taskDueDateAt;
+    }
+
+    public void setTaskDueDateAt(Timestamp taskDueDateAt) {
+        this.taskDueDateAt = taskDueDateAt;
+    }
+
+    public boolean getIsHourly() {
+        return hourly;
+    }
+
+    public void setHourly(boolean hourly) {
+        this.hourly = hourly;
+    }
+
+    public boolean getIsDaily() {
+        return daily;
+    }
+
+    public void setDaily(boolean daily) {
+        this.daily = daily;
     }
 
     @Override
     public Notification mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Notification(
-                resultSet.getString("userId"),
-                resultSet.getString("userSlackId"),
-                resultSet.getBoolean("notificationStatus")
+                resultSet.getString("notificationId"),
+                resultSet.getString("assigneeId"),
+                resultSet.getString("taskId"),
+                resultSet.getTimestamp("taskDueDate"),
+                resultSet.getBoolean("hourly"),
+                resultSet.getBoolean("daily")
         );
+    }
+
+    @Override
+    public String toString() {
+        return "Notification{" +
+                "notificationId='" + notificationId + '\'' +
+                ", assigneeId='" + assigneeId + '\'' +
+                ", taskId='" + taskId + '\'' +
+                ", taskDueDateAt=" + taskDueDateAt +
+                ", hourly=" + hourly +
+                ", daily=" + daily +
+                '}';
     }
 }

@@ -49,6 +49,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object createUser(UserRegistrationDto userRegistrationDto) {
+        if ((userRegistrationDto.getFirstName() == null ||userRegistrationDto.getFirstName().isEmpty()) || (userRegistrationDto.getLastName() == null ||userRegistrationDto.getLastName().isEmpty()) ||(userRegistrationDto.getEmail() == null ||userRegistrationDto.getEmail().isEmpty()))
+            return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         String userUUID = utilsService.getUUId();
         String idpUserId = idpUserService.createUser(userRegistrationDto,  userUUID, true);
         User user = new User();

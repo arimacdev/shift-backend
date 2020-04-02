@@ -8,12 +8,14 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -33,10 +35,11 @@ public class TaskServiceImpl implements TaskService {
     private final TaskFileRepository taskFileRepository;
     private final TaskLogService taskLogService;
     private final UtilsService utilsService;
+    private final NotificationRepository notificationRepository;
 
     private final RestTemplate restTemplate;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, RestTemplate restTemplate) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationRepository notificationRepository, RestTemplate restTemplate) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -44,6 +47,7 @@ public class TaskServiceImpl implements TaskService {
         this.taskFileRepository = taskFileRepository;
         this.taskLogService = taskLogService;
         this.utilsService = utilsService;
+        this.notificationRepository = notificationRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -85,6 +89,26 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
         taskRepository.addTaskToProject(task);
+
+        DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
+        DateTime now = DateTime.now();
+        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+        DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+        Duration duration = new Duration(nowCol, dueUtc);
+        int difference = (int) duration.getStandardMinutes();
+        int timeFixDifference = difference - 330;
+        Notification notification = new Notification();
+        notification.setNotificationId(utilsService.getUUId());
+        notification.setTaskId(task.getTaskId());
+        notification.setAssigneeId(task.getTaskAssignee());
+        notification.setTaskDueDateAt(task.getTaskDueDateAt());
+        if (timeFixDifference < 1440){
+            notification.setDaily(true);
+        } else {
+            notification.setDaily(false);
+        }
+        notification.setHourly(false);
+        notificationRepository.addTaskNotification(notification);
 //        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }

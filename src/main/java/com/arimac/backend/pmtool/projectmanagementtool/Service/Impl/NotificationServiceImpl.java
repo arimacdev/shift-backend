@@ -2,11 +2,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.NotificationRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -30,17 +31,20 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
+    private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
 
     private final RestTemplate restTemplate;
 
-    public NotificationServiceImpl(UserRepository userRepository, TaskRepository taskRepository, RestTemplate restTemplate) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, RestTemplate restTemplate) {
+        this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.restTemplate = restTemplate;
     }
 
+    @Deprecated
     @Override
     public Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto) {
         if (slackNotificationDto.getAssigneeSlackId().equals(slackNotificationDto.getSlackAssignerId()))
@@ -57,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         Date date = new Date();
         long currentTime = new Timestamp(date.getTime()).getTime();
-        List<TaskAlertDto> taskAlertList = taskRepository.getTaskAlertList();
+        List<TaskAlertDto> taskAlertList = notificationRepository.getTaskAlertList();
         for(TaskAlertDto taskAlert : taskAlertList) {
             if (taskAlert.getTaskDue() != null) {
                 logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
@@ -83,6 +87,29 @@ public class NotificationServiceImpl implements NotificationService {
                 int timeFixDifference = difference - 330;
                 logger.info("fix difference {}",timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
+
+                if(timeFixDifference < 60 && !taskAlert.getIsDaily()){
+                    //send notification
+                    NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                    updateDto.setTaskId(taskAlert.getTaskId());
+                    updateDto.setIsDaily(true);
+                    updateDto.setIsHourly(true);
+                    notificationRepository.updateTaskNotification(updateDto);
+                }
+
+                if (timeFixDifference < 1440 && timeFixDifference > 0){
+                    if (timeFixDifference < 60){
+                        NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                        updateDto.setTaskId(taskAlert.getTaskId());
+                        updateDto.setIsDaily(true);
+                        updateDto.setIsHourly(true);
+//                        notificationRepository.updateTaskNotification();
+                        //send notification //hourly
+                    } else {
+//                        notificationRepository.updateTaskNotification();
+                    }
+                }
+
                 if (timeFixDifference < 60 && timeFixDifference > 0){
                     try {
                         HttpHeaders httpHeaders = new HttpHeaders();

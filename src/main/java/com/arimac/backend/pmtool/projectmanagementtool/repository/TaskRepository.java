@@ -20,7 +20,7 @@ public interface TaskRepository {
     Object updateProjectTask(String taskId,TaskUpdateDto taskUpdateDto);
     void flagProjectTask(String taskId);
     void flagProjectBoundTasks(String projectId);
-    List<TaskAlertDto> getTaskAlertList();
+//    List<TaskAlertDto> getTaskAlertList();
     List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
     List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId);
 
