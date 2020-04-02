@@ -56,8 +56,8 @@ public class NotificationServiceImpl implements NotificationService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-//    @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
-    @Scheduled(initialDelay = 1000, fixedRate = 30000)
+    @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
+//    @Scheduled(initialDelay = 1000, fixedRate = 30000)
     public void run() {
 
         List<TaskAlertDto> taskAlertList = notificationRepository.getTaskAlertList();
