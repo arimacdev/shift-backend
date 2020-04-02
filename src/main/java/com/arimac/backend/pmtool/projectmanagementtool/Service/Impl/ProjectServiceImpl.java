@@ -178,6 +178,9 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
         if ( !((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+        if (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue() && assigneeProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()){
+            return new ErrorMessage("Admin Cannot Edit Project Owner!", HttpStatus.BAD_REQUEST);
+        }
         if (updateDto.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
             return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.FORBIDDEN);
         if (updateDto.getAssignerId().equals(userId))
