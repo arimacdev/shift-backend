@@ -57,4 +57,10 @@ public class NotificationRepositoryImpl implements NotificationRepository {
                 "    INNER JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.daily = false OR n.hourly = false)";
         return jdbcTemplate.query(sql, new TaskAlertDto(), "closed");
     }
+
+    @Override
+    public void deleteNotification(String taskId) {
+        String sql = "DELETE FROM Notification WHERE taskId=?";
+        jdbcTemplate.update(sql, taskId);
+    }
 }

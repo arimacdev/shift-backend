@@ -12,4 +12,5 @@ public interface NotificationRepository {
 //    Notification getTaskNotification(String )
     void updateTaskNotification(NotificationUpdateDto notificationUpdateDto);
     List<TaskAlertDto> getTaskAlertList();
+    void deleteNotification(String taskId);
 }

@@ -188,7 +188,7 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
         taskRepository.flagProjectTask(taskId);
         subTaskRepository.flagTaskBoundSubTasks(taskId);
-
+        notificationRepository.deleteNotification(taskId);
         return new Response(ResponseMessage.SUCCESS);
     }
 
