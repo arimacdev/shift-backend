@@ -9,6 +9,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
@@ -317,6 +318,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object getAllUsersWithTaskCompletion(String userId) {
+        //TODO Admin validation
         User adminUser = userRepository.getUserByUserId(userId);
         if (adminUser == null){
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -423,6 +425,24 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
+    }
+
+    @Override
+    public Object getAllProjectsWithCompletion(String user, String userId) {
+        List<ProjectUserResponseDto> projectList = projectRepository.getAllProjectsByUser(userId);
+        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>();
+        for (ProjectUserResponseDto project : projectList){
+            UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
+            projectWorkLoad.setUserId(project.getAssigneeId());
+            projectWorkLoad.setProjectId(project.getProjectId());
+            projectWorkLoad.setProjectName(project.getProjectName());
+            projectWorkLoad.setCompleted(0);
+            projectWorkLoad.setTotal(0);
+            List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+            projectWorkLoad.setTaskList(taskList);
+            userProjectWorkLoadTaskResponse.add(projectWorkLoad);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
     }
 }

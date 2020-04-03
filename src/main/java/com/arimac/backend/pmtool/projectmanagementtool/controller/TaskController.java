@@ -121,5 +121,14 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.getAllUserAssignedTaskWithCompletion(user,userId));
     }
 
+    //TODO REMOVE
+    @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/tasks/users/{userId}/workload/projects")
+    public ResponseEntity<Object> getAllProjectsWithCompletion(@PathVariable("userId") String userId, @RequestHeader("user") String user){
+        logger.info("HIT - GET /projects/tasks/users/<userId>/workload ---> getAllProjectsWithCompletion | from user: {} || about userId: {}",  user, userId);
+        return sendResponse(taskService.getAllProjectsWithCompletion(user,userId));
+    }
+
 
 }
