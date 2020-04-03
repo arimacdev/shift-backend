@@ -369,14 +369,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllUserAssignedTaskWithCompletion(String admin, String userId) {
+    public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
         User adminUser = userRepository.getUserByUserId(admin);
         if (adminUser == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
         User projectUser = userRepository.getUserByUserId(userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId);
+        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId, from, to);
         Map<String,UserProjectWorkLoadDto> userProjectWorkLoadMap = new HashMap<>();
         for (WorkLoadTaskStatusDto workLoadTaskItem : workLoadList){
             UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
