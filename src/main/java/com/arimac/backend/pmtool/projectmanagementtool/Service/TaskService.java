@@ -15,7 +15,7 @@ public interface TaskService {
     Object getProjectTaskCompletionUserDetails(String userId, String projectId);
     Object getProjectTaskCompletion(String userId, String projectId);
     Object getAllUsersWithTaskCompletion(String userId);
-    Object getAllUserAssignedTaskWithCompletion(String user, String userId);
+    Object getAllUserAssignedTaskWithCompletion(String user, String userId, String from, String to);
     Object getAllProjectsWithCompletion(String user, String userId);
 
 }

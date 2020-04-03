@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +23,8 @@ public class TaskRepositoryImpl implements TaskRepository {
     public TaskRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    private static final String ALL= "all";
 
     @Override
     public Task addTaskToProject(Task task) {
@@ -134,9 +137,19 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId) {
-        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=?";
-        List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId);
+    public List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to) {
+        String sql;
+        List<WorkLoadTaskStatusDto> workLoadList = new ArrayList<>();
+        if (from.equals(ALL) || to.equals(ALL)){
+            sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=?";
+            workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId);
+        } else {
+            sql = "SELECT * FROM User AS u\n"+
+                    "INNER JOIN Task AS t on u.userId = t.taskAssignee\n"+
+                    "INNER JOIN project AS p ON t.projectId = p.projectId\n"+
+                    "WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=? AND (t.taskDueDateAt BETWEEN ? AND ?)";
+            workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId, from, to);
+                }
         return workLoadList;
     }
 }
