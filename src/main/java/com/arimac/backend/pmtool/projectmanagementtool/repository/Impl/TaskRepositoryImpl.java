@@ -1,9 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.WorkLoadTaskStatusDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -137,19 +134,38 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to) {
+    public List<WorkLoadProjectDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to) {
         String sql;
-        List<WorkLoadTaskStatusDto> workLoadList = new ArrayList<>();
-        if (from.equals(ALL) || to.equals(ALL)){
-            sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=?";
-            workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId);
+        if (from.equals(ALL) || to.equals(ALL)) {
+             sql = "SELECT * FROM Project_User AS pu\n" +
+                    "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
+                    "        INNER JOIN project p on pu.projectId = p.projectId\n" +
+                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
+            return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
         } else {
-            sql = "SELECT * FROM User AS u\n"+
-                    "INNER JOIN Task AS t on u.userId = t.taskAssignee\n"+
-                    "INNER JOIN project AS p ON t.projectId = p.projectId\n"+
-                    "WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=? AND (t.taskDueDateAt BETWEEN ? AND ?)";
-            workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId, from, to);
-                }
-        return workLoadList;
+            sql = "SELECT * FROM Project_User AS pu\n" +
+                    "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
+                    "        INNER JOIN project p on pu.projectId = p.projectId\n" +
+                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )" +
+                    "AND (t.taskDueDateAt BETWEEN ? AND ?)";
+            return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, from, to);
+        }
     }
+
+//    @Override
+//    public List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to) {
+//        String sql;
+//        List<WorkLoadTaskStatusDto> workLoadList = new ArrayList<>();
+//        if (from.equals(ALL) || to.equals(ALL)){
+//            sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=?";
+//            workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId);
+//        } else {
+//            sql = "SELECT * FROM User AS u\n"+
+//                    "INNER JOIN Task AS t on u.userId = t.taskAssignee\n"+
+//                    "INNER JOIN project AS p ON t.projectId = p.projectId\n"+
+//                    "WHERE t.isDeleted = false AND p.isDeleted=false AND  u.userId=? AND (t.taskDueDateAt BETWEEN ? AND ?)";
+//            workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), userId, from, to);
+//                }
+//        return workLoadList;
+//    }
 }

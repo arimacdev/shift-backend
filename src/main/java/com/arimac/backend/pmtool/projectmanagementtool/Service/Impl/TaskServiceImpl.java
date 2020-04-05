@@ -368,65 +368,64 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userWorkLoadResponse);
     }
 
-    @Override
-    public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
-        User adminUser = userRepository.getUserByUserId(admin);
-        if (adminUser == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        User projectUser = userRepository.getUserByUserId(userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId, from, to);
-        Map<String,UserProjectWorkLoadDto> userProjectWorkLoadMap = new HashMap<>();
-        for (WorkLoadTaskStatusDto workLoadTaskItem : workLoadList){
-            UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
-            if (mapItem != null){
-                if (workLoadTaskItem.getTaskStatus().equals("closed")) {
-                    mapItem.setCompleted(mapItem.getCompleted() + 1);
-                    mapItem.setTotal(mapItem.getTotal() + 1);
-                } else {
-                    mapItem.setTotal(mapItem.getTotal() + 1);
-                }
-                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-                    List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
-                    taskList.add(projectTaskWorkLoad);
-                    mapItem.setTaskList(taskList); /** check here */
-                    userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
+//    @Override
+//    public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
+//        User adminUser = userRepository.getUserByUserId(admin);
+//        if (adminUser == null)
+//            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+//        User projectUser = userRepository.getUserByUserId(userId);
+//        if (projectUser == null)
+//            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+//        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId, from, to);
+//        Map<String,UserProjectWorkLoadDto> userProjectWorkLoadMap = new HashMap<>();
+//        for (WorkLoadTaskStatusDto workLoadTaskItem : workLoadList){
+//            UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
+//            if (mapItem != null){
+//                if (workLoadTaskItem.getTaskStatus().equals("closed")) {
+//                    mapItem.setCompleted(mapItem.getCompleted() + 1);
+//                    mapItem.setTotal(mapItem.getTotal() + 1);
+//                } else {
+//                    mapItem.setTotal(mapItem.getTotal() + 1);
 //                }
-            } else {
-                UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
-                projectWorkLoad.setUserId(workLoadTaskItem.getUserId());
-                projectWorkLoad.setProjectId(workLoadTaskItem.getProjectId());
-                projectWorkLoad.setProjectName(workLoadTaskItem.getProjectName());
-                ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-                projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-                projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-                projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-                projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-                projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-                List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-                taskList.add(projectTaskWorkLoad);
-                projectWorkLoad.setTaskList(taskList);
-                if (workLoadTaskItem.getTaskStatus().equals("closed")){
-                    projectWorkLoad.setCompleted(1);
-                    projectWorkLoad.setTotal(1);
-                } else {
-                    projectWorkLoad.setCompleted(0);
-                    projectWorkLoad.setTotal(1);
-                }
-                userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), projectWorkLoad);
-            }
-        }
-        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
-    }
+//                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+//                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+//                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+//                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+//                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+//                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+//                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+//                    List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
+//                    taskList.add(projectTaskWorkLoad);
+//                    mapItem.setTaskList(taskList); /** check here */
+//                    userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
+//            } else {
+//                UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
+//                projectWorkLoad.setUserId(workLoadTaskItem.getUserId());
+//                projectWorkLoad.setProjectId(workLoadTaskItem.getProjectId());
+//                projectWorkLoad.setProjectName(workLoadTaskItem.getProjectName());
+//                ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+//                projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+//                projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+//                projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+//                projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+//                projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+//                projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+//                List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+//                taskList.add(projectTaskWorkLoad);
+//                projectWorkLoad.setTaskList(taskList);
+//                if (workLoadTaskItem.getTaskStatus().equals("closed")){
+//                    projectWorkLoad.setCompleted(1);
+//                    projectWorkLoad.setTotal(1);
+//                } else {
+//                    projectWorkLoad.setCompleted(0);
+//                    projectWorkLoad.setTotal(1);
+//                }
+//                userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), projectWorkLoad);
+//            }
+//        }
+//        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
+//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
+//    }
 
     @Override
     public Object getAllProjectsWithCompletion(String user, String userId) {
@@ -445,4 +444,80 @@ public class TaskServiceImpl implements TaskService {
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
     }
+
+
+    @Override
+    public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
+        User adminUser = userRepository.getUserByUserId(admin);
+        if (adminUser == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        User projectUser = userRepository.getUserByUserId(userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        List<WorkLoadProjectDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId, from, to);
+        Map<String,UserProjectWorkLoadDto> userProjectWorkLoadMap = new HashMap<>();
+        for (WorkLoadProjectDto workLoadTaskItem : workLoadList){
+            UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
+            if (mapItem != null && workLoadTaskItem.getTaskId()!= null){
+                if (workLoadTaskItem.getTaskAssignee().equals(userId)) {
+                    if (workLoadTaskItem.getTaskStatus().equals("closed")) {
+                        mapItem.setCompleted(mapItem.getCompleted() + 1);
+                        mapItem.setTotal(mapItem.getTotal() + 1);
+                    } else {
+                        mapItem.setTotal(mapItem.getTotal() + 1);
+                    }
+                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+                    List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
+                    taskList.add(projectTaskWorkLoad);
+                    mapItem.setTaskList(taskList); /** check here */
+                    userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
+                }
+            } else {
+                UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
+                projectWorkLoad.setUserId(userId); // set userId
+                projectWorkLoad.setProjectId(workLoadTaskItem.getProjectId());
+                projectWorkLoad.setProjectName(workLoadTaskItem.getProjectName());
+                //Add Tasks if exists
+                if (workLoadTaskItem.getTaskId() != null){
+                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+                    List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+                    taskList.add(projectTaskWorkLoad);
+                    projectWorkLoad.setTaskList(taskList);
+                    if (workLoadTaskItem.getTaskStatus().equals("closed")){
+                        projectWorkLoad.setCompleted(1);
+                        projectWorkLoad.setTotal(1);
+                    } else {
+                        projectWorkLoad.setCompleted(0);
+                        projectWorkLoad.setTotal(1);
+                    }
+                } else {
+                    List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+                    projectWorkLoad.setTaskList(taskList);
+                    projectWorkLoad.setCompleted(0);
+                    projectWorkLoad.setTotal(0);
+                }
+                userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), projectWorkLoad);
+            }
+        }
+        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
+    }
+
+
+
 }
+
+
+
