@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationServi
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAssignNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -56,9 +57,30 @@ public class NotificationServiceImpl implements NotificationService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
+    private HttpHeaders getHttpHeaders(){
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
+        httpHeaders.set("Content-Type", "application/json");
+
+        return httpHeaders;
+    }
+
+    @Override
+    public void sendTaskAssignNotification(TaskAssignNotificationDto taskAssignNotificationDto) {
+        JSONObject payload = new JSONObject();
+        payload.put("channel", taskAssignNotificationDto.getSlackUserId());
+        payload.put("text", getTaskAssignmentMessage(taskAssignNotificationDto));
+        StringBuilder url = new StringBuilder();
+        url.append(ENVConfig.SLACK_BASE_URL);
+        url.append("/chat.postMessage");
+        logger.info("Slack Message Url {}", url);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+        restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+    }
+
     @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
 //    @Scheduled(initialDelay = 1000, fixedRate = 10000)
-    public void run() {
+    public void taskReminderOnDue() {
 
         List<TaskAlertDto> taskAlertList = notificationRepository.getTaskAlertList();
         for(TaskAlertDto taskAlert : taskAlertList) {
@@ -117,9 +139,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     private void sendSlackNotification(TaskAlertDto taskAlert, DateTime dueUtc){
         try {
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
-            httpHeaders.set("Content-Type", "application/json");
+//            HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
+//            httpHeaders.set("Content-Type", "application/json");
             JSONObject payload = new JSONObject();
             payload.put("channel", taskAlert.getAssigneeSlackId());
             StringBuilder message = new StringBuilder();
@@ -134,7 +156,7 @@ public class NotificationServiceImpl implements NotificationService {
             url.append(ENVConfig.SLACK_BASE_URL);
             url.append("/chat.postMessage");
             logger.info("Slack Message Url {}", url);
-            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
             ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
         } catch (Exception e){
             logger.info("Error calling Slack API");
@@ -154,5 +176,16 @@ public class NotificationServiceImpl implements NotificationService {
 
         return dueFormatted;
 
+    }
+
+    private String getTaskAssignmentMessage(TaskAssignNotificationDto notificationDto){
+        StringBuilder message = new StringBuilder();
+        message.append("Task ");
+        message.append(notificationDto.getTaskName());
+        message.append(" of Project");
+        message.append(notificationDto.getProjectName());
+        message.append("is assigned to you by");
+        message.append(notificationDto.getAssignerId());
+        return message.toString();
     }
 }
