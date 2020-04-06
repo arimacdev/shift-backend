@@ -10,7 +10,9 @@ public enum ResponseMessage {
     ASSIGNER_NOT_MEMBER("Assigner doesn't belong to the project"),
     ASSIGNEE_NOT_MEMBER("Assignee doesn't belong to the project"),
     USER_NOT_MEMBER("User doesn't belong to the project"),
-    USER_NOT_FOUND("User doesn't exist");
+    USER_NOT_FOUND("User doesn't exist"),
+    UNAUTHORIZED_OPERATION("This Operation is not permitted!");
+
 
     private String message;
     private ResponseMessage(String message){
