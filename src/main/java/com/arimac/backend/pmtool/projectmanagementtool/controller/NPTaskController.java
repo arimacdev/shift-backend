@@ -74,6 +74,15 @@ public class NPTaskController extends ResponseController {
         logger.info("HIT - HIT - GET /tasks/personal/<taskId>/subtask/<subtaskId>  ---> updateSubTaskOfATask |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" ,  taskId, subtaskId, subTaskUpdateDto);
         return sendResponse(npTaskService.updateSubTaskOfATask(user, taskId, subtaskId, subTaskUpdateDto));
     }
+
+//    @ApiOperation(value = "Get a files of a single Task", notes = "Get file of  single task in a project")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @GetMapping("/{projectId}/tasks/{taskId}/files")
+//    public ResponseEntity<Object> getProjectTaskFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+//        logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/files ---> getProjectTaskFiles | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
+//        return sendResponse(taskService.getProjectTaskFiles(userId, projectId, taskId));
+//    }
+
 //
 //    @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
 //    @ApiResponse(code = 200, message = "Success", response = Response.class)

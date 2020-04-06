@@ -34,6 +34,14 @@ public class FileUploadController extends ResponseController {
         return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, fileType, multipartFile));
     }
 
+    @ApiOperation(value = "Upload a File to a Personal Task", notes = "Upload a file to a task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/personal/tasks/{taskId}/upload")
+    public ResponseEntity<Object> uploadFileToPersonalTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("taskId") String taskId) throws IOException {
+        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask || userId: {} | taskId: {}", userId, taskId);
+        return sendResponse(fileUploadService.uploadFileToPersonalTask(userId, taskId, fileType, multipartFile));
+    }
+
     @ApiOperation(value = "Upload a Profile Picture", notes = "Upload a profile picture to a user profile")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/user/profile/upload")
