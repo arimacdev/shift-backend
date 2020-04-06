@@ -71,7 +71,7 @@ public class NPTaskController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/tasks/personal/{taskId}/subtask/{subtaskId}")
     public ResponseEntity<Object> updateSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId,@RequestBody SubTaskUpdateDto subTaskUpdateDto){
-        logger.info("HIT - HIT - GET /tasks/personal/<taskId>/subtask/<subtaskId>  ---> updateSubTaskOfATask |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" ,  taskId, subtaskId, subTaskUpdateDto);
+        logger.info("HIT  - PUT /tasks/personal/<taskId>/subtask/<subtaskId>  ---> updateSubTaskOfATask |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" ,  taskId, subtaskId, subTaskUpdateDto);
         return sendResponse(npTaskService.updateSubTaskOfATask(user, taskId, subtaskId, subTaskUpdateDto));
     }
 
@@ -92,13 +92,12 @@ public class NPTaskController extends ResponseController {
         return sendResponse(npTaskService.flagPersonalTask(userId, taskId));
     }
 
-//
-//    @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @DeleteMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
-//    public ResponseEntity<Object> flagSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId){
-//        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> flagSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {}" , projectId, taskId, subtaskId);
-//        return sendResponse(subTaskService.flagSubTaskOfATask(user,projectId, taskId, subtaskId));
-//    }
+    @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/tasks/personal/{taskId}/subtask/{subtaskId}")
+    public ResponseEntity<Object> flagPersonalSubTask(@RequestHeader("user") String user, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId){
+        logger.info("HIT - DELETE tasks/personal/<taskId>/subtask/<subtaskId> ---> flagSubTaskOfATask |  taskId: {} | subtaskId {}" , taskId, subtaskId);
+        return sendResponse(npTaskService.flagPersonalSubTask(user, taskId, subtaskId));
+    }
 
 }

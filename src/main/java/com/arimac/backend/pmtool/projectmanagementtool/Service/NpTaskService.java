@@ -14,4 +14,5 @@ public interface NpTaskService {
     Object updateSubTaskOfATask(String userId, String taskId, String subTaskId, SubTaskUpdateDto subTaskUpdateDto);
     Object getPersonalTaskFiles(String userId, String taskId);
     Object flagPersonalTask(String userId, String taskId);
+    Object flagPersonalSubTask(String userId, String taskId, String subTaskId);
 }

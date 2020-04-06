@@ -185,4 +185,19 @@ public class NpTaskServiceImpl implements NpTaskService {
         subTaskRepository.flagTaskBoundSubTasks(taskId);
         return new Response(ResponseMessage.SUCCESS);
     }
+
+    @Override
+    public Object flagPersonalSubTask(String userId, String taskId, String subTaskId) {
+        SubTask subTask = subTaskRepository.getSubTaskById(subTaskId);
+        if (subTask == null)
+            return new ErrorMessage("SubTask not found", HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage("Task not Found", HttpStatus.NOT_FOUND);
+        if (!task.getTaskAssignee().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        subTaskRepository.flagSubTaskOfATask(subTaskId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
 }
