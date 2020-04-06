@@ -85,6 +85,14 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
         return task;
     }
+    // PERSONAL TASKS and TASK GROUP
+    @Override
+    public List<Task> getAllPersonalTasks(String userId) {
+        String sql = "SELECT * FROM Task WHERE taskAssignee=? AND taskType=?";
+        List<Task> personalTaskList = jdbcTemplate.query(sql, new Task(), userId,TaskTypeEnum.personal.toString());
+        return personalTaskList;
+    }
+
 
     @Override
     public Task getProjectTaskWithDeleted(String taskId) {
@@ -142,8 +150,8 @@ public class TaskRepositoryImpl implements TaskRepository {
              sql = "SELECT * FROM Project_User AS pu\n" +
                     "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
                     "        INNER JOIN project p on pu.projectId = p.projectId\n" +
-                    "WHERE (pu.assigneeId=?) AND (t.type=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
-            return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, "project");
+                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
+            return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
         } else {
             sql = "SELECT * FROM Project_User AS pu\n" +
                     "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
@@ -153,6 +161,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, from, to);
         }
     }
+
 
 //    @Override
 //    public List<WorkLoadTaskStatusDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to) {

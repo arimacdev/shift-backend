@@ -33,7 +33,7 @@ public class NPTaskController extends ResponseController {
 
     @ApiOperation(value = "Add non project task", notes = "Create a non project task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping("/tasks/personal/{userId}")
+    @GetMapping("/tasks/personal/{userId}")
     public ResponseEntity<Object> getAllPersonalTasks(@PathVariable String userId){
         logger.info("HIT - POST /non-project/tasks/personal/{} ---> getAllPersonalTasks", userId);
         return sendResponse(npTaskService.getAllPersonalTasks(userId));

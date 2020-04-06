@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class NpTaskServiceImpl implements NpTaskService {
 
@@ -66,6 +68,10 @@ public class NpTaskServiceImpl implements NpTaskService {
 
     @Override
     public Object getAllPersonalTasks(String userId) {
-        return null;
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<Task> personalTasks = taskRepository.getAllPersonalTasks(userId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, personalTasks);
     }
 }
