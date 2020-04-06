@@ -2,14 +2,17 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.SubTaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
@@ -28,11 +31,13 @@ public class NpTaskServiceImpl implements NpTaskService {
     private final UtilsService utilsService;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final SubTaskRepository subTaskRepository;
 
-    public NpTaskServiceImpl(UtilsService utilsService, TaskRepository taskRepository, UserRepository userRepository) {
+    public NpTaskServiceImpl(UtilsService utilsService, TaskRepository taskRepository, UserRepository userRepository, SubTaskRepository subTaskRepository) {
         this.utilsService = utilsService;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.subTaskRepository = subTaskRepository;
     }
 
 
@@ -106,5 +111,22 @@ public class NpTaskServiceImpl implements NpTaskService {
         Object updateTask = taskRepository.updateProjectTask(taskId, taskUpdateDto);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskUpdateDto);
+    }
+
+    @Override
+    public Object addSubTaskToPersonalTask(String taskId, SubTaskDto subTaskDto) {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage("Task not found", HttpStatus.NOT_FOUND);
+        if (!task.getTaskAssignee().equals(subTaskDto.getSubTaskCreator()))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        SubTask newSubTask = new SubTask();
+        newSubTask.setSubtaskId(utilsService.getUUId());
+        newSubTask.setTaskId(taskId);
+        newSubTask.setSubtaskName(subTaskDto.getSubtaskName());
+        newSubTask.setSubtaskStatus(false);
+        newSubTask.setIsDeleted(false);
+        Object subTask = subTaskRepository.addSubTaskToProject(newSubTask);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTask);
     }
 }

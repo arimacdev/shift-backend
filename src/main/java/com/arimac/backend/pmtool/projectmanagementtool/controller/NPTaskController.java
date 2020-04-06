@@ -3,6 +3,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import io.swagger.annotations.ApiOperation;
@@ -47,4 +49,38 @@ public class NPTaskController extends ResponseController {
         logger.info("HIT - PUT  /non-project/tasks/personal/<taskId> ---> updatePersonalTask | userId: {} | taskId: {} | taskUpdateDto: {}",user, taskId,  taskUpdateDto);
         return sendResponse(npTaskService.updatePersonalTask(user,  taskId, taskUpdateDto));
     }
+
+
+    @ApiOperation(value = "Add sub-task to a personal task", notes = "Create a sub-task for a task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/tasks/personal/{taskId}/subtask")
+    public ResponseEntity<Object> addSubTaskToPersonalTask(@PathVariable("taskId") String taskId, @RequestBody SubTaskDto subTaskDto){
+        logger.info("HIT - POST tasks/personal/<taskId>/subtask ---> addSubTaskToPersonalTask |  taskId: {} | subTaskDto {}", taskId, subTaskDto);
+        return sendResponse(npTaskService.addSubTaskToPersonalTask(taskId, subTaskDto));
+    }
+//
+//    @ApiOperation(value = "Get all subtasks of a task", notes = "Get all subtasks belonging to a task")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @GetMapping("/{projectId}/tasks/{taskId}/subtask")
+//    public ResponseEntity<Object> getAllSubTaksOfATask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+//        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask?userId={userId} ---> getAllSubTaksOfATask | projectId: {} |  taskId: {} | userId {}", projectId, taskId, userId);
+//        return sendResponse(subTaskService.getAllSubTaksOfATask(userId, projectId, taskId));
+//    }
+//
+//    @ApiOperation(value = "Update SubTask", notes = "Update SubTask of a Task")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @PutMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
+//    public ResponseEntity<Object> updateSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId,@RequestBody SubTaskUpdateDto subTaskUpdateDto){
+//        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> updateSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" , projectId, taskId, subtaskId, subTaskUpdateDto);
+//        return sendResponse(subTaskService.updateSubTaskOfATask(user,projectId, taskId, subtaskId, subTaskUpdateDto));
+//    }
+//
+//    @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @DeleteMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
+//    public ResponseEntity<Object> flagSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId){
+//        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> flagSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {}" , projectId, taskId, subtaskId);
+//        return sendResponse(subTaskService.flagSubTaskOfATask(user,projectId, taskId, subtaskId));
+//    }
+
 }
