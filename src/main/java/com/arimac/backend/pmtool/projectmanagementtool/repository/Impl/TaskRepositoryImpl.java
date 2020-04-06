@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,7 +27,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Task addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, taskType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -38,6 +39,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setTimestamp(9, task.getTaskDueDateAt());
             preparedStatement.setTimestamp(10, task.getTaskReminderAt());
             preparedStatement.setBoolean(11, task.getIsDeleted());
+            preparedStatement.setString(12, task.getTaskType().toString());
 
             return preparedStatement;
         });
@@ -140,8 +142,8 @@ public class TaskRepositoryImpl implements TaskRepository {
              sql = "SELECT * FROM Project_User AS pu\n" +
                     "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
                     "        INNER JOIN project p on pu.projectId = p.projectId\n" +
-                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
-            return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
+                    "WHERE (pu.assigneeId=?) AND (t.type=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
+            return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, "project");
         } else {
             sql = "SELECT * FROM Project_User AS pu\n" +
                     "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +

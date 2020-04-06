@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -21,10 +22,12 @@ public class Task implements RowMapper<Task> {
     private Timestamp taskReminderAt;
     private boolean isDeleted;
 
+    private TaskTypeEnum taskType;
+
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted) {
+    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskTypeEnum taskType) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
@@ -36,6 +39,7 @@ public class Task implements RowMapper<Task> {
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
+        this.taskType = taskType;
     }
 
     public boolean getIsDeleted() {
@@ -126,6 +130,22 @@ public class Task implements RowMapper<Task> {
         this.taskReminderAt = taskReminderAt;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public TaskTypeEnum getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskTypeEnum taskType) {
+        this.taskType = taskType;
+    }
+
     @Override
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Task(
@@ -139,7 +159,8 @@ public class Task implements RowMapper<Task> {
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                TaskTypeEnum.valueOf(resultSet.getString("taskType"))
         );
     }
 

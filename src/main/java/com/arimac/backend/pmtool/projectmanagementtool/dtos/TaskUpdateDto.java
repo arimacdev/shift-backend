@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
 import java.sql.Timestamp;
 
@@ -11,6 +12,7 @@ public class TaskUpdateDto {
     private Timestamp taskRemindOnDate;
     private String taskNotes;
     private String taskStatus;
+    private TaskTypeEnum taskType;
 
     public String getTaskName() {
         return taskName;
@@ -60,6 +62,14 @@ public class TaskUpdateDto {
         this.taskStatus = taskStatus;
     }
 
+    public TaskTypeEnum getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskTypeEnum taskType) {
+        this.taskType = taskType;
+    }
+
     @Override
     public String toString() {
         return "TaskUpdateDto{" +
@@ -69,6 +79,7 @@ public class TaskUpdateDto {
                 ", taskRemindOnDate=" + taskRemindOnDate +
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskStatus='" + taskStatus + '\'' +
+                ", taskType=" + taskType +
                 '}';
     }
 }

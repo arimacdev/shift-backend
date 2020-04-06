@@ -9,8 +9,8 @@ public enum ResponseMessage {
     INVALID_REQUEST_BODY("Invalid Request Body"),
     ASSIGNER_NOT_MEMBER("Assigner doesn't belong to the project"),
     ASSIGNEE_NOT_MEMBER("Assignee doesn't belong to the project"),
-    USER_NOT_MEMBER("User doesn't belong to the project");
-
+    USER_NOT_MEMBER("User doesn't belong to the project"),
+    USER_NOT_FOUND("User doesn't exist");
 
     private String message;
     private ResponseMessage(String message){
