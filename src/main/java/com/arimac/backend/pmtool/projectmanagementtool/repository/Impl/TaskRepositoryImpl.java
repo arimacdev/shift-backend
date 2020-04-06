@@ -88,7 +88,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     // PERSONAL TASKS and TASK GROUP
     @Override
     public List<Task> getAllPersonalTasks(String userId) {
-        String sql = "SELECT * FROM Task WHERE taskAssignee=? AND taskType=?";
+        String sql = "SELECT * FROM Task WHERE taskAssignee=? AND taskType=? AND isDeleted=false";
         List<Task> personalTaskList = jdbcTemplate.query(sql, new Task(), userId,TaskTypeEnum.personal.toString());
         return personalTaskList;
     }
