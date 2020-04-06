@@ -78,9 +78,18 @@ public class NPTaskController extends ResponseController {
     @ApiOperation(value = "Get a files of a personal Task", notes = "Get file of  single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/tasks/personal/{taskId}/files")
-    public ResponseEntity<Object> getProjectTaskFiles(@RequestHeader("user") String userId, @PathVariable("taskId") String taskId){
+    public ResponseEntity<Object> getPersonalTaskFiles(@RequestHeader("user") String userId, @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /tasks/personal/tasks/<taskId>/files ---> getPersonalTaskFiles  | userId: {} | taskId: {}",  userId, taskId);
         return sendResponse(npTaskService.getPersonalTaskFiles(userId, taskId));
+    }
+
+
+    @ApiOperation(value = "Delete a single personal Task", notes = "Delete a single personal task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/tasks/personal/{taskId}")
+    public ResponseEntity<Object> flagPersonalTask(@RequestHeader("user") String userId,  @PathVariable("taskId") String taskId){
+        logger.info("HIT - DELETE /tasks/personal/<taskId> ---> flagPersonalTask  userId: {} | taskId: {}", userId, taskId);
+        return sendResponse(npTaskService.flagPersonalTask(userId, taskId));
     }
 
 //
