@@ -58,22 +58,22 @@ public class NPTaskController extends ResponseController {
         logger.info("HIT - POST tasks/personal/<taskId>/subtask ---> addSubTaskToPersonalTask |  taskId: {} | subTaskDto {}", taskId, subTaskDto);
         return sendResponse(npTaskService.addSubTaskToPersonalTask(taskId, subTaskDto));
     }
-//
-//    @ApiOperation(value = "Get all subtasks of a task", notes = "Get all subtasks belonging to a task")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @GetMapping("/{projectId}/tasks/{taskId}/subtask")
-//    public ResponseEntity<Object> getAllSubTaksOfATask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
-//        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask?userId={userId} ---> getAllSubTaksOfATask | projectId: {} |  taskId: {} | userId {}", projectId, taskId, userId);
-//        return sendResponse(subTaskService.getAllSubTaksOfATask(userId, projectId, taskId));
-//    }
-//
-//    @ApiOperation(value = "Update SubTask", notes = "Update SubTask of a Task")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @PutMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
-//    public ResponseEntity<Object> updateSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId,@RequestBody SubTaskUpdateDto subTaskUpdateDto){
-//        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> updateSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" , projectId, taskId, subtaskId, subTaskUpdateDto);
-//        return sendResponse(subTaskService.updateSubTaskOfATask(user,projectId, taskId, subtaskId, subTaskUpdateDto));
-//    }
+
+    @ApiOperation(value = "Get all subtasks of a task", notes = "Get all subtasks belonging to a task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/tasks/personal/{taskId}/subtask")
+    public ResponseEntity<Object> getAllSubTaksOfATask(@RequestParam("userId") String userId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /tasks/personal/<taskId>/subtask ---> getAllSubTaksOfATask | taskId: {} | userId {}",  taskId, userId);
+        return sendResponse(npTaskService.getAllSubTaksOfATask(userId, taskId));
+    }
+
+    @ApiOperation(value = "Update SubTask", notes = "Update SubTask of a Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/tasks/personal/{taskId}/subtask/{subtaskId}")
+    public ResponseEntity<Object> updateSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId,@RequestBody SubTaskUpdateDto subTaskUpdateDto){
+        logger.info("HIT - HIT - GET /tasks/personal/<taskId>/subtask/<subtaskId>  ---> updateSubTaskOfATask |  taskId: {} | subtaskId {} | subTaskUpdateDto {}" ,  taskId, subtaskId, subTaskUpdateDto);
+        return sendResponse(npTaskService.updateSubTaskOfATask(user, taskId, subtaskId, subTaskUpdateDto));
+    }
 //
 //    @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
 //    @ApiResponse(code = 200, message = "Success", response = Response.class)

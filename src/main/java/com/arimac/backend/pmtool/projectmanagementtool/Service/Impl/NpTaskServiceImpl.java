@@ -2,9 +2,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
@@ -128,5 +127,35 @@ public class NpTaskServiceImpl implements NpTaskService {
         newSubTask.setIsDeleted(false);
         Object subTask = subTaskRepository.addSubTaskToProject(newSubTask);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTask);
+    }
+
+    @Override
+    public Object getAllSubTaksOfATask(String userId, String taskId) {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage("Task not found", HttpStatus.NOT_FOUND);
+        if (!task.getTaskAssignee().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        List<SubTask> subTaskList = subTaskRepository.getAllSubTaksOfATask(taskId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTaskList);
+    }
+
+    @Override
+    public Object updateSubTaskOfATask(String userId, String taskId, String subTaskId, SubTaskUpdateDto subTaskUpdateDto) {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage("Task not found!", HttpStatus.NOT_FOUND);
+        SubTask subTask = subTaskRepository.getSubTaskById(subTaskId);
+        if (subTask == null)
+            return new ErrorMessage("SubTask not found", HttpStatus.NOT_FOUND);
+       if (!subTaskUpdateDto.getSubTaskEditor().equals(task.getTaskAssignee()))
+           return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        if (subTaskUpdateDto.getSubtaskName() != null)
+            subTask.setSubtaskName(subTaskUpdateDto.getSubtaskName());
+        if (subTaskUpdateDto.getSubTaskStatus() != null)
+            subTask.setSubtaskStatus(subTaskUpdateDto.getSubTaskStatus());
+        SubTask updatedSubTask = subTaskRepository.updateSubTaskById(subTask);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updatedSubTask);
     }
 }

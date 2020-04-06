@@ -10,4 +10,6 @@ public interface NpTaskService {
     Object getAllPersonalTasks(String userId);
     Object updatePersonalTask(String userId, String taskId, TaskUpdateDto taskUpdateDto);
     Object addSubTaskToPersonalTask(String taskId, SubTaskDto subTaskDto);
+    Object getAllSubTaksOfATask(String userId, String taskId);
+    Object updateSubTaskOfATask(String userId, String taskId, String subTaskId, SubTaskUpdateDto subTaskUpdateDto);
 }
