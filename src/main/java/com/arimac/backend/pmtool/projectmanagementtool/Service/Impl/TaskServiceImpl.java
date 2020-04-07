@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
@@ -58,6 +59,9 @@ public class TaskServiceImpl implements TaskService {
     public Object addTaskToProject(String projectId, TaskDto taskDto) {
         if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) || (taskDto.getProjectId() == null || taskDto.getProjectId().isEmpty()) || (taskDto.getTaskInitiator()== null || taskDto.getTaskInitiator().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        if (!taskDto.getTaskType().equals(TaskTypeEnum.project)){
+            return new ErrorMessage("Task Type Mismatch", HttpStatus.BAD_REQUEST);
+        }
         ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
         if (taskInitiator == null)
             return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
@@ -91,6 +95,7 @@ public class TaskServiceImpl implements TaskService {
         }
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
+        task.setTaskType(taskDto.getTaskType());
         taskRepository.addTaskToProject(task);
 
         DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());

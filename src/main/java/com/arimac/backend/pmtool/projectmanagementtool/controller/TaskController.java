@@ -26,7 +26,7 @@ public class TaskController extends ResponseController {
 
     @ApiOperation(value = "Add task to a project", notes = "Create tasks for a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping("/{projectId}/tasks")
+    @PostMapping("/{projectId}/tasks") // DONE
     public ResponseEntity<Object> addTaskToProject(@PathVariable("projectId") String projectId, @RequestBody TaskDto taskDto){
         logger.info("HIT - POST /projects/<projectId>/tasks ---> addTaskToProject | projectId: {} |  dto: {}", projectId, taskDto);
         return sendResponse(taskService.addTaskToProject(projectId, taskDto));
@@ -34,7 +34,7 @@ public class TaskController extends ResponseController {
 
     @ApiOperation(value = "Get a single Task", notes = "Get single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/{projectId}/tasks/{taskId}")
+    @GetMapping("/{projectId}/tasks/{taskId}") // DONE
     public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId> ---> getProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(taskService.getProjectTask(userId, projectId, taskId));
@@ -51,7 +51,7 @@ public class TaskController extends ResponseController {
 
     @ApiOperation(value = "Update a single Task", notes = "Update a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PutMapping("/{projectId}/tasks/{taskId}")
+    @PutMapping("/{projectId}/tasks/{taskId}")// DONE
     public ResponseEntity<Object> updateProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskUpdateDto taskUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId> ---> updateProjectTask | projectId: {} | userId: {} | taskId: {} | taskUpdateDto: {}", projectId, userId, taskId, taskUpdateDto);
         return sendResponse(taskService.updateProjectTask(userId, projectId, taskId, taskUpdateDto));

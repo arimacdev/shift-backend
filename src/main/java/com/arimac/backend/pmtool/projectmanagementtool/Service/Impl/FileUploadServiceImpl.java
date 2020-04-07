@@ -80,6 +80,26 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
 
     @Override
+    public Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        List<String> fileUrlList = new ArrayList<>();
+        String taskUrl = fileQueue(multipartFiles, fileType);
+        fileUrlList.add(taskUrl);
+        TaskFile taskFile = new TaskFile();
+        taskFile.setTaskFileId(utilsService.getUUId());
+        taskFile.setTaskId(taskId);
+        taskFile.setTaskFileName(multipartFiles.getOriginalFilename());
+        taskFile.setTaskFileUrl(taskUrl);
+        taskFile.setTaskFileCreator(userId);
+        taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
+        taskFileRepository.uploadTaskFile(taskFile);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
+    }
+
+    @Override
     public Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile) {
         String url = fileQueue(multipartFile, fileType);
         userRepository.updateProfilePicture(userId, url);
