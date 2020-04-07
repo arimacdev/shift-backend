@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
@@ -9,7 +10,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
@@ -36,11 +36,12 @@ public class TaskServiceImpl implements TaskService {
     private final TaskFileRepository taskFileRepository;
     private final TaskLogService taskLogService;
     private final UtilsService utilsService;
+    private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
 
     private final RestTemplate restTemplate;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationRepository notificationRepository, RestTemplate restTemplate) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, RestTemplate restTemplate) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -48,6 +49,7 @@ public class TaskServiceImpl implements TaskService {
         this.taskFileRepository = taskFileRepository;
         this.taskLogService = taskLogService;
         this.utilsService = utilsService;
+        this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
         this.restTemplate = restTemplate;
     }
@@ -110,6 +112,8 @@ public class TaskServiceImpl implements TaskService {
         }
         notification.setHourly(false);
         notificationRepository.addTaskNotification(notification);
+        //Slack Notification
+        notificationService.sendTaskAssignNotification(task);
 //        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }

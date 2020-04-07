@@ -1,11 +1,12 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAssignNotificationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
 public interface NotificationService {
     @Deprecated
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
-    void sendTaskAssignNotification(TaskAssignNotificationDto taskAssignNotificationDto);
+    void sendTaskAssignNotification(Task task);
+    Object checkSlackNotification();
 
 }
