@@ -433,25 +433,6 @@ public class TaskServiceImpl implements TaskService {
 //    }
 
     @Override
-    public Object getAllProjectsWithCompletion(String user, String userId) {
-        List<ProjectUserResponseDto> projectList = projectRepository.getAllProjectsByUser(userId);
-        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>();
-        for (ProjectUserResponseDto project : projectList){
-            UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
-            projectWorkLoad.setUserId(project.getAssigneeId());
-            projectWorkLoad.setProjectId(project.getProjectId());
-            projectWorkLoad.setProjectName(project.getProjectName());
-            projectWorkLoad.setCompleted(0);
-            projectWorkLoad.setTotal(0);
-            List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-            projectWorkLoad.setTaskList(taskList);
-            userProjectWorkLoadTaskResponse.add(projectWorkLoad);
-        }
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
-    }
-
-
-    @Override
     public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
         User adminUser = userRepository.getUserByUserId(admin);
         if (adminUser == null)
@@ -524,6 +505,26 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
+    }
+
+
+    @Override
+    @Deprecated
+    public Object getAllProjectsWithCompletion(String user, String userId) {
+        List<ProjectUserResponseDto> projectList = projectRepository.getAllProjectsByUser(userId);
+        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>();
+        for (ProjectUserResponseDto project : projectList){
+            UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
+            projectWorkLoad.setUserId(project.getAssigneeId());
+            projectWorkLoad.setProjectId(project.getProjectId());
+            projectWorkLoad.setProjectName(project.getProjectName());
+            projectWorkLoad.setCompleted(0);
+            projectWorkLoad.setTotal(0);
+            List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+            projectWorkLoad.setTaskList(taskList);
+            userProjectWorkLoadTaskResponse.add(projectWorkLoad);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
     }
 

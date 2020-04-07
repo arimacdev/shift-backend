@@ -122,6 +122,7 @@ public class TaskController extends ResponseController {
     }
 
     //TODO REMOVE
+    @Deprecated
     @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/tasks/users/{userId}/workload/projects")

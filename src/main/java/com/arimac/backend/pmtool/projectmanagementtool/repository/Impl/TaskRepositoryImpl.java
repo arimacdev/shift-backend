@@ -138,8 +138,12 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion() {
 //        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false";
-        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL)";
-        List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto());
+//        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL)";
+        String sql = "SELECT * FROM User AS u\n" +
+                "    LEFT JOIN Task AS t on u.userId = t.taskAssignee \n" +
+                "    LEFT JOIN project AS p ON t.projectId = p.projectId\n" +
+                "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL) AND t.taskType=?";
+        List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto(), TaskTypeEnum.project.toString());
         return workLoadList;
     }
 
@@ -153,11 +157,15 @@ public class TaskRepositoryImpl implements TaskRepository {
                     "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
         } else {
-            sql = "SELECT * FROM Project_User AS pu\n" +
-                    "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
-                    "        INNER JOIN project p on pu.projectId = p.projectId\n" +
-                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )" +
-                    "AND (t.taskDueDateAt BETWEEN ? AND ?)";
+//            sql = "SELECT * FROM Project_User AS pu\n" +
+//                    "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
+//                    "        INNER JOIN project p on pu.projectId = p.projectId\n" +
+//                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )" +
+//                    "AND (t.taskDueDateAt BETWEEN ? AND ?)";
+              sql= "SELECT * FROM Task AS T\n" +
+                      "        INNER JOIN project p ON T.projectId = p.projectId\n" +
+                      "        WHERE T.taskAssignee=? AND (p.isDeleted = false) AND (T.isDeleted = false)\n" +
+                      "        AND (T.taskDueDateAt BETWEEN ? AND ?);";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, from, to);
         }
     }
