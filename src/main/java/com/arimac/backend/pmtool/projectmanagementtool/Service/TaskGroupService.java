@@ -1,0 +1,7 @@
+package com.arimac.backend.pmtool.projectmanagementtool.Service;
+
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
+
+public interface TaskGroupService {
+    Object createTaskGroup(TaskGroupDto taskGroup);
+}
