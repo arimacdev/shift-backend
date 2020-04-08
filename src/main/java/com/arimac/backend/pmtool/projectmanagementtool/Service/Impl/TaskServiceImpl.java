@@ -6,6 +6,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
@@ -255,17 +257,17 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-    @Override
-    public Object getProjectTaskCompletionByUser(String userId, String projectId) {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-//        if (projectUser.getIsDeleted())
-//            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
-        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
-        Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskCompletionMap);
-    }
+//    @Override
+//    public Object getProjectTaskCompletionByUser(String userId, String projectId) {
+//        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+//        if (projectUser == null)
+//            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+////        if (projectUser.getIsDeleted())
+////            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
+//        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
+//        Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
+//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskCompletionMap);
+//    }
 
     private Map<String, TaskCompletionDto> getTaskCompletionMap(List<Task> taskList){
         Map<String, TaskCompletionDto> userTaskCompletionMap = new HashMap<>();
@@ -300,36 +302,64 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public Object getProjectTaskCompletionUserDetails(String userId, String projectId) {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+    public Object getProjectTaskCompletionUserDetails(String userId, String projectId, TaskTypeEnum type) {
 //        List<User> userList = userRepository.getAllProjectUsers(projectId);
         List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
         Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
-        List<UserProjectDto> userProjectDtoList = userRepository.getUsersProjectDetails(projectId);
-        List<UserProjectResponseDto> userTaskStatusList = new ArrayList<>();
-        for (UserProjectDto projectUserDetails : userProjectDtoList){
-            TaskCompletionDto taskStatus = userTaskCompletionMap.get(projectUserDetails.getAssigneeId());
-            UserProjectResponseDto userTaskStatus = new UserProjectResponseDto();
-            userTaskStatus.setProjectId(projectId);
-            userTaskStatus.setAssigneeId(projectUserDetails.getAssigneeId());
-            userTaskStatus.setAssigneeFirstName(projectUserDetails.getAssigneeFirstName());
-            userTaskStatus.setAssigneeLastName(projectUserDetails.getAssigneeLastName());
-            userTaskStatus.setAssigneeProfileImage(projectUserDetails.getAssigneeProfileImage());
-            userTaskStatus.setProjectRoleId(projectUserDetails.getProjectRoleId());
-            userTaskStatus.setProjectRoleName(projectUserDetails.getProjectRoleName());
-            userTaskStatus.setProjectJobRoleName(projectUserDetails.getProjectJobRoleName());
-            if (taskStatus != null){
-                userTaskStatus.setTasksCompleted(taskStatus.getCompleted());
-                userTaskStatus.setTotalTasks(taskStatus.getTotalTasks());
-            } else {
-                userTaskStatus.setTasksCompleted(0);
-                userTaskStatus.setTotalTasks(0);
+        if (type.equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+            List<UserProjectResponseDto> userTaskStatusList = new ArrayList<>();
+            List<UserProjectDto> userProjectDtoList = userRepository.getUsersProjectDetails(projectId);
+            for (UserProjectDto projectUserDetails : userProjectDtoList) {
+                TaskCompletionDto taskStatus = userTaskCompletionMap.get(projectUserDetails.getAssigneeId());
+                UserProjectResponseDto userTaskStatus = new UserProjectResponseDto();
+                userTaskStatus.setProjectId(projectId);
+                userTaskStatus.setAssigneeId(projectUserDetails.getAssigneeId());
+                userTaskStatus.setAssigneeFirstName(projectUserDetails.getAssigneeFirstName());
+                userTaskStatus.setAssigneeLastName(projectUserDetails.getAssigneeLastName());
+                userTaskStatus.setAssigneeProfileImage(projectUserDetails.getAssigneeProfileImage());
+                userTaskStatus.setProjectRoleId(projectUserDetails.getProjectRoleId());
+                userTaskStatus.setProjectRoleName(projectUserDetails.getProjectRoleName());
+                userTaskStatus.setProjectJobRoleName(projectUserDetails.getProjectJobRoleName());
+                if (taskStatus != null) {
+                    userTaskStatus.setTasksCompleted(taskStatus.getCompleted());
+                    userTaskStatus.setTotalTasks(taskStatus.getTotalTasks());
+                } else {
+                    userTaskStatus.setTasksCompleted(0);
+                    userTaskStatus.setTotalTasks(0);
+                }
+                userTaskStatusList.add(userTaskStatus);
             }
-            userTaskStatusList.add(userTaskStatus);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
+        } else if (type.equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+            List<UserTaskGroupResponseDto> userTaskStatusList = new ArrayList<>();
+            List<UserTaskGroupDto> userTaskGroupDtoList = userRepository.getUsersTaskGroupDetails(projectId);
+            for (UserTaskGroupDto taskGroupUser: userTaskGroupDtoList){
+                TaskCompletionDto taskStatus = userTaskCompletionMap.get(taskGroupUser.getAssigneeId());
+                UserTaskGroupResponseDto userTaskGroupStatus = new UserTaskGroupResponseDto();
+                userTaskGroupStatus.setAssigneeId(taskGroupUser.getAssigneeId());
+                userTaskGroupStatus.setTaskGroupId(taskGroupUser.getTaskGroupId());
+                userTaskGroupStatus.setAssigneeFirstName(taskGroupUser.getAssigneeFirstName());
+                userTaskGroupStatus.setAssigneeLastName(taskGroupUser.getAssigneeLastName());
+                userTaskGroupStatus.setAssigneeProfileImage(taskGroupUser.getAssigneeProfileImage());
+                if (taskStatus != null) {
+                    userTaskGroupStatus.setTasksCompleted(taskStatus.getCompleted());
+                    userTaskGroupStatus.setTotalTasks(taskStatus.getTotalTasks());
+                } else {
+                    userTaskGroupStatus.setTasksCompleted(0);
+                    userTaskGroupStatus.setTotalTasks(0);
+                }
+                userTaskStatusList.add(userTaskGroupStatus);
+            }
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
+        } else {
+            return new ErrorMessage("Invalid Task Type", HttpStatus.BAD_REQUEST);
         }
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
     }
 
     @Override
@@ -489,23 +519,23 @@ public class TaskServiceImpl implements TaskService {
 //        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
 //    }
 
-    @Override
-    public Object getAllProjectsWithCompletion(String user, String userId) {
-        List<ProjectUserResponseDto> projectList = projectRepository.getAllProjectsByUser(userId);
-        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>();
-        for (ProjectUserResponseDto project : projectList){
-            UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
-            projectWorkLoad.setUserId(project.getAssigneeId());
-            projectWorkLoad.setProjectId(project.getProjectId());
-            projectWorkLoad.setProjectName(project.getProjectName());
-            projectWorkLoad.setCompleted(0);
-            projectWorkLoad.setTotal(0);
-            List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-            projectWorkLoad.setTaskList(taskList);
-            userProjectWorkLoadTaskResponse.add(projectWorkLoad);
-        }
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
-    }
+//    @Override
+//    public Object getAllProjectsWithCompletion(String user, String userId) {
+//        List<ProjectUserResponseDto> projectList = projectRepository.getAllProjectsByUser(userId);
+//        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>();
+//        for (ProjectUserResponseDto project : projectList){
+//            UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
+//            projectWorkLoad.setUserId(project.getAssigneeId());
+//            projectWorkLoad.setProjectId(project.getProjectId());
+//            projectWorkLoad.setProjectName(project.getProjectName());
+//            projectWorkLoad.setCompleted(0);
+//            projectWorkLoad.setTotal(0);
+//            List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+//            projectWorkLoad.setTaskList(taskList);
+//            userProjectWorkLoadTaskResponse.add(projectWorkLoad);
+//        }
+//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
+//    }
 
 
     @Override

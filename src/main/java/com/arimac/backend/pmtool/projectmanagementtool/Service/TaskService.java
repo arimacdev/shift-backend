@@ -12,11 +12,11 @@ public interface TaskService {
     Object getProjectTaskFiles(String userId, String projectId, String taskId, TaskTypeEnum typeEnum);
     Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto);
     Object flagProjectTask(String userId, String projectId, String taskId);
-    Object getProjectTaskCompletionByUser(String userId, String projectId);
-    Object getProjectTaskCompletionUserDetails(String userId, String projectId);
-    Object getProjectTaskCompletion(String userId, String projectId);
+//    Object getProjectTaskCompletionByUser(String userId, String projectId);
+    Object getProjectTaskCompletionUserDetails(String userId, String projectId, TaskTypeEnum type); // people tab
+    Object getProjectTaskCompletion(String userId, String projectId); //project tab
     Object getAllUsersWithTaskCompletion(String userId);
     Object getAllUserAssignedTaskWithCompletion(String user, String userId, String from, String to);
-    Object getAllProjectsWithCompletion(String user, String userId);
+//    Object getAllProjectsWithCompletion(String user, String userId);
 
 }

@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/non-project")
-public class NPTaskController extends ResponseController {
+public class PersonalTaskController extends ResponseController {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
     private final NpTaskService npTaskService;
 
-    public NPTaskController(NpTaskService npTaskService) {
+    public PersonalTaskController(NpTaskService npTaskService) {
         this.npTaskService = npTaskService;
     }
 

@@ -41,7 +41,7 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
     @Override
     public Object assignMemberToTaskGroup(TaskGroup_Member assignment) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO TaskGroup_Member (taskGroupId, taskGroupMemberId, TaskGroupRole, isBlocked, memberAssignedAt) VALUES (?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO TaskGroup_Member (taskGroupId, taskGroupMemberId, taskGroupRole, isBlocked, memberAssignedAt) VALUES (?,?,?,?,?)");
             preparedStatement.setString(1, assignment.getTaskGroupId());
             preparedStatement.setString(2, assignment.getTaskGroupMemberId());
             preparedStatement.setInt(3, assignment.getTaskGroupRole());

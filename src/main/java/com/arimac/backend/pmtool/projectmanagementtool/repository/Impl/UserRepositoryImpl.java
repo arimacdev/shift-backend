@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -92,6 +93,13 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM Project_User as pu LEFT JOIN User as u ON pu.assigneeId = u.userId LEFT JOIN ProjectRole as pr ON pu.assigneeProjectRole = pr.projectRoleId WHERE pu.projectId = ?";
         List<UserProjectDto> userProjectDtoList = jdbcTemplate.query(sql ,new UserProjectDto(), projectId);
         return userProjectDtoList;
+    }
+
+    @Override
+    public List<UserTaskGroupDto> getUsersTaskGroupDetails(String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroup_Member AS TGM INNER JOIN User AS U ON TGM.taskGroupMemberId=U.userId WHERE TGM.taskGroupId=?";
+        List<UserTaskGroupDto> taskGroupDtoList = jdbcTemplate.query(sql, new UserTaskGroupDto(), taskGroupId);
+        return taskGroupDtoList;
     }
 
     @Override

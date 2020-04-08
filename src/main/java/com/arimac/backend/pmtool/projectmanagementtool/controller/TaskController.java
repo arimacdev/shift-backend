@@ -90,12 +90,12 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.getAllUserAssignedTasks(userId, projectId));
     }
 
-    @ApiOperation(value = "Get Task completion of a Project By User", notes = "(People Tab) Get Task completion of a Project By User")
+    @ApiOperation(value = "Get Task completion of an Entity By User", notes = "(People Tab) Get Task completion of a Project By User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/{projectId}/tasks/{userId}/completion/details")
-    public ResponseEntity<Object> getProjectTaskCompletionUserDetails(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId){
-        logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion/details ---> getProjectTaskCompletionUserDetails | projectId: {} | userId: {} ", projectId, userId);
-        return sendResponse(taskService.getProjectTaskCompletionUserDetails(userId, projectId));
+    @GetMapping("/{projectId}/tasks/{userId}/completion/details") // DONE
+    public ResponseEntity<Object> getProjectTaskCompletionUserDetails(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId, @RequestHeader("type") TaskTypeEnum type){
+        logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion/details ---> getProjectTaskCompletionUserDetails | entityId: {} | userId: {} | TaskType :{}", projectId, userId, type);
+        return sendResponse(taskService.getProjectTaskCompletionUserDetails(userId, projectId, type));
     }
 
     @ApiOperation(value = "Get Project Task completion status of a Project", notes = "(Projects Tab) Get All Task completion status of a Project")
@@ -123,13 +123,13 @@ public class TaskController extends ResponseController {
     }
 
     //TODO REMOVE
-    @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
-    @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/tasks/users/{userId}/workload/projects")
-    public ResponseEntity<Object> getAllProjectsWithCompletion(@PathVariable("userId") String userId, @RequestHeader("user") String user){
-        logger.info("HIT - GET /projects/tasks/users/<userId>/workload ---> getAllProjectsWithCompletion | from user: {} || about userId: {}",  user, userId);
-        return sendResponse(taskService.getAllProjectsWithCompletion(user,userId));
-    }
+//    @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @GetMapping("/tasks/users/{userId}/workload/projects")
+//    public ResponseEntity<Object> getAllProjectsWithCompletion(@PathVariable("userId") String userId, @RequestHeader("user") String user){
+//        logger.info("HIT - GET /projects/tasks/users/<userId>/workload ---> getAllProjectsWithCompletion | from user: {} || about userId: {}",  user, userId);
+//        return sendResponse(taskService.getAllProjectsWithCompletion(user,userId));
+//    }
 
 
 }
