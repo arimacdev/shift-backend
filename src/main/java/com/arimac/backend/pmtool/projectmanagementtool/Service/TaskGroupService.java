@@ -9,4 +9,5 @@ public interface TaskGroupService {
     Object getAllTaskGroupsByUser(String userId);
     Object addMembersToTaskGroup(TaskGroupAddDto taskGroupAddDto);
     Object updateTaskGroup(String taskGroupId, TaskGroupUpdateDto taskGroupUpdateDto);
+    Object flagTaskGroup(String taskGroupId, String userId);
 }

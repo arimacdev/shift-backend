@@ -10,14 +10,16 @@ public class TaskGroup implements RowMapper<TaskGroup> {
     private String taskGroupId;
     private String taskGroupName;
     private Timestamp taskGroupCreatedAt;
+    private boolean isDeleted;
 
     public TaskGroup() {
     }
 
-    public TaskGroup(String taskGroupId, String taskGroupName, Timestamp taskGroupCreatedAt) {
+    public TaskGroup(String taskGroupId, String taskGroupName, Timestamp taskGroupCreatedAt, boolean isDeleted) {
         this.taskGroupId = taskGroupId;
         this.taskGroupName = taskGroupName;
         this.taskGroupCreatedAt = taskGroupCreatedAt;
+        this.isDeleted = isDeleted;
     }
 
     public String getTaskGroupId() {
@@ -44,12 +46,21 @@ public class TaskGroup implements RowMapper<TaskGroup> {
         this.taskGroupCreatedAt = taskGroupCreatedAt;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @Override
     public TaskGroup mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskGroup(
                 resultSet.getString("taskGroupId"),
                 resultSet.getString("taskGroupName"),
-                resultSet.getTimestamp("taskGroupCreatedAt")
+                resultSet.getTimestamp("taskGroupCreatedAt"),
+                resultSet.getBoolean("isDeleted")
         );
     }
 }

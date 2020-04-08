@@ -41,7 +41,7 @@ public class TaskGroupController extends ResponseController {
         return sendResponse(taskGroupService.getAllTaskGroupsByUser(userId));
     }
 
-    @ApiOperation(value = "Task Group Create", notes = "Create a Task Group Create")
+    @ApiOperation(value = "Add Members to Task Group", notes = "Create a Task Group Create")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/add")
     public ResponseEntity<Object> addMembersToTaskGroup(@RequestBody TaskGroupAddDto taskGroupAddDto){
@@ -49,13 +49,22 @@ public class TaskGroupController extends ResponseController {
         return sendResponse(taskGroupService.addMembersToTaskGroup(taskGroupAddDto));
     }
 
-    @ApiOperation(value = "Task Group Create", notes = "Create a Task Group Create")
+    @ApiOperation(value = "Update Task Group", notes = "Create a Task Group Create")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{taskGroupId}")
     public ResponseEntity<Object> updateTaskGroup(@PathVariable("taskGroupId") String taskGroupId, @RequestBody TaskGroupUpdateDto taskGroupUpdateDto){
-        logger.info("HIT - POST addMembersToTaskGroup - /taskgroup/<taskGroupId> | taskGroupId {} |  dto: {}", taskGroupUpdateDto, taskGroupId);
+        logger.info("HIT - PUT addMembersToTaskGroup - /taskgroup/<taskGroupId> | taskGroupId {} |  dto: {}", taskGroupUpdateDto, taskGroupId);
         return sendResponse(taskGroupService.updateTaskGroup(taskGroupId, taskGroupUpdateDto));
     }
+
+    @ApiOperation(value = "Task Group Create", notes = "Create a Task Group Create")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{taskGroupId}")
+    public ResponseEntity<Object> flagTaskGroup(@PathVariable("taskGroupId") String taskGroupId, @RequestHeader("user") String userId){
+        logger.info("HIT - DELETE flagTaskGroup - /taskgroup/<taskGroupId> | taskGroupId {} | ownerId {}", taskGroupId, userId);
+        return sendResponse(taskGroupService.flagTaskGroup(taskGroupId, userId));
+    }
+
 
 
 }

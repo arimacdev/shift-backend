@@ -99,10 +99,21 @@ public class TaskGroupServiceImpl implements TaskGroupService {
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupUpdateDto.getTaskGroupEditor(), taskGroupId);
         if (owner == null)
-            return new ErrorMessage("Assigner doesnot belong to the Task Group", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("User is not the Group Member", HttpStatus.BAD_REQUEST);
         if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
-            return new ErrorMessage("Assigner is not Group Admin", HttpStatus.UNAUTHORIZED);
+            return new ErrorMessage("User is not the Group Owner", HttpStatus.UNAUTHORIZED);
         taskGroupRepository.updateTaskGroup(taskGroupId,taskGroupUpdateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroupUpdateDto);
+    }
+
+    @Override
+    public Object flagTaskGroup(String taskGroupId, String userId) {
+        TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (owner == null)
+            return new ErrorMessage("User is not the Group Member", HttpStatus.BAD_REQUEST);
+        if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
+            return new ErrorMessage("User is not the Group Owner", HttpStatus.UNAUTHORIZED);
+        taskGroupRepository.flagTaskGroup(taskGroupId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

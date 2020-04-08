@@ -27,10 +27,11 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
     @Override
     public Object createTaskGroup(TaskGroup taskGroup) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO TaskGroup (taskGroupId, taskGroupName, taskGroupCreatedAt) VALUES (?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO TaskGroup (taskGroupId, taskGroupName, taskGroupCreatedAt, isDeleted) VALUES (?,?,?,?)");
             preparedStatement.setString(1, taskGroup.getTaskGroupId());
             preparedStatement.setString(2, taskGroup.getTaskGroupName());
             preparedStatement.setTimestamp(3, taskGroup.getTaskGroupCreatedAt());
+            preparedStatement.setBoolean(4, false);
 
             return preparedStatement;
         });
@@ -82,5 +83,11 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
     public void updateTaskGroup(String taskGroupId, TaskGroupUpdateDto taskGroupUpdateDto) {
         String sql = "UPDATE TaskGroup SET taskGroupName=? WHERE taskgroupId=?";
         jdbcTemplate.update(sql,taskGroupUpdateDto.getTaskGroupName(), taskGroupId);
+    }
+
+    @Override
+    public void flagTaskGroup(String taskGroupId) {
+        String sql = "UPDATE TaskGroup SET isDeleted=? WHERE taskgroupId=?";
+        jdbcTemplate.update(sql, true, taskGroupId);
     }
 }
