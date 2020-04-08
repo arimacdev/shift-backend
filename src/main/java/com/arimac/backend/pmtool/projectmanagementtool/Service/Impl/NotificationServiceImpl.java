@@ -2,17 +2,19 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAssignNotificationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.NotificationRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
+import com.arimac.backend.pmtool.projectmanagementtool.utils.SlackMessages;
 import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -24,24 +26,33 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
+    private static final String CHANNEL = "channel";
+    private static final String TEXT = "text";
+    private static final String SECTION = "section";
+    private static final String PLAIN_TEXT = "plain_text";
+    private static final String DIVIDER = "divider";
+    private static final String MARK_DOWN = "mrkdwn";
+    private static final String BLOCKS = "blocks";
+
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
     private final RestTemplate restTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, RestTemplate restTemplate) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, RestTemplate restTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -66,16 +77,104 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendTaskAssignNotification(TaskAssignNotificationDto taskAssignNotificationDto) {
+    public void sendTaskAssignNotification(Task task) {
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null){
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            User sender = userRepository.getUserByUserId(task.getTaskInitiator());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_ASSIGNMENT_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(PLAIN_TEXT);
+            headerBlock.getText().setText(SlackMessages.TASK_ASSIGNMENT_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(":gear: Task: *");
+            bodyText.append(task.getTaskName());
+            bodyText.append("*\n :briefcase: Project: *");
+            bodyText.append(project.getProjectName());
+            bodyText.append("*\n:speaking_head_in_silhouette: Assigned By: *");
+            bodyText.append(sender.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(sender.getLastName());
+            bodyText.append("* \n:hourglass_flowing_sand: Due Date: *");
+            if (task.getTaskDueDateAt() != null){
+                bodyText.append(task.getTaskDueDateAt());
+            } else {
+                bodyText.append("Not Due Date Assigned");
+            }
+            bodyText.append("*");
+            body.getText().setText(bodyText.toString());
+//            body.getText().setText(":gear: Task: *Notification API development*\n :briefcase: Project: *PM-Tool*\n:speaking_head_in_silhouette: Assigned By: *Naveen Perera* \n:hourglass_flowing_sand: Due Date: *2020/04/06*");
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url("https://api.slack.com/img/blocks/bkb_template_images/notifications.png");
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+            blocks.add(divider);
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public Object checkSlackNotification() {
         JSONObject payload = new JSONObject();
-        payload.put("channel", taskAssignNotificationDto.getSlackUserId());
-        payload.put("text", getTaskAssignmentMessage(taskAssignNotificationDto));
+        payload.put("channel", "UGQ0FGZ5F");
+        payload.put("text", "New Task Assignment");
+        List<SlackBlock> blocks = new ArrayList<>();
+
+        SlackBlock headerBlock = new SlackBlock();
+        headerBlock.setType("section");
+        headerBlock.getText().setType("plain_text");
+        headerBlock.getText().setText(":wave: Hey There! You have been assigned to the following Task");
+        headerBlock.setAccessory(null);
+        blocks.add(headerBlock);
+
+        SlackBlock divider = new SlackBlock();
+        divider.setType("divider");
+        divider.setText(null);
+        divider.setAccessory(null);
+        blocks.add(divider);
+
+        SlackBlock body = new SlackBlock();
+        body.setType("section");
+        body.getText().setType("mrkdwn");
+        body.getText().setText(":gear: Task: *Notification API development*\n :briefcase: Project: *PM-Tool*\n:speaking_head_in_silhouette: Assigned By: *Naveen Perera* \n:hourglass_flowing_sand: Due Date: *2020/04/06*");
+        body.getAccessory().setType("image");
+        body.getAccessory().setImage_url("https://api.slack.com/img/blocks/bkb_template_images/notifications.png");
+        body.getAccessory().setAlt_text("Calender Thumbnail");
+        blocks.add(body);
+        blocks.add(divider);
+
+        payload.put("blocks",blocks);
         StringBuilder url = new StringBuilder();
         url.append(ENVConfig.SLACK_BASE_URL);
         url.append("/chat.postMessage");
         logger.info("Slack Message Url {}", url);
         HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
-        restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        return null;
     }
 
     @Scheduled(initialDelay = 1000, fixedRate = 60*60*1000)
@@ -139,9 +238,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private void sendSlackNotification(TaskAlertDto taskAlert, DateTime dueUtc){
         try {
-//            HttpHeaders httpHeaders = new HttpHeaders();
-//            httpHeaders.set("Authorization", "Bearer " + ENVConfig.SLACK_BOT_TOKEN);
-//            httpHeaders.set("Content-Type", "application/json");
             JSONObject payload = new JSONObject();
             payload.put("channel", taskAlert.getAssigneeSlackId());
             StringBuilder message = new StringBuilder();
@@ -178,14 +274,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     }
 
-    private String getTaskAssignmentMessage(TaskAssignNotificationDto notificationDto){
-        StringBuilder message = new StringBuilder();
-        message.append("Task ");
-        message.append(notificationDto.getTaskName());
-        message.append(" of Project");
-        message.append(notificationDto.getProjectName());
-        message.append("is assigned to you by");
-        message.append(notificationDto.getAssignerId());
-        return message.toString();
-    }
+//    private String getTaskAssignmentMessage(TaskAssignNotificationDto notificationDto){
+//        StringBuilder message = new StringBuilder();
+//        message.append("Task ");
+//        message.append(notificationDto.getTaskName());
+//        message.append(" of Project");
+//        message.append(notificationDto.getProjectName());
+//        message.append("is assigned to you by");
+//        message.append(notificationDto.getAssignerId());
+//        return message.toString();
+//    }
 }
