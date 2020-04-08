@@ -9,10 +9,7 @@ import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/taskgroup")
@@ -30,8 +27,16 @@ public class TaskGroupController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
     public ResponseEntity<Object> createTaskGroup(@RequestBody TaskGroupDto taskGroupDto){
-        logger.info("HIT - createTaskGroup - /taskgroup POST  dto: {}", taskGroupDto);
+        logger.info("HIT - PSOT createTaskGroup - /taskgroup POST  dto: {}", taskGroupDto);
         return sendResponse(taskGroupService.createTaskGroup(taskGroupDto));
+    }
+
+    @ApiOperation(value = "Task Group Retrieve By User", notes = "Create a Task Group Create")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping
+    public ResponseEntity<Object> getAllTaskGroupsByUser(@RequestHeader("user") String userId){
+        logger.info("HIT - GET getAllTaskGroupsByUser - /taskgroup GET  userId: {}", userId);
+        return sendResponse(taskGroupService.getAllTaskGroupsByUser(userId));
     }
 
 

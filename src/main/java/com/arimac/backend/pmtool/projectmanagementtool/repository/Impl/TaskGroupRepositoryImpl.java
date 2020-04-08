@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class TaskGroupRepositoryImpl implements TaskGroupRepository {
@@ -46,5 +48,19 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
             return preparedStatement;
         });
         return assignment;
+    }
+
+    @Override
+    public Object getAllTaskGroupsByUser(String userId) {
+        String sql = "SELECT * FROM TaskGroup_Member WHERE taskGroupMemberId=?";
+        return jdbcTemplate.query(sql, new TaskGroup_Member(), userId);
+    }
+
+    @Override
+    public List<TaskGroup_MemberResponseDto> getAllTaskGroupsWithGroup(String userId) {
+        String sql = "SELECT * FROM TaskGroup_Member AS TGM " +
+                "INNER JOIN TaskGroup AS TG ON TGM.taskGroupId = TG.taskGroupId " +
+                "WHERE TGM.taskGroupMemberId=?";
+        return jdbcTemplate.query(sql, new TaskGroup_MemberResponseDto(), userId);
     }
 }

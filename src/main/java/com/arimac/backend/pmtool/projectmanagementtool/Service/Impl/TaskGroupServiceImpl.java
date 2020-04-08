@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -16,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TaskGroupServiceImpl implements TaskGroupService {
@@ -54,5 +57,14 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         taskGroupRepository.assignMemberToTaskGroup(member);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroup);
+    }
+
+    @Override
+    public Object getAllTaskGroupsByUser(String userId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        List<TaskGroup_MemberResponseDto> taskGroups = taskGroupRepository.getAllTaskGroupsWithGroup(userId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroups);
     }
 }

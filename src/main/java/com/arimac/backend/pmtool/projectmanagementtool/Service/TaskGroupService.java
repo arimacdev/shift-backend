@@ -4,4 +4,5 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupD
 
 public interface TaskGroupService {
     Object createTaskGroup(TaskGroupDto taskGroup);
+    Object getAllTaskGroupsByUser(String userId);
 }
