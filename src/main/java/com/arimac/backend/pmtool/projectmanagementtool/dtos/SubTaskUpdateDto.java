@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SubTaskUpdateDto {
@@ -7,6 +8,7 @@ public class SubTaskUpdateDto {
     private String subtaskName;
     @JsonProperty
     private Boolean subtaskStatus;
+    private TaskTypeEnum taskType;
 
     public String getSubTaskEditor() {
         return subTaskEditor;
@@ -32,12 +34,21 @@ public class SubTaskUpdateDto {
         this.subtaskStatus = subtaskStatus;
     }
 
+    public TaskTypeEnum getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskTypeEnum taskType) {
+        this.taskType = taskType;
+    }
+
     @Override
     public String toString() {
         return "SubTaskUpdateDto{" +
                 "subTaskEditor='" + subTaskEditor + '\'' +
                 ", subtaskName='" + subtaskName + '\'' +
                 ", subtaskStatus=" + subtaskStatus +
+                ", taskType='" + taskType + '\'' +
                 '}';
     }
 }

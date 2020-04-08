@@ -1,9 +1,12 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+
 public class SubTaskDto {
     private String taskId;
     private String subtaskName;
     private String subTaskCreator;
+    private TaskTypeEnum taskType;
 
     public String getSubTaskCreator() {
         return subTaskCreator;
@@ -29,12 +32,22 @@ public class SubTaskDto {
         this.taskId = taskId;
     }
 
+
+    public TaskTypeEnum getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskTypeEnum taskType) {
+        this.taskType = taskType;
+    }
+
     @Override
     public String toString() {
         return "SubTaskDto{" +
                 "taskId='" + taskId + '\'' +
                 ", subtaskName='" + subtaskName + '\'' +
                 ", subTaskCreator='" + subTaskCreator + '\'' +
+                ", taskType=" + taskType +
                 '}';
     }
 }

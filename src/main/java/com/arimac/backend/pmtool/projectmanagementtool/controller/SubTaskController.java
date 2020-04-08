@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.SubTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Add sub-task to a task", notes = "Create a sub-task for a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks/{taskId}/subtask")
-    public ResponseEntity<Object> addSubTaskToProject(@PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody SubTaskDto subTaskDto){
+    public ResponseEntity<Object> addSubTaskToEntity(@PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody SubTaskDto subTaskDto){
         logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask ---> addSubTaskToProject | projectId: {} |  taskId: {} | subTaskDto {}", projectId, taskId, subTaskDto);
         return sendResponse(subTaskService.addSubTaskToProject(projectId, taskId, subTaskDto));
     }
@@ -36,9 +37,9 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Get all subtasks of a task", notes = "Get all subtasks belonging to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}/subtask")
-    public ResponseEntity<Object> getAllSubTaksOfATask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
-        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask?userId={userId} ---> getAllSubTaksOfATask | projectId: {} |  taskId: {} | userId {}", projectId, taskId, userId);
-        return sendResponse(subTaskService.getAllSubTaksOfATask(userId, projectId, taskId));
+    public ResponseEntity<Object> getAllSubTaksOfATask(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestHeader("type")TaskTypeEnum taskType){
+        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/subtask?userId={userId} ---> getAllSubTaksOfATask | projectId: {} |  taskId: {} | taskType: {} | userId {}", projectId, taskId, taskType, userId);
+        return sendResponse(subTaskService.getAllSubTaksOfATask(userId, projectId, taskId, taskType));
     }
 
     @ApiOperation(value = "Update SubTask", notes = "Update SubTask of a Task")
@@ -52,9 +53,9 @@ public class SubTaskController extends ResponseController {
     @ApiOperation(value = "Flag a  SubTask", notes = "Flag a  SubTask of a Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}/tasks/{taskId}/subtask/{subtaskId}")
-    public ResponseEntity<Object> flagSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId){
-        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> flagSubTaskOfATask | projectId: {} |  taskId: {} | subtaskId {}" , projectId, taskId, subtaskId);
-        return sendResponse(subTaskService.flagSubTaskOfATask(user,projectId, taskId, subtaskId));
+    public ResponseEntity<Object> flagSubTaskOfATask(@RequestHeader("user") String user, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("subtaskId") String subtaskId, @RequestHeader("type") TaskTypeEnum type){
+        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/subtask/<subTaskId> ---> flagSubTaskOfATask | projectId: {} |  taskId: {} | taskType: {} | subtaskId {}" , projectId, taskId, type, subtaskId);
+        return sendResponse(subTaskService.flagSubTaskOfATask(user,projectId, taskId, type, subtaskId));
     }
 
 
