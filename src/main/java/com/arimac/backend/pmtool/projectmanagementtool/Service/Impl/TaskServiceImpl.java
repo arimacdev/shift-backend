@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
@@ -12,6 +13,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
@@ -39,10 +41,12 @@ public class TaskServiceImpl implements TaskService {
     private final UtilsService utilsService;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final TaskGroupService taskGroupService;
+    private final TaskGroupRepository taskGroupRepository;
 
     private final RestTemplate restTemplate;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, RestTemplate restTemplate) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupService taskGroupService, TaskGroupRepository taskGroupRepository, RestTemplate restTemplate) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -52,24 +56,35 @@ public class TaskServiceImpl implements TaskService {
         this.utilsService = utilsService;
         this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
+        this.taskGroupService = taskGroupService;
+        this.taskGroupRepository = taskGroupRepository;
         this.restTemplate = restTemplate;
     }
-
+    //TASK GROUP && PROJECT
     @Override
     public Object addTaskToProject(String projectId, TaskDto taskDto) {
         if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) || (taskDto.getProjectId() == null || taskDto.getProjectId().isEmpty()) || (taskDto.getTaskInitiator()== null || taskDto.getTaskInitiator().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
-        if (!taskDto.getTaskType().equals(TaskTypeEnum.project)){
-            return new ErrorMessage("Task Type Mismatch", HttpStatus.BAD_REQUEST);
+//        if (!taskDto.getTaskType().equals(TaskTypeEnum.project)){
+//            return new ErrorMessage("Task Type Mismatch", HttpStatus.BAD_REQUEST);
+//        }
+        if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
+            if (taskInitiator == null)
+                return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+            ProjectUserResponseDto taskAssignee = null;
+            if (taskDto.getTaskAssignee() != null)
+                taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
+            if (taskAssignee == null)
+                return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+            if (taskDto.getTaskAssignee() != null)
+                if (taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskAssignee(), taskDto.getProjectId()) == null)
+                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
         }
-        ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
-        if (taskInitiator == null)
-            return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        ProjectUserResponseDto taskAssignee = null;
-        if (taskDto.getTaskAssignee() != null)
-            taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
-        if (taskAssignee == null)
-            return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
         Task task = new Task();
         task.setTaskId(utilsService.getUUId());
         task.setProjectId(taskDto.getProjectId());
@@ -82,7 +97,10 @@ public class TaskServiceImpl implements TaskService {
         }
         task.setTaskNote(taskDto.getTaskNotes());
         if (taskDto.getTaskStatus() == null){
+            if (taskDto.getTaskType().equals(TaskTypeEnum.project))
             task.setTaskStatus(TaskStatusEnum.pending);
+            if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup))
+              task.setTaskStatus(TaskStatusEnum.open);
         } else {
             task.setTaskStatus(taskDto.getTaskStatus());
         }
@@ -97,38 +115,46 @@ public class TaskServiceImpl implements TaskService {
         task.setIsDeleted(false);
         task.setTaskType(taskDto.getTaskType());
         taskRepository.addTaskToProject(task);
-
-        DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
-        DateTime now = DateTime.now();
-        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-        DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-        Duration duration = new Duration(nowCol, dueUtc);
-        int difference = (int) duration.getStandardMinutes();
-        int timeFixDifference = difference - 330;
-        Notification notification = new Notification();
-        notification.setNotificationId(utilsService.getUUId());
-        notification.setTaskId(task.getTaskId());
-        notification.setAssigneeId(task.getTaskAssignee());
-        notification.setTaskDueDateAt(task.getTaskDueDateAt());
-        if (timeFixDifference < 1440){
-            notification.setDaily(true);
-        } else {
-            notification.setDaily(false);
+        if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
+            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
+            DateTime now = DateTime.now();
+            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+            Duration duration = new Duration(nowCol, dueUtc);
+            int difference = (int) duration.getStandardMinutes();
+            int timeFixDifference = difference - 330;
+            Notification notification = new Notification();
+            notification.setNotificationId(utilsService.getUUId());
+            notification.setTaskId(task.getTaskId());
+            notification.setAssigneeId(task.getTaskAssignee());
+            notification.setTaskDueDateAt(task.getTaskDueDateAt());
+            if (timeFixDifference < 1440) {
+                notification.setDaily(true);
+            } else {
+                notification.setDaily(false);
+            }
+            notification.setHourly(false);
+            notificationRepository.addTaskNotification(notification);
+            //Slack Notification
+            notificationService.sendTaskAssignNotification(task);
         }
-        notification.setHourly(false);
-        notificationRepository.addTaskNotification(notification);
-        //Slack Notification
-        notificationService.sendTaskAssignNotification(task);
 //        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId) {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-       List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
+    public Object getAllProjectTasksByUser(String userId, String projectId, TaskTypeEnum type) {
+        if (type.equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+
+        } else if (type.equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+        }
+        List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
 
@@ -153,7 +179,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getProjectTaskFiles(String userId, String projectId, String taskId) {
+    public Object getProjectTaskFiles(String userId, String projectId, String taskId, TaskTypeEnum type) {
+        if (type.equals(TaskTypeEnum.project)){
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null){
+                return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+            }
+        } else if (type.equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+        }
         Object fileList = taskFileRepository.getAllTaskFiles(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
     }
@@ -163,11 +199,27 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-//        if (projectUser.getAssigneeProjectRole() != ProjectRoleEnum.owner.getRoleValue()) // check for super admin
-//            return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+            if (taskUpdateDto.getTaskAssignee() != null){
+                ProjectUserResponseDto assignee = projectRepository.getProjectByIdAndUserId(projectId, taskUpdateDto.getTaskAssignee());
+                if (assignee == null){
+                    return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+                }
+            }
+        } else if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+            if (taskUpdateDto.getTaskAssignee() != null){
+                TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskUpdateDto.getTaskAssignee(), projectId);
+                if (assignee == null){
+                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+                }
+            }
+        }
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
             taskUpdateDto.setTaskName(task.getTaskName());
         if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty())
@@ -175,6 +227,7 @@ public class TaskServiceImpl implements TaskService {
         if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty())
             taskUpdateDto.setTaskNotes(task.getTaskNote());
         if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty())
+//            if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project)){
             taskUpdateDto.setTaskStatus(task.getTaskStatus().toString());
         if (taskUpdateDto.getTaskDueDate() == null)
             taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());

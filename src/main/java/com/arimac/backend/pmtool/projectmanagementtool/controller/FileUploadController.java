@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -29,9 +30,9 @@ public class FileUploadController extends ResponseController {
     @ApiOperation(value = "Upload a File to a Task", notes = "Upload a file to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/projects/{projectId}/tasks/{taskId}/upload")
-    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) throws IOException {
-        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
-        return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, fileType, multipartFile));
+    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @RequestParam("taskType") TaskTypeEnum taskType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) throws IOException {
+        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {} | taskType: {}", projectId, userId, taskId, taskType);
+        return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, taskType, fileType, multipartFile));
     }
 
     @ApiOperation(value = "Upload a File to a Personal Task", notes = "Upload a file to a task")

@@ -55,7 +55,7 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
 
     @Override
     public TaskGroup_Member getTaskGroupMemberByTaskGroup(String userId, String taskGroupId) {
-        String sql = "SELECT * FROM TaskGroup_Member WHERE taskGroupMemberId=? AND taskGroupId=?";
+        String sql = "SELECT * FROM TaskGroup_Member WHERE taskGroupMemberId=? AND taskGroupId=? AND isDeleted=false AND isBlocked=false";
         TaskGroup_Member member;
         try {
             member = jdbcTemplate.queryForObject(sql, new TaskGroup_Member(), userId, taskGroupId);
