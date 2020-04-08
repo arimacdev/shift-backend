@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupRoleEnum;
@@ -90,5 +91,18 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         member.setMemberAssignedAt(utilsService.getCurrentTimestamp());
         taskGroupRepository.assignMemberToTaskGroup(member);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, member);
+    }
+
+    @Override
+    public Object updateTaskGroup(String taskGroupId, TaskGroupUpdateDto taskGroupUpdateDto) {
+        if (taskGroupUpdateDto.getTaskGroupName() == null || taskGroupUpdateDto.getTaskGroupEditor() == null)
+            return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupUpdateDto.getTaskGroupEditor(), taskGroupId);
+        if (owner == null)
+            return new ErrorMessage("Assigner doesnot belong to the Task Group", HttpStatus.BAD_REQUEST);
+        if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
+            return new ErrorMessage("Assigner is not Group Admin", HttpStatus.UNAUTHORIZED);
+        taskGroupRepository.updateTaskGroup(taskGroupId,taskGroupUpdateDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroupUpdateDto);
     }
 }

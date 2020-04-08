@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupUpdateDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -46,6 +47,14 @@ public class TaskGroupController extends ResponseController {
     public ResponseEntity<Object> addMembersToTaskGroup(@RequestBody TaskGroupAddDto taskGroupAddDto){
         logger.info("HIT - POST addMembersToTaskGroup - /taskgroup/add  dto: {}", taskGroupAddDto);
         return sendResponse(taskGroupService.addMembersToTaskGroup(taskGroupAddDto));
+    }
+
+    @ApiOperation(value = "Task Group Create", notes = "Create a Task Group Create")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{taskGroupId}")
+    public ResponseEntity<Object> updateTaskGroup(@PathVariable("taskGroupId") String taskGroupId, @RequestBody TaskGroupUpdateDto taskGroupUpdateDto){
+        logger.info("HIT - POST addMembersToTaskGroup - /taskgroup/<taskGroupId> | taskGroupId {} |  dto: {}", taskGroupUpdateDto, taskGroupId);
+        return sendResponse(taskGroupService.updateTaskGroup(taskGroupId, taskGroupUpdateDto));
     }
 
 

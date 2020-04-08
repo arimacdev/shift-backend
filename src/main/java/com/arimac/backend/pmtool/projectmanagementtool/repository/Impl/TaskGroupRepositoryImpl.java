@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
@@ -75,5 +76,11 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
                 "INNER JOIN TaskGroup AS TG ON TGM.taskGroupId = TG.taskGroupId " +
                 "WHERE TGM.taskGroupMemberId=?";
         return jdbcTemplate.query(sql, new TaskGroup_MemberResponseDto(), userId);
+    }
+
+    @Override
+    public void updateTaskGroup(String taskGroupId, TaskGroupUpdateDto taskGroupUpdateDto) {
+        String sql = "UPDATE TaskGroup SET taskGroupName=? WHERE taskgroupId=?";
+        jdbcTemplate.update(sql,taskGroupUpdateDto.getTaskGroupName(), taskGroupId);
     }
 }
