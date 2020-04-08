@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,18 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
             return preparedStatement;
         });
         return assignment;
+    }
+
+    @Override
+    public TaskGroup_Member getTaskGroupMemberByTaskGroup(String userId, String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroup_Member WHERE taskGroupMemberId=? AND taskGroupId=?";
+        TaskGroup_Member member;
+        try {
+            member = jdbcTemplate.queryForObject(sql, new TaskGroup_Member(), userId, taskGroupId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        return member;
     }
 
     @Override

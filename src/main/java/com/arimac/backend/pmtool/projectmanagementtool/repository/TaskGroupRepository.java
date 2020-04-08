@@ -9,6 +9,7 @@ import java.util.List;
 public interface TaskGroupRepository {
     Object createTaskGroup(TaskGroup taskGroup);
     Object assignMemberToTaskGroup(TaskGroup_Member assignment);
+    TaskGroup_Member getTaskGroupMemberByTaskGroup(String userId, String taskGroupId);
     Object getAllTaskGroupsByUser(String userId); // only member
     List<TaskGroup_MemberResponseDto> getAllTaskGroupsWithGroup(String userId); // taskgroup + member
 }

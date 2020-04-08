@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -27,7 +28,7 @@ public class TaskGroupController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
     public ResponseEntity<Object> createTaskGroup(@RequestBody TaskGroupDto taskGroupDto){
-        logger.info("HIT - PSOT createTaskGroup - /taskgroup POST  dto: {}", taskGroupDto);
+        logger.info("HIT - POST createTaskGroup - /taskgroup POST  dto: {}", taskGroupDto);
         return sendResponse(taskGroupService.createTaskGroup(taskGroupDto));
     }
 
@@ -37,6 +38,14 @@ public class TaskGroupController extends ResponseController {
     public ResponseEntity<Object> getAllTaskGroupsByUser(@RequestHeader("user") String userId){
         logger.info("HIT - GET getAllTaskGroupsByUser - /taskgroup GET  userId: {}", userId);
         return sendResponse(taskGroupService.getAllTaskGroupsByUser(userId));
+    }
+
+    @ApiOperation(value = "Task Group Create", notes = "Create a Task Group Create")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/add")
+    public ResponseEntity<Object> addMembersToTaskGroup(@RequestBody TaskGroupAddDto taskGroupAddDto){
+        logger.info("HIT - POST addMembersToTaskGroup - /taskgroup/add  dto: {}", taskGroupAddDto);
+        return sendResponse(taskGroupService.addMembersToTaskGroup(taskGroupAddDto));
     }
 
 

@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
@@ -66,5 +67,28 @@ public class TaskGroupServiceImpl implements TaskGroupService {
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         List<TaskGroup_MemberResponseDto> taskGroups = taskGroupRepository.getAllTaskGroupsWithGroup(userId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroups);
+    }
+
+    @Override
+    public Object addMembersToTaskGroup(TaskGroupAddDto taskGroupAddDto) {
+        TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupAddDto.getTaskGroupAssigner(), taskGroupAddDto.getTaskGroupId());
+        if (owner == null)
+            return new ErrorMessage("Assigner doesnot belong to the Task Group", HttpStatus.BAD_REQUEST);
+        if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
+            return new ErrorMessage("Assigner is not Group Admin", HttpStatus.UNAUTHORIZED);
+        TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupAddDto.getTaskGroupAssignee(), taskGroupAddDto.getTaskGroupId());
+        if (assignee != null)
+            return new ErrorMessage("Already a member", HttpStatus.BAD_REQUEST);
+        User newUser = userRepository.getUserByUserId(taskGroupAddDto.getTaskGroupAssignee());
+        if (newUser == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        TaskGroup_Member member = new TaskGroup_Member();
+        member.setTaskGroupId(taskGroupAddDto.getTaskGroupId());
+        member.setTaskGroupMemberId(taskGroupAddDto.getTaskGroupAssignee());
+        member.setTaskGroupRole(TaskGroupRoleEnum.member.getRoleValue());
+        member.setBlocked(false);
+        member.setMemberAssignedAt(utilsService.getCurrentTimestamp());
+        taskGroupRepository.assignMemberToTaskGroup(member);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, member);
     }
 }
