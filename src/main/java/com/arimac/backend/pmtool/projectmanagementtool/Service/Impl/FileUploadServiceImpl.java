@@ -9,14 +9,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -43,21 +42,29 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
     private final UserRepository userRepository;
+    private final TaskGroupRepository taskGroupRepository;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository) {
+    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository) {
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.taskFileRepository = taskFileRepository;
         this.utilsService = utilsService;
         this.userRepository = userRepository;
+        this.taskGroupRepository = taskGroupRepository;
     }
 
     @Override
-    public Object uploadFileToTask(String userId, String projectId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) throws IOException {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null){
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+    public Object uploadFileToTask(String userId, String projectId, String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFiles) throws IOException {
+        if (taskType.equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null) {
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            }
+        } else if (taskType.equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         }
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
