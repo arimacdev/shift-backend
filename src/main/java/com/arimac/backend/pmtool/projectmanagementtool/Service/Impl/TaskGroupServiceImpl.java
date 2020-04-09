@@ -2,17 +2,21 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupRoleEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -27,13 +31,16 @@ public class TaskGroupServiceImpl implements TaskGroupService {
     private static final Logger logger = LoggerFactory.getLogger(TaskGroupServiceImpl.class);
 
     private final TaskGroupRepository taskGroupRepository;
+    private final TaskService taskService;
     private final UserRepository userRepository;
-//    private final
+    private final TaskRepository taskRepository;
     private final UtilsService utilsService;
 
-    public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository, UserRepository userRepository, UtilsService utilsService) {
+    public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository, TaskService taskService, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
         this.taskGroupRepository = taskGroupRepository;
+        this.taskService = taskService;
         this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
         this.utilsService = utilsService;
     }
 
@@ -114,6 +121,10 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
             return new ErrorMessage("User is not the Group Owner", HttpStatus.UNAUTHORIZED);
         taskGroupRepository.flagTaskGroup(taskGroupId);
+        List<Task> taskList = taskRepository.getAllProjectTasksByUser(taskGroupId);
+        for(Task task : taskList) {
+            taskService.flagProjectTask(userId, taskGroupId, task.getTaskId(), TaskTypeEnum.taskGroup);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

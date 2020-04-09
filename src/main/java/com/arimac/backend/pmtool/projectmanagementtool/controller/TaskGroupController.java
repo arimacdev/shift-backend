@@ -57,13 +57,14 @@ public class TaskGroupController extends ResponseController {
         return sendResponse(taskGroupService.updateTaskGroup(taskGroupId, taskGroupUpdateDto));
     }
 
-    @ApiOperation(value = "Task Group Create", notes = "Create a Task Group Create")
+    @ApiOperation(value = "Flag Task Group", notes = "Flag Task Group")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{taskGroupId}")
     public ResponseEntity<Object> flagTaskGroup(@PathVariable("taskGroupId") String taskGroupId, @RequestHeader("user") String userId){
         logger.info("HIT - DELETE flagTaskGroup - /taskgroup/<taskGroupId> | taskGroupId {} | ownerId {}", taskGroupId, userId);
         return sendResponse(taskGroupService.flagTaskGroup(taskGroupId, userId));
     }
+
 
 
 

@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -225,7 +226,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.flagProject(projectId);
             List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
             for(Task task : taskList) {
-                taskService.flagProjectTask(userId, projectId, task.getTaskId());
+                taskService.flagProjectTask(userId, projectId, task.getTaskId(), TaskTypeEnum.project);
             }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
