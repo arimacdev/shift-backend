@@ -54,6 +54,16 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
     }
 
     @Override
+    public TaskGroup getTaskGroupById(String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroup WHERE taskGroupId=? AND isDeleted=false ";
+        try {
+            return jdbcTemplate.queryForObject(sql, new TaskGroup(), taskGroupId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
     public TaskGroup_Member getTaskGroupMemberByTaskGroup(String userId, String taskGroupId) {
         String sql = "SELECT * FROM TaskGroup_Member WHERE taskGroupMemberId=? AND taskGroupId=? AND isDeleted=false AND isBlocked=false";
         TaskGroup_Member member;
@@ -65,6 +75,7 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
         return member;
     }
 
+
     @Override
     public Object getAllTaskGroupsByUser(String userId) {
         String sql = "SELECT * FROM TaskGroup_Member WHERE taskGroupMemberId=?";
@@ -75,7 +86,7 @@ public class TaskGroupRepositoryImpl implements TaskGroupRepository {
     public List<TaskGroup_MemberResponseDto> getAllTaskGroupsWithGroup(String userId) {
         String sql = "SELECT * FROM TaskGroup_Member AS TGM " +
                 "INNER JOIN TaskGroup AS TG ON TGM.taskGroupId = TG.taskGroupId " +
-                "WHERE TGM.taskGroupMemberId=?";
+                "WHERE TGM.taskGroupMemberId=? AND TG.isdeleted=false";
         return jdbcTemplate.query(sql, new TaskGroup_MemberResponseDto(), userId);
     }
 

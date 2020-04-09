@@ -123,6 +123,9 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
             return new ErrorMessage("User is not the Group Owner", HttpStatus.UNAUTHORIZED);
         taskGroupRepository.flagTaskGroup(taskGroupId);
+        TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupId);
+        if (taskGroup == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         List<Task> taskList = taskRepository.getAllProjectTasksByUser(taskGroupId);
         for(Task task : taskList) {
         taskRepository.flagProjectTask(task.getTaskId());

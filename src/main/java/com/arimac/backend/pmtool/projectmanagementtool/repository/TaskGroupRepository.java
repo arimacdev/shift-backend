@@ -11,6 +11,7 @@ public interface TaskGroupRepository {
     Object createTaskGroup(TaskGroup taskGroup);
     Object assignMemberToTaskGroup(TaskGroup_Member assignment);
     TaskGroup_Member getTaskGroupMemberByTaskGroup(String userId, String taskGroupId);
+    TaskGroup getTaskGroupById(String taskGroupId);
     Object getAllTaskGroupsByUser(String userId); // only member
     List<TaskGroup_MemberResponseDto> getAllTaskGroupsWithGroup(String userId); // taskgroup + member
     void updateTaskGroup(String taskGroupId, TaskGroupUpdateDto taskGroupUpdateDto);
