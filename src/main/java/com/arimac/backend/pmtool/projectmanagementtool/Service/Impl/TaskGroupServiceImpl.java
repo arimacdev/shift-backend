@@ -2,19 +2,18 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
-import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroupUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.TaskGroup_MemberResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupRoleEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.SubTaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
@@ -30,17 +29,18 @@ import java.util.List;
 public class TaskGroupServiceImpl implements TaskGroupService {
     private static final Logger logger = LoggerFactory.getLogger(TaskGroupServiceImpl.class);
 
+//    private final TaskService taskService;
     private final TaskGroupRepository taskGroupRepository;
-    private final TaskService taskService;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final SubTaskRepository subTaskRepository;
     private final UtilsService utilsService;
 
-    public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository, TaskService taskService, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
+    public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository, UserRepository userRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService) {
         this.taskGroupRepository = taskGroupRepository;
-        this.taskService = taskService;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.subTaskRepository = subTaskRepository;
         this.utilsService = utilsService;
     }
 
@@ -113,6 +113,8 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroupUpdateDto);
     }
 
+
+
     @Override
     public Object flagTaskGroup(String taskGroupId, String userId) {
         TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
@@ -123,7 +125,8 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         taskGroupRepository.flagTaskGroup(taskGroupId);
         List<Task> taskList = taskRepository.getAllProjectTasksByUser(taskGroupId);
         for(Task task : taskList) {
-            taskService.flagProjectTask(userId, taskGroupId, task.getTaskId(), TaskTypeEnum.taskGroup);
+        taskRepository.flagProjectTask(task.getTaskId());
+        subTaskRepository.flagTaskBoundSubTasks(task.getTaskId());
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }

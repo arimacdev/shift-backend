@@ -221,7 +221,7 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        if ( !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) )
+        if (!(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) )
             return new ErrorMessage("You don't have privileges for this operation", HttpStatus.UNAUTHORIZED);
             projectRepository.flagProject(projectId);
             List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
