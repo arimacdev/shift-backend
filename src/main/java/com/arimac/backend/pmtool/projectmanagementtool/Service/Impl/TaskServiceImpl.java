@@ -8,10 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
@@ -242,18 +239,26 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object flagProjectTask(String userId, String projectId, String taskId) {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+    public Object flagProjectTask(String userId, String projectId, String taskId, TaskTypeEnum taskType) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
-            return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
+        if (taskType.equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+            if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
+                return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
+            notificationRepository.deleteNotification(taskId);
+        } else if (taskType.equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+            if (member.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
+                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+        }
         taskRepository.flagProjectTask(taskId);
         subTaskRepository.flagTaskBoundSubTasks(taskId);
-        notificationRepository.deleteNotification(taskId);
         return new Response(ResponseMessage.SUCCESS);
     }
 
