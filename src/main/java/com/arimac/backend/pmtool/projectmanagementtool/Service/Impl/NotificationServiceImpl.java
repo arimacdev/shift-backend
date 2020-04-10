@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,29 +105,252 @@ public class NotificationServiceImpl implements NotificationService {
             body.setType(SECTION);
             body.getText().setType(MARK_DOWN);
             StringBuilder bodyText = new StringBuilder();
-            bodyText.append(":gear: Task: *");
+            bodyText.append(SlackMessages.TASK_ICON);
             bodyText.append(task.getTaskName());
-            bodyText.append("*\n :briefcase: Project: *");
+            bodyText.append(SlackMessages.PROJECT_ICON);
             bodyText.append(project.getProjectName());
-            bodyText.append("*\n:speaking_head_in_silhouette: Assigned By: *");
+            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
             bodyText.append(sender.getFirstName());
             bodyText.append(" ");
             bodyText.append(sender.getLastName());
-            bodyText.append("* \n:hourglass_flowing_sand: Due Date: *");
+            bodyText.append(SlackMessages.DUE_DATE_ICON);
             if (task.getTaskDueDateAt() != null){
-                bodyText.append(task.getTaskDueDateAt());
+                DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
+                bodyText.append(getDueDate(dueUtc));
             } else {
                 bodyText.append("Not Due Date Assigned");
             }
-            bodyText.append("*");
             body.getText().setText(bodyText.toString());
-//            body.getText().setText(":gear: Task: *Notification API development*\n :briefcase: Project: *PM-Tool*\n:speaking_head_in_silhouette: Assigned By: *Naveen Perera* \n:hourglass_flowing_sand: Due Date: *2020/04/06*");
             body.getAccessory().setType("image");
-            body.getAccessory().setImage_url("https://api.slack.com/img/blocks/bkb_template_images/notifications.png");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
             body.getAccessory().setAlt_text("Calender Thumbnail");
             blocks.add(body);
             blocks.add(divider);
 
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public void sendTaskAssigneeUpdateNotification(Task task, String newTaskAssignee) {
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null){
+            User previous = userRepository.getUserByUserId(task.getTaskAssignee());
+            User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            User sender = userRepository.getUserByUserId(task.getTaskInitiator());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, newAssignee.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_ASSIGNEE_UPDATE_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(PLAIN_TEXT);
+            headerBlock.getText().setText(SlackMessages.TASK_ASSIGNMENT_TRANSITION_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(project.getProjectName());
+            bodyText.append(SlackMessages.TRANSITION_ICON);
+            bodyText.append(previous.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(previous.getLastName());
+            bodyText.append(SlackMessages.ARROW_ICON);
+            bodyText.append(newAssignee.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(newAssignee.getLastName());
+            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
+            bodyText.append(sender.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(sender.getLastName());
+            bodyText.append(SlackMessages.DUE_DATE_ICON);
+            if (task.getTaskDueDateAt() != null){
+                DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
+                bodyText.append(getDueDate(dueUtc));
+            } else {
+                bodyText.append("Not Due Date Assigned");
+            }
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+            blocks.add(divider);
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public void sendTaskNameModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor) {
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null){
+            User editor = userRepository.getUserByUserId(taskEditor);
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_MODIFICATION_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(PLAIN_TEXT);
+            headerBlock.getText().setText(SlackMessages.TASK_MODIFICATION_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(project.getProjectName());
+            switch (type){
+                case "name":
+                    bodyText.append(SlackMessages.MODIFIED_NAME_ICON);
+                    bodyText.append(taskUpdateDto.getTaskName());
+                    bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
+                    bodyText.append(task.getTaskName());
+                 break;
+                case "notes":
+                    bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
+                    bodyText.append(taskUpdateDto.getTaskNotes());
+                    bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
+                    if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
+                        bodyText.append("<No Previous Task Note Content>");
+                    else
+                    bodyText.append(task.getTaskNote());
+                 break;
+                case "dueDate":
+                    bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
+                    bodyText.append(getDate(taskUpdateDto.getTaskDueDate()));
+                    bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
+                    if (task.getTaskDueDateAt() == null)
+                        bodyText.append("No Previous Due Date");
+                    else
+                        bodyText.append(getDate(task.getTaskDueDateAt()));
+                 break;
+                case "status":
+                    bodyText.append(SlackMessages.TRANSITION_ICON);
+                    bodyText.append(task.getTaskStatus());
+                    bodyText.append(SlackMessages.ARROW_ICON);
+                    bodyText.append(taskUpdateDto.getTaskStatus());
+                 break;
+            }
+            bodyText.append(SlackMessages.TRANSITIONED_BY_ICON);
+            bodyText.append(editor.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(editor.getLastName());
+
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+            blocks.add(divider);
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName) {
+        Task task = taskRepository.getProjectTask(taskId);
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null){
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_ASSIGNEE_UPDATE_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(PLAIN_TEXT);
+            headerBlock.getText().setText(SlackMessages.TASK_ASSIGNMENT_TRANSITION_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(project.getProjectName());
+            bodyText.append(SlackMessages.UPLOADED_BY_ICON);
+            bodyText.append(user.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(user.getLastName());
+//            bodyText.append(SlackMessages.UPLOADED_FILE_ICON);
+
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+
+            SlackBlock fileUpload = new SlackBlock();
+            fileUpload.setType(SECTION);
+            fileUpload.getText().setType(MARK_DOWN);
+            StringBuilder fileText = new StringBuilder();
+            fileText.append(SlackMessages.UPLOADED_FILE_ICON);
+            fileText.append("*<");
+            fileText.append(file);
+            fileText.append("|");
+            fileText.append(fileName);
+            fileText.append(">*");
+            fileUpload.getText().setText(fileText.toString());
+            fileUpload.setAccessory(null);
+            blocks.add(fileUpload);
+            blocks.add(divider);
             payload.put(BLOCKS,blocks);
             StringBuilder url = new StringBuilder();
             url.append(ENVConfig.SLACK_BASE_URL);
@@ -260,8 +484,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private String getDueDate(DateTime dueUtc){
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy hh:mma");
         String dueFormatted = fmt.print(dueUtc);
 
 //        int year = dueUtc.getYear();
@@ -274,14 +497,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     }
 
-//    private String getTaskAssignmentMessage(TaskAssignNotificationDto notificationDto){
-//        StringBuilder message = new StringBuilder();
-//        message.append("Task ");
-//        message.append(notificationDto.getTaskName());
-//        message.append(" of Project");
-//        message.append(notificationDto.getProjectName());
-//        message.append("is assigned to you by");
-//        message.append(notificationDto.getAssignerId());
-//        return message.toString();
-//    }
+    private String getDate(Timestamp date){
+        DateTime dateUTC = new DateTime(date, DateTimeZone.forID("UTC"));
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy hh:mma");
+        String dueFormatted = fmt.print(dateUTC);
+
+        return dueFormatted;
+
+    }
+
 }

@@ -14,17 +14,19 @@ public class TaskFile implements RowMapper<TaskFile> {
     private String taskFileUrl;
     private String taskFileCreator;
     private Timestamp taskFileDate;
+    private boolean isDeleted;
 
     public TaskFile() {
     }
 
-    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, Timestamp taskFileDate) {
+    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, Timestamp taskFileDate, boolean isDeleted) {
         this.taskFileId = taskFileId;
         this.taskId = taskId;
         this.taskFileName = taskFileName;
         this.taskFileUrl = taskFileUrl;
         this.taskFileCreator = taskFileCreator;
         this.taskFileDate = taskFileDate;
+        this.isDeleted = isDeleted;
     }
 
     public String getTaskFileId() {
@@ -84,7 +86,8 @@ public class TaskFile implements RowMapper<TaskFile> {
                 resultSet.getString("taskFileName"),
                 resultSet.getString("taskFileUrl"),
                 resultSet.getString("taskFileCreator"),
-                resultSet.getTimestamp("taskFileDate")
+                resultSet.getTimestamp("taskFileDate"),
+                resultSet.getBoolean("isDeleted")
         );
     }
 }

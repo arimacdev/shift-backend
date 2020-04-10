@@ -114,7 +114,7 @@ public class TaskServiceImpl implements TaskService {
         task.setIsDeleted(false);
         task.setTaskType(taskDto.getTaskType());
         taskRepository.addTaskToProject(task);
-        if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
+        if (taskDto.getTaskType().equals(TaskTypeEnum.project) && task.getTaskDueDateAt()!= null) {
             DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
             DateTime now = DateTime.now();
             DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
@@ -219,21 +219,60 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
-        if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
-            taskUpdateDto.setTaskName(task.getTaskName());
-        if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty())
-            taskUpdateDto.setTaskAssignee(task.getTaskAssignee());
-        if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty())
-            taskUpdateDto.setTaskNotes(task.getTaskNote());
-        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty())
-//            if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project)){
-            taskUpdateDto.setTaskStatus(task.getTaskStatus().toString());
-        if (taskUpdateDto.getTaskDueDate() == null)
-            taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
-        if (taskUpdateDto.getTaskRemindOnDate() == null)
-            taskUpdateDto.setTaskRemindOnDate(task.getTaskReminderAt());
+        TaskUpdateDto updateDto = new TaskUpdateDto();
 
-        Object updateTask = taskRepository.updateProjectTask(taskId, taskUpdateDto);
+        if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty()) {
+            updateDto.setTaskName(task.getTaskName());
+        } else {
+            updateDto.setTaskName(taskUpdateDto.getTaskName());
+        }
+        if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty()) {
+            updateDto.setTaskAssignee(task.getTaskAssignee());
+        } else {
+            updateDto.setTaskAssignee(taskUpdateDto.getTaskAssignee());
+        }
+        if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty()){
+            updateDto.setTaskNotes(task.getTaskNote());
+        } else {
+            updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
+        }
+        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty()) {
+            updateDto.setTaskStatus(task.getTaskStatus().toString());
+        } else {
+            updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
+        }
+        if (taskUpdateDto.getTaskDueDate() == null) {
+            updateDto.setTaskDueDate(task.getTaskDueDateAt());
+        } else {
+            updateDto.setTaskDueDate(taskUpdateDto.getTaskDueDate());
+        }
+        if (taskUpdateDto.getTaskRemindOnDate() == null) {
+            updateDto.setTaskRemindOnDate(task.getTaskReminderAt());
+        } else {
+            updateDto.setTaskRemindOnDate(taskUpdateDto.getTaskRemindOnDate());
+        }
+
+        Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
+
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
+            notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskStatus() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "status", userId);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "name", userId);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskNotes() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "notes", userId);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskDueDate() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "dueDate", userId);
+        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
     }
@@ -261,18 +300,6 @@ public class TaskServiceImpl implements TaskService {
         subTaskRepository.flagTaskBoundSubTasks(taskId);
         return new Response(ResponseMessage.SUCCESS);
     }
-
-//    @Override
-//    public Object getProjectTaskCompletionByUser(String userId, String projectId) {
-//        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-//        if (projectUser == null)
-//            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-////        if (projectUser.getIsDeleted())
-////            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
-//        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
-//        Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
-//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskCompletionMap);
-//    }
 
     private Map<String, TaskCompletionDto> getTaskCompletionMap(List<Task> taskList){
         Map<String, TaskCompletionDto> userTaskCompletionMap = new HashMap<>();
