@@ -10,6 +10,7 @@ public interface NotificationService {
     void sendTaskAssignNotification(Task task);
     void sendTaskAssigneeUpdateNotification(Task task, String newAssignee);
     void sendTaskNameModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor);
+    void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName);
     Object checkSlackNotification();
 
 }

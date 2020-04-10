@@ -12,6 +12,8 @@ public class SlackMessages {
     public static  final String TRANSITION_ICON = "\n:zap:   *Transition:* ";
     public static  final String ARROW_ICON = "  ⟶  ";
     public static  final String ASSIGNED_BY_ICON ="\n:speaking_head_in_silhouette:   *Assigned By:* ";
+    public static  final String UPLOADED_BY_ICON ="\n:file_cabinet:   *Uploaded By:* ";
+    public static  final String UPLOADED_FILE_ICON =":file_folder:   *Uploaded File:* ";
     public static  final String MODIFIED_BY_ICON ="\n:speaking_head_in_silhouette:   *Modified By:* ";
     public static  final String TRANSITIONED_BY_ICON ="\n:speaking_head_in_silhouette:   *Transitioned By:* ";
     public static  final String DUE_DATE_ICON = "\n:hourglass_flowing_sand:   *Due Date:* ";

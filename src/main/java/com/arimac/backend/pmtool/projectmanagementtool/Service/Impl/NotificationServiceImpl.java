@@ -294,6 +294,74 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName) {
+        Task task = taskRepository.getProjectTask(taskId);
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null){
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_ASSIGNEE_UPDATE_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(PLAIN_TEXT);
+            headerBlock.getText().setText(SlackMessages.TASK_ASSIGNMENT_TRANSITION_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(project.getProjectName());
+            bodyText.append(SlackMessages.UPLOADED_BY_ICON);
+            bodyText.append(user.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(user.getLastName());
+//            bodyText.append(SlackMessages.UPLOADED_FILE_ICON);
+
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+
+            SlackBlock fileUpload = new SlackBlock();
+            fileUpload.setType(SECTION);
+            fileUpload.getText().setType(MARK_DOWN);
+            StringBuilder fileText = new StringBuilder();
+            fileText.append(SlackMessages.UPLOADED_FILE_ICON);
+            fileText.append("*<");
+            fileText.append(file);
+            fileText.append("|");
+            fileText.append(fileName);
+            fileText.append(">*");
+            fileUpload.getText().setText(fileText.toString());
+            fileUpload.setAccessory(null);
+            blocks.add(fileUpload);
+            blocks.add(divider);
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
     public Object checkSlackNotification() {
         JSONObject payload = new JSONObject();
         payload.put("channel", "UGQ0FGZ5F");

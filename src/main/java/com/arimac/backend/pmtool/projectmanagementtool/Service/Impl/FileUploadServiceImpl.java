@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
@@ -43,8 +44,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final UtilsService utilsService;
     private final UserRepository userRepository;
     private final TaskGroupRepository taskGroupRepository;
+    private final NotificationService notificationService;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository) {
+    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService) {
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -52,6 +54,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         this.utilsService = utilsService;
         this.userRepository = userRepository;
         this.taskGroupRepository = taskGroupRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
-
+            notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
         }
 
