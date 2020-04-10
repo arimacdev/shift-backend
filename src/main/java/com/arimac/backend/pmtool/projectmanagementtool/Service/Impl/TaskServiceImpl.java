@@ -219,6 +219,9 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null){
+            notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
+        }
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
             taskUpdateDto.setTaskName(task.getTaskName());
         if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty())
