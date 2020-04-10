@@ -38,9 +38,9 @@ public class FileUploadController extends ResponseController {
     @ApiOperation(value = "Delete a File from a Task", notes = "Upload a file to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/projects/{projectId}/tasks/{taskId}/upload/{taskFileId}")
-    public ResponseEntity<Object> deleteFileFromTask(@RequestHeader("user") String userId,  @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("taskFileId") String taskFileId)  {
-        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/upload/<taskFileId> ---> flagTaskFile | projectId: {} | userId: {} | taskId: {} | taskFileId: {}", projectId, userId, taskId, taskFileId);
-        return sendResponse(fileUploadService.deleteFileFromTask(userId, projectId, taskId, taskFileId));
+    public ResponseEntity<Object> deleteFileFromTask(@RequestHeader("user") String userId, @RequestHeader("taskType") TaskTypeEnum type, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("taskFileId") String taskFileId)  {
+        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/upload/<taskFileId> ---> flagTaskFile | projectId: {} | userId: {} | taskId: {} | type: {} taskFileId: {}", projectId, userId, taskId, type, taskFileId);
+        return sendResponse(fileUploadService.deleteFileFromTask(userId, projectId, taskId, type, taskFileId));
     }
 
 

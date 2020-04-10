@@ -118,17 +118,25 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public Object deleteFileFromTask(String userId, String projectId, String taskId, String taskFile) {
-        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-        if (projectUser == null) {
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+    public Object deleteFileFromTask(String userId, String projectId, String taskId, TaskTypeEnum type, String taskFile) {
+        if (type.equals(TaskTypeEnum.project)) {
+            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            if (projectUser == null) {
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            }
+            Task task = taskRepository.getProjectTask(taskId);
+            if (task == null)
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+        } else if (type.equals(TaskTypeEnum.taskGroup)){
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            Task task = taskRepository.getProjectTask(taskId);
+            if (task == null)
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
         }
-        Task task = taskRepository.getProjectTask(taskId);
-        if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) ||(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
-//        if ( (!(task.getTaskAssignee().equals(userId)) || !(task.getTaskInitiator().equals(userId)) || !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
-            return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         taskFileRepository.flagTaskFile(taskFile);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
