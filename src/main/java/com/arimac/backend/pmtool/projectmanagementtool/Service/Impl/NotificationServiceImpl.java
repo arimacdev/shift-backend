@@ -119,7 +119,6 @@ public class NotificationServiceImpl implements NotificationService {
             } else {
                 bodyText.append("Not Due Date Assigned");
             }
-            bodyText.append("*");
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
             body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
@@ -190,7 +189,6 @@ public class NotificationServiceImpl implements NotificationService {
             } else {
                 bodyText.append("Not Due Date Assigned");
             }
-            bodyText.append("*");
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
             body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
@@ -246,19 +244,18 @@ public class NotificationServiceImpl implements NotificationService {
                     bodyText.append(taskUpdateDto.getTaskName());
                     bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
                     bodyText.append(task.getTaskName());
+                 break;
+                case "notes":
+                    bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
+                    bodyText.append(taskUpdateDto.getTaskNotes());
+                    bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
+                    bodyText.append(task.getTaskNote());
             }
             bodyText.append(SlackMessages.MODIFIED_BY_ICON);
             bodyText.append(editor.getFirstName());
             bodyText.append(" ");
             bodyText.append(editor.getLastName());
-//            bodyText.append(SlackMessages.DUE_DATE_ICON);
-//            if (task.getTaskDueDateAt() != null){
-//                DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
-//                bodyText.append(getDueDate(dueUtc));
-//            } else {
-//                bodyText.append("Not Due Date Assigned");
-//            }
-            bodyText.append("*");
+
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
             body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);

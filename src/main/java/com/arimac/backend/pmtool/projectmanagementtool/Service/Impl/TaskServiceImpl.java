@@ -219,27 +219,49 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+        TaskUpdateDto updateDto = new TaskUpdateDto();
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
             notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
         }
-        if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
-            taskUpdateDto.setTaskName(task.getTaskName());
-        if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty())
-            taskUpdateDto.setTaskAssignee(task.getTaskAssignee());
-        if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty())
-            taskUpdateDto.setTaskNotes(task.getTaskNote());
-        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty())
-//            if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project)){
-            taskUpdateDto.setTaskStatus(task.getTaskStatus().toString());
-        if (taskUpdateDto.getTaskDueDate() == null)
-            taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
-        if (taskUpdateDto.getTaskRemindOnDate() == null)
-            taskUpdateDto.setTaskRemindOnDate(task.getTaskReminderAt());
 
-        Object updateTask = taskRepository.updateProjectTask(taskId, taskUpdateDto);
+        if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty()) {
+            updateDto.setTaskName(task.getTaskName());
+        } else {
+            updateDto.setTaskName(taskUpdateDto.getTaskName());
+        }
+        if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty()) {
+            updateDto.setTaskAssignee(task.getTaskAssignee());
+        } else {
+            updateDto.setTaskAssignee(taskUpdateDto.getTaskAssignee());
+        }
+        if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty()){
+            updateDto.setTaskNotes(task.getTaskNote());
+        } else {
+            updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
+        }
+        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty()) {
+            updateDto.setTaskStatus(task.getTaskStatus().toString());
+        } else {
+            updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
+        }
+        if (taskUpdateDto.getTaskDueDate() == null) {
+            updateDto.setTaskDueDate(task.getTaskDueDateAt());
+        } else {
+            updateDto.setTaskDueDate(taskUpdateDto.getTaskDueDate());
+        }
+        if (taskUpdateDto.getTaskRemindOnDate() == null) {
+            updateDto.setTaskRemindOnDate(task.getTaskReminderAt());
+        } else {
+            updateDto.setTaskRemindOnDate(taskUpdateDto.getTaskRemindOnDate());
+        }
+
+        Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
             notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "name", userId);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskNotes() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "notes", userId);
         }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
