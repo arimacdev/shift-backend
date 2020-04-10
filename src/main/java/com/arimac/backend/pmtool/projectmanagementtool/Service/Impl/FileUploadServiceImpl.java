@@ -9,6 +9,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -113,8 +114,23 @@ public class FileUploadServiceImpl implements FileUploadService {
     public Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile) {
         String url = fileQueue(multipartFile, fileType);
         userRepository.updateProfilePicture(userId, url);
-
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, url);
+    }
+
+    @Override
+    public Object deleteFileFromTask(String userId, String projectId, String taskId, String taskFile) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null) {
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        }
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) ||(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+//        if ( (!(task.getTaskAssignee().equals(userId)) || !(task.getTaskInitiator().equals(userId)) || !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || !(projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+        taskFileRepository.flagTaskFile(taskFile);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){

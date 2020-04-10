@@ -11,4 +11,5 @@ public interface FileUploadService {
     Object uploadFileToTask(String userId, String projectId , String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFile) throws IOException;
     Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFile);
     Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile);
+    Object deleteFileFromTask(String userId, String projectId, String taskId, String taskFile);
 }

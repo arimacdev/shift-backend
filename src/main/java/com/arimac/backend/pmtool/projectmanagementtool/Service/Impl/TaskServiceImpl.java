@@ -301,18 +301,6 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS);
     }
 
-//    @Override
-//    public Object getProjectTaskCompletionByUser(String userId, String projectId) {
-//        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-//        if (projectUser == null)
-//            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-////        if (projectUser.getIsDeleted())
-////            return new ErrorMessage(ResponseMessage.NO_ACCESS, HttpStatus.BAD_REQUEST);
-//        List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
-//        Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
-//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskCompletionMap);
-//    }
-
     private Map<String, TaskCompletionDto> getTaskCompletionMap(List<Task> taskList){
         Map<String, TaskCompletionDto> userTaskCompletionMap = new HashMap<>();
         String user = null;
