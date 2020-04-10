@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -249,9 +250,28 @@ public class NotificationServiceImpl implements NotificationService {
                     bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
                     bodyText.append(taskUpdateDto.getTaskNotes());
                     bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
+                    if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
+                        bodyText.append("<No Previous Task Note Content>");
+                    else
                     bodyText.append(task.getTaskNote());
+                 break;
+                case "dueDate":
+                    bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
+                    bodyText.append(getDate(taskUpdateDto.getTaskDueDate()));
+                    bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
+                    if (task.getTaskDueDateAt() == null)
+                        bodyText.append("No Previous Due Date");
+                    else
+                        bodyText.append(getDate(task.getTaskDueDateAt()));
+                 break;
+                case "status":
+                    bodyText.append(SlackMessages.TRANSITION_ICON);
+                    bodyText.append(task.getTaskStatus());
+                    bodyText.append(SlackMessages.ARROW_ICON);
+                    bodyText.append(taskUpdateDto.getTaskStatus());
+                 break;
             }
-            bodyText.append(SlackMessages.MODIFIED_BY_ICON);
+            bodyText.append(SlackMessages.TRANSITIONED_BY_ICON);
             bodyText.append(editor.getFirstName());
             bodyText.append(" ");
             bodyText.append(editor.getLastName());
@@ -396,7 +416,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private String getDueDate(DateTime dueUtc){
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy hh:mma");
         String dueFormatted = fmt.print(dueUtc);
 
 //        int year = dueUtc.getYear();
@@ -409,14 +429,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     }
 
-//    private String getTaskAssignmentMessage(TaskAssignNotificationDto notificationDto){
-//        StringBuilder message = new StringBuilder();
-//        message.append("Task ");
-//        message.append(notificationDto.getTaskName());
-//        message.append(" of Project");
-//        message.append(notificationDto.getProjectName());
-//        message.append("is assigned to you by");
-//        message.append(notificationDto.getAssignerId());
-//        return message.toString();
-//    }
+    private String getDate(Timestamp date){
+        DateTime dateUTC = new DateTime(date, DateTimeZone.forID("UTC"));
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy hh:mma");
+        String dueFormatted = fmt.print(dateUTC);
+
+        return dueFormatted;
+
+    }
+
 }

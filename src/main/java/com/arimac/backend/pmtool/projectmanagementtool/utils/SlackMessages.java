@@ -13,14 +13,14 @@ public class SlackMessages {
     public static  final String ARROW_ICON = "  ⟶  ";
     public static  final String ASSIGNED_BY_ICON ="\n:speaking_head_in_silhouette:   *Assigned By:* ";
     public static  final String MODIFIED_BY_ICON ="\n:speaking_head_in_silhouette:   *Modified By:* ";
+    public static  final String TRANSITIONED_BY_ICON ="\n:speaking_head_in_silhouette:   *Transitioned By:* ";
     public static  final String DUE_DATE_ICON = "\n:hourglass_flowing_sand:   *Due Date:* ";
     public static  final String PREVIOUS_NAME_ICON = "\n:red_circle:   *Previous Name:* ";
     public static  final String MODIFIED_NAME_ICON = "\n:large_blue_circle:   *Modified Name:* ";
-
     public static  final String PREVIOUS_NOTES_ICON = "\n:red_circle:   *Previous Note Content:* ";
     public static  final String MODIFIED_NOTES_ICON =  "\n:large_blue_circle:   *Modified Note Content:* ";
-
-
+    public static  final String PREVIOUS_DUE_DATE_ICON = "\n:red_circle:   *Previous DueDate:* ";
+    public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
     public static  final String CALENDER_THUMBNAIL = "https://api.slack.com/img/blocks/bkb_template_images/notifications.png";
     public static  final String TRANSITION_THUMBNAIL = "https://www.freepik.com/free-icon/calendar_926992.htm#page=1&query=calender&position=5";

@@ -114,7 +114,7 @@ public class TaskServiceImpl implements TaskService {
         task.setIsDeleted(false);
         task.setTaskType(taskDto.getTaskType());
         taskRepository.addTaskToProject(task);
-        if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
+        if (taskDto.getTaskType().equals(TaskTypeEnum.project) && task.getTaskDueDateAt()!= null) {
             DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
             DateTime now = DateTime.now();
             DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
@@ -220,9 +220,6 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         TaskUpdateDto updateDto = new TaskUpdateDto();
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
-            notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
-        }
 
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty()) {
             updateDto.setTaskName(task.getTaskName());
@@ -257,11 +254,24 @@ public class TaskServiceImpl implements TaskService {
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
+            notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskStatus() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "status", userId);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
             notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "name", userId);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskNotes() != null){
             notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "notes", userId);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        }
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskDueDate() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "dueDate", userId);
         }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
