@@ -219,7 +219,7 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null){
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
             notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
         }
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
@@ -237,6 +237,10 @@ public class TaskServiceImpl implements TaskService {
             taskUpdateDto.setTaskRemindOnDate(task.getTaskReminderAt());
 
         Object updateTask = taskRepository.updateProjectTask(taskId, taskUpdateDto);
+
+        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
+            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "name", userId);
+        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
     }

@@ -140,9 +140,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskAssigneeUpdateNotification(Task task, String newTaskAssignee) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        User previous = userRepository.getUserByUserId(task.getTaskAssignee());
-        User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
         if (user.getUserSlackId() != null){
+            User previous = userRepository.getUserByUserId(task.getTaskAssignee());
+            User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
             Project project = projectRepository.getProjectById(task.getProjectId());
             User sender = userRepository.getUserByUserId(task.getTaskInitiator());
             JSONObject payload = new JSONObject();
@@ -190,6 +190,74 @@ public class NotificationServiceImpl implements NotificationService {
             } else {
                 bodyText.append("Not Due Date Assigned");
             }
+            bodyText.append("*");
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+            blocks.add(divider);
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public void sendTaskNameModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor) {
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null){
+            User editor = userRepository.getUserByUserId(taskEditor);
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_MODIFICATION_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(PLAIN_TEXT);
+            headerBlock.getText().setText(SlackMessages.TASK_MODIFICATION_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(project.getProjectName());
+            switch (type){
+                case "name":
+                    bodyText.append(SlackMessages.MODIFIED_NAME_ICON);
+                    bodyText.append(taskUpdateDto.getTaskName());
+                    bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
+                    bodyText.append(task.getTaskName());
+            }
+            bodyText.append(SlackMessages.MODIFIED_BY_ICON);
+            bodyText.append(editor.getFirstName());
+            bodyText.append(" ");
+            bodyText.append(editor.getLastName());
+//            bodyText.append(SlackMessages.DUE_DATE_ICON);
+//            if (task.getTaskDueDateAt() != null){
+//                DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
+//                bodyText.append(getDueDate(dueUtc));
+//            } else {
+//                bodyText.append("Not Due Date Assigned");
+//            }
             bodyText.append("*");
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
