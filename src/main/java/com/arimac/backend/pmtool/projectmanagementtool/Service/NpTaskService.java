@@ -13,6 +13,7 @@ public interface NpTaskService {
     Object getAllSubTaksOfATask(String userId, String taskId);
     Object updateSubTaskOfATask(String userId, String taskId, String subTaskId, SubTaskUpdateDto subTaskUpdateDto);
     Object getPersonalTaskFiles(String userId, String taskId);
+    Object deletePersonalTaskFile(String userId, String taskId, String taskFileId);
     Object flagPersonalTask(String userId, String taskId);
     Object flagPersonalSubTask(String userId, String taskId, String subTaskId);
 }

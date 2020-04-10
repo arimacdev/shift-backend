@@ -175,6 +175,17 @@ public class NpTaskServiceImpl implements NpTaskService {
     }
 
     @Override
+    public Object deletePersonalTaskFile(String userId, String taskId, String taskFileId) {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!task.getTaskInitiator().equals(userId))
+            return new ErrorMessage(ResponseMessage.SUCCESS, HttpStatus.UNAUTHORIZED);
+        taskFileRepository.flagTaskFile(taskFileId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
     public Object flagPersonalTask(String userId, String taskId) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
