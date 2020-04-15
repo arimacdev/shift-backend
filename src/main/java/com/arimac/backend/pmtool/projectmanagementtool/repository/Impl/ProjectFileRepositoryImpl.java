@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectFileRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +42,22 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
         String sql = "SELECT * FROM ProjectFile as PF INNER JOIN User U ON PF.projectFileAddedBy = U.userId WHERE PF.projectId=? AND PF.isDeleted=false";
         List<ProjectFileResponseDto> projectFiles = jdbcTemplate.query(sql, new ProjectFileResponseDto(), projectId);
         return projectFiles;
+    }
+
+    @Override
+    public void flagProjectFile(String projectFileId) {
+        String sql = "UPDATE ProjectFile SET isDeleted=true WHERE projectFileId=?";
+        jdbcTemplate.update(sql, projectFileId);
+    }
+
+    @Override
+    public ProjectFile getProjectFile(String projectFile) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectFileId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new ProjectFile(), projectFile);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+
     }
 }

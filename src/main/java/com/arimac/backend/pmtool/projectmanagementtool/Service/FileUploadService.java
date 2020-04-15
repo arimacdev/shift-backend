@@ -14,4 +14,5 @@ public interface FileUploadService {
     Object deleteFileFromTask(String userId, String projectId, String taskId, TaskTypeEnum type, String taskFile);
     Object uploadProjectFiles(String userId, String projectId, FileUploadEnum fileType, MultipartFile[] multipartFiles);
     Object getAllProjectFiles(String userId, String projectId);
+    Object flagProjectFile(String userId, String projectId, String projectFileId);
 }

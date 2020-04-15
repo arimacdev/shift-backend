@@ -62,11 +62,26 @@ public class FileUploadController extends ResponseController {
 
     @ApiOperation(value = "Upload Project Files", notes = "Upload a project related files")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/projects/{projectId}/files/upload")
+    public ResponseEntity<Object> uploadProjectFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId,  @RequestParam("files") MultipartFile[] multipartFiles, @RequestParam("type") FileUploadEnum fileType)  {
+        logger.info("HIT - POST projects/<projectId>/files/upload ---> uploadProjectFiles |userId: {} | projectId :{}",userId, projectId);
+        return sendResponse(fileUploadService.uploadProjectFiles(userId, projectId, fileType, multipartFiles));
+    }
+
+    @ApiOperation(value = "Get all Project Files", notes = "Upload a project related files")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/projects/{projectId}/files")
-    public ResponseEntity<Object> getAllProjectFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId) throws IOException {
-        logger.info("HIT - GET projects/<projectId>/files/upload ---> getAllProjectFiles |userId: {} | projectId :{}",userId, projectId);
+    public ResponseEntity<Object> getAllProjectFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET projects/<projectId>/files ---> getAllProjectFiles |userId: {} | projectId :{}",userId, projectId);
         return sendResponse(fileUploadService.getAllProjectFiles(userId, projectId));
     }
 
+    @ApiOperation(value = "Get all Project Files", notes = "Upload a project related files")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/projects/{projectId}/files/{projectFileId}")
+    public ResponseEntity<Object> flagProjectFile(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("projectFileId") String projectFileId) {
+        logger.info("HIT - DELETE projects/<projectId>/files/<projectFileId> ---> getAllProjectFiles |userId: {} | projectId :{} | projectFileId: {}",userId, projectId, projectFileId);
+        return sendResponse(fileUploadService.flagProjectFile(userId, projectId, projectFileId));
+    }
 
 }

@@ -181,6 +181,18 @@ public class FileUploadServiceImpl implements FileUploadService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
     }
 
+    @Override
+    public Object flagProjectFile(String userId, String projectId, String projectFileId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        ProjectFile projectFile = projectFileRepository.getProjectFile(projectFileId);
+        if (projectFile == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        projectFileRepository.flagProjectFile(projectFileId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
     private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
             try {
                 File file = convertMultiPartToFile(multipartFile);

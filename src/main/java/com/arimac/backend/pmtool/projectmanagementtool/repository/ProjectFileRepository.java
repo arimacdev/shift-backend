@@ -8,4 +8,6 @@ import java.util.List;
 public interface ProjectFileRepository {
     void uploadProjectFile(ProjectFile projectFile);
     List<ProjectFileResponseDto> getAllProjectFiles(String projectId);
+    void flagProjectFile(String projectFileId);
+    ProjectFile getProjectFile(String projectFile);
 }
