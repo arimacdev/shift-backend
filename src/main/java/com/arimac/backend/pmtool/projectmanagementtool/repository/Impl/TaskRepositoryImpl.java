@@ -153,10 +153,9 @@ public class TaskRepositoryImpl implements TaskRepository {
                     "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
         } else {
-            sql = "SELECT * FROM Project_User AS pu\n" +
-                    "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
-                    "        INNER JOIN project p on pu.projectId = p.projectId\n" +
-                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )" +
+            sql = "SELECT * FROM Task AS t\n" +
+                    "INNER JOIN project p on t.projectId = p.projectId\n" +
+                    "WHERE (t.taskAssignee=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )" +
                     "AND (t.taskDueDateAt BETWEEN ? AND ?)";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, from, to);
         }
