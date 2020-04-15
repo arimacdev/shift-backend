@@ -60,4 +60,12 @@ public class FileUploadController extends ResponseController {
         return sendResponse(fileUploadService.uploadProfilePicture(userId,  fileType, multipartFile));
     }
 
+    @ApiOperation(value = "Upload Project Files", notes = "Upload a project related files")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/projects/{projectId}/files/upload")
+    public ResponseEntity<Object> uploadProjectFiles(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile[] multipartFiles, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId) throws IOException {
+        logger.info("HIT - POST projects/<projectId>/files/upload ---> uploadProjectFiles |userId: {} ",userId);
+        return sendResponse(fileUploadService.uploadProjectFiles(userId, projectId, fileType, multipartFiles));
+    }
+
 }

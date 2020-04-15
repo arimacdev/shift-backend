@@ -14,6 +14,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
@@ -46,8 +47,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final UserRepository userRepository;
     private final TaskGroupRepository taskGroupRepository;
     private final NotificationService notificationService;
+    private final ProjectFileRepository projectFileRepository;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService) {
+    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository) {
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -56,6 +58,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         this.userRepository = userRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.notificationService = notificationService;
+        this.projectFileRepository = projectFileRepository;
     }
 
     @Override
@@ -141,6 +144,30 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
         taskFileRepository.flagTaskFile(taskFile);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object uploadProjectFiles(String userId, String projectId, FileUploadEnum fileType, MultipartFile[] multipartFiles) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        List<ProjectFile> projectFiles = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            String projectFileUrl = fileQueue(multipartFile, fileType);
+            logger.info("url {}", projectFileUrl);
+            ProjectFile projectFile = new ProjectFile();
+            projectFile.setProjectFileId(utilsService.getUUId());
+            projectFile.setProjectId(projectId);
+            projectFile.setProjectFileName(multipartFile.getOriginalFilename());
+            projectFile.setProjectFileAddedBy(userId);
+            projectFile.setProjectFileUrl(projectFileUrl);
+            projectFile.setProjectFileAddedOn(utilsService.getCurrentTimestamp());
+            projectFile.setIsDeleted(false);
+            projectFiles.add(projectFile);
+
+            projectFileRepository.uploadProjectFile(projectFile);
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
     }
 
     private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
