@@ -115,15 +115,25 @@ public class SubTaskServiceImpl implements SubTaskService {
             if (member == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
         }
+        SubTask modifiedSubTask = new SubTask();
+        modifiedSubTask.setTaskId(subTask.getTaskId());
+        modifiedSubTask.setSubtaskId(subTask.getSubtaskId());
+        modifiedSubTask.setIsDeleted(subTask.getIsDeleted());
         if (subTaskUpdateDto.getSubtaskName() != null)
-            subTask.setSubtaskName(subTaskUpdateDto.getSubtaskName());
+            modifiedSubTask.setSubtaskName(subTaskUpdateDto.getSubtaskName());
+        else
+            modifiedSubTask.setSubtaskName(subTask.getSubtaskName());
         if (subTaskUpdateDto.getSubTaskStatus() != null)
-            subTask.setSubtaskStatus(subTaskUpdateDto.getSubTaskStatus());
-         SubTask updatedSubTask = subTaskRepository.updateSubTaskById(subTask);
-         if (subTaskUpdateDto.getSubtaskName() != null)
-             notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, taskEditor, "name");
-         if (subTaskUpdateDto.getSubTaskStatus() != null)
-             notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, taskEditor, "status");
+            modifiedSubTask.setSubtaskStatus(subTaskUpdateDto.getSubTaskStatus());
+        else
+            modifiedSubTask.setSubtaskStatus(subTask.isSubtaskStatus());;
+         SubTask updatedSubTask = subTaskRepository.updateSubTaskById(modifiedSubTask);
+         if (subTaskUpdateDto.getTaskType().equals(TaskTypeEnum.project)) {
+             if (subTaskUpdateDto.getSubtaskName() != null)
+                 notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, modifiedSubTask, taskEditor, "name");
+             if (subTaskUpdateDto.getSubTaskStatus() != null)
+                 notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, modifiedSubTask, taskEditor, "status");
+         }
 
          return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updatedSubTask);
 
@@ -137,8 +147,9 @@ public class SubTaskServiceImpl implements SubTaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage("Task not Found", HttpStatus.NOT_FOUND);
+        ProjectUserResponseDto taskRemover = null;
         if (taskType.equals(TaskTypeEnum.project)) {
-            ProjectUserResponseDto taskRemover = projectRepository.getProjectByIdAndUserId(projectId, userId);
+            taskRemover = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (taskRemover == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (taskRemover.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (taskRemover.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
@@ -149,6 +160,9 @@ public class SubTaskServiceImpl implements SubTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
         }
         subTaskRepository.flagSubTaskOfATask(subTaskId);
+        if (taskType.equals(TaskTypeEnum.project)) {
+            notificationService.sendSubTaskFlagNotification(userId, task, subTask, taskRemover);
+        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
