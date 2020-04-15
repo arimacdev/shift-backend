@@ -363,24 +363,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendSubTaskNotification(String senderId, SubTask subTask, ProjectUserResponseDto projectUser, Task task) {
+    public void sendSubTaskCreateNotification(String senderId, SubTask subTask, ProjectUserResponseDto projectUser, Task task) {
         User recipient = userRepository.getUserByUserId(task.getTaskAssignee());
         if (recipient.getUserSlackId() != null){
-//            Project project = projectRepository.getProjectById(task.getProjectId());
             User sender = userRepository.getUserByUserId(senderId);
             JSONObject payload = new JSONObject();
             payload.put(CHANNEL, recipient.getUserSlackId());
             payload.put(TEXT, SlackMessages.SUB_TASK_CREATION_TITLE);
             List<SlackBlock> blocks = new ArrayList<>();
-            logger.info("slack {}", recipient.getUserSlackId());
+            logger.info("slack id {}", recipient.getUserSlackId());
             SlackBlock headerBlock = new SlackBlock();
             headerBlock.setType(SECTION);
             headerBlock.getText().setType(MARK_DOWN);
             StringBuilder  welcomeAddressing = new StringBuilder();
-            welcomeAddressing.append(SlackMessages.ADDRESS_GREETING);
-            welcomeAddressing.append("<@");
-            welcomeAddressing.append(recipient.getUserSlackId());
-            welcomeAddressing.append("> ");
+            welcomeAddressing.append(getWelcomeAddressing(recipient.getUserSlackId()));
             welcomeAddressing.append(SlackMessages.SUB_TASK_ASSIGNMENT_GREETING);
             headerBlock.getText().setText(welcomeAddressing.toString());
             headerBlock.setAccessory(null);
@@ -403,12 +399,96 @@ public class NotificationServiceImpl implements NotificationService {
             bodyText.append(task.getTaskName());
             bodyText.append(SlackMessages.PROJECT_ICON);
             bodyText.append(projectUser.getProjectName());
-            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
+            bodyText.append(SlackMessages.CREATED_BY_ICON);
             if (sender.getUserSlackId()!= null) {
                 bodyText.append("<@");
                 bodyText.append(sender.getUserSlackId());
                 bodyText.append("> ");
                 bodyText.append(" (YOU)");
+            } else {
+                bodyText.append(sender.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(sender.getLastName());
+            }
+
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+            blocks.add(divider);
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public void sendSubTaskUpdateNotification(String senderId, Task task, SubTask subTask, ProjectUserResponseDto projectUser, String type) {
+        User recipient = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (recipient.getUserSlackId() != null){
+            User sender = userRepository.getUserByUserId(senderId);
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, recipient.getUserSlackId());
+            payload.put(TEXT, SlackMessages.SUB_TASK_MODIFICATION_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+            logger.info("slack id {}", recipient.getUserSlackId());
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(MARK_DOWN);
+            StringBuilder welcomeAddressing = new StringBuilder();
+            welcomeAddressing.append(getWelcomeAddressing(recipient.getUserSlackId()));
+            welcomeAddressing.append(SlackMessages.SUB_TASK_MODIFICATION_GREETING);
+            headerBlock.getText().setText(welcomeAddressing.toString());
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.SUB_TASK_ICON);
+            bodyText.append(subTask.getSubtaskName());
+            bodyText.append("\n");
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(projectUser.getProjectName());
+            switch (type){
+                case "name":
+                    bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
+                    bodyText.append(SlackMessages.MODIFIED_NAME_ICON);
+                    bodyText.append(SlackMessages.MODIFIED_BY_ICON);
+                    break;
+                case "status":
+                    bodyText.append(SlackMessages.TRANSITION_ICON);
+                    if (subTask.isSubtaskStatus()){
+                        bodyText.append("Open");
+                        bodyText.append(SlackMessages.ARROW_ICON);
+                        bodyText.append("Closed");
+                        bodyText.append("\n");
+                        bodyText.append(SlackMessages.TRANSITIONED_BY_ICON);
+                    } else {
+                        bodyText.append("Closed");
+                        bodyText.append(SlackMessages.ARROW_ICON);
+                        bodyText.append("Open");
+                        bodyText.append("\n");
+                        bodyText.append(SlackMessages.MODIFIED_BY_ICON);
+                    }
+            }
+            if (sender.getUserSlackId()!= null) {
+                bodyText.append(getMentionedName(sender.getUserSlackId()));
             } else {
                 bodyText.append(sender.getFirstName());
                 bodyText.append(" ");
@@ -624,6 +704,24 @@ public class NotificationServiceImpl implements NotificationService {
 
         return dueFormatted;
 
+    }
+
+    private StringBuilder getWelcomeAddressing(String slackId){
+        StringBuilder  welcomeAddressing = new StringBuilder();
+        welcomeAddressing.append(SlackMessages.ADDRESS_GREETING);
+        welcomeAddressing.append("<@");
+        welcomeAddressing.append(slackId);
+        welcomeAddressing.append("> ");
+
+        return welcomeAddressing;
+    }
+
+    private String getMentionedName(String slackId){
+        StringBuilder  mentionName = new StringBuilder();
+        mentionName.append("<@");
+        mentionName.append(slackId);
+        mentionName.append("> ");
+        return mentionName.toString();
     }
 
 }

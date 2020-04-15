@@ -14,7 +14,8 @@ public interface NotificationService {
     void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor);
     void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName);
 
-    void sendSubTaskNotification(String sender, SubTask subTask, ProjectUserResponseDto projectUser, Task task);
+    void sendSubTaskCreateNotification(String sender, SubTask subTask, ProjectUserResponseDto projectUser, Task task);
+    void sendSubTaskUpdateNotification(String sender, Task task, SubTask subTask, ProjectUserResponseDto projectUser, String type);
     Object checkSlackNotification();
 
 }

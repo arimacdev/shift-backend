@@ -71,7 +71,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         Object subTask = subTaskRepository.addSubTaskToProject(newSubTask);
         if (subTaskDto.getTaskType().equals(TaskTypeEnum.project)) {
-            notificationService.sendSubTaskNotification(subTaskDto.getSubTaskCreator(), newSubTask, projectUser, task);
+            notificationService.sendSubTaskCreateNotification(subTaskDto.getSubTaskCreator(), newSubTask, projectUser, task);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTask);
     }
@@ -103,8 +103,9 @@ public class SubTaskServiceImpl implements SubTaskService {
         SubTask subTask = subTaskRepository.getSubTaskById(subtaskId);
         if (subTask == null)
             return new ErrorMessage("SubTask not found", HttpStatus.NOT_FOUND);
+        ProjectUserResponseDto taskEditor = null;
         if (subTaskUpdateDto.getTaskType().equals(TaskTypeEnum.project)) {
-            ProjectUserResponseDto taskEditor = projectRepository.getProjectByIdAndUserId(projectId, subTaskUpdateDto.getSubTaskEditor());
+            taskEditor = projectRepository.getProjectByIdAndUserId(projectId, subTaskUpdateDto.getSubTaskEditor());
             if (taskEditor == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             if (!((task.getTaskAssignee().equals(subTaskUpdateDto.getSubTaskEditor())) || (task.getTaskInitiator().equals(subTaskUpdateDto.getSubTaskEditor())) || (taskEditor.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (taskEditor.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
@@ -119,6 +120,10 @@ public class SubTaskServiceImpl implements SubTaskService {
         if (subTaskUpdateDto.getSubTaskStatus() != null)
             subTask.setSubtaskStatus(subTaskUpdateDto.getSubTaskStatus());
          SubTask updatedSubTask = subTaskRepository.updateSubTaskById(subTask);
+         if (subTaskUpdateDto.getSubtaskName() != null)
+             notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, taskEditor, "name");
+         if (subTaskUpdateDto.getSubTaskStatus() != null)
+             notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, taskEditor, "status");
 
          return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updatedSubTask);
 

@@ -7,21 +7,25 @@ public class SlackMessages {
     public static  final String TASK_ASSIGNEE_UPDATE_TITLE ="Task Assignment Modification";
     public static  final String TASK_FILE_UPLOAD_NOTIFICATION_TITLE ="Task File Upload";
     public static  final String TASK_MODIFICATION_TITLE ="Task Content Modification";
+    public static  final String SUB_TASK_MODIFICATION_TITLE ="SubTask Content Modification";
     public static  final String TASK_REMINDER_GREETING =":wave: Hey There! Reminder for the following task";
     public static  final String TASK_ASSIGNMENT_GREETING =":wave: Hey There! You have been assigned to the following Task";
     public static  final String ADDRESS_GREETING =":wave: Hey There! ";
 
-    public static  final String SUB_TASK_ASSIGNMENT_GREETING ="A SubTask has been created for a task you are assigned to";
+    public static  final String SUB_TASK_ASSIGNMENT_GREETING ="A SubTask has been created for the following task";
+    public static  final String SUB_TASK_MODIFICATION_GREETING ="A Subtask assigned to you has been modified";
+
 
     public static  final String TASK_ASSIGNMENT_TRANSITION_GREETING =":wave: Hey There! The following Task Assignment has been modified and has been assigned to you";
     public static  final String TASK_FILE_UPLOAD_GREETING =":wave: Hey There! A File has been uploaded to a task assigned to you";
     public static  final String TASK_MODIFICATION_GREETING =":wave: Hey There! A Task assigned to you has been modified";
     public static  final String TASK_ICON =":gear:   *Task:* ";
-    public static  final String SUB_TASK_ICON =":clipboard:   *SubTask:* ";
+    public static  final String SUB_TASK_ICON =":clipboard:   *Subtask:* ";
     public static  final String PROJECT_ICON ="\n:briefcase:   *Project:* ";
     public static  final String TRANSITION_ICON = "\n:zap:   *Transition:* ";
     public static  final String ARROW_ICON = "  ⟶  ";
     public static  final String ASSIGNED_BY_ICON ="\n:speaking_head_in_silhouette:   *Assigned By:* ";
+    public static  final String CREATED_BY_ICON ="\n:speaking_head_in_silhouette:   *Created By:* ";
     public static  final String UPLOADED_BY_ICON ="\n:file_cabinet:   *Uploaded By:* ";
     public static  final String UPLOADED_FILE_ICON =":file_folder:   *Uploaded File:* ";
     public static  final String MODIFIED_BY_ICON ="\n:speaking_head_in_silhouette:   *Modified By:* ";
