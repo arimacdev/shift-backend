@@ -1,12 +1,16 @@
 package com.arimac.backend.pmtool.projectmanagementtool.utils;
 
 public class SlackMessages {
+    public static final String TASK_REMINDER_TITLE = "Task Reminder";
     public static final String TASK_ASSIGNMENT_TITLE = "New Task Assignment";
     public static  final String TASK_ASSIGNEE_UPDATE_TITLE ="Task Assignment Modification";
+    public static  final String TASK_FILE_UPLOAD_NOTIFICATION_TITLE ="Task File Upload";
     public static  final String TASK_MODIFICATION_TITLE ="Task Content Modification";
+    public static  final String TASK_REMINDER_GREETING =":wave: Hey There! Reminder for the following task";
     public static  final String TASK_ASSIGNMENT_GREETING =":wave: Hey There! You have been assigned to the following Task";
     public static  final String TASK_ASSIGNMENT_TRANSITION_GREETING =":wave: Hey There! The following Task Assignment has been modified and has been assigned to you";
-    public static  final String TASK_MODIFICATION_GREETING =":wave: Hey There! A Task assigned to you has been modified";
+    public static  final String TASK_FILE_UPLOAD_GREETING =":wave: Hey There! A File has been uploaded to a task assigned to you";
+    public static  final String TASK_MODIFICATION_GREETING =":wave: Hey There! <@UGQ0FGZ5F> A Task assigned to you has been modified";
     public static  final String TASK_ICON =":gear:   *Task:* ";
     public static  final String PROJECT_ICON ="\n:briefcase:   *Project:* ";
     public static  final String TRANSITION_ICON = "\n:zap:   *Transition:* ";
