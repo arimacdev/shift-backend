@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -154,19 +155,29 @@ public class FileUploadServiceImpl implements FileUploadService {
         List<ProjectFile> projectFiles = new ArrayList<>();
         for (MultipartFile multipartFile : multipartFiles) {
             String projectFileUrl = fileQueue(multipartFile, fileType);
-            logger.info("url {}", projectFileUrl);
+            logger.info("url {}",  multipartFile.getSize());
             ProjectFile projectFile = new ProjectFile();
             projectFile.setProjectFileId(utilsService.getUUId());
             projectFile.setProjectId(projectId);
             projectFile.setProjectFileName(multipartFile.getOriginalFilename());
             projectFile.setProjectFileAddedBy(userId);
             projectFile.setProjectFileUrl(projectFileUrl);
+            projectFile.setProjectFileSize((int) multipartFile.getSize());
             projectFile.setProjectFileAddedOn(utilsService.getCurrentTimestamp());
             projectFile.setIsDeleted(false);
             projectFiles.add(projectFile);
 
             projectFileRepository.uploadProjectFile(projectFile);
         }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
+    }
+
+    @Override
+    public Object getAllProjectFiles(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        List<ProjectFileResponseDto> projectFiles = projectFileRepository.getAllProjectFiles(projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
     }
 

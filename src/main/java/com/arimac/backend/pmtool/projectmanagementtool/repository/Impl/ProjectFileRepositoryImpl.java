@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectFileRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Service
 public class ProjectFileRepositoryImpl implements ProjectFileRepository {
@@ -19,17 +21,25 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
     @Override
     public void uploadProjectFile(ProjectFile projectFile) {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO ProjectFile(projectFileId, projectId, projectFileName, projectFileUrl, projectFileAddedBy, projectFileAddedOn, isDeleted) VALUES (?,?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO ProjectFile(projectFileId, projectId, projectFileName, projectFileUrl, projectFileSize, projectFileAddedBy, projectFileAddedOn, isDeleted) VALUES (?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, projectFile.getProjectFileId());
                 preparedStatement.setString(2, projectFile.getProjectId());
                 preparedStatement.setString(3, projectFile.getProjectFileName());
                 preparedStatement.setString(4, projectFile.getProjectFileUrl());
-                preparedStatement.setString(5, projectFile.getProjectFileAddedBy());
-                preparedStatement.setTimestamp(6, projectFile.getProjectFileAddedOn());
-                preparedStatement.setBoolean(7, projectFile.getIsDeleted());
+                preparedStatement.setInt(5, projectFile.getProjectFileSize());
+                preparedStatement.setString(6, projectFile.getProjectFileAddedBy());
+                preparedStatement.setTimestamp(7, projectFile.getProjectFileAddedOn());
+                preparedStatement.setBoolean(8, projectFile.getIsDeleted());
 
                 return preparedStatement;
             });
 
+    }
+
+    @Override
+    public List<ProjectFileResponseDto> getAllProjectFiles(String projectId) {
+        String sql = "SELECT * FROM ProjectFile as PF INNER JOIN User U ON PF.projectFileAddedBy = U.userId WHERE PF.projectId=? AND PF.isDeleted=false";
+        List<ProjectFileResponseDto> projectFiles = jdbcTemplate.query(sql, new ProjectFileResponseDto(), projectId);
+        return projectFiles;
     }
 }

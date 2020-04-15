@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.model;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class ProjectFile implements RowMapper<ProjectFile> {
+public class ProjectFileResponseDto implements RowMapper<ProjectFileResponseDto> {
     private String projectFileId;
     private String projectId;
     private String projectFileName;
@@ -14,12 +14,13 @@ public class ProjectFile implements RowMapper<ProjectFile> {
     private int projectFileSize;
     private String projectFileAddedBy;
     private Timestamp projectFileAddedOn;
-    private boolean isDeleted;
+    private String firstName;
+    private String lastName;
 
-    public ProjectFile() {
+    public ProjectFileResponseDto() {
     }
 
-    public ProjectFile(String projectFileId, String projectId, String projectFileName, String projectFileUrl, int projectFileSize, String projectFileAddedBy, Timestamp projectFileAddedOn, boolean isDeleted) {
+    public ProjectFileResponseDto(String projectFileId, String projectId, String projectFileName, String projectFileUrl, int projectFileSize, String projectFileAddedBy, Timestamp projectFileAddedOn, String firstName, String lastName) {
         this.projectFileId = projectFileId;
         this.projectId = projectId;
         this.projectFileName = projectFileName;
@@ -27,7 +28,8 @@ public class ProjectFile implements RowMapper<ProjectFile> {
         this.projectFileSize = projectFileSize;
         this.projectFileAddedBy = projectFileAddedBy;
         this.projectFileAddedOn = projectFileAddedOn;
-        this.isDeleted = isDeleted;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public String getProjectFileId() {
@@ -62,6 +64,14 @@ public class ProjectFile implements RowMapper<ProjectFile> {
         this.projectFileUrl = projectFileUrl;
     }
 
+    public int getProjectFileSize() {
+        return projectFileSize;
+    }
+
+    public void setProjectFileSize(int projectFileSize) {
+        this.projectFileSize = projectFileSize;
+    }
+
     public String getProjectFileAddedBy() {
         return projectFileAddedBy;
     }
@@ -78,25 +88,25 @@ public class ProjectFile implements RowMapper<ProjectFile> {
         this.projectFileAddedOn = projectFileAddedOn;
     }
 
-    public boolean getIsDeleted() {
-        return isDeleted;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public int getProjectFileSize() {
-        return projectFileSize;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setProjectFileSize(int projectFileSize) {
-        this.projectFileSize = projectFileSize;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     @Override
-    public ProjectFile mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new ProjectFile(
+    public ProjectFileResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new ProjectFileResponseDto(
                 resultSet.getString("projectFileId"),
                 resultSet.getString("projectId"),
                 resultSet.getString("projectFileName"),
@@ -104,7 +114,8 @@ public class ProjectFile implements RowMapper<ProjectFile> {
                 resultSet.getInt("projectFileSize"),
                 resultSet.getString("projectFileAddedBy"),
                 resultSet.getTimestamp("projectFileAddedOn"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getString("firstName"),
+                resultSet.getString("lastName")
         );
     }
 }

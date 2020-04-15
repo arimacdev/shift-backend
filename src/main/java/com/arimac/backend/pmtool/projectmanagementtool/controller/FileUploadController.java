@@ -55,17 +55,18 @@ public class FileUploadController extends ResponseController {
     @ApiOperation(value = "Upload a Profile Picture", notes = "Upload a profile picture to a user profile")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/user/profile/upload")
-    public ResponseEntity<Object> uploadProfilePicture(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType) throws IOException {
+    public ResponseEntity<Object> uploadProfilePicture(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType){
         logger.info("HIT - POST user/profile/upload ---> uploadProfilePicture |userId: {} ",userId);
         return sendResponse(fileUploadService.uploadProfilePicture(userId,  fileType, multipartFile));
     }
 
     @ApiOperation(value = "Upload Project Files", notes = "Upload a project related files")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping("/projects/{projectId}/files/upload")
-    public ResponseEntity<Object> uploadProjectFiles(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile[] multipartFiles, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId) throws IOException {
-        logger.info("HIT - POST projects/<projectId>/files/upload ---> uploadProjectFiles |userId: {} ",userId);
-        return sendResponse(fileUploadService.uploadProjectFiles(userId, projectId, fileType, multipartFiles));
+    @GetMapping("/projects/{projectId}/files")
+    public ResponseEntity<Object> getAllProjectFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId) throws IOException {
+        logger.info("HIT - GET projects/<projectId>/files/upload ---> getAllProjectFiles |userId: {} | projectId :{}",userId, projectId);
+        return sendResponse(fileUploadService.getAllProjectFiles(userId, projectId));
     }
+
 
 }
