@@ -86,7 +86,9 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
+        if (taskType.equals(TaskTypeEnum.project)) {
             notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
+        }
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
         }
 

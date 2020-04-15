@@ -46,8 +46,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project getProjectById(String projectId) {
         String sql = "SELECT * FROM project WHERE projectId=?";
-        Project project =jdbcTemplate.queryForObject(sql, new Project(), projectId);
-        return project;
+        Project project;
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project(), projectId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override
