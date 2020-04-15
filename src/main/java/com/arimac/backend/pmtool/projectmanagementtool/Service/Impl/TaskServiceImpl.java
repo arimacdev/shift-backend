@@ -259,19 +259,19 @@ public class TaskServiceImpl implements TaskService {
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskStatus() != null){
-            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "status", userId);
+            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "status", userId);
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
-            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "name", userId);
+            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "name", userId);
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskNotes() != null){
-            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "notes", userId);
+            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "notes", userId);
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskDueDate() != null){
-            notificationService.sendTaskNameModificationNotification(task, taskUpdateDto, "dueDate", userId);
+            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "dueDate", userId);
         }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);

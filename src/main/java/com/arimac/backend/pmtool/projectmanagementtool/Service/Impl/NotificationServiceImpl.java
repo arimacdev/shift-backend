@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.NotificationRepository;
@@ -208,7 +209,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendTaskNameModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor) {
+    public void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
         if (user.getUserSlackId() != null){
             User editor = userRepository.getUserByUserId(taskEditor);
@@ -351,6 +352,76 @@ public class NotificationServiceImpl implements NotificationService {
             fileUpload.setAccessory(null);
             blocks.add(fileUpload);
             blocks.add(divider);
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
+    public void sendSubTaskNotification(String senderId, SubTask subTask, ProjectUserResponseDto projectUser, Task task) {
+        User recipient = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (recipient.getUserSlackId() != null){
+//            Project project = projectRepository.getProjectById(task.getProjectId());
+            User sender = userRepository.getUserByUserId(senderId);
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, recipient.getUserSlackId());
+            payload.put(TEXT, SlackMessages.SUB_TASK_CREATION_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+            logger.info("slack {}", recipient.getUserSlackId());
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(MARK_DOWN);
+            StringBuilder  welcomeAddressing = new StringBuilder();
+            welcomeAddressing.append(SlackMessages.ADDRESS_GREETING);
+            welcomeAddressing.append("<@");
+            welcomeAddressing.append(recipient.getUserSlackId());
+            welcomeAddressing.append("> ");
+            welcomeAddressing.append(SlackMessages.SUB_TASK_ASSIGNMENT_GREETING);
+            headerBlock.getText().setText(welcomeAddressing.toString());
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            SlackBlock divider = new SlackBlock();
+            divider.setType(DIVIDER);
+            divider.setText(null);
+            divider.setAccessory(null);
+            blocks.add(divider);
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.SUB_TASK_ICON);
+            bodyText.append(subTask.getSubtaskName());
+            bodyText.append("\n");
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(task.getTaskName());
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(projectUser.getProjectName());
+            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
+            if (sender.getUserSlackId()!= null) {
+                bodyText.append("<@");
+                bodyText.append(sender.getUserSlackId());
+                bodyText.append("> ");
+                bodyText.append(" (YOU)");
+            } else {
+                bodyText.append(sender.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(sender.getLastName());
+            }
+
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
+            body.getAccessory().setAlt_text("Calender Thumbnail");
+            blocks.add(body);
+            blocks.add(divider);
+
             payload.put(BLOCKS,blocks);
             StringBuilder url = new StringBuilder();
             url.append(ENVConfig.SLACK_BASE_URL);

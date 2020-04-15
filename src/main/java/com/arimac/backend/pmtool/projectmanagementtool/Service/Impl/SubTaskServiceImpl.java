@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SubTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
@@ -33,13 +34,15 @@ public class SubTaskServiceImpl implements SubTaskService {
     private  final TaskRepository taskRepository;
     private final SubTaskRepository subTaskRepository;
     private final UtilsService utilsService;
+    private final NotificationService notificationService;
 
-    public SubTaskServiceImpl(ProjectRepository projectRepository, TaskGroupRepository taskGroupRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService) {
+    public SubTaskServiceImpl(ProjectRepository projectRepository, TaskGroupRepository taskGroupRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService, NotificationService notificationService) {
         this.projectRepository = projectRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.taskRepository = taskRepository;
         this.subTaskRepository = subTaskRepository;
         this.utilsService = utilsService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -47,8 +50,9 @@ public class SubTaskServiceImpl implements SubTaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage("Task not found", HttpStatus.NOT_FOUND);
+        ProjectUserResponseDto projectUser = null;
         if (subTaskDto.getTaskType().equals(TaskTypeEnum.project)) {
-            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, subTaskDto.getSubTaskCreator());
+             projectUser = projectRepository.getProjectByIdAndUserId(projectId, subTaskDto.getSubTaskCreator());
             if (projectUser == null) // check this
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             if (!((task.getTaskAssignee().equals(subTaskDto.getSubTaskCreator())) || (task.getTaskInitiator().equals(subTaskDto.getSubTaskCreator())) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
@@ -66,6 +70,9 @@ public class SubTaskServiceImpl implements SubTaskService {
         newSubTask.setIsDeleted(false);
 
         Object subTask = subTaskRepository.addSubTaskToProject(newSubTask);
+        if (subTaskDto.getTaskType().equals(TaskTypeEnum.project)) {
+            notificationService.sendSubTaskNotification(subTaskDto.getSubTaskCreator(), newSubTask, projectUser, task);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTask);
     }
 
