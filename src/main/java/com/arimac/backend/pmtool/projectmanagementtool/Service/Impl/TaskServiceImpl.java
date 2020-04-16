@@ -306,6 +306,10 @@ public class TaskServiceImpl implements TaskService {
         }
         taskRepository.flagProjectTask(taskId);
         subTaskRepository.flagTaskBoundSubTasks(taskId);
+        List<TaskFile>  taskFileList = taskFileRepository.getAllTaskFiles(taskId);
+        for (TaskFile taskFile: taskFileList) {
+            taskFileRepository.flagTaskFile(taskFile.getTaskFileId());
+        }
         return new Response(ResponseMessage.SUCCESS);
     }
 
