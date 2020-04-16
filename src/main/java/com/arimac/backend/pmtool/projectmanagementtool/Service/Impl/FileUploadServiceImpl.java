@@ -189,6 +189,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         ProjectFile projectFile = projectFileRepository.getProjectFile(projectFileId);
         if (projectFile == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!((projectFile.getProjectFileAddedBy().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         projectFileRepository.flagProjectFile(projectFileId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }

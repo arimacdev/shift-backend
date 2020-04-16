@@ -76,7 +76,7 @@ public class FileUploadController extends ResponseController {
         return sendResponse(fileUploadService.getAllProjectFiles(userId, projectId));
     }
 
-    @ApiOperation(value = "Get all Project Files", notes = "Upload a project related files")
+    @ApiOperation(value = "Flag a project file", notes = "Upload a project related files")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/projects/{projectId}/files/{projectFileId}")
     public ResponseEntity<Object> flagProjectFile(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("projectFileId") String projectFileId) {
