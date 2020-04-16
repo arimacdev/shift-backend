@@ -259,7 +259,7 @@ public class TaskServiceImpl implements TaskService {
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
-            notificationService.sendTaskAssigneeUpdateNotification(task, taskUpdateDto.getTaskAssignee());
+            notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskStatus() != null){
