@@ -64,19 +64,21 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadFileToTask(String userId, String projectId, String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFiles) throws IOException {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
         if (taskType.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-            if (projectUser == null) {
+            if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-            }
+            if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) ))
+                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         } else if (taskType.equals(TaskTypeEnum.taskGroup)){
             TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
             if (member == null)
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         }
-        Task task = taskRepository.getProjectTask(taskId);
-        if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+
             List<String> fileUrlList = new ArrayList<>();
 //            for (MultipartFile currentMultipartFile : multipartFiles){
                 String taskUrl = fileQueue(multipartFiles, fileType);
@@ -101,6 +103,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        if (!task.getTaskAssignee().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         List<String> fileUrlList = new ArrayList<>();
         String taskUrl = fileQueue(multipartFiles, fileType);
         fileUrlList.add(taskUrl);
