@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SprintService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -36,6 +37,14 @@ public class SprintController extends ResponseController {
     public ResponseEntity<Object> getAllProjectSprints(@PathVariable("projectId") String projectId, @RequestHeader("userId") String userId){
         logger.info("HIT - GET getAllProjectSprints - /sprints/<sprintId> POST  projectId: {} | userId: {}", projectId, userId);
         return sendResponse(sprintService.getAllProjectSprints(userId, projectId));
+    }
+
+    @ApiOperation(value = "Update a sprint of a Project", notes = "Update Sprint of a Project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/{sprintId}")
+    public ResponseEntity<Object> updateSprint(@PathVariable("projectId") String projectId, @PathVariable("sprintId") String sprintId, @RequestHeader("userId") String userId, @RequestBody SprintUpdateDto sprintUpdateDto){
+        logger.info("HIT - GET getAllProjectSprints - /sprints/<sprintId> POST  userId: {} | projectId: {} | sprintId: {} | sprintUpdateDto {}", userId, projectId, sprintId, sprintUpdateDto);
+        return sendResponse(sprintService.updateSprint(userId, projectId, sprintId, sprintUpdateDto));
     }
 
 

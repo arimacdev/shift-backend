@@ -1,7 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Sprint;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SprintRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -38,5 +40,27 @@ public class SprintRepositoryImpl implements SprintRepository {
         String sql = "SELECT * FROM Sprint WHERE projectId=? AND isDeleted=false";
         List<Sprint> sprints = jdbcTemplate.query(sql, new Sprint(), projectId);
         return sprints;
+    }
+
+    @Override
+    public Sprint getSprintById(String sprintId) {
+        String sql = "SELECT * FROM Sprint WHERE sprintId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Sprint(), sprintId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void updateSprint(String sprintId, SprintUpdateDto sprintUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Sprint SET sprintName=? ,sprintDescription=? WHERE sprintId=?");
+            preparedStatement.setString(1, sprintUpdateDto.getSprintName());
+            preparedStatement.setString(2, sprintUpdateDto.getSprintDescription());
+            preparedStatement.setString(3, sprintId);
+
+            return preparedStatement;
+        });
     }
 }
