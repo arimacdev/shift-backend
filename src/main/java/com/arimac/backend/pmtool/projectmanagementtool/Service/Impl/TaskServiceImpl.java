@@ -19,6 +19,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -407,21 +408,19 @@ public class TaskServiceImpl implements TaskService {
         int dueToday = 0;
         int overDue = 0;
         int left = 0;
-        int assigned = 0;
+        int userAssigned = 0;
         int completed = 0;
         for (Task task : taskList){
-            if (task.getTaskDueDateAt() != null) {
+            if (task.getTaskDueDateAt() != null && !task.getTaskStatus().equals(TaskStatusEnum.closed)) {
                 long now = new Date().getTime();
                 long due = task.getTaskDueDateAt().getTime();
                 DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
-//                DateTime nowColombo = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-//                DateTime dueColombo = new DateTime(due, DateTimeZone.forID("Asia/Colombo"));
+                DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
                 DateTime dueUTC = new DateTime(due, DateTimeZone.forID("UTC"));
                 DateTime newDueUTC = dueUTC.minusMinutes(330);
-                boolean yes = newDueUTC.isBefore(nowUTC);
                 if (newDueUTC.isBefore(nowUTC)) {
                     overDue += 1;
-                } else if (due == now) {
+                } else if (dueUTC.toLocalDate().equals(nowCol.toLocalDate())) {
                     dueToday += 1;
                 }
             }
@@ -431,14 +430,14 @@ public class TaskServiceImpl implements TaskService {
                left += 1;
            }
            if (task.getTaskAssignee().equals(userId)){
-               assigned += 1;
+               userAssigned += 1;
            }
         }
         ProjectTaskCompletionDto completionResponse = new ProjectTaskCompletionDto();
         completionResponse.setTasksDueToday(dueToday);
         completionResponse.setTasksOverDue(overDue);
         completionResponse.setTasksLeft(left);
-        completionResponse.setTasksAssigned(assigned);
+        completionResponse.setTasksAssigned(userAssigned);
         completionResponse.setTasksCompleted(completed);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, completionResponse);
