@@ -202,6 +202,9 @@ public class TaskServiceImpl implements TaskService {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+            if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) )){
+                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+            }
             if (taskUpdateDto.getTaskAssignee() != null){
                 ProjectUserResponseDto assignee = projectRepository.getProjectByIdAndUserId(projectId, taskUpdateDto.getTaskAssignee());
                 if (assignee == null){
