@@ -3,6 +3,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
@@ -122,14 +124,12 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.getAllUserAssignedTaskWithCompletion(user,userId, from, to));
     }
 
-    //TODO REMOVE
-//    @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @GetMapping("/tasks/users/{userId}/workload/projects")
-//    public ResponseEntity<Object> getAllProjectsWithCompletion(@PathVariable("userId") String userId, @RequestHeader("user") String user){
-//        logger.info("HIT - GET /projects/tasks/users/<userId>/workload ---> getAllProjectsWithCompletion | from user: {} || about userId: {}",  user, userId);
-//        return sendResponse(taskService.getAllProjectsWithCompletion(user,userId));
-//    }
-
+    @ApiOperation(value = "Update Sprint of a  Task", notes = "Update Sprint of a  Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/tasks/{taskId}/sprint")
+    public ResponseEntity<Object> updateProjectTaskSprint(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskSprintUpdateDto taskSprintUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/sprint ---> updateProjectTaskSprint | projectId: {} | userId: {} | taskId: {} | TaskSprintUpdateDto: {}", projectId, userId, taskId, taskSprintUpdateDto);
+        return sendResponse(taskService.updateProjectTaskSprint(userId, projectId, taskId, taskSprintUpdateDto));
+    }
 
 }

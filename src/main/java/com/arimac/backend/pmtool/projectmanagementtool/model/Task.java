@@ -13,6 +13,7 @@ public class Task implements RowMapper<Task> {
     private String taskId;
     private String taskName;
     private String projectId;
+    private String sprintId;
     private String taskAssignee;
     private String taskInitiator;
     private String taskNote;
@@ -27,10 +28,11 @@ public class Task implements RowMapper<Task> {
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskTypeEnum taskType) {
+    public Task(String taskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskTypeEnum taskType) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
+        this.sprintId = sprintId;
         this.taskAssignee = taskAssignee;
         this.taskInitiator = taskInitiator;
         this.taskNote = taskNote;
@@ -146,12 +148,21 @@ public class Task implements RowMapper<Task> {
         this.taskType = taskType;
     }
 
+    public String getSprintId() {
+        return sprintId;
+    }
+
+    public void setSprintId(String sprintId) {
+        this.sprintId = sprintId;
+    }
+
     @Override
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Task(
                 resultSet.getString("taskId"),
                 resultSet.getString("taskName"),
                 resultSet.getString("projectId"),
+                resultSet.getString("sprintId"),
                 resultSet.getString("taskAssignee"),
                 resultSet.getString("taskInitiator"),
                 resultSet.getString("taskNote"),

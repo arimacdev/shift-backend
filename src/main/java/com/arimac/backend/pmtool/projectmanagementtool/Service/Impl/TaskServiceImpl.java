@@ -6,14 +6,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.joda.time.DateTime;
@@ -31,6 +30,8 @@ import java.util.*;
 public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
+    private static final String DEFAULT = "default";
+
     private final SubTaskRepository subTaskRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
@@ -42,10 +43,11 @@ public class TaskServiceImpl implements TaskService {
     private final NotificationRepository notificationRepository;
     private final TaskGroupService taskGroupService;
     private final TaskGroupRepository taskGroupRepository;
+    private final SprintRepository sprintRepository;
 
     private final RestTemplate restTemplate;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupService taskGroupService, TaskGroupRepository taskGroupRepository, RestTemplate restTemplate) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupService taskGroupService, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, RestTemplate restTemplate) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -57,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
         this.notificationRepository = notificationRepository;
         this.taskGroupService = taskGroupService;
         this.taskGroupRepository = taskGroupRepository;
+        this.sprintRepository = sprintRepository;
         this.restTemplate = restTemplate;
     }
     //TASK GROUP && PROJECT
@@ -113,6 +116,7 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
         task.setTaskType(taskDto.getTaskType());
+        task.setSprintId(DEFAULT);
         taskRepository.addTaskToProject(task);
         if (taskDto.getTaskType().equals(TaskTypeEnum.project) && task.getTaskDueDateAt()!= null) {
             DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
@@ -647,6 +651,34 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
     }
 
+    @Override
+    public Object updateProjectTaskSprint(String userId, String projectId, String taskId, TaskSprintUpdateDto taskSprintUpdateDto) {
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!task.getTaskType().equals(TaskTypeEnum.project))
+            return new ErrorMessage("Cannot Add Sprints to Non-Project Tasks", HttpStatus.BAD_REQUEST);
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (!task.getProjectId().equals(projectId))
+            return new ErrorMessage("Task doesnot belong to the project", HttpStatus.BAD_REQUEST);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
+        if (!taskSprintUpdateDto.getPreviousSprint().equals(DEFAULT)) {
+            Sprint sprint = sprintRepository.getSprintById(taskSprintUpdateDto.getPreviousSprint());
+            if (sprint == null)
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        }
+        if (task.getSprintId().equals(taskSprintUpdateDto.getNewSprint()))
+            return new ErrorMessage("New Sprint Cannot be the Previous Sprint", HttpStatus.BAD_REQUEST);
+        Sprint newSprint = sprintRepository.getSprintById(taskSprintUpdateDto.getNewSprint());
+        if (newSprint == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskSprintUpdateDto);
+    }
 
 
 }

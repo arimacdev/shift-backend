@@ -39,11 +39,20 @@ public class SprintController extends ResponseController {
         return sendResponse(sprintService.getAllProjectSprints(userId, projectId));
     }
 
+    @ApiOperation(value = "Get a sprint of a Project", notes = "Get Sprint of a Project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/{sprintId}")
+    public ResponseEntity<Object> getProjectSprint(@PathVariable("projectId") String projectId, @PathVariable("sprintId") String sprintId, @RequestHeader("userId") String userId){
+        logger.info("HIT - GET getProjectSprint - /sprints/<projectId>/<sprintId>  userId: {} | projectId: {} | sprintId: {}", userId, projectId, sprintId);
+        return sendResponse(sprintService.getProjectSprint(userId, projectId, sprintId));
+    }
+
+
     @ApiOperation(value = "Update a sprint of a Project", notes = "Update Sprint of a Project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/{sprintId}")
     public ResponseEntity<Object> updateSprint(@PathVariable("projectId") String projectId, @PathVariable("sprintId") String sprintId, @RequestHeader("userId") String userId, @RequestBody SprintUpdateDto sprintUpdateDto){
-        logger.info("HIT - GET getAllProjectSprints - /sprints/<sprintId> POST  userId: {} | projectId: {} | sprintId: {} | sprintUpdateDto {}", userId, projectId, sprintId, sprintUpdateDto);
+        logger.info("HIT - PUT updateSprint - /sprints/<projectId>/<sprintId>  userId: {} | projectId: {} | sprintId: {} | sprintUpdateDto {}", userId, projectId, sprintId, sprintUpdateDto);
         return sendResponse(sprintService.updateSprint(userId, projectId, sprintId, sprintUpdateDto));
     }
 

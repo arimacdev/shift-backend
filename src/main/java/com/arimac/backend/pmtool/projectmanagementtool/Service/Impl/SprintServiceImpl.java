@@ -89,4 +89,15 @@ public class SprintServiceImpl implements SprintService {
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, modifiedSprint);
     }
+
+    @Override
+    public Object getProjectSprint(String userId, String projectId, String sprintId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        Sprint sprint = sprintRepository.getSprintById(sprintId);
+        if (sprint == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, sprint);
+    }
 }

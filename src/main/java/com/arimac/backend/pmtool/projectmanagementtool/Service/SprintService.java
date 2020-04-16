@@ -7,4 +7,6 @@ public interface SprintService {
     Object createSprint(SprintDto sprintDto);
     Object getAllProjectSprints(String userId, String projectId);
     Object updateSprint(String userId, String projectId, String sprintId, SprintUpdateDto sprintUpdateDto);
+    Object getProjectSprint(String userId, String projectId, String sprintId);
+
 }
