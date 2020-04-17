@@ -671,10 +671,8 @@ public class NotificationServiceImpl implements NotificationService {
         return null;
     }
 
-    @Scheduled(initialDelay = 10*1000, fixedRate = 10*1000)
-//    @Scheduled(initialDelay = 1000, fixedRate = 10000)
+    @Scheduled(initialDelay = 10*1000, fixedRate = 30*60*1000)
     public void taskReminderOnDue() {
-
         List<TaskAlertDto> taskAlertList = notificationRepository.getTaskAlertList();
         for(TaskAlertDto taskAlert : taskAlertList) {
             if (taskAlert.getTaskDue() != null && taskAlert.getAssigneeSlackId() != null) {
