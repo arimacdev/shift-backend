@@ -73,10 +73,13 @@ public class TaskServiceImpl implements TaskService {
             if (taskInitiator == null)
                 return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
             ProjectUserResponseDto taskAssignee = null;
-            if (taskDto.getTaskAssignee() != null)
+//            String
+            if (taskDto.getTaskAssignee() != null) {
                 taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
-            if (taskAssignee == null)
-                return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
+                if (taskAssignee == null)
+                    return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
+            }
+
         } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
             TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
             if (member == null)
