@@ -10,7 +10,7 @@ public interface NotificationService {
     @Deprecated
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
     void sendTaskAssignNotification(Task task);
-    void sendTaskAssigneeUpdateNotification(Task task, String newAssignee);
+    void sendTaskAssigneeUpdateNotification(Task task, String sender, String newAssignee);
     void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor);
     void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName);
 

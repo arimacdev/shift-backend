@@ -1,9 +1,12 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack;
 
+import java.util.List;
+
 public class SlackBlock {
     private String type;
     private SlackText text = new SlackText();
     private SlackAccessory accessory = new SlackAccessory();
+    private List<SlackElement> elements;
 
 
     public SlackBlock() {
@@ -46,5 +49,13 @@ public class SlackBlock {
 
     public void setAccessory(SlackAccessory accessory) {
         this.accessory = accessory;
+    }
+
+    public List<SlackElement> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<SlackElement> elements) {
+        this.elements = elements;
     }
 }

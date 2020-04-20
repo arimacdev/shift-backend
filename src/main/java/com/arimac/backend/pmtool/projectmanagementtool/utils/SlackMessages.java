@@ -10,18 +10,18 @@ public class SlackMessages {
     public static  final String TASK_MODIFICATION_TITLE ="Task Content Modification";
     public static  final String SUB_TASK_MODIFICATION_TITLE ="SubTask Content Modification";
     public static  final String TASK_REMINDER_GREETING =":wave: Hey There! Reminder for the following task";
-    public static  final String TASK_ASSIGNMENT_GREETING =":wave: Hey There! You have been assigned to the following Task";
-    public static  final String ADDRESS_GREETING =":wave: Hey There! ";
+    public static  final String TASK_ASSIGNMENT_GREETING =" You have been assigned to the following Task";
+    public static  final String ADDRESS_GREETING =":wave: Hey There ";
 
-    public static  final String SUB_TASK_ASSIGNMENT_GREETING ="A SubTask has been created for the following task";
-    public static  final String SUB_TASK_MODIFICATION_GREETING ="A Subtask assigned to you has been modified";
-    public static  final String SUB_TASK_DELETION_GREETING ="A Subtask assigned to you has been deleted";
+    public static  final String SUB_TASK_ASSIGNMENT_GREETING =" A SubTask has been created for the following task";
+    public static  final String SUB_TASK_MODIFICATION_GREETING =" A Subtask assigned to you has been modified";
+    public static  final String SUB_TASK_DELETION_GREETING =" A Subtask assigned to you has been deleted";
 
 
 
-    public static  final String TASK_ASSIGNMENT_TRANSITION_GREETING =":wave: Hey There! The following Task Assignment has been modified and has been assigned to you";
-    public static  final String TASK_FILE_UPLOAD_GREETING =":wave: Hey There! A File has been uploaded to a task assigned to you";
-    public static  final String TASK_MODIFICATION_GREETING =":wave: Hey There! A Task assigned to you has been modified";
+    public static  final String TASK_ASSIGNMENT_TRANSITION_GREETING =" The following Task Assignment has been modified and has been assigned to you";
+    public static  final String TASK_FILE_UPLOAD_GREETING =" A File has been uploaded to a task assigned to you";
+    public static  final String TASK_MODIFICATION_GREETING =" A Task assigned to you has been modified";
     public static  final String TASK_ICON =":gear:   *Task:* ";
     public static  final String SUB_TASK_ICON =":clipboard:   *Subtask:* ";
     public static  final String PROJECT_ICON ="\n:briefcase:   *Project:* ";
@@ -45,7 +45,22 @@ public class SlackMessages {
     public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
     public static  final String CALENDER_THUMBNAIL = "https://api.slack.com/img/blocks/bkb_template_images/notifications.png";
-    public static  final String TRANSITION_THUMBNAIL = "https://www.freepik.com/free-icon/calendar_926992.htm#page=1&query=calender&position=5";
+    public static  final String ASSIGNMENT_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587030954303_assigned.png";
+    public static  final String ASSIGNMENT_UPDATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587031448322_Changing%20the%20assignee.png";
+    public static  final String UPDATE_TASK_NAME_THUMBNAIL  = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587035454442_Update%20the%20task%20name.png";
+    public static  final String UPDATE_TASK_NOTE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+    public static  final String UPDATE_TASK_DUE_DATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036309205_Update%20the%20due%20date.png";
+    public static  final String TRANSITION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587038069361_changing%20the%20status%20of%20a%20task.png";
+    public static  final String FILE_UPLOAD_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587037620456_Updates%20to%20files.png";
+
+    public static  final String SUBTASK_CREATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+    public static  final String SUBTASK_MODIFICATION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+    public static  final String SUBTASK_TRANSITION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+    public static  final String SUBTASK_FLAG_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+    //    public static  final String ASSIGNMENT_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+
+
+
 
 
 
