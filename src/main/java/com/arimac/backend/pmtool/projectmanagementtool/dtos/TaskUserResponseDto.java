@@ -20,11 +20,12 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     private Timestamp taskReminderAt;
     private boolean isDeleted;
     private String taskAssigneeProfileImage;
+    private String sprintId;
 
     public TaskUserResponseDto() {
     }
 
-    public TaskUserResponseDto(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage) {
+    public TaskUserResponseDto(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
@@ -37,6 +38,7 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
         this.taskAssigneeProfileImage = taskAssigneeProfileImage;
+        this.sprintId = sprintId;
     }
 
     public String getTaskId() {
@@ -135,6 +137,14 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.taskAssigneeProfileImage = taskAssigneeProfileImage;
     }
 
+    public String getSprintId() {
+        return sprintId;
+    }
+
+    public void setSprintId(String sprintId) {
+        this.sprintId = sprintId;
+    }
+
     @Override
     public TaskUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskUserResponseDto(
@@ -149,7 +159,8 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
-                resultSet.getString("profileImage")
+                resultSet.getString("profileImage"),
+                resultSet.getString("sprintId")
         );
     }
 }
