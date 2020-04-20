@@ -678,9 +678,11 @@ public class TaskServiceImpl implements TaskService {
         }
         if (task.getSprintId().equals(taskSprintUpdateDto.getNewSprint()))
             return new ErrorMessage("New Sprint Cannot be the Previous Sprint", HttpStatus.BAD_REQUEST);
-        Sprint newSprint = sprintRepository.getSprintById(taskSprintUpdateDto.getNewSprint());
-        if (newSprint == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!taskSprintUpdateDto.getNewSprint().equals("default")) {
+            Sprint newSprint = sprintRepository.getSprintById(taskSprintUpdateDto.getNewSprint());
+            if (newSprint == null)
+                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        }
         taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskSprintUpdateDto);
