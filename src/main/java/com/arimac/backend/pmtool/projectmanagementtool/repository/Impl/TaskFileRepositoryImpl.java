@@ -34,7 +34,7 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
     }
 
     @Override
-    public Object getAllTaskFiles(String taskId) {
+    public List<TaskFile> getAllTaskFiles(String taskId) {
         String sql = "SELECT * FROM TaskFile WHERE taskId=? AND isDeleted=false";
         List<TaskFile> taskFileList = jdbcTemplate.query(sql, new TaskFile(), taskId);
         return taskFileList;
