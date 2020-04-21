@@ -1,6 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
@@ -22,6 +24,6 @@ public interface TaskRepository {
     List<WorkLoadProjectDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to);
     // Personal Tasks and Task List
     List<Task> getAllPersonalTasks(String userId);
-
-
+    //update sprint
+    void updateProjectTaskSprint(String taskId, TaskSprintUpdateDto taskSprintUpdateDto);
 }

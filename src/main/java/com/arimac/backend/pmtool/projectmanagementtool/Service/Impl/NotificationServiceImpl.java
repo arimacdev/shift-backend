@@ -31,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -354,8 +355,12 @@ public class NotificationServiceImpl implements NotificationService {
 
             SlackBlock headerBlock = new SlackBlock();
             headerBlock.setType(SECTION);
-            headerBlock.getText().setType(PLAIN_TEXT);
-            headerBlock.getText().setText(SlackMessages.TASK_FILE_UPLOAD_GREETING);
+            headerBlock.getText().setType(MARK_DOWN);
+            StringBuilder greeting = new StringBuilder();
+            greeting.append(getWelcomeAddressing(user.getUserSlackId()));
+            greeting.append(SlackMessages.TASK_FILE_UPLOAD_GREETING);
+
+            headerBlock.getText().setText(greeting.toString());
             headerBlock.setAccessory(null);
             blocks.add(headerBlock);
 
@@ -374,11 +379,7 @@ public class NotificationServiceImpl implements NotificationService {
             bodyText.append(SlackMessages.PROJECT_ICON);
             bodyText.append(project.getProjectName());
             bodyText.append(SlackMessages.UPLOADED_BY_ICON);
-            bodyText.append(user.getFirstName());
-            bodyText.append(" ");
-            bodyText.append(user.getLastName());
-//            bodyText.append(SlackMessages.UPLOADED_FILE_ICON);
-
+            bodyText.append(getMentionedName(user.getUserSlackId()));
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
             body.getAccessory().setImage_url(SlackMessages.FILE_UPLOAD_THUMBNAIL);
@@ -739,7 +740,10 @@ public class NotificationServiceImpl implements NotificationService {
         SlackBlock headerBlock = new SlackBlock();
         headerBlock.setType(SECTION);
         headerBlock.getText().setType(MARK_DOWN);
-        headerBlock.getText().setText(getWelcomeAddressing(taskAlert.getAssigneeSlackId()).toString());
+        StringBuilder addressing = new StringBuilder();
+        addressing.append(getWelcomeAddressing(taskAlert.getAssigneeSlackId()));
+        addressing.append(SlackMessages.TASK_REMINDER_GREETING);
+        headerBlock.getText().setText(addressing.toString());
         headerBlock.setAccessory(null);
         blocks.add(headerBlock);
 
@@ -769,6 +773,7 @@ public class NotificationServiceImpl implements NotificationService {
         body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
         body.getAccessory().setAlt_text("Calender Thumbnail");
         blocks.add(body);
+        blocks.add(getFooter(task.getTaskStatus().toString()));
         blocks.add(divider);
 
         payload.put(BLOCKS,blocks);

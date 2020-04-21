@@ -106,16 +106,16 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage("Assigner doesn't exist", HttpStatus.NOT_FOUND);
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssignerId()); // Check project assigner is assigned & isAdmin
         if (assignerProject == null)
-            return new ErrorMessage("Assigner doesn't belong to the project", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Assigner doesn't belong to the project", HttpStatus.UNAUTHORIZED);
         if (!((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.UNAUTHORIZED);
         if (userAssignDto.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
-            return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.UNAUTHORIZED);
         if (userAssignDto.getAssignerId().equals(userAssignDto.getAssigneeId()))
-            return new ErrorMessage("You can't assign yourself to this project", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("You can't assign yourself to this project", HttpStatus.UNAUTHORIZED);
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssigneeId()); // Check project assignee is vacant
         if (assigneeProject != null)
-            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNAUTHORIZED);
 
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
@@ -173,19 +173,19 @@ public class ProjectServiceImpl implements ProjectService {
     public Object updateAssigneeProjectRole(String projectId, String userId, ProjectUserUpdateDto updateDto) {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, updateDto.getAssignerId());
         if (assignerProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (assigneeProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         if ( !((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
         if (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue() && assigneeProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()){
-            return new ErrorMessage("Admin Cannot Edit Project Owner!", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Admin Cannot Edit Project Owner!", HttpStatus.UNAUTHORIZED);
         }
         if (updateDto.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
-            return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.UNAUTHORIZED);
         if (updateDto.getAssignerId().equals(userId))
-            return new ErrorMessage("You can't assign yourself to this project", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You can't assign yourself to this project", HttpStatus.UNAUTHORIZED);
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
         assignment.setAssigneeId(userId);
@@ -203,14 +203,14 @@ public class ProjectServiceImpl implements ProjectService {
     public Object removeProjectAssignee(String projectId, String assignee, ProjectUserDeleteDto deleteDto) {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, deleteDto.getAssignerId());
         if (assignerProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, assignee);
         if (assigneeProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         if ( !((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.UNAUTHORIZED);
         if (assignee.equals(deleteDto.getAssignerId()))
-            return new ErrorMessage("You can't remove yourself from the project", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You can't remove yourself from the project", HttpStatus.UNAUTHORIZED);
         projectRepository.removeProjectAssignee(projectId, assignee);
 
         return new Response(ResponseMessage.SUCCESS);
@@ -237,9 +237,9 @@ public class ProjectServiceImpl implements ProjectService {
         if (executor == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if ( !((executor.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (executor.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.UNAUTHORIZED);
         if (projectUserBlockDto.getExecutorId().equals(projectUserBlockDto.getBlockedUserId()))
-            return new ErrorMessage("You can't block/unblock yourself", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You can't block/unblock yourself", HttpStatus.UNAUTHORIZED);
          projectRepository.blockOrUnBlockProjectUser(projectUserBlockDto.getBlockedUserId(), projectId, projectUserBlockDto.getBlockedStatus());
 
          return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
