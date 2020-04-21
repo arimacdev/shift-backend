@@ -740,7 +740,10 @@ public class NotificationServiceImpl implements NotificationService {
         SlackBlock headerBlock = new SlackBlock();
         headerBlock.setType(SECTION);
         headerBlock.getText().setType(MARK_DOWN);
-        headerBlock.getText().setText(getWelcomeAddressing(taskAlert.getAssigneeSlackId()).toString());
+        StringBuilder addressing = new StringBuilder();
+        addressing.append(getWelcomeAddressing(taskAlert.getAssigneeSlackId()));
+        addressing.append(SlackMessages.TASK_REMINDER_GREETING);
+        headerBlock.getText().setText(addressing.toString());
         headerBlock.setAccessory(null);
         blocks.add(headerBlock);
 
@@ -770,6 +773,7 @@ public class NotificationServiceImpl implements NotificationService {
         body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
         body.getAccessory().setAlt_text("Calender Thumbnail");
         blocks.add(body);
+        blocks.add(getFooter(task.getTaskStatus().toString()));
         blocks.add(divider);
 
         payload.put(BLOCKS,blocks);

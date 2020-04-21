@@ -9,7 +9,7 @@ public class SlackMessages {
     public static  final String TASK_FILE_UPLOAD_NOTIFICATION_TITLE ="Task File Upload";
     public static  final String TASK_MODIFICATION_TITLE ="Task Content Modification";
     public static  final String SUB_TASK_MODIFICATION_TITLE ="SubTask Content Modification";
-    public static  final String TASK_REMINDER_GREETING =":wave: Hey There! Reminder for the following task";
+    public static  final String TASK_REMINDER_GREETING =" A Reminder for the following task";
     public static  final String TASK_ASSIGNMENT_GREETING =" You have been assigned to the following Task";
     public static  final String ADDRESS_GREETING =":wave: Hey There ";
 
