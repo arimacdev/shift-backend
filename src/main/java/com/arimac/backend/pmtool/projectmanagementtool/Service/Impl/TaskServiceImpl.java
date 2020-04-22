@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -140,7 +141,9 @@ public class TaskServiceImpl implements TaskService {
             notification.setHourly(false);
             notificationRepository.addTaskNotification(notification);
             //Slack Notification
-            notificationService.sendTaskAssignNotification(task);
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskAssignNotification(task);
+            });
         }
 //        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
@@ -263,23 +266,34 @@ public class TaskServiceImpl implements TaskService {
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
-            notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
+            });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskStatus() != null){
-            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "status", userId);
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "status", userId);
+            });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
-            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "name", userId);
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "name", userId);
+            });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskNotes() != null){
-            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "notes", userId);
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "notes", userId);
+            });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskDueDate() != null){
-            notificationService.sendTaskModificationNotification(task, taskUpdateDto, "dueDate", userId);
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "dueDate", userId);
+            });
+
         }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
