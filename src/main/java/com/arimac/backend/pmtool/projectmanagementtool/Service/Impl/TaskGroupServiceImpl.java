@@ -133,4 +133,15 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
+
+    @Override
+    public Object getATaskGroup(String taskGroupId, String userId) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage("User is not the Group Member", HttpStatus.UNAUTHORIZED);
+        TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupId);
+        if (taskGroup == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroup);
+    }
 }
