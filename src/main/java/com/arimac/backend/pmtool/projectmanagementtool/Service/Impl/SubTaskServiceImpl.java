@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class SubTaskServiceImpl implements SubTaskService {
@@ -71,7 +72,10 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         Object subTask = subTaskRepository.addSubTaskToProject(newSubTask);
         if (subTaskDto.getTaskType().equals(TaskTypeEnum.project)) {
-            notificationService.sendSubTaskCreateNotification(subTaskDto.getSubTaskCreator(), newSubTask, projectUser, task);
+            ProjectUserResponseDto finalProjectUser = projectUser;
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendSubTaskCreateNotification(subTaskDto.getSubTaskCreator(), newSubTask, finalProjectUser, task);
+            });
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, subTask);
     }
@@ -129,10 +133,19 @@ public class SubTaskServiceImpl implements SubTaskService {
             modifiedSubTask.setSubtaskStatus(subTask.isSubtaskStatus());;
          SubTask updatedSubTask = subTaskRepository.updateSubTaskById(modifiedSubTask);
          if (subTaskUpdateDto.getTaskType().equals(TaskTypeEnum.project)) {
-             if (subTaskUpdateDto.getSubtaskName() != null)
-                 notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, modifiedSubTask, taskEditor, "name");
-             if (subTaskUpdateDto.getSubTaskStatus() != null)
-                 notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, modifiedSubTask, taskEditor, "status");
+             if (subTaskUpdateDto.getSubtaskName() != null) {
+                 ProjectUserResponseDto finalTaskEditor = taskEditor;
+                 CompletableFuture.runAsync(() -> {
+                     notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, modifiedSubTask, finalTaskEditor, "name");
+                 });
+             }
+             if (subTaskUpdateDto.getSubTaskStatus() != null) {
+                 ProjectUserResponseDto finalTaskEditor1 = taskEditor;
+                 CompletableFuture.runAsync(()-> {
+                     notificationService.sendSubTaskUpdateNotification(subTaskUpdateDto.getSubTaskEditor(), task, subTask, modifiedSubTask, finalTaskEditor1, "status");
+                 });
+             }
+
          }
 
          return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updatedSubTask);
@@ -161,7 +174,10 @@ public class SubTaskServiceImpl implements SubTaskService {
         }
         subTaskRepository.flagSubTaskOfATask(subTaskId);
         if (taskType.equals(TaskTypeEnum.project)) {
-            notificationService.sendSubTaskFlagNotification(userId, task, subTask, taskRemover);
+            ProjectUserResponseDto finalTaskRemover = taskRemover;
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendSubTaskFlagNotification(userId, task, subTask, finalTaskRemover);
+            });
         }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
