@@ -57,6 +57,14 @@ public class TaskGroupController extends ResponseController {
         return sendResponse(taskGroupService.updateTaskGroup(taskGroupId, taskGroupUpdateDto));
     }
 
+    @ApiOperation(value = "Get A Task Group", notes = "Get A Task Group")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskGroupId}")
+    public ResponseEntity<Object> getATaskGroup(@PathVariable("taskGroupId") String taskGroupId, @RequestHeader("user") String user){
+        logger.info("HIT - GET getATaskGroup - /taskgroup/<taskGroupId> | taskGroupId:{} | userId: {}", taskGroupId, user);
+        return sendResponse(taskGroupService.getATaskGroup(taskGroupId, user));
+    }
+
     @ApiOperation(value = "Flag Task Group", notes = "Flag Task Group")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{taskGroupId}")

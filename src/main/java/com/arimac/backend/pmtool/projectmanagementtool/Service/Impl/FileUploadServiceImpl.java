@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
@@ -93,7 +94,9 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
         if (taskType.equals(TaskTypeEnum.project)) {
-            notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
+            });
         }
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
         }
