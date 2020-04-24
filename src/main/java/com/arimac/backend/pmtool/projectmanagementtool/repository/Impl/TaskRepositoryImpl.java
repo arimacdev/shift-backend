@@ -28,7 +28,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Task addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, taskType, sprintId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, taskType, sprintId, issueType, parentId, isParent) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -42,6 +42,9 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setBoolean(11, task.getIsDeleted());
             preparedStatement.setString(12, task.getTaskType().toString());
             preparedStatement.setString(13, task.getSprintId());
+            preparedStatement.setString(14, task.getIssueType().toString());
+            preparedStatement.setString(15, task.getParentId());
+            preparedStatement.setBoolean(16, task.getIsParent());
 
             return preparedStatement;
         });
@@ -57,7 +60,9 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId) {
-        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false";
+        String sql = "SELECT * FROM Task as t" +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.projectId=? AND t.isDeleted=false";
         List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
         return  taskList;
     }
@@ -71,7 +76,9 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId) {
-        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false";
+        String sql = "SELECT * FROM Task as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false";
         List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, userId);
         return  taskList;
     }

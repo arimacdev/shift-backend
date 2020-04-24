@@ -83,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskAssignNotification(Task task) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (user.getUserSlackId() != null){
+        if (user.getUserSlackId() != null && user.getNotification()){
             Project project = projectRepository.getProjectById(task.getProjectId());
             User sender = userRepository.getUserByUserId(task.getTaskInitiator());
             JSONObject payload = new JSONObject();
@@ -150,7 +150,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskAssigneeUpdateNotification(Task task, String userId, String newTaskAssignee) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (user.getUserSlackId() != null){
+        if (user.getUserSlackId() != null && user.getNotification()){
             User previous = userRepository.getUserByUserId(task.getTaskAssignee());
             User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
             Project project = projectRepository.getProjectById(task.getProjectId());
@@ -237,7 +237,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (user.getUserSlackId() != null){
+        if (user.getUserSlackId() != null && user.getNotification()){
             User editor = userRepository.getUserByUserId(taskEditor);
             Project project = projectRepository.getProjectById(task.getProjectId());
             JSONObject payload = new JSONObject();
@@ -346,7 +346,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName) {
         Task task = taskRepository.getProjectTask(taskId);
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (user.getUserSlackId() != null){
+        if (user.getUserSlackId() != null && user.getNotification()){
             Project project = projectRepository.getProjectById(task.getProjectId());
             JSONObject payload = new JSONObject();
             payload.put(CHANNEL, user.getUserSlackId());
@@ -414,7 +414,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendSubTaskCreateNotification(String senderId, SubTask subTask, ProjectUserResponseDto projectUser, Task task) {
         User recipient = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (recipient.getUserSlackId() != null){
+        if (recipient.getUserSlackId() != null && recipient.getNotification()){
             User sender = userRepository.getUserByUserId(senderId);
             JSONObject payload = new JSONObject();
             payload.put(CHANNEL, recipient.getUserSlackId());
@@ -478,7 +478,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendSubTaskUpdateNotification(String senderId, Task task, SubTask subTask, SubTask modifiedSubTask, ProjectUserResponseDto projectUser, String type) {
         User recipient = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (recipient.getUserSlackId() != null){
+        if (recipient.getUserSlackId() != null && recipient.getNotification()){
             User sender = userRepository.getUserByUserId(senderId);
             JSONObject payload = new JSONObject();
             payload.put(CHANNEL, recipient.getUserSlackId());
@@ -572,7 +572,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendSubTaskFlagNotification(String senderId, Task task, SubTask subTask, ProjectUserResponseDto projectUser) {
         User recipient = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (recipient.getUserSlackId() != null){
+        if (recipient.getUserSlackId() != null && recipient.getNotification()){
             User sender = userRepository.getUserByUserId(senderId);
             JSONObject payload = new JSONObject();
             payload.put(CHANNEL, recipient.getUserSlackId());

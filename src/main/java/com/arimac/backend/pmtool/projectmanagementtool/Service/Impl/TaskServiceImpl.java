@@ -69,21 +69,29 @@ public class TaskServiceImpl implements TaskService {
     public Object addTaskToProject(String projectId, TaskDto taskDto) {
         if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) || (taskDto.getProjectId() == null || taskDto.getProjectId().isEmpty()) || (taskDto.getTaskInitiator()== null || taskDto.getTaskInitiator().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
-//        if (!taskDto.getTaskType().equals(TaskTypeEnum.project)){
-//            return new ErrorMessage("Task Type Mismatch", HttpStatus.BAD_REQUEST);
-//        }
+        Task task = new Task();
         if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
             if (taskInitiator == null)
                 return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
             ProjectUserResponseDto taskAssignee = null;
-//            String
             if (taskDto.getTaskAssignee() != null) {
                 taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
                 if (taskAssignee == null)
                     return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
             }
-
+            if(taskDto.getParentTaskId() != null){
+                Task parentTask = taskRepository.getProjectTask(taskDto.getParentTaskId());
+                if (parentTask == null)
+                    return new ErrorMessage("No Such Parent Task", HttpStatus.NOT_FOUND);
+                if (!parentTask.getIsParent())
+                    return new ErrorMessage("Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+                task.setIsParent(false);
+            } else {
+                task.setIsParent(true);
+            }
+            task.setParentId(taskDto.getParentTaskId());
+            task.setIssueType(taskDto.getIssueType());
         } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
             TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
             if (member == null)
@@ -92,7 +100,6 @@ public class TaskServiceImpl implements TaskService {
                 if (taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskAssignee(), taskDto.getProjectId()) == null)
                     return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
         }
-        Task task = new Task();
         task.setTaskId(utilsService.getUUId());
         task.setProjectId(taskDto.getProjectId());
         task.setTaskName(taskDto.getTaskName());

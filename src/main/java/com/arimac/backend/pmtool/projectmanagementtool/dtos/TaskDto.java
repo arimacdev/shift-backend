@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
@@ -15,6 +16,9 @@ public class TaskDto {
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
     private TaskTypeEnum taskType;
+
+    private IssueTypeEnum issueType;
+    private String parentTaskId;
 
     public TaskDto() {
     }
@@ -92,15 +96,20 @@ public class TaskDto {
         this.taskType = taskType;
     }
 
-    public TaskDto(String taskName, String projectId, TaskStatusEnum taskStatus, String taskInitiator, String taskAssignee, String taskNotes, Timestamp taskDueDate, Timestamp taskRemindOnDate) {
-        this.taskName = taskName;
-        this.projectId = projectId;
-        this.taskStatus = taskStatus;
-        this.taskInitiator = taskInitiator;
-        this.taskAssignee = taskAssignee;
-        this.taskNotes = taskNotes;
-        this.taskDueDate = taskDueDate;
-        this.taskRemindOnDate = taskRemindOnDate;
+    public IssueTypeEnum getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(IssueTypeEnum issueType) {
+        this.issueType = issueType;
+    }
+
+    public String getParentTaskId() {
+        return parentTaskId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentTaskId = parentId;
     }
 
     @Override
@@ -115,6 +124,8 @@ public class TaskDto {
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
                 ", taskType=" + taskType +
+                ", issueType=" + issueType +
+                ", parentId='" + parentTaskId + '\'' +
                 '}';
     }
 }

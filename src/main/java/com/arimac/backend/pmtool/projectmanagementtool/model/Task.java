@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,18 +18,21 @@ public class Task implements RowMapper<Task> {
     private String taskAssignee;
     private String taskInitiator;
     private String taskNote;
-    private TaskStatusEnum taskStatus;
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
     private boolean isDeleted;
-
+    private TaskStatusEnum taskStatus;
     private TaskTypeEnum taskType;
+
+    private IssueTypeEnum issueType;
+    private String parentId;
+    private boolean isParent;
 
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskTypeEnum taskType) {
+    public Task(String taskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, TaskTypeEnum taskType, IssueTypeEnum issueType, String parentId, boolean isParent) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
@@ -36,12 +40,15 @@ public class Task implements RowMapper<Task> {
         this.taskAssignee = taskAssignee;
         this.taskInitiator = taskInitiator;
         this.taskNote = taskNote;
-        this.taskStatus = taskStatus;
         this.taskCreatedAt = taskCreatedAt;
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
+        this.taskStatus = taskStatus;
         this.taskType = taskType;
+        this.issueType = issueType;
+        this.parentId = parentId;
+        this.isParent = isParent;
     }
 
     public boolean getIsDeleted() {
@@ -156,6 +163,30 @@ public class Task implements RowMapper<Task> {
         this.sprintId = sprintId;
     }
 
+    public IssueTypeEnum getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(IssueTypeEnum issueType) {
+        this.issueType = issueType;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public boolean getIsParent() {
+        return isParent;
+    }
+
+    public void setIsParent(boolean parent) {
+        isParent = parent;
+    }
+
     @Override
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Task(
@@ -166,12 +197,15 @@ public class Task implements RowMapper<Task> {
                 resultSet.getString("taskAssignee"),
                 resultSet.getString("taskInitiator"),
                 resultSet.getString("taskNote"),
-                TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
-                TaskTypeEnum.valueOf(resultSet.getString("taskType"))
+                TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
+                TaskTypeEnum.valueOf(resultSet.getString("taskType")),
+                IssueTypeEnum.valueOf(resultSet.getString("issueType")),
+                resultSet.getString("parentId"),
+                resultSet.getBoolean("isParent")
         );
     }
 
