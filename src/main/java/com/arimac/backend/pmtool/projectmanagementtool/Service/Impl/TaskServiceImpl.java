@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
@@ -68,7 +69,6 @@ public class TaskServiceImpl implements TaskService {
     public Object addTaskToProject(String projectId, TaskDto taskDto) {
         if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) || (taskDto.getProjectId() == null || taskDto.getProjectId().isEmpty()) || (taskDto.getTaskInitiator()== null || taskDto.getTaskInitiator().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
-        Task task = new Task();
         if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
             if (taskInitiator == null)
@@ -79,18 +79,6 @@ public class TaskServiceImpl implements TaskService {
                 if (taskAssignee == null)
                     return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
             }
-            if((taskDto.getParentTaskId() != null) && !(taskDto.getParentTaskId().isEmpty())){
-                Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskDto.getParentTaskId());
-                if (parentTask == null)
-                    return new ErrorMessage("No Such Parent Task", HttpStatus.NOT_FOUND);
-                if (!parentTask.getIsParent())
-                    return new ErrorMessage("Task is not a Parent Task", HttpStatus.BAD_REQUEST);
-                task.setIsParent(false);
-            } else {
-                task.setIsParent(true);
-            }
-            task.setParentId(taskDto.getParentTaskId());
-            task.setIssueType(taskDto.getIssueType());
         } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
             TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
             if (member == null)
@@ -99,6 +87,19 @@ public class TaskServiceImpl implements TaskService {
                 if (taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskAssignee(), taskDto.getProjectId()) == null)
                     return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
         }
+        Task task = new Task();
+        if((taskDto.getParentTaskId() != null) && !(taskDto.getParentTaskId().isEmpty())){
+            Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskDto.getParentTaskId());
+            if (parentTask == null)
+                return new ErrorMessage("No Such Parent Task", HttpStatus.NOT_FOUND);
+            if (!parentTask.getIsParent())
+                return new ErrorMessage("Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+            task.setIsParent(false);
+        } else {
+            task.setIsParent(true);
+        }
+        task.setParentId(taskDto.getParentTaskId());
+        task.setIssueType(taskDto.getIssueType());
         task.setTaskId(utilsService.getUUId());
         task.setProjectId(taskDto.getProjectId());
         task.setTaskName(taskDto.getTaskName());
@@ -149,12 +150,11 @@ public class TaskServiceImpl implements TaskService {
             }
             notification.setHourly(false);
             notificationRepository.addTaskNotification(notification);
-            //Slack Notification
+//            Slack Notification
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssignNotification(task);
             });
         }
-//        taskLogService.addTaskLog(task);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 
@@ -292,6 +292,11 @@ public class TaskServiceImpl implements TaskService {
             updateDto.setTaskRemindOnDate(task.getTaskReminderAt());
         } else {
             updateDto.setTaskRemindOnDate(taskUpdateDto.getTaskRemindOnDate());
+        }
+        if (taskUpdateDto.getIssueType()== null){
+            updateDto.setIssueType(task.getIssueType());
+        } else {
+            updateDto.setIssueType(taskUpdateDto.getIssueType());
         }
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
@@ -731,6 +736,32 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskSprintUpdateDto);
+    }
+
+    @Override
+    public Object updateProjectTaskParent(String userId, String projectId, String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!task.getProjectId().equals(projectId))
+            return new ErrorMessage("Task doesn't belong to the project", HttpStatus.BAD_REQUEST);
+        if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
+        if (task.getIsParent())
+            return new ErrorMessage(ResponseMessage.TASK_NOT_CHILD_TASK, HttpStatus.BAD_REQUEST);
+        if (!task.getParentId().equals(taskParentUpdateDto.getPreviousParent()))
+            return new ErrorMessage("Invalid Parent Task", HttpStatus.BAD_REQUEST);
+        Task newParent = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentUpdateDto.getNewParent());
+        if (newParent == null)
+            return new ErrorMessage("New Parent Task Not Found", HttpStatus.NOT_FOUND);
+        if (!newParent.getIsParent())
+            return new ErrorMessage("New Parent Task is Not a Parent Task", HttpStatus.BAD_REQUEST);
+        taskRepository.updateProjectTaskParent(taskId, taskParentUpdateDto);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentUpdateDto);
     }
 
 

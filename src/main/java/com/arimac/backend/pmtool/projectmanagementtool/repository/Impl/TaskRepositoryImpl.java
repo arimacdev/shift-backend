@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -148,14 +149,15 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Object updateProjectTask(String taskId, TaskUpdateDto taskUpdateDto) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=? WHERE taskId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=?, issueType=? WHERE taskId=?");
             preparedStatement.setString(1, taskUpdateDto.getTaskName());
             preparedStatement.setString(2, taskUpdateDto.getTaskAssignee());
             preparedStatement.setString(3, taskUpdateDto.getTaskNotes());
-            preparedStatement.setString(4, taskUpdateDto.getTaskStatus().toString());
+            preparedStatement.setString(4, taskUpdateDto.getTaskStatus());
             preparedStatement.setTimestamp(5, taskUpdateDto.getTaskDueDate());
             preparedStatement.setTimestamp(6, taskUpdateDto.getTaskRemindOnDate());
-            preparedStatement.setString(7, taskId);
+            preparedStatement.setString(7, taskUpdateDto.getIssueType().toString());
+            preparedStatement.setString(8, taskId);
 
             return preparedStatement;
         });
@@ -211,6 +213,16 @@ public class TaskRepositoryImpl implements TaskRepository {
         });
     }
 
+    @Override
+    public void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET parentId=? WHERE taskId=?");
+            preparedStatement.setString(1, taskParentUpdateDto.getNewParent());
+            preparedStatement.setString(2, taskId);
+
+            return preparedStatement;
+        });
+    }
 
 
 }

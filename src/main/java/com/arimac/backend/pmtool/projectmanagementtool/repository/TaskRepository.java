@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
@@ -17,7 +18,7 @@ public interface TaskRepository {
     List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId);
     List<Task> getAllUserAssignedTasks(String userId, String projectId);
     List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId);
-    Task getProjectTask(String taskId); // done
+    Task getProjectTask(String taskId); // done //remove
     Task getTaskByProjectIdTaskId(String projectId, String taskId);
     Task getProjectTaskWithDeleted(String taskId);
     Object updateProjectTask(String taskId,TaskUpdateDto taskUpdateDto);
@@ -29,4 +30,5 @@ public interface TaskRepository {
     List<Task> getAllPersonalTasks(String userId);
     //update sprint
     void updateProjectTaskSprint(String taskId, TaskSprintUpdateDto taskSprintUpdateDto);
+    void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto);
 }

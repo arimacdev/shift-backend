@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
@@ -130,6 +131,14 @@ public class TaskController extends ResponseController {
     public ResponseEntity<Object> updateProjectTaskSprint(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskSprintUpdateDto taskSprintUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/sprint ---> updateProjectTaskSprint | projectId: {} | userId: {} | taskId: {} | TaskSprintUpdateDto: {}", projectId, userId, taskId, taskSprintUpdateDto);
         return sendResponse(taskService.updateProjectTaskSprint(userId, projectId, taskId, taskSprintUpdateDto));
+    }
+
+    @ApiOperation(value = "Update Parent of a  Task", notes = "Update Sprint of a  Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/tasks/{taskId}/parent")
+    public ResponseEntity<Object> updateProjectTaskParent(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentUpdateDto taskParentUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent ---> updateProjectTaskParent | projectId: {} | userId: {} | taskId: {} | TaskParentUpdateDto: {}", projectId, userId, taskId, taskParentUpdateDto);
+        return sendResponse(taskService.updateProjectTaskParent(userId, projectId, taskId, taskParentUpdateDto));
     }
 
 }

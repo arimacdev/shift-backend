@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
@@ -13,6 +14,8 @@ public class TaskUpdateDto {
     private String taskNotes;
     private String taskStatus;
     private TaskTypeEnum taskType;
+    private IssueTypeEnum issueType;
+
 
     public String getTaskName() {
         return taskName;
@@ -70,6 +73,14 @@ public class TaskUpdateDto {
         this.taskType = taskType;
     }
 
+    public IssueTypeEnum getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(IssueTypeEnum issueType) {
+        this.issueType = issueType;
+    }
+
     @Override
     public String toString() {
         return "TaskUpdateDto{" +
@@ -80,6 +91,7 @@ public class TaskUpdateDto {
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskStatus='" + taskStatus + '\'' +
                 ", taskType=" + taskType +
+                ", issueType=" + issueType +
                 '}';
     }
 }
