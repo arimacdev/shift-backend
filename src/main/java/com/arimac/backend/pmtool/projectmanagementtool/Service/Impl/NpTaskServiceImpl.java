@@ -85,6 +85,19 @@ public class NpTaskServiceImpl implements NpTaskService {
     }
 
     @Override
+    public Object getPersonalTask(String userId, String taskId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (task.getTaskAssignee().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
+    }
+
+    @Override
     public Object updatePersonalTask(String userId, String taskId, TaskUpdateDto taskUpdateDto) {
         if (taskUpdateDto.getTaskAssignee()!= null){
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);

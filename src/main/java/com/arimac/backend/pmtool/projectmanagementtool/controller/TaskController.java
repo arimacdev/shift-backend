@@ -38,9 +38,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get a single Task", notes = "Get single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}") // DONE
-    public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
-        logger.info("HIT - GET /projects/<projectId>/tasks/<taskId> ---> getProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
-        return sendResponse(taskService.getProjectTask(userId, projectId, taskId));
+    public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId, @RequestHeader("type") TaskTypeEnum type, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /projects/<projectId>/tasks/<taskId> ---> getProjectTask | projectId: {} | userId: {} | taskId: {} | type:{}", projectId, userId, taskId, type);
+        return sendResponse(taskService.getProjectTask(userId, projectId, taskId, type));
     }
 
     @ApiOperation(value = "Get a files of a single Task", notes = "Get file of  single task in a project")
