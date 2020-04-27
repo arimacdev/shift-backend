@@ -6,8 +6,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
@@ -18,7 +18,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -165,14 +164,36 @@ public class TaskServiceImpl implements TaskService {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId);
+        List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildTasksWithProfile(projectId);
+        Map<String, TaskParentChild> parentChildMap = new HashMap<>();
+        for (TaskUserResponseDto parentTask : parentTaskList){
+            if (parentChildMap.get(parentTask.getTaskId()) == null){
+                TaskParentChild taskParentChild = new TaskParentChild();
+                taskParentChild.setParentTask(parentTask);
+                taskParentChild.setChildTasks(new ArrayList<>());
+                parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+            }
+        }
+        for (TaskUserResponseDto childTask: childTaskList){
+            if (parentChildMap.get(childTask.getParentId()) != null){
+                TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
+                List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
+                childTasks.add(childTask);
+                parentChild.setChildTasks(childTasks);
+            }
+        }
+        List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
-        } else if (type.equals(TaskTypeEnum.taskGroup)){
+        } else {
+            List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
             TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
             if (member == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
         }
-        List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
-       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
+
     }
 
     @Override

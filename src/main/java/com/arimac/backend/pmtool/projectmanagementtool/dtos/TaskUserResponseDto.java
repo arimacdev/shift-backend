@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -22,10 +23,14 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     private String taskAssigneeProfileImage;
     private String sprintId;
 
+    private IssueTypeEnum issueType;
+    private String parentId;
+    private boolean isParent;
+
     public TaskUserResponseDto() {
     }
 
-    public TaskUserResponseDto(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId) {
+    public TaskUserResponseDto(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.projectId = projectId;
@@ -39,6 +44,9 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.isDeleted = isDeleted;
         this.taskAssigneeProfileImage = taskAssigneeProfileImage;
         this.sprintId = sprintId;
+        this.issueType = issueType;
+        this.parentId = parentId;
+        this.isParent = isParent;
     }
 
     public String getTaskId() {
@@ -145,6 +153,30 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.sprintId = sprintId;
     }
 
+    public IssueTypeEnum getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(IssueTypeEnum issueType) {
+        this.issueType = issueType;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public boolean getIsParent() {
+        return isParent;
+    }
+
+    public void setIsParent(boolean parent) {
+        isParent = parent;
+    }
+
     @Override
     public TaskUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskUserResponseDto(
@@ -160,7 +192,11 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
                 resultSet.getString("profileImage"),
-                resultSet.getString("sprintId")
+                resultSet.getString("sprintId"),
+                IssueTypeEnum.valueOf(resultSet.getString("issueType")),
+                resultSet.getString("parentId"),
+                resultSet.getBoolean("isParent")
         );
     }
+
 }
