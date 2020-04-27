@@ -60,7 +60,7 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId) {
-        String sql = "SELECT * FROM Task as t" +
+        String sql = "SELECT * FROM Task as t " +
                 "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
                 "WHERE t.projectId=? AND t.isDeleted=false";
         List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
