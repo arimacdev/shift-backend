@@ -79,8 +79,8 @@ public class TaskServiceImpl implements TaskService {
                 if (taskAssignee == null)
                     return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
             }
-            if(taskDto.getParentTaskId() != null){
-                Task parentTask = taskRepository.getProjectTask(taskDto.getParentTaskId());
+            if((taskDto.getParentTaskId() != null) && !(taskDto.getParentTaskId().isEmpty())){
+                Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskDto.getParentTaskId());
                 if (parentTask == null)
                     return new ErrorMessage("No Such Parent Task", HttpStatus.NOT_FOUND);
                 if (!parentTask.getIsParent())

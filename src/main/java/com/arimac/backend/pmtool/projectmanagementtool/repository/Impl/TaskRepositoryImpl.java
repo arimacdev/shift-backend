@@ -112,6 +112,19 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
         return task;
     }
+
+    @Override
+    public Task getTaskByProjectIdTaskId(String projectId, String taskId) {
+        String sql = "SELECT * FROM Task WHERE taskId=? AND projectId=? AND isDeleted=false";
+        Task task;
+        try {
+            task = jdbcTemplate.queryForObject(sql, new Task(), taskId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        return task;
+    }
+
     // PERSONAL TASKS and TASK GROUP
     @Override
     public List<Task> getAllPersonalTasks(String userId) {
