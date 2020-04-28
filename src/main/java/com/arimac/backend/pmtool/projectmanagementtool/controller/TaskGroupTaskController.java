@@ -73,4 +73,12 @@ public class TaskGroupTaskController extends ResponseController {
         return sendResponse(taskGroupTaskService.getAllUserAssignedTasks(userId, taskgroupId));
     }
 
+    @ApiOperation(value = "Get a files of a single Task", notes = "Get file of  single task in a TaskGroup")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskgroupId}/tasks/{taskId}/files")
+    public ResponseEntity<Object> getTaskGroupTaskFiles(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /taskgroup/<taskgroupId>/tasks/<taskId>/files ---> getTaskGroupTaskFiles | taskgroupId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(taskGroupTaskService.getProjectTaskFiles(userId, taskgroupId, taskId));
+    }
+
 }

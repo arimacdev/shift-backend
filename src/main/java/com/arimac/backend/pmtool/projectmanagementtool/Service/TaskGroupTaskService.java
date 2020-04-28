@@ -10,4 +10,5 @@ public interface TaskGroupTaskService {
     Object flagTaskGroupTask(String userId, String taskGroupId, String taskId);
     Object getAllTaskGroupTasksByUser(String userId, String taskGroupId);
     Object getAllUserAssignedTasks(String userId, String taskGroupId);
+    Object getProjectTaskFiles(String userId, String taskGroupId, String taskId);
 }

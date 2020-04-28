@@ -210,4 +210,13 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         List<TaskGroupTaskUserResponseDto> taskList = taskGroupTaskRepository.getAllUserAssignedTasksWithProfile(userId, taskGroupId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
+
+    @Override
+    public Object getProjectTaskFiles(String userId, String taskGroupId, String taskId) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+         Object fileList = taskFileRepository.getAllTaskFiles(taskId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
+    }
 }
