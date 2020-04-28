@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
@@ -29,7 +30,7 @@ public class PersonalTaskController extends ResponseController {
     @ApiOperation(value = "Add non project task", notes = "Create a non project task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/tasks/personal")
-    public ResponseEntity<Object> addPersonalTask(@RequestBody TaskDto taskDto){
+    public ResponseEntity<Object> addPersonalTask(@RequestBody PersonalTaskDto taskDto){
         logger.info("HIT - POST /non-project/tasks/personal ---> addPersonalTask {}", taskDto);
         return sendResponse(npTaskService.addPersonalTask(taskDto));
     }

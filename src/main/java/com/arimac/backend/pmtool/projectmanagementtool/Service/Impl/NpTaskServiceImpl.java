@@ -3,18 +3,14 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.SubTaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +25,16 @@ public class NpTaskServiceImpl implements NpTaskService {
     private static final Logger logger = LoggerFactory.getLogger(NpTaskServiceImpl.class);
 
     private final UtilsService utilsService;
+    private final PersonalTaskRepository personalTaskRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final SubTaskRepository subTaskRepository;
     private final TaskFileRepository taskFileRepository;
 
 
-    public NpTaskServiceImpl(UtilsService utilsService, TaskRepository taskRepository, UserRepository userRepository, SubTaskRepository subTaskRepository, TaskFileRepository taskFileRepository) {
+    public NpTaskServiceImpl(UtilsService utilsService, PersonalTaskRepository personalTaskRepository, TaskRepository taskRepository, UserRepository userRepository, SubTaskRepository subTaskRepository, TaskFileRepository taskFileRepository) {
         this.utilsService = utilsService;
+        this.personalTaskRepository = personalTaskRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.subTaskRepository = subTaskRepository;
@@ -45,33 +43,27 @@ public class NpTaskServiceImpl implements NpTaskService {
 
 
     @Override
-    public Object addPersonalTask(TaskDto taskDto) {
+    public Object addPersonalTask(PersonalTaskDto taskDto) {
         if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) ||  (taskDto.getTaskAssignee()== null || taskDto.getTaskAssignee().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
-        if (!taskDto.getTaskType().equals(TaskTypeEnum.personal)){
-            return new ErrorMessage("Task Type Mismatch", HttpStatus.BAD_REQUEST);
-        }
         User user = userRepository.getUserByUserId(taskDto.getTaskAssignee());
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Task task = new Task();
-        task.setTaskId(utilsService.getUUId());
-        task.setTaskType(taskDto.getTaskType());
-        task.setTaskName(taskDto.getTaskName());
-        task.setTaskAssignee(taskDto.getTaskAssignee());
-        task.setTaskInitiator(taskDto.getTaskAssignee());
-        task.setTaskNote(taskDto.getTaskNotes());
-        task.setTaskStatus(TaskStatusEnum.open);
-        task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
-        task.setProjectId("personalTasks");
+        PersonalTask personalTask = new PersonalTask();
+        personalTask.setTaskId(utilsService.getUUId());
+        personalTask.setTaskName(taskDto.getTaskName());
+        personalTask.setTaskAssignee(taskDto.getTaskAssignee());
+        personalTask.setTaskNote(taskDto.getTaskNotes());
+        personalTask.setTaskStatus(PersonalTaskEnum.open);
+        personalTask.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         if (taskDto.getTaskDueDate() != null){
-            task.setTaskDueDateAt(taskDto.getTaskDueDate());
+            personalTask.setTaskDueDateAt(taskDto.getTaskDueDate());
         }
         if (taskDto.getTaskRemindOnDate() != null){
-            task.setTaskReminderAt(task.getTaskReminderAt());
+            personalTask.setTaskReminderAt(personalTask.getTaskReminderAt());
         }
-        task.setIsDeleted(false);
-        taskRepository.addTaskToProject(task);
+        personalTask.setIsDeleted(false);
+        personalTaskRepository.addPersonalTask(personalTask);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
