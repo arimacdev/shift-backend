@@ -2,8 +2,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
@@ -16,7 +21,10 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
@@ -163,5 +171,35 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             taskFileRepository.flagTaskFile(taskFile.getTaskFileId());
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getAllTaskGroupTasksByUser(String userId, String taskGroupId) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+
+            List<TaskGroupTaskUserResponseDto> parentTaskList = taskGroupTaskRepository.getAllParentTasksWithProfile(taskGroupId);
+            List<TaskGroupTaskUserResponseDto> childTaskList = taskGroupTaskRepository.getAllChildTasksWithProfile(taskGroupId);
+
+            Map<String, TaskGroupTaskParentChild> parentChildMap = new HashMap<>();
+            for (TaskGroupTaskUserResponseDto parentTask : parentTaskList){
+                if (parentChildMap.get(parentTask.getTaskId()) == null){
+                    TaskGroupTaskParentChild taskParentChild = new TaskGroupTaskParentChild();
+                    taskParentChild.setParentTask(parentTask);
+                    taskParentChild.setChildTasks(new ArrayList<>());
+                    parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+                }
+            }
+            for (TaskGroupTaskUserResponseDto childTask: childTaskList){
+                if (parentChildMap.get(childTask.getParentId()) != null){
+                    TaskGroupTaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
+                    List<TaskGroupTaskUserResponseDto> childTasks = parentChild.getChildTasks();
+                    childTasks.add(childTask);
+                    parentChild.setChildTasks(childTasks);
+                }
+            }
+            List<TaskGroupTaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
     }
 }

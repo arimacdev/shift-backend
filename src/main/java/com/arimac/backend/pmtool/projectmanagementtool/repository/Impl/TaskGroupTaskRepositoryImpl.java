@@ -1,6 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -8,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
@@ -73,4 +76,23 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
         String sql = "UPDATE TaskGroupTask SET isDeleted=? WHERE taskId=?";
         jdbcTemplate.update(sql,true, taskId);
     }
+
+    @Override
+    public List<TaskGroupTaskUserResponseDto> getAllParentTasksWithProfile(String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroupTask as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.taskGroupId=? AND t.isDeleted=false AND t.isParent=true";
+        List<TaskGroupTaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskGroupTaskUserResponseDto(), taskGroupId);
+        return  taskList;
+    }
+
+    @Override
+    public List<TaskGroupTaskUserResponseDto> getAllChildTasksWithProfile(String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroupTask as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.taskGroupId=? AND t.isDeleted=false AND t.isParent=false";
+        List<TaskGroupTaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskGroupTaskUserResponseDto(), taskGroupId);
+        return  taskList;
+    }
+
 }
