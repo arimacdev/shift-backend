@@ -95,4 +95,13 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
         return  taskList;
     }
 
+    @Override
+    public List<TaskGroupTaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroupTask as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.taskGroupId=? AND t.isDeleted=false";
+        List<TaskGroupTaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskGroupTaskUserResponseDto(), taskGroupId);
+        return  taskList;
+    }
+
 }

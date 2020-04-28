@@ -13,5 +13,6 @@ public interface TaskGroupTaskRepository {
     void flagTaskGroupTask(String taskId);
     List<TaskGroupTaskUserResponseDto> getAllParentTasksWithProfile(String taskGroupId);
     List<TaskGroupTaskUserResponseDto> getAllChildTasksWithProfile(String taskGroupId);
+    List<TaskGroupTaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String taskGroupId);
 
 }

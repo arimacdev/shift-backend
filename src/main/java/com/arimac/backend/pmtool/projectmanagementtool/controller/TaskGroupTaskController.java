@@ -65,4 +65,12 @@ public class TaskGroupTaskController extends ResponseController {
         return sendResponse(taskGroupTaskService.getAllTaskGroupTasksByUser(userId, taskgroupId));
     }
 
+    @ApiOperation(value = "Get all Tasks of a TaskGroup assigned to a user", notes = "(My Tasks) Get all Tasks in a TaskGroup assigned to user")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskgroupId}/tasks/user")
+    public ResponseEntity<Object> getAllUserAssignedTasks(@RequestParam("userId") String userId, @PathVariable("taskgroupId") String taskgroupId){
+        logger.info("HIT - GET /taskgroup/<taskgroupId>/tasks ---> getAllUserAssignedTasks | projectId: {} | userId: {}", taskgroupId, userId);
+        return sendResponse(taskGroupTaskService.getAllUserAssignedTasks(userId, taskgroupId));
+    }
+
 }

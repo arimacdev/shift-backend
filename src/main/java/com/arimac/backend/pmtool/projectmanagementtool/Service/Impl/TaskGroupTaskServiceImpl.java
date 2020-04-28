@@ -178,7 +178,6 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
         if (member == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-
             List<TaskGroupTaskUserResponseDto> parentTaskList = taskGroupTaskRepository.getAllParentTasksWithProfile(taskGroupId);
             List<TaskGroupTaskUserResponseDto> childTaskList = taskGroupTaskRepository.getAllChildTasksWithProfile(taskGroupId);
 
@@ -201,5 +200,14 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             }
             List<TaskGroupTaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
+    }
+
+    @Override
+    public Object getAllUserAssignedTasks(String userId, String taskGroupId) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<TaskGroupTaskUserResponseDto> taskList = taskGroupTaskRepository.getAllUserAssignedTasksWithProfile(userId, taskGroupId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
     }
 }
