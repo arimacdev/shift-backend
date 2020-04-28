@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
@@ -50,8 +51,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final TaskGroupRepository taskGroupRepository;
     private final NotificationService notificationService;
     private final ProjectFileRepository projectFileRepository;
+    private final PersonalTaskRepository personalTaskRepository;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository) {
+    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository) {
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -61,6 +63,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         this.taskGroupRepository = taskGroupRepository;
         this.notificationService = notificationService;
         this.projectFileRepository = projectFileRepository;
+        this.personalTaskRepository = personalTaskRepository;
     }
 
     @Override
@@ -103,11 +106,9 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
-        Task task = taskRepository.getProjectTask(taskId);
+        PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        if (!task.getTaskAssignee().equals(userId))
-            return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         List<String> fileUrlList = new ArrayList<>();
         String taskUrl = fileQueue(multipartFiles, fileType);
         fileUrlList.add(taskUrl);

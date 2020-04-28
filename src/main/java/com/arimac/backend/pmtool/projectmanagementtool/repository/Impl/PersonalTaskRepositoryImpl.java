@@ -1,9 +1,11 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.PersonalTaskRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -42,5 +44,37 @@ public class PersonalTaskRepositoryImpl implements PersonalTaskRepository {
             List<PersonalTask> personalTaskList = jdbcTemplate.query(sql, new PersonalTask(), userId);
             return personalTaskList;
         }
+
+    @Override
+    public PersonalTask getPersonalTaskByUserId(String userId, String taskId) {
+        String sql = "SELECT * FROM PersonalTask WHERE taskAssignee=? AND taskId=? AND isDeleted=false";
+        try {
+            PersonalTask personalTask = jdbcTemplate.queryForObject(sql, new PersonalTask(), userId, taskId);
+            return personalTask;
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+
     }
+
+    @Override
+    public void updatePersonalTask(String taskId, PersonalTaskUpdateDto personalTaskUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE PersonalTask SET taskName=?, taskNote=?, taskDueDateAt=?, taskReminderAt=?, taskStatus=?");
+            preparedStatement.setString(1, personalTaskUpdateDto.getTaskName());
+            preparedStatement.setString(2, personalTaskUpdateDto.getTaskNotes());
+            preparedStatement.setTimestamp(3, personalTaskUpdateDto.getTaskDueDate());
+            preparedStatement.setTimestamp(4, personalTaskUpdateDto.getTaskRemindOnDate());
+            preparedStatement.setString(5, personalTaskUpdateDto.getTaskStatus().toString());
+
+            return preparedStatement;
+        });
+    }
+
+    @Override
+    public void flagPersonalTask(String taskId) {
+        String sql = "UPDATE PersonalTask SET isDeleted=? WHERE taskId=?";
+        jdbcTemplate.update(sql,true, taskId);
+    }
+}
 

@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
@@ -77,34 +78,24 @@ public class NpTaskServiceImpl implements NpTaskService {
     }
 
     @Override
-    public Object updatePersonalTask(String userId, String taskId, TaskUpdateDto taskUpdateDto) {
-        if (taskUpdateDto.getTaskAssignee()!= null){
-            return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
-        }
-//        if (  (  (!taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed.toString()) ) || (!taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.open.toString()))   ) )
-//            return new ErrorMessage("Invalid Task Status", HttpStatus.BAD_REQUEST);
-        Task task = taskRepository.getProjectTask(taskId);
+    public Object updatePersonalTask(String userId, String taskId, PersonalTaskUpdateDto taskUpdateDto) {
+        PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        if (!task.getTaskAssignee().equals(userId))
-            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty())
             taskUpdateDto.setTaskName(task.getTaskName());
         if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty())
             taskUpdateDto.setTaskNotes(task.getTaskNote());
-        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty())
-            taskUpdateDto.setTaskStatus(task.getTaskStatus().toString());
+        if (taskUpdateDto.getTaskStatus() == null)
+            taskUpdateDto.setTaskStatus(task.getTaskStatus());
         if (taskUpdateDto.getTaskDueDate() == null)
             taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
         if (taskUpdateDto.getTaskRemindOnDate() == null)
             taskUpdateDto.setTaskRemindOnDate(task.getTaskReminderAt());
-        taskUpdateDto.setTaskAssignee(task.getTaskAssignee());
-        Object updateTask = taskRepository.updateProjectTask(taskId, taskUpdateDto);
-
+       personalTaskRepository.updatePersonalTask(taskId, taskUpdateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskUpdateDto);
     }
 
@@ -157,36 +148,30 @@ public class NpTaskServiceImpl implements NpTaskService {
 
     @Override
     public Object getPersonalTaskFiles(String userId, String taskId) {
-        Task task = taskRepository.getProjectTask(taskId);
+        PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (!task.getTaskAssignee().equals(userId))
-            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         Object fileList = taskFileRepository.getAllTaskFiles(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
     }
 
     @Override
     public Object deletePersonalTaskFile(String userId, String taskId, String taskFileId) {
-        Task task = taskRepository.getProjectTask(taskId);
+        PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (!task.getTaskInitiator().equals(userId))
-            return new ErrorMessage(ResponseMessage.SUCCESS, HttpStatus.UNAUTHORIZED);
         taskFileRepository.flagTaskFile(taskFileId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     @Override
     public Object flagPersonalTask(String userId, String taskId) {
-        Task task = taskRepository.getProjectTask(taskId);
+        PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (!task.getTaskAssignee().equals(userId))
-            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        taskRepository.flagProjectTask(taskId);
+        personalTaskRepository.flagPersonalTask(taskId);
         subTaskRepository.flagTaskBoundSubTasks(taskId);
-        return new Response(ResponseMessage.SUCCESS);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     @Override
