@@ -8,11 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public interface FileUploadService {
-    Object uploadFileToTask(String userId, String projectId , String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFile);
+    Object uploadFileToTask(String userId, String projectId , String taskId, FileUploadEnum fileType, MultipartFile multipartFile);
     Object uploadFileToTaskGroupTask(String userId, String taskgroupId , String taskId,FileUploadEnum fileType, MultipartFile multipartFile);
     Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFile);
     Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile);
-    Object deleteFileFromTask(String userId, String projectId, String taskId, TaskTypeEnum type, String taskFile);
+    Object deleteFileFromTask(String userId, String projectId, String taskId, String taskFile);
+    Object deleteFileFromTaskGroupTask(String userId, String taskgroupId, String taskId, String taskFile);
     Object uploadProjectFiles(String userId, String projectId, FileUploadEnum fileType, MultipartFile[] multipartFiles);
     Object getAllProjectFiles(String userId, String projectId);
     Object flagProjectFile(String userId, String projectId, String projectFileId);

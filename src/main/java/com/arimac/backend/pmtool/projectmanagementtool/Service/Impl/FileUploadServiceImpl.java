@@ -66,7 +66,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public Object uploadFileToTask(String userId, String projectId, String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFiles) {
+    public Object uploadFileToTask(String userId, String projectId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -146,8 +146,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public Object deleteFileFromTask(String userId, String projectId, String taskId, TaskTypeEnum type, String taskFile) {
-        if (type.equals(TaskTypeEnum.project)) {
+    public Object deleteFileFromTask(String userId, String projectId, String taskId, String taskFile) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null) {
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -157,14 +156,18 @@ public class FileUploadServiceImpl implements FileUploadService {
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
             if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
                 return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
-        } else if (type.equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-            Task task = taskRepository.getProjectTask(taskId);
-            if (task == null)
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        }
+        taskFileRepository.flagTaskFile(taskFile);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object deleteFileFromTaskGroupTask(String userId, String taskgroupId, String taskId, String taskFile) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskgroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskgroupId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
         taskFileRepository.flagTaskFile(taskFile);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
