@@ -30,9 +30,17 @@ public class FileUploadController extends ResponseController {
     @ApiOperation(value = "Upload a File to a Task", notes = "Upload a file to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/projects/{projectId}/tasks/{taskId}/upload")
-    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @RequestParam("taskType") TaskTypeEnum taskType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) throws IOException {
+    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @RequestParam("taskType") TaskTypeEnum taskType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) {
         logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {} | taskType: {}", projectId, userId, taskId, taskType);
         return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, taskType, fileType, multipartFile));
+    }
+
+    @ApiOperation(value = "Upload a File to a TaskGroup Task", notes = "Upload a file to a TaskGroup Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/taskgroup/{taskgroupId}/tasks/{taskId}/upload")
+    public ResponseEntity<Object> uploadFileToTaskGroupTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - POST /taskgroup/<projectId>/tasks/<taskId>/upload ---> uploadFileToTaskGroupTask | projectId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(fileUploadService.uploadFileToTaskGroupTask(userId, taskgroupId, taskId, fileType, multipartFile));
     }
 
     @ApiOperation(value = "Delete a File from a Task", notes = "Upload a file to a task")

@@ -16,10 +16,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
-import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
@@ -52,8 +49,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final NotificationService notificationService;
     private final ProjectFileRepository projectFileRepository;
     private final PersonalTaskRepository personalTaskRepository;
+    private final TaskGroupTaskRepository taskGroupTaskRepository;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository) {
+    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository) {
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -64,25 +62,19 @@ public class FileUploadServiceImpl implements FileUploadService {
         this.notificationService = notificationService;
         this.projectFileRepository = projectFileRepository;
         this.personalTaskRepository = personalTaskRepository;
+        this.taskGroupTaskRepository = taskGroupTaskRepository;
     }
 
     @Override
-    public Object uploadFileToTask(String userId, String projectId, String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFiles) throws IOException {
+    public Object uploadFileToTask(String userId, String projectId, String taskId, TaskTypeEnum taskType, FileUploadEnum fileType, MultipartFile multipartFiles) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-        if (taskType.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
             if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) ))
                 return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
-        } else if (taskType.equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        }
-
             List<String> fileUrlList = new ArrayList<>();
 //            for (MultipartFile currentMultipartFile : multipartFiles){
                 String taskUrl = fileQueue(multipartFiles, fileType);
@@ -96,13 +88,35 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
-        if (taskType.equals(TaskTypeEnum.project)) {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
             });
-        }
+
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
         }
+
+    @Override
+    public Object uploadFileToTaskGroupTask(String userId, String taskgroupId, String taskId, FileUploadEnum fileType, MultipartFile multipartFile) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskgroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskgroupId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+        String taskUrl = fileQueue(multipartFile, fileType);
+        List<String> fileUrlList = new ArrayList<>();
+        fileUrlList.add(taskUrl);
+        TaskFile taskFile = new TaskFile();
+        taskFile.setTaskFileId(utilsService.getUUId());
+        taskFile.setTaskId(taskId);
+        taskFile.setTaskFileName(multipartFile.getOriginalFilename());
+        taskFile.setTaskFileUrl(taskUrl);
+        taskFile.setTaskFileCreator(userId);
+        taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
+        taskFileRepository.uploadTaskFile(taskFile);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
+    }
 
     @Override
     public Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
