@@ -2,34 +2,34 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
 
     private final TaskGroupRepository taskGroupRepository;
     private final TaskGroupTaskRepository taskGroupTaskRepository;
+    private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
 
-    public TaskGroupTaskServiceImpl(TaskGroupRepository taskGroupRepository, TaskGroupTaskRepository taskGroupTaskRepository, UtilsService utilsService) {
+    public TaskGroupTaskServiceImpl(TaskGroupRepository taskGroupRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
         this.taskGroupRepository = taskGroupRepository;
         this.taskGroupTaskRepository = taskGroupTaskRepository;
+        this.taskFileRepository = taskFileRepository;
         this.utilsService = utilsService;
     }
 
@@ -144,5 +144,24 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         }
         Object updateTask = taskGroupTaskRepository.updateTaskGroupTask(taskId, updateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+    }
+
+    @Override
+    public Object flagTaskGroupTask(String userId, String taskGroupId, String taskId) {
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+            if (member.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
+                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+        taskGroupTaskRepository.flagTaskGroupTask(taskId);
+        //subTaskRepository.flagTaskBoundSubTasks(taskId); //TODO Flag Child Tasks
+        List<TaskFile> taskFileList = taskFileRepository.getAllTaskFiles(taskId);
+        for (TaskFile taskFile: taskFileList) {
+            taskFileRepository.flagTaskFile(taskFile.getTaskFileId());
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskServ
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -47,4 +48,13 @@ public class TaskGroupTaskController extends ResponseController {
         logger.info("HIT - PUT /taskgroup/<taskgroupId>/tasks/<taskId> ---> updateTaskGroupTask | taskgroupId: {} | userId: {} | taskId: {} | taskUpdateDto: {}", taskgroupId, userId, taskId, taskUpdateDto);
         return sendResponse(taskGroupTaskService.updateTaskGroupTask(userId, taskgroupId, taskId, taskUpdateDto));
     }
+
+    @ApiOperation(value = "Delete a single Task", notes = "Delete a single task of a taskGroup")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{taskgroupId}/tasks/{taskId}")
+    public ResponseEntity<Object> flagTaskGroupTask(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - DELETE /taskgroup/<taskgroupId>/tasks/<taskId> ---> flagTaskGroupTask | taskgroupId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(taskGroupTaskService.flagTaskGroupTask(userId, taskgroupId, taskId));
+    }
+
 }

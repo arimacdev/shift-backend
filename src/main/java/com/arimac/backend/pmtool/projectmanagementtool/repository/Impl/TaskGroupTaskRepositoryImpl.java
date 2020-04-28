@@ -67,4 +67,10 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
         });
         return taskUpdateDto;
     }
+
+    @Override
+    public void flagTaskGroupTask(String taskId) {
+        String sql = "UPDATE TaskGroupTask SET isDeleted=? WHERE taskId=?";
+        jdbcTemplate.update(sql,true, taskId);
+    }
 }

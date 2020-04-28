@@ -7,4 +7,5 @@ public interface TaskGroupTaskRepository {
     TaskGroupTask getTaskByTaskGroupId(String TaskGroupId, String taskId);
     void addTaskGroupTask(TaskGroupTask taskGroupTask);
     TaskGroupTaskUpdateDto updateTaskGroupTask(String taskId, TaskGroupTaskUpdateDto taskGroupTaskUpdateDto);
+    void flagTaskGroupTask(String taskId);
 }
