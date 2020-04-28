@@ -2,12 +2,16 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
@@ -79,5 +83,66 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         taskGroupTaskRepository.addTaskGroupTask(task);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
+    }
+
+    @Override
+    public Object getTaskGroupTask(String userId, String taskGroupId, String taskId) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
+    }
+
+    @Override
+    public Object updateTaskGroupTask(String userId, String taskGroupId, String taskId, TaskGroupTaskUpdateDto taskUpdateDto) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (taskUpdateDto.getTaskAssignee() != null){
+            TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskUpdateDto.getTaskAssignee(), taskGroupId);
+            if (assignee == null){
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+            }
+        }
+        TaskGroupTaskUpdateDto updateDto = new TaskGroupTaskUpdateDto();
+
+        if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty()) {
+            updateDto.setTaskName(task.getTaskName());
+        } else {
+            updateDto.setTaskName(taskUpdateDto.getTaskName());
+        }
+        if (taskUpdateDto.getTaskAssignee() == null || taskUpdateDto.getTaskAssignee().isEmpty()) {
+            updateDto.setTaskAssignee(task.getTaskAssignee());
+        } else {
+            updateDto.setTaskAssignee(taskUpdateDto.getTaskAssignee());
+        }
+        if (taskUpdateDto.getTaskNotes() == null || taskUpdateDto.getTaskNotes().isEmpty()){
+            updateDto.setTaskNotes(task.getTaskNote());
+        } else {
+            updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
+        }
+        if (taskUpdateDto.getTaskStatus() == null) {
+            updateDto.setTaskStatus(task.getTaskStatus());
+        } else {
+            updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
+        }
+        if (taskUpdateDto.getTaskDueDate() == null) {
+            updateDto.setTaskDueDate(task.getTaskDueDateAt());
+        } else {
+            updateDto.setTaskDueDate(taskUpdateDto.getTaskDueDate());
+        }
+        if (taskUpdateDto.getTaskRemindOnDate() == null) {
+            updateDto.setTaskRemindOnDate(task.getTaskReminderAt());
+        } else {
+            updateDto.setTaskRemindOnDate(taskUpdateDto.getTaskRemindOnDate());
+        }
+        Object updateTask = taskGroupTaskRepository.updateTaskGroupTask(taskId, updateDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
     }
 }

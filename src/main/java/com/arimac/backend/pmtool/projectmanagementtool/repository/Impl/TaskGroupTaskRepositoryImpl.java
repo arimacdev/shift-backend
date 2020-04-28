@@ -1,6 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -49,5 +49,22 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
 
             return preparedStatement;
         });
+    }
+
+    @Override
+    public TaskGroupTaskUpdateDto updateTaskGroupTask(String taskId, TaskGroupTaskUpdateDto taskUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE TaskGroupTask SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=? WHERE taskId=?");
+            preparedStatement.setString(1, taskUpdateDto.getTaskName());
+            preparedStatement.setString(2, taskUpdateDto.getTaskAssignee());
+            preparedStatement.setString(3, taskUpdateDto.getTaskNotes());
+            preparedStatement.setString(4, taskUpdateDto.getTaskStatus().toString());
+            preparedStatement.setTimestamp(5, taskUpdateDto.getTaskDueDate());
+            preparedStatement.setTimestamp(6, taskUpdateDto.getTaskRemindOnDate());
+            preparedStatement.setString(7, taskId);
+
+            return preparedStatement;
+        });
+        return taskUpdateDto;
     }
 }

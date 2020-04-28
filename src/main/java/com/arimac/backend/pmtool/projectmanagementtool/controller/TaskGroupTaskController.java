@@ -4,6 +4,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -28,5 +30,21 @@ public class TaskGroupTaskController extends ResponseController {
     public ResponseEntity<Object> addTaskGroupTask(@PathVariable("taskgroupId") String taskgroupId, @RequestBody TaskGroupTaskDto taskDto){
         logger.info("HIT - POST /taskgroup/<taskgroupId>/task ---> addTaskGroupTask taskgroupId: {} dto: {}", taskgroupId, taskDto);
         return sendResponse(taskGroupTaskService.addTaskGroupTask(taskgroupId, taskDto));
+    }
+
+    @ApiOperation(value = "Get a single Task", notes = "Get single task in a taskGroup")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskgroupId}/tasks/{taskId}")
+    public ResponseEntity<Object> getTaskGroupTask(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /taskgroup/<taskgroupId>/tasks/<taskId> ---> getProjectTask | taskgroupId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(taskGroupTaskService.getTaskGroupTask(userId, taskgroupId, taskId));
+    }
+
+    @ApiOperation(value = "Update a single Task", notes = "Update a single task of a taskGroup")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{taskgroupId}/tasks/{taskId}")
+    public ResponseEntity<Object> updateTaskGroupTask(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId, @RequestBody TaskGroupTaskUpdateDto taskUpdateDto){
+        logger.info("HIT - PUT /taskgroup/<taskgroupId>/tasks/<taskId> ---> updateTaskGroupTask | taskgroupId: {} | userId: {} | taskId: {} | taskUpdateDto: {}", taskgroupId, userId, taskId, taskUpdateDto);
+        return sendResponse(taskGroupTaskService.updateTaskGroupTask(userId, taskgroupId, taskId, taskUpdateDto));
     }
 }
