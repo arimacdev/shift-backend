@@ -36,7 +36,7 @@ public class PersonalTaskController extends ResponseController {
 
     @ApiOperation(value = "Get all personal tasks", notes = "Get all personal tasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/tasks/personal/{userId}")
+    @GetMapping("/tasks/personal/user/{userId}")
     public ResponseEntity<Object> getAllPersonalTasks(@PathVariable String userId){
         logger.info("HIT - GET /non-project/tasks/personal/{} ---> getAllPersonalTasks", userId);
         return sendResponse(npTaskService.getAllPersonalTasks(userId));

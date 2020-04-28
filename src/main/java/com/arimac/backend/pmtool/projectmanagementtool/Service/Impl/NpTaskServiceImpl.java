@@ -92,7 +92,7 @@ public class NpTaskServiceImpl implements NpTaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (task.getTaskAssignee().equals(userId))
+        if (!task.getTaskAssignee().equals(userId))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
