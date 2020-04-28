@@ -72,7 +72,7 @@ public class NpTaskServiceImpl implements NpTaskService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        List<Task> personalTasks = taskRepository.getAllPersonalTasks(userId);
+        List<PersonalTask> personalTasks = personalTaskRepository.getAllPersonalTasks(userId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, personalTasks);
     }
 

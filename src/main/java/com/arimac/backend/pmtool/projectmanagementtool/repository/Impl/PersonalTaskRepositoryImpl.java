@@ -1,11 +1,14 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.PersonalTaskRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class PersonalTaskRepositoryImpl implements PersonalTaskRepository {
@@ -32,4 +35,12 @@ public class PersonalTaskRepositoryImpl implements PersonalTaskRepository {
             return preparedStatement;
         });
     }
-}
+
+    @Override
+    public List<PersonalTask> getAllPersonalTasks(String userId) {
+            String sql = "SELECT * FROM PersonalTask WHERE taskAssignee=? AND isDeleted=false";
+            List<PersonalTask> personalTaskList = jdbcTemplate.query(sql, new PersonalTask(), userId);
+            return personalTaskList;
+        }
+    }
+

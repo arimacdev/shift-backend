@@ -27,7 +27,7 @@ public interface TaskRepository {
     List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
     List<WorkLoadProjectDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to);
     // Personal Tasks and Task List
-    List<Task> getAllPersonalTasks(String userId);
+    //List<Task> getAllPersonalTasks(String userId);
     //update sprint
     void updateProjectTaskSprint(String taskId, TaskSprintUpdateDto taskSprintUpdateDto);
     void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto);
