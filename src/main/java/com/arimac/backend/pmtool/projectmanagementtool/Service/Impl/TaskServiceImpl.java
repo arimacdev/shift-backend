@@ -764,6 +764,20 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentUpdateDto);
     }
 
+    @Override
+    public Object getAllChildrenOfParentTask(String userId, String projectId, String taskId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if(!task.getIsParent())
+            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
+        List<TaskUserResponseDto> children = taskRepository.getAllChildrenOfParentTask(taskId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, children);
+    }
+
 
 }
 

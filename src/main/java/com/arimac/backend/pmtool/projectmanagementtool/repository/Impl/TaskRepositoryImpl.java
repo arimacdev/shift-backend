@@ -216,5 +216,12 @@ public class TaskRepositoryImpl implements TaskRepository {
         });
     }
 
+    @Override
+    public List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId) {
+        String sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON T.taskAssignee=U.userId WHERE T.parentId=?";
+        List<TaskUserResponseDto> children = jdbcTemplate.query(sql, new TaskUserResponseDto(), taskId);
+        return children;
+    }
+
 
 }

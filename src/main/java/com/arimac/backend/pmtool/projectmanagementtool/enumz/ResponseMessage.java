@@ -13,7 +13,9 @@ public enum ResponseMessage {
     USER_NOT_GROUP_MEMBER("User doesn't belong to this Group"),
     USER_NOT_FOUND("User doesn't exist"),
     UNAUTHORIZED_OPERATION("This Operation is not permitted!"),
-    TASK_NOT_CHILD_TASK("This Task is not a child task");
+    TASK_NOT_CHILD_TASK("This Task is not a child task"),
+    TASK_NOT_PARENT_TASK("This Task is not a Parent task");
+
 
 
     private String message;

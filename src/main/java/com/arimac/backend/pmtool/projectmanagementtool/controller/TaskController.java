@@ -141,4 +141,12 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.updateProjectTaskParent(userId, projectId, taskId, taskParentUpdateDto));
     }
 
+    @ApiOperation(value = "Get Children of a Parent Task", notes = "Get all Children of a Parent")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/{taskId}/children")
+    public ResponseEntity<Object> getAllChildrenOfParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/children ---> getAllChildrenOfParentTask | projectId: {} | userId: {} | taskId: {} ", projectId, userId, taskId);
+        return sendResponse(taskService.getAllChildrenOfParentTask(userId, projectId, taskId));
+    }
+
 }

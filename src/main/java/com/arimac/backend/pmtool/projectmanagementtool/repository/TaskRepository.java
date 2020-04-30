@@ -31,4 +31,5 @@ public interface TaskRepository {
     //update sprint
     void updateProjectTaskSprint(String taskId, TaskSprintUpdateDto taskSprintUpdateDto);
     void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto);
+    List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId);
 }
