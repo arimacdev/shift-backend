@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 public class TaskDto {
     private String taskName;
     private String projectId;
+    private String sprintId;
     private TaskStatusEnum taskStatus;
     private String taskInitiator;
     private String taskAssignee;
@@ -21,6 +22,15 @@ public class TaskDto {
     private String parentTaskId;
 
     public TaskDto() {
+    }
+
+
+    public String getSprintId() {
+        return sprintId;
+    }
+
+    public void setSprintId(String sprintId) {
+        this.sprintId = sprintId;
     }
 
     public String getTaskName() {

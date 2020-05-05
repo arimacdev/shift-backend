@@ -128,7 +128,15 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
         task.setTaskType(taskDto.getTaskType());
-        task.setSprintId(DEFAULT);
+        if (taskDto.getSprintId() == null || taskDto.getSprintId().isEmpty()){
+            task.setSprintId(DEFAULT);
+        } else {
+            Sprint sprint = sprintRepository.getSprintById(taskDto.getSprintId());
+            if (sprint == null || !sprint.getProjectId().equals(projectId))
+                task.setSprintId(DEFAULT);
+            else
+                task.setSprintId(taskDto.getSprintId());
+        }
         taskRepository.addTaskToProject(task);
         if (taskDto.getTaskType().equals(TaskTypeEnum.project) && task.getTaskDueDateAt()!= null) {
             DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
