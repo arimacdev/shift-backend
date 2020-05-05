@@ -29,13 +29,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project createProject(Project project) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(projectId, projectName, clientId, projectStartDate, projectEndDate, projectStatus) values (?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(projectId, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted) values (?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, project.getProjectId());
             preparedStatement.setString(2, project.getProjectName());
-            preparedStatement.setString(3, project.getClientId());
-            preparedStatement.setTimestamp(4,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
-            preparedStatement.setTimestamp(5, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
-            preparedStatement.setString(6, project.getProjectStatus().toString());
+            preparedStatement.setString(3, project.getProjectAlias());
+            preparedStatement.setString(4, project.getClientId());
+            preparedStatement.setTimestamp(5,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
+            preparedStatement.setTimestamp(6, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
+            preparedStatement.setString(7, project.getProjectStatus().toString());
+            preparedStatement.setBoolean(8, project.getIsDeleted());
 
             return preparedStatement;
         });

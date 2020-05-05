@@ -47,14 +47,14 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object createProject(ProjectDto projectDto) {
-        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty())
+        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         Project project = new Project();
-
         //TODO check role of user
         String projectId = utilsService.getUUId();
         project.setProjectId(projectId);
         project.setProjectName(projectDto.getProjectName());
+        project.setProjectAlias(projectDto.getProjectAlias());
         project.setClientId(projectDto.getClientId());
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
