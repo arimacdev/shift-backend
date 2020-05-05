@@ -44,13 +44,13 @@ public class PersonalTaskController extends ResponseController {
         return sendResponse(npTaskService.getAllPersonalTasks(userId));
     }
 
-    @ApiOperation(value = "Get a personal task", notes = "Get a personal task")
-    @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/tasks/personal/{taskId}")// DONE
-    public ResponseEntity<Object> getPersonalTask(@PathVariable("taskId") String taskId, @RequestHeader("user") String user){
-        logger.info("HIT - GET  /non-project/tasks/personal/<taskId> ---> updatePersonalTask | userId: {} | taskId: {}", user, taskId);
-        return sendResponse(npTaskService.getPersonalTask(user,  taskId));
-    }
+//    @ApiOperation(value = "Get a personal task", notes = "Get a personal task")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @GetMapping("/tasks/personal/{taskId}")// DONE
+//    public ResponseEntity<Object> getPersonalTask(@PathVariable("taskId") String taskId, @RequestHeader("user") String user){
+//        logger.info("HIT - GET  /non-project/tasks/personal/<taskId> ---> updatePersonalTask | userId: {} | taskId: {}", user, taskId);
+//        return sendResponse(npTaskService.getPersonalTask(user,  taskId));
+//    }
 
     @ApiOperation(value = "Update a personal task", notes = "Update a personal task a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
