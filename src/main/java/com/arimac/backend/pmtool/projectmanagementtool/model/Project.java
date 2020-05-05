@@ -18,11 +18,12 @@ public class Project implements RowMapper<Project> {
     private Date projectEndDate;
     private ProjectStatusEnum projectStatus;
     private boolean isDeleted;
+    private int issueCount;
 
     public Project() {
     }
 
-    public Project(String projectId, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted) {
+    public Project(String projectId, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount) {
         this.projectId = projectId;
         this.projectName = projectName;
         this.projectAlias = projectAlias;
@@ -31,6 +32,7 @@ public class Project implements RowMapper<Project> {
         this.projectEndDate = projectEndDate;
         this.projectStatus = projectStatus;
         this.isDeleted = isDeleted;
+        this.issueCount = issueCount;
     }
 
     public String getProjectId() {
@@ -105,6 +107,15 @@ public class Project implements RowMapper<Project> {
         isDeleted = deleted;
     }
 
+
+    public int getIssueCount() {
+        return issueCount;
+    }
+
+    public void setIssueCount(int issueCount) {
+        this.issueCount = issueCount;
+    }
+
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project(
@@ -115,7 +126,8 @@ public class Project implements RowMapper<Project> {
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
                 ProjectStatusEnum.valueOf(resultSet.getString("projectStatus")),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                resultSet.getInt("issueCount")
         );
     }
 }

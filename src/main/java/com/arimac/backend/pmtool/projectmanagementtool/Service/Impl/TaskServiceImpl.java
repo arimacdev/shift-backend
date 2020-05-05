@@ -39,37 +39,31 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskFileRepository taskFileRepository;
-    private final TaskLogService taskLogService;
     private final UtilsService utilsService;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
-    private final TaskGroupService taskGroupService;
     private final TaskGroupRepository taskGroupRepository;
     private final SprintRepository sprintRepository;
 
-    private final RestTemplate restTemplate;
-
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, TaskLogService taskLogService, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupService taskGroupService, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, RestTemplate restTemplate) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskFileRepository = taskFileRepository;
-        this.taskLogService = taskLogService;
         this.utilsService = utilsService;
         this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
-        this.taskGroupService = taskGroupService;
         this.taskGroupRepository = taskGroupRepository;
         this.sprintRepository = sprintRepository;
-        this.restTemplate = restTemplate;
     }
+
     //TASK GROUP && PROJECT
     @Override
     public Object addTaskToProject(String projectId, TaskDto taskDto) {
         if ( (taskDto.getTaskName() == null || taskDto.getTaskName().isEmpty()) || (taskDto.getProjectId() == null || taskDto.getProjectId().isEmpty()) || (taskDto.getTaskInitiator()== null || taskDto.getTaskInitiator().isEmpty() || taskDto.getIssueType() == null) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
-        if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
+//        if (taskDto.getTaskType().equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
             if (taskInitiator == null)
                 return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
@@ -79,14 +73,17 @@ public class TaskServiceImpl implements TaskService {
                 if (taskAssignee == null)
                     return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
             }
-        } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-            if (taskDto.getTaskAssignee() != null)
-                if (taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskAssignee(), taskDto.getProjectId()) == null)
-                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-        }
+//        } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
+//            if (member == null)
+//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+//            if (taskDto.getTaskAssignee() != null)
+//                if (taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskAssignee(), taskDto.getProjectId()) == null)
+//                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+//        }
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         Task task = new Task();
         if((taskDto.getParentTaskId() != null) && !(taskDto.getParentTaskId().isEmpty())){
             Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskDto.getParentTaskId());
@@ -98,6 +95,10 @@ public class TaskServiceImpl implements TaskService {
         } else {
             task.setIsParent(true);
         }
+        int issueId = project.getIssueCount() + 1;
+        String secondaryTaskId = project.getProjectAlias() + "-" + issueId;
+
+        task.setSecondaryTaskId(secondaryTaskId);
         task.setParentId(taskDto.getParentTaskId());
         task.setIssueType(taskDto.getIssueType());
         task.setTaskId(utilsService.getUUId());
@@ -138,6 +139,7 @@ public class TaskServiceImpl implements TaskService {
                 task.setSprintId(taskDto.getSprintId());
         }
         taskRepository.addTaskToProject(task);
+        projectRepository.updateIssueCount(projectId, issueId);
         if (taskDto.getTaskType().equals(TaskTypeEnum.project) && task.getTaskDueDateAt()!= null) {
             DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
             DateTime now = DateTime.now();

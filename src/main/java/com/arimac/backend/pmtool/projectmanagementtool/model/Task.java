@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 public class Task implements RowMapper<Task> {
 
     private String taskId;
+    private String secondaryTaskId;
     private String taskName;
     private String projectId;
     private String sprintId;
@@ -32,8 +33,10 @@ public class Task implements RowMapper<Task> {
     public Task() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, TaskTypeEnum taskType, IssueTypeEnum issueType, String parentId, boolean isParent) {
+
+    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, TaskTypeEnum taskType, IssueTypeEnum issueType, String parentId, boolean isParent) {
         this.taskId = taskId;
+        this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
         this.projectId = projectId;
         this.sprintId = sprintId;
@@ -65,6 +68,14 @@ public class Task implements RowMapper<Task> {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public String getSecondaryTaskId() {
+        return secondaryTaskId;
+    }
+
+    public void setSecondaryTaskId(String secondaryTaskId) {
+        this.secondaryTaskId = secondaryTaskId;
     }
 
     public String getTaskName() {
@@ -191,6 +202,7 @@ public class Task implements RowMapper<Task> {
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Task(
                 resultSet.getString("taskId"),
+                resultSet.getString("secondaryTaskId"),
                 resultSet.getString("taskName"),
                 resultSet.getString("projectId"),
                 resultSet.getString("sprintId"),
