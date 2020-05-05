@@ -1,20 +1,17 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.PersonalTaskEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
 import java.sql.Timestamp;
 
-public class TaskUpdateDto {
+public class PersonalTaskUpdateDto {
     private String taskName;
-    private String taskAssignee;
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
     private String taskNotes;
-    private String taskStatus;
-    private TaskTypeEnum taskType;
-    private IssueTypeEnum issueType;
+    private PersonalTaskEnum taskStatus;
 
 
     public String getTaskName() {
@@ -23,14 +20,6 @@ public class TaskUpdateDto {
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
-    }
-
-    public String getTaskAssignee() {
-        return taskAssignee;
-    }
-
-    public void setTaskAssignee(String taskAssignee) {
-        this.taskAssignee = taskAssignee;
     }
 
     public Timestamp getTaskDueDate() {
@@ -57,41 +46,22 @@ public class TaskUpdateDto {
         this.taskNotes = taskNotes;
     }
 
-    public String getTaskStatus() {
+    public PersonalTaskEnum getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(String taskStatus) {
+    public void setTaskStatus(PersonalTaskEnum taskStatus) {
         this.taskStatus = taskStatus;
-    }
-
-    public TaskTypeEnum getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
-
-    public IssueTypeEnum getIssueType() {
-        return issueType;
-    }
-
-    public void setIssueType(IssueTypeEnum issueType) {
-        this.issueType = issueType;
     }
 
     @Override
     public String toString() {
-        return "TaskUpdateDto{" +
+        return "PersonalTaskUpdateDto{" +
                 "taskName='" + taskName + '\'' +
-                ", taskAssignee='" + taskAssignee + '\'' +
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
                 ", taskNotes='" + taskNotes + '\'' +
-                ", taskStatus='" + taskStatus + '\'' +
-                ", taskType=" + taskType +
-                ", issueType=" + issueType +
+                ", taskStatus=" + taskStatus +
                 '}';
     }
 }

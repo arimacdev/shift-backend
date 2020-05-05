@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -28,7 +29,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Task addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, taskType, sprintId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, taskType, sprintId, issueType, parentId, isParent) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -42,6 +43,9 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setBoolean(11, task.getIsDeleted());
             preparedStatement.setString(12, task.getTaskType().toString());
             preparedStatement.setString(13, task.getSprintId());
+            preparedStatement.setString(14, task.getIssueType().toString());
+            preparedStatement.setString(15, task.getParentId());
+            preparedStatement.setBoolean(16, task.getIsParent());
 
             return preparedStatement;
         });
@@ -57,7 +61,27 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId) {
-        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false";
+        String sql = "SELECT * FROM Task as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.projectId=? AND t.isDeleted=false";
+        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
+        return  taskList;
+    }
+
+    @Override
+    public List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId) {
+        String sql = "SELECT * FROM Task as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true";
+        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
+        return  taskList;
+    }
+
+    @Override
+    public List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId) {
+        String sql = "SELECT * FROM Task as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=false";
         List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
         return  taskList;
     }
@@ -71,7 +95,9 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId) {
-        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false";
+        String sql = "SELECT * FROM Task as t " +
+                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
+                "WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false";
         List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, userId);
         return  taskList;
     }
@@ -87,12 +113,17 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
         return task;
     }
-    // PERSONAL TASKS and TASK GROUP
+
     @Override
-    public List<Task> getAllPersonalTasks(String userId) {
-        String sql = "SELECT * FROM Task WHERE taskAssignee=? AND taskType=? AND isDeleted=false";
-        List<Task> personalTaskList = jdbcTemplate.query(sql, new Task(), userId,TaskTypeEnum.personal.toString());
-        return personalTaskList;
+    public Task getTaskByProjectIdTaskId(String projectId, String taskId) {
+        String sql = "SELECT * FROM Task WHERE taskId=? AND projectId=? AND isDeleted=false";
+        Task task;
+        try {
+            task = jdbcTemplate.queryForObject(sql, new Task(), taskId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        return task;
     }
 
     @Override
@@ -110,14 +141,15 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Object updateProjectTask(String taskId, TaskUpdateDto taskUpdateDto) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=? WHERE taskId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=?, issueType=? WHERE taskId=?");
             preparedStatement.setString(1, taskUpdateDto.getTaskName());
             preparedStatement.setString(2, taskUpdateDto.getTaskAssignee());
             preparedStatement.setString(3, taskUpdateDto.getTaskNotes());
-            preparedStatement.setString(4, taskUpdateDto.getTaskStatus().toString());
+            preparedStatement.setString(4, taskUpdateDto.getTaskStatus());
             preparedStatement.setTimestamp(5, taskUpdateDto.getTaskDueDate());
             preparedStatement.setTimestamp(6, taskUpdateDto.getTaskRemindOnDate());
-            preparedStatement.setString(7, taskId);
+            preparedStatement.setString(7, taskUpdateDto.getIssueType().toString());
+            preparedStatement.setString(8, taskId);
 
             return preparedStatement;
         });
@@ -173,6 +205,23 @@ public class TaskRepositoryImpl implements TaskRepository {
         });
     }
 
+    @Override
+    public void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET parentId=? WHERE taskId=?");
+            preparedStatement.setString(1, taskParentUpdateDto.getNewParent());
+            preparedStatement.setString(2, taskId);
+
+            return preparedStatement;
+        });
+    }
+
+    @Override
+    public List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId) {
+        String sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON T.taskAssignee=U.userId WHERE T.parentId=?";
+        List<TaskUserResponseDto> children = jdbcTemplate.query(sql, new TaskUserResponseDto(), taskId);
+        return children;
+    }
 
 
 }

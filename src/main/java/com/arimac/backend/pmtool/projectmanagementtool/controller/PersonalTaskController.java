@@ -3,6 +3,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SubTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
@@ -29,7 +31,7 @@ public class PersonalTaskController extends ResponseController {
     @ApiOperation(value = "Add non project task", notes = "Create a non project task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/tasks/personal")
-    public ResponseEntity<Object> addPersonalTask(@RequestBody TaskDto taskDto){
+    public ResponseEntity<Object> addPersonalTask(@RequestBody PersonalTaskDto taskDto){
         logger.info("HIT - POST /non-project/tasks/personal ---> addPersonalTask {}", taskDto);
         return sendResponse(npTaskService.addPersonalTask(taskDto));
     }
@@ -53,12 +55,11 @@ public class PersonalTaskController extends ResponseController {
     @ApiOperation(value = "Update a personal task", notes = "Update a personal task a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/tasks/personal/{taskId}")// DONE
-    public ResponseEntity<Object> updatePersonalTask(@PathVariable("taskId") String taskId, @RequestHeader("user") String user, @RequestBody TaskUpdateDto taskUpdateDto){
+    public ResponseEntity<Object> updatePersonalTask(@PathVariable("taskId") String taskId, @RequestHeader("user") String user, @RequestBody PersonalTaskUpdateDto taskUpdateDto){
         logger.info("HIT - PUT  /non-project/tasks/personal/<taskId> ---> updatePersonalTask | userId: {} | taskId: {} | taskUpdateDto: {}",user, taskId,  taskUpdateDto);
         return sendResponse(npTaskService.updatePersonalTask(user,  taskId, taskUpdateDto));
     }
-
-
+    
     @ApiOperation(value = "Add sub-task to a personal task", notes = "Create a sub-task for a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/tasks/personal/{taskId}/subtask")

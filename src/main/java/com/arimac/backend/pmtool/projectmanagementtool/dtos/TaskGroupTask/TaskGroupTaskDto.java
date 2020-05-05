@@ -1,27 +1,20 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask;
 
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
 
 import java.sql.Timestamp;
 
-public class TaskDto {
+public class TaskGroupTaskDto {
     private String taskName;
-    private String projectId;
-    private TaskStatusEnum taskStatus;
+    private String taskGroupId;
+    private TaskGroupTaskStatusEnum taskStatus;
     private String taskInitiator;
     private String taskAssignee;
     private String taskNotes;
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
-    private TaskTypeEnum taskType;
-
-    private IssueTypeEnum issueType;
     private String parentTaskId;
 
-    public TaskDto() {
-    }
 
     public String getTaskName() {
         return taskName;
@@ -31,12 +24,20 @@ public class TaskDto {
         this.taskName = taskName;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public String getTaskGroupId() {
+        return taskGroupId;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setTaskGroupId(String taskGroupId) {
+        this.taskGroupId = taskGroupId;
+    }
+
+    public TaskGroupTaskStatusEnum getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(TaskGroupTaskStatusEnum taskStatus) {
+        this.taskStatus = taskStatus;
     }
 
     public String getTaskInitiator() {
@@ -79,53 +80,26 @@ public class TaskDto {
         this.taskRemindOnDate = taskRemindOnDate;
     }
 
-
-    public TaskStatusEnum getTaskStatus() {
-        return taskStatus;
-    }
-
-    public void setTaskStatus(TaskStatusEnum taskStatus) {
-        this.taskStatus = taskStatus;
-    }
-
-    public TaskTypeEnum getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
-
-    public IssueTypeEnum getIssueType() {
-        return issueType;
-    }
-
-    public void setIssueType(IssueTypeEnum issueType) {
-        this.issueType = issueType;
-    }
-
     public String getParentTaskId() {
         return parentTaskId;
     }
 
-    public void setParentId(String parentId) {
-        this.parentTaskId = parentId;
+    public void setParentTaskId(String parentTaskId) {
+        this.parentTaskId = parentTaskId;
     }
 
     @Override
     public String toString() {
-        return "TaskDto{" +
+        return "TaskGroupTaskDto{" +
                 "taskName='" + taskName + '\'' +
-                ", projectId='" + projectId + '\'' +
+                ", taskGroupId='" + taskGroupId + '\'' +
                 ", taskStatus=" + taskStatus +
                 ", taskInitiator='" + taskInitiator + '\'' +
                 ", taskAssignee='" + taskAssignee + '\'' +
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
-                ", taskType=" + taskType +
-                ", issueType=" + issueType +
-                ", parentId='" + parentTaskId + '\'' +
+                ", parentTaskId='" + parentTaskId + '\'' +
                 '}';
     }
 }

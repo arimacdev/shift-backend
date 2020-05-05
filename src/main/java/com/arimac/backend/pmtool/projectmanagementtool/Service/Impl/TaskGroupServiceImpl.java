@@ -81,12 +81,12 @@ public class TaskGroupServiceImpl implements TaskGroupService {
     public Object addMembersToTaskGroup(TaskGroupAddDto taskGroupAddDto) {
         TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupAddDto.getTaskGroupAssigner(), taskGroupAddDto.getTaskGroupId());
         if (owner == null)
-            return new ErrorMessage("Assigner doesnot belong to the Task Group", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Assigner doesnot belong to the Task Group", HttpStatus.UNAUTHORIZED);
         if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
             return new ErrorMessage("Assigner is not Group Admin", HttpStatus.UNAUTHORIZED);
         TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupAddDto.getTaskGroupAssignee(), taskGroupAddDto.getTaskGroupId());
         if (assignee != null)
-            return new ErrorMessage("Already a member", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Already a member", HttpStatus.FORBIDDEN);
         User newUser = userRepository.getUserByUserId(taskGroupAddDto.getTaskGroupAssignee());
         if (newUser == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);

@@ -1,62 +1,48 @@
-package com.arimac.backend.pmtool.projectmanagementtool.model;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class Task implements RowMapper<Task> {
-
+public class TaskGroupTaskUserResponseDto implements RowMapper<TaskGroupTaskUserResponseDto> {
     private String taskId;
     private String taskName;
-    private String projectId;
-    private String sprintId;
+    private String taskGroupId;
     private String taskAssignee;
     private String taskInitiator;
     private String taskNote;
+    private TaskGroupTaskStatusEnum taskStatus;
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
     private boolean isDeleted;
-    private TaskStatusEnum taskStatus;
-    private TaskTypeEnum taskType;
-
-    private IssueTypeEnum issueType;
+    private String taskAssigneeProfileImage;
     private String parentId;
     private boolean isParent;
 
-    public Task() {
+    public TaskGroupTaskUserResponseDto() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, TaskTypeEnum taskType, IssueTypeEnum issueType, String parentId, boolean isParent) {
+    public TaskGroupTaskUserResponseDto(String taskId, String taskName, String taskGroupId, String taskAssignee, String taskInitiator, String taskNote, TaskGroupTaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String parentId, boolean isParent) {
         this.taskId = taskId;
         this.taskName = taskName;
-        this.projectId = projectId;
-        this.sprintId = sprintId;
+        this.taskGroupId = taskGroupId;
         this.taskAssignee = taskAssignee;
         this.taskInitiator = taskInitiator;
         this.taskNote = taskNote;
+        this.taskStatus = taskStatus;
         this.taskCreatedAt = taskCreatedAt;
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
-        this.taskStatus = taskStatus;
-        this.taskType = taskType;
-        this.issueType = issueType;
+        this.taskAssigneeProfileImage = taskAssigneeProfileImage;
         this.parentId = parentId;
         this.isParent = isParent;
-    }
-
-    public boolean getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
     }
 
     public String getTaskId() {
@@ -75,12 +61,12 @@ public class Task implements RowMapper<Task> {
         this.taskName = taskName;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public String getTaskGroupId() {
+        return taskGroupId;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setTaskGroupId(String taskGroupId) {
+        this.taskGroupId = taskGroupId;
     }
 
     public String getTaskAssignee() {
@@ -107,11 +93,11 @@ public class Task implements RowMapper<Task> {
         this.taskNote = taskNote;
     }
 
-    public TaskStatusEnum getTaskStatus() {
+    public TaskGroupTaskStatusEnum getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(TaskStatusEnum taskStatus) {
+    public void setTaskStatus(TaskGroupTaskStatusEnum taskStatus) {
         this.taskStatus = taskStatus;
     }
 
@@ -147,28 +133,12 @@ public class Task implements RowMapper<Task> {
         isDeleted = deleted;
     }
 
-    public TaskTypeEnum getTaskType() {
-        return taskType;
+    public String getTaskAssigneeProfileImage() {
+        return taskAssigneeProfileImage;
     }
 
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
-
-    public String getSprintId() {
-        return sprintId;
-    }
-
-    public void setSprintId(String sprintId) {
-        this.sprintId = sprintId;
-    }
-
-    public IssueTypeEnum getIssueType() {
-        return issueType;
-    }
-
-    public void setIssueType(IssueTypeEnum issueType) {
-        this.issueType = issueType;
+    public void setTaskAssigneeProfileImage(String taskAssigneeProfileImage) {
+        this.taskAssigneeProfileImage = taskAssigneeProfileImage;
     }
 
     public String getParentId() {
@@ -179,34 +149,31 @@ public class Task implements RowMapper<Task> {
         this.parentId = parentId;
     }
 
-    public boolean getIsParent() {
+    public boolean isParent() {
         return isParent;
     }
 
-    public void setIsParent(boolean parent) {
+    public void setParent(boolean parent) {
         isParent = parent;
     }
 
     @Override
-    public Task mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Task(
+    public TaskGroupTaskUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new TaskGroupTaskUserResponseDto(
                 resultSet.getString("taskId"),
                 resultSet.getString("taskName"),
-                resultSet.getString("projectId"),
-                resultSet.getString("sprintId"),
+                resultSet.getString("taskGroupId"),
                 resultSet.getString("taskAssignee"),
                 resultSet.getString("taskInitiator"),
                 resultSet.getString("taskNote"),
+                TaskGroupTaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
-                TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
-                TaskTypeEnum.valueOf(resultSet.getString("taskType")),
-                IssueTypeEnum.valueOf(resultSet.getString("issueType")),
+                resultSet.getString("profileImage"),
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent")
         );
     }
-
 }

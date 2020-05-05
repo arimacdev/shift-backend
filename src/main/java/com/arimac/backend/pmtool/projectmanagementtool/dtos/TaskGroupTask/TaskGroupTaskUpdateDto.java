@@ -1,21 +1,18 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
 import java.sql.Timestamp;
 
-public class TaskUpdateDto {
+public class TaskGroupTaskUpdateDto {
     private String taskName;
     private String taskAssignee;
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
     private String taskNotes;
-    private String taskStatus;
-    private TaskTypeEnum taskType;
-    private IssueTypeEnum issueType;
-
+    private TaskGroupTaskStatusEnum taskStatus;
 
     public String getTaskName() {
         return taskName;
@@ -57,41 +54,23 @@ public class TaskUpdateDto {
         this.taskNotes = taskNotes;
     }
 
-    public String getTaskStatus() {
+    public TaskGroupTaskStatusEnum getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(String taskStatus) {
+    public void setTaskStatus(TaskGroupTaskStatusEnum taskStatus) {
         this.taskStatus = taskStatus;
-    }
-
-    public TaskTypeEnum getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
-
-    public IssueTypeEnum getIssueType() {
-        return issueType;
-    }
-
-    public void setIssueType(IssueTypeEnum issueType) {
-        this.issueType = issueType;
     }
 
     @Override
     public String toString() {
-        return "TaskUpdateDto{" +
+        return "TaskGroupTaskUpdateDto{" +
                 "taskName='" + taskName + '\'' +
                 ", taskAssignee='" + taskAssignee + '\'' +
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskStatus='" + taskStatus + '\'' +
-                ", taskType=" + taskType +
-                ", issueType=" + issueType +
                 '}';
     }
 }

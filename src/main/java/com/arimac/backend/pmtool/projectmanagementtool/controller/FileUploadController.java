@@ -30,19 +30,34 @@ public class FileUploadController extends ResponseController {
     @ApiOperation(value = "Upload a File to a Task", notes = "Upload a file to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/projects/{projectId}/tasks/{taskId}/upload")
-    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @RequestParam("taskType") TaskTypeEnum taskType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) throws IOException {
-        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {} | taskType: {}", projectId, userId, taskId, taskType);
-        return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, taskType, fileType, multipartFile));
+    public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) {
+        logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
+        return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, fileType, multipartFile));
     }
 
-    @ApiOperation(value = "Delete a File from a Task", notes = "Upload a file to a task")
+    @ApiOperation(value = "Upload a File to a TaskGroup Task", notes = "Upload a file to a TaskGroup Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/taskgroup/{taskgroupId}/tasks/{taskId}/upload")
+    public ResponseEntity<Object> uploadFileToTaskGroupTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - POST /taskgroup/<projectId>/tasks/<taskId>/upload ---> uploadFileToTaskGroupTask | projectId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(fileUploadService.uploadFileToTaskGroupTask(userId, taskgroupId, taskId, fileType, multipartFile));
+    }
+
+    @ApiOperation(value = "Delete a File from a Task", notes = "Delete a file to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/projects/{projectId}/tasks/{taskId}/upload/{taskFileId}")
-    public ResponseEntity<Object> deleteFileFromTask(@RequestHeader("user") String userId, @RequestHeader("taskType") TaskTypeEnum type, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("taskFileId") String taskFileId)  {
-        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/upload/<taskFileId> ---> flagTaskFile | projectId: {} | userId: {} | taskId: {} | type: {} taskFileId: {}", projectId, userId, taskId, type, taskFileId);
-        return sendResponse(fileUploadService.deleteFileFromTask(userId, projectId, taskId, type, taskFileId));
+    public ResponseEntity<Object> deleteFileFromTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @PathVariable("taskFileId") String taskFileId)  {
+        logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId>/upload/<taskFileId> ---> flagTaskFile | projectId: {} | userId: {} | taskId: {} | taskFileId: {}", projectId, userId, taskId, taskFileId);
+        return sendResponse(fileUploadService.deleteFileFromTask(userId, projectId, taskId, taskFileId));
     }
 
+    @ApiOperation(value = "Delete a File from a TaskGroup Task", notes = "Delete a file from TaskGroup task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/taskgroup/{taskgroupId}/tasks/{taskId}/upload/{taskFileId}")
+    public ResponseEntity<Object> deleteFileFromTaskGroupTask(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId, @PathVariable("taskFileId") String taskFileId)  {
+        logger.info("HIT - DELETE /taskgroup/<taskgroupId>/tasks/<taskId>/upload/<taskFileId> ---> flagTaskFile | projectId: {} | userId: {} | taskId: {} | type: {}", taskgroupId, userId, taskId, taskFileId);
+        return sendResponse(fileUploadService.deleteFileFromTaskGroupTask(userId, taskgroupId, taskId, taskFileId));
+    }
 
     @ApiOperation(value = "Upload a File to a Personal Task", notes = "Upload a file to a task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)

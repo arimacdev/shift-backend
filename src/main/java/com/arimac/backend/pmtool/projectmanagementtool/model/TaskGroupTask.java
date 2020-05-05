@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,12 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class Task implements RowMapper<Task> {
-
+public class TaskGroupTask implements RowMapper<TaskGroupTask> {
     private String taskId;
     private String taskName;
-    private String projectId;
-    private String sprintId;
+    private String taskGroupId;
     private String taskAssignee;
     private String taskInitiator;
     private String taskNote;
@@ -22,21 +21,18 @@ public class Task implements RowMapper<Task> {
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
     private boolean isDeleted;
-    private TaskStatusEnum taskStatus;
-    private TaskTypeEnum taskType;
-
-    private IssueTypeEnum issueType;
+    private TaskGroupTaskStatusEnum taskStatus;
     private String parentId;
     private boolean isParent;
 
-    public Task() {
+
+    public TaskGroupTask() {
     }
 
-    public Task(String taskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, TaskTypeEnum taskType, IssueTypeEnum issueType, String parentId, boolean isParent) {
+    public TaskGroupTask(String taskId, String taskName, String taskGroupId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskGroupTaskStatusEnum taskStatus, String parentId, boolean isParent) {
         this.taskId = taskId;
         this.taskName = taskName;
-        this.projectId = projectId;
-        this.sprintId = sprintId;
+        this.taskGroupId = taskGroupId;
         this.taskAssignee = taskAssignee;
         this.taskInitiator = taskInitiator;
         this.taskNote = taskNote;
@@ -45,18 +41,8 @@ public class Task implements RowMapper<Task> {
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
         this.taskStatus = taskStatus;
-        this.taskType = taskType;
-        this.issueType = issueType;
         this.parentId = parentId;
         this.isParent = isParent;
-    }
-
-    public boolean getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
     }
 
     public String getTaskId() {
@@ -75,12 +61,12 @@ public class Task implements RowMapper<Task> {
         this.taskName = taskName;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public String getTaskGroupId() {
+        return taskGroupId;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setTaskGroupId(String taskGroupId) {
+        this.taskGroupId = taskGroupId;
     }
 
     public String getTaskAssignee() {
@@ -107,14 +93,6 @@ public class Task implements RowMapper<Task> {
         this.taskNote = taskNote;
     }
 
-    public TaskStatusEnum getTaskStatus() {
-        return taskStatus;
-    }
-
-    public void setTaskStatus(TaskStatusEnum taskStatus) {
-        this.taskStatus = taskStatus;
-    }
-
     public Timestamp getTaskCreatedAt() {
         return taskCreatedAt;
     }
@@ -139,36 +117,20 @@ public class Task implements RowMapper<Task> {
         this.taskReminderAt = taskReminderAt;
     }
 
-    public boolean isDeleted() {
+    public boolean getIsDeleted() {
         return isDeleted;
     }
 
-    public void setDeleted(boolean deleted) {
+    public void setIsDeleted(boolean deleted) {
         isDeleted = deleted;
     }
 
-    public TaskTypeEnum getTaskType() {
-        return taskType;
+    public TaskGroupTaskStatusEnum getTaskStatus() {
+        return taskStatus;
     }
 
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
-
-    public String getSprintId() {
-        return sprintId;
-    }
-
-    public void setSprintId(String sprintId) {
-        this.sprintId = sprintId;
-    }
-
-    public IssueTypeEnum getIssueType() {
-        return issueType;
-    }
-
-    public void setIssueType(IssueTypeEnum issueType) {
-        this.issueType = issueType;
+    public void setTaskStatus(TaskGroupTaskStatusEnum taskStatus) {
+        this.taskStatus = taskStatus;
     }
 
     public String getParentId() {
@@ -188,12 +150,11 @@ public class Task implements RowMapper<Task> {
     }
 
     @Override
-    public Task mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Task(
+    public TaskGroupTask mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new TaskGroupTask(
                 resultSet.getString("taskId"),
                 resultSet.getString("taskName"),
-                resultSet.getString("projectId"),
-                resultSet.getString("sprintId"),
+                resultSet.getString("taskGroupId"),
                 resultSet.getString("taskAssignee"),
                 resultSet.getString("taskInitiator"),
                 resultSet.getString("taskNote"),
@@ -201,9 +162,7 @@ public class Task implements RowMapper<Task> {
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
-                TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
-                TaskTypeEnum.valueOf(resultSet.getString("taskType")),
-                IssueTypeEnum.valueOf(resultSet.getString("issueType")),
+                TaskGroupTaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent")
         );
