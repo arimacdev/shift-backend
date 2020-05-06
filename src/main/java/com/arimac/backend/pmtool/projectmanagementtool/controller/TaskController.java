@@ -133,7 +133,7 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.updateProjectTaskSprint(userId, projectId, taskId, taskSprintUpdateDto));
     }
 
-    @ApiOperation(value = "Update Parent of a  Task", notes = "Update Sprint of a  Task")
+    @ApiOperation(value = "Update Parent of a  Task", notes = "Update Parent of a  Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}/parent")
     public ResponseEntity<Object> updateProjectTaskParent(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentUpdateDto taskParentUpdateDto){
@@ -148,5 +148,14 @@ public class TaskController extends ResponseController {
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/children ---> getAllChildrenOfParentTask | projectId: {} | userId: {} | taskId: {} ", projectId, userId, taskId);
         return sendResponse(taskService.getAllChildrenOfParentTask(userId, projectId, taskId));
     }
+
+    @ApiOperation(value = "Transition from Parent to Child Task", notes = "Transition from Parent to Child Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/tasks/{taskId}/parent/transition")
+    public ResponseEntity<Object> transitionFromParentToChild(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentUpdateDto taskParentUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent/transition ---> transitionFromParentToChild | projectId: {} | userId: {} | taskId: {} | TaskParentUpdateDto: {}", projectId, userId, taskId, taskParentUpdateDto);
+        return sendResponse(taskService.transitionFromParentToChild(userId, projectId, taskId, taskParentUpdateDto));
+    }
+
 
 }

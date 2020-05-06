@@ -23,5 +23,7 @@ public interface TaskService {
     Object updateProjectTaskSprint(String userId, String projectId, String taskId, TaskSprintUpdateDto taskSprintUpdateDto);
     Object updateProjectTaskParent(String userId, String projectId, String taskId, TaskParentUpdateDto taskParentUpdateDto);
     Object getAllChildrenOfParentTask(String userId, String projectId, String taskId);
+    Object transitionFromParentToChild(String userId, String projectId, String taskId, TaskParentUpdateDto taskParentUpdateDto);
+
 
 }

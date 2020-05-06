@@ -217,10 +217,32 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public void transitionFromParentToChild(String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET parentId=?, isParent=? WHERE taskId=?");
+            preparedStatement.setString(1, taskParentUpdateDto.getNewParent());
+            preparedStatement.setBoolean(2, false);
+            preparedStatement.setString(3, taskId);
+
+            return preparedStatement;
+        });
+    }
+
+    @Override
     public List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId) {
         String sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON T.taskAssignee=U.userId WHERE T.parentId=?";
         List<TaskUserResponseDto> children = jdbcTemplate.query(sql, new TaskUserResponseDto(), taskId);
         return children;
+    }
+
+    @Override
+    public boolean checkChildTasksOfAParentTask(String taskId) {
+        String sql = "SELECT * FROM Task WHERE parentId=?";
+        List<Task> children = jdbcTemplate.query(sql, new Task(), taskId);
+        if (children.isEmpty())
+            return false;
+        else
+            return true;
     }
 
 
