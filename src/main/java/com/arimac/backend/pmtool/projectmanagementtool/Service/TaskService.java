@@ -9,14 +9,14 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
 public interface TaskService {
     Object addTaskToProject(String projectId, TaskDto taskDto);
-    Object getAllProjectTasksByUser(String userId, String projectId, TaskTypeEnum type);
+    Object getAllProjectTasksByUser(String userId, String projectId);
     Object getAllUserAssignedTasks(String userId, String projectId);
-    Object getProjectTask(String userId, String projectId, String taskId, TaskTypeEnum taskType);
-    Object getProjectTaskFiles(String userId, String projectId, String taskId, TaskTypeEnum typeEnum);
+    Object getProjectTask(String userId, String projectId, String taskId);
+    Object getProjectTaskFiles(String userId, String projectId, String taskId);
     Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto);
-    Object flagProjectTask(String userId, String projectId, String taskId, TaskTypeEnum taskType);
+    Object flagProjectTask(String userId, String projectId, String taskId);
 //    Object getProjectTaskCompletionByUser(String userId, String projectId);
-    Object getProjectTaskCompletionUserDetails(String userId, String projectId, TaskTypeEnum type); // people tab
+    Object getProjectTaskCompletionUserDetails(String userId, String projectId); // people tab
     Object getProjectTaskCompletion(String userId, String projectId); //project tab
     Object getAllUsersWithTaskCompletion(String userId);
     Object getAllUserAssignedTaskWithCompletion(String user, String userId, String from, String to);

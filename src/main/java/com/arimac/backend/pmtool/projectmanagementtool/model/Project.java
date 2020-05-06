@@ -12,23 +12,27 @@ import java.util.Date;
 public class Project implements RowMapper<Project> {
     private String projectId;
     private String projectName;
+    private String projectAlias;
     private String clientId;
     private Date projectStartDate;
     private Date projectEndDate;
     private ProjectStatusEnum projectStatus;
     private boolean isDeleted;
+    private int issueCount;
 
     public Project() {
     }
 
-    public Project(String projectId, String projectName, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted) {
+    public Project(String projectId, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount) {
         this.projectId = projectId;
         this.projectName = projectName;
+        this.projectAlias = projectAlias;
         this.clientId = clientId;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
         this.projectStatus = projectStatus;
         this.isDeleted = isDeleted;
+        this.issueCount = issueCount;
     }
 
     public String getProjectId() {
@@ -45,6 +49,14 @@ public class Project implements RowMapper<Project> {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getProjectAlias() {
+        return projectAlias;
+    }
+
+    public void setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
     }
 
     public String getClientId() {
@@ -95,16 +107,27 @@ public class Project implements RowMapper<Project> {
         isDeleted = deleted;
     }
 
+
+    public int getIssueCount() {
+        return issueCount;
+    }
+
+    public void setIssueCount(int issueCount) {
+        this.issueCount = issueCount;
+    }
+
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project(
                 resultSet.getString("projectId"),
                 resultSet.getString("projectName"),
+                resultSet.getString("projectAlias"),
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
                 ProjectStatusEnum.valueOf(resultSet.getString("projectStatus")),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                resultSet.getInt("issueCount")
         );
     }
 }

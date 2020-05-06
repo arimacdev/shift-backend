@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 
 public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     private String taskId;
+    private String secondaryTaskId;
     private String taskName;
     private String projectId;
     private String taskAssignee;
@@ -30,8 +31,9 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     public TaskUserResponseDto() {
     }
 
-    public TaskUserResponseDto(String taskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent) {
+    public TaskUserResponseDto(String taskId, String secondaryTaskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent) {
         this.taskId = taskId;
+        this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
         this.projectId = projectId;
         this.taskAssignee = taskAssignee;
@@ -177,10 +179,19 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         isParent = parent;
     }
 
+    public String getSecondaryTaskId() {
+        return secondaryTaskId;
+    }
+
+    public void setSecondaryTaskId(String secondaryTaskId) {
+        this.secondaryTaskId = secondaryTaskId;
+    }
+
     @Override
     public TaskUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskUserResponseDto(
                 resultSet.getString("taskId"),
+                resultSet.getString("secondaryTaskId"),
                 resultSet.getString("taskName"),
                 resultSet.getString("projectId"),
                 resultSet.getString("taskAssignee"),

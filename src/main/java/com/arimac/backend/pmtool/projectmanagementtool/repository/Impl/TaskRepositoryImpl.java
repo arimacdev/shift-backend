@@ -29,7 +29,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Task addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, taskType, sprintId, issueType, parentId, isParent) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, sprintId, issueType, parentId, isParent, secondaryTaskId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -41,11 +41,11 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setTimestamp(9, task.getTaskDueDateAt());
             preparedStatement.setTimestamp(10, task.getTaskReminderAt());
             preparedStatement.setBoolean(11, task.getIsDeleted());
-            preparedStatement.setString(12, task.getTaskType().toString());
-            preparedStatement.setString(13, task.getSprintId());
-            preparedStatement.setString(14, task.getIssueType().toString());
-            preparedStatement.setString(15, task.getParentId());
-            preparedStatement.setBoolean(16, task.getIsParent());
+            preparedStatement.setString(12, task.getSprintId());
+            preparedStatement.setString(13, task.getIssueType().toString());
+            preparedStatement.setString(14, task.getParentId());
+            preparedStatement.setBoolean(15, task.getIsParent());
+            preparedStatement.setString(16, task.getSecondaryTaskId());
 
             return preparedStatement;
         });

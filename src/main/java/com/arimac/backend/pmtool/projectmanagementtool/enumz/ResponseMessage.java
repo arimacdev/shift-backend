@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 public enum ResponseMessage {
     SUCCESS("success"),
     NO_RECORD("No Record"),
+    PROJECT_NOT_FOUND("Project Not Found"),
     NO_ACCESS("Records cannot be accessed"),
     ALREADY_ASSIGNED("Already Assigned"),
     UNAUTHORIZED("Insufficient privileges"),

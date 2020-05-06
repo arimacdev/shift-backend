@@ -6,11 +6,19 @@ public class ProjectDto {
     private String projectOwner;
     private String projectName;
     private String clientId;
+    private String projectAlias;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
 
-
     public ProjectDto() {
+    }
+
+    public String getProjectAlias() {
+        return projectAlias;
+    }
+
+    public void setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
     }
 
     public String getProjectOwner() {
@@ -59,6 +67,7 @@ public class ProjectDto {
                 "projectOwner='" + projectOwner + '\'' +
                 ", projectName='" + projectName + '\'' +
                 ", clientId='" + clientId + '\'' +
+                ", aliasName='" + projectAlias + '\'' +
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
                 '}';

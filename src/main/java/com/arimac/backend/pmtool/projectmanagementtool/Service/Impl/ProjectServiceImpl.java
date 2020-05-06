@@ -9,10 +9,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -27,46 +24,46 @@ public class ProjectServiceImpl implements ProjectService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
+    private static final int ISSUE_START = 99;
+    private static final String OWNER = "Owner";
+
     private final TaskService taskService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final TaskRepository taskRepository;
-    private final SubTaskRepository subTaskRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TaskService taskService, ProjectRepository projectRepository, UserRepository userRepository, RoleRepository roleRepository, TaskRepository taskRepository, SubTaskRepository subTaskRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository,  UtilsService utilsService) {
         this.taskService = taskService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.taskRepository = taskRepository;
-        this.subTaskRepository = subTaskRepository;
         this.utilsService = utilsService;
     }
 
     @Override
     public Object createProject(ProjectDto projectDto) {
-        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty())
+        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         Project project = new Project();
-
         //TODO check role of user
         String projectId = utilsService.getUUId();
         project.setProjectId(projectId);
         project.setProjectName(projectDto.getProjectName());
+        project.setProjectAlias(projectDto.getProjectAlias());
         project.setClientId(projectDto.getClientId());
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectEndDate(projectDto.getProjectEndDate());
         project.setProjectStatus(ProjectStatusEnum.presalesPD);
         project.setIsDeleted(false);
+        project.setIssueCount(ISSUE_START);
         projectRepository.createProject(project);
 
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
         assignment.setAssigneeId(projectDto.getProjectOwner());
         assignment.setAssignedAt(utilsService.getCurrentTimestamp());
-        assignment.setAssigneeJobRole("ADMIN");
+        assignment.setAssigneeJobRole(OWNER);
         assignment.setAssigneeProjectRole(ProjectRoleEnum.owner.getRoleValue());
 
         projectRepository.assignUserToProject(projectId,assignment);
@@ -226,7 +223,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.flagProject(projectId);
             List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
             for(Task task : taskList) {
-                taskService.flagProjectTask(userId, projectId, task.getTaskId(), TaskTypeEnum.project);
+                taskService.flagProjectTask(userId, projectId, task.getTaskId());
             }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
