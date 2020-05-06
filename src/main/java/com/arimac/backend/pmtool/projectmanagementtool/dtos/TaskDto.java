@@ -16,7 +16,7 @@ public class TaskDto {
     private String taskNotes;
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
-    private TaskTypeEnum taskType;
+//    private TaskTypeEnum taskType;
 
     private IssueTypeEnum issueType;
     private String parentTaskId;
@@ -98,13 +98,13 @@ public class TaskDto {
         this.taskStatus = taskStatus;
     }
 
-    public TaskTypeEnum getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
+//    public TaskTypeEnum getTaskType() {
+//        return taskType;
+//    }
+//
+//    public void setTaskType(TaskTypeEnum taskType) {
+//        this.taskType = taskType;
+//    }
 
     public IssueTypeEnum getIssueType() {
         return issueType;
@@ -133,7 +133,7 @@ public class TaskDto {
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
-                ", taskType=" + taskType +
+//                ", taskType=" + taskType +
                 ", issueType=" + issueType +
                 ", parentId='" + parentTaskId + '\'' +
                 '}';

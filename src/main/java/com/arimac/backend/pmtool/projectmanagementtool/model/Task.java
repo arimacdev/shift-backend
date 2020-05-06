@@ -24,7 +24,6 @@ public class Task implements RowMapper<Task> {
     private Timestamp taskReminderAt;
     private boolean isDeleted;
     private TaskStatusEnum taskStatus;
-    private TaskTypeEnum taskType;
 
     private IssueTypeEnum issueType;
     private String parentId;
@@ -34,7 +33,7 @@ public class Task implements RowMapper<Task> {
     }
 
 
-    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, TaskTypeEnum taskType, IssueTypeEnum issueType, String parentId, boolean isParent) {
+    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -48,7 +47,6 @@ public class Task implements RowMapper<Task> {
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
         this.taskStatus = taskStatus;
-        this.taskType = taskType;
         this.issueType = issueType;
         this.parentId = parentId;
         this.isParent = isParent;
@@ -158,14 +156,6 @@ public class Task implements RowMapper<Task> {
         isDeleted = deleted;
     }
 
-    public TaskTypeEnum getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(TaskTypeEnum taskType) {
-        this.taskType = taskType;
-    }
-
     public String getSprintId() {
         return sprintId;
     }
@@ -214,7 +204,6 @@ public class Task implements RowMapper<Task> {
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
                 TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
-                TaskTypeEnum.valueOf(resultSet.getString("taskType")),
                 IssueTypeEnum.valueOf(resultSet.getString("issueType")),
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent")

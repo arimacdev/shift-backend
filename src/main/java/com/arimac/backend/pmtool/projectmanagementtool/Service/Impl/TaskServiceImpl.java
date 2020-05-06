@@ -112,10 +112,10 @@ public class TaskServiceImpl implements TaskService {
         }
         task.setTaskNote(taskDto.getTaskNotes());
         if (taskDto.getTaskStatus() == null){
-            if (taskDto.getTaskType().equals(TaskTypeEnum.project))
+//            if (taskDto.getTaskType().equals(TaskTypeEnum.project))
             task.setTaskStatus(TaskStatusEnum.pending);
-            if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup))
-              task.setTaskStatus(TaskStatusEnum.open);
+//            if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup))
+//              task.setTaskStatus(TaskStatusEnum.open);
         } else {
             task.setTaskStatus(taskDto.getTaskStatus());
         }
@@ -128,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
         }
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
-        task.setTaskType(taskDto.getTaskType());
+//        task.setTaskType(taskDto.getTaskType());
         if (taskDto.getSprintId() == null || taskDto.getSprintId().isEmpty()){
             task.setSprintId(DEFAULT);
         } else {
@@ -140,7 +140,7 @@ public class TaskServiceImpl implements TaskService {
         }
         taskRepository.addTaskToProject(task);
         projectRepository.updateIssueCount(projectId, issueId);
-        if (taskDto.getTaskType().equals(TaskTypeEnum.project) && task.getTaskDueDateAt()!= null) {
+        if (task.getTaskDueDateAt()!= null) {
             DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
             DateTime now = DateTime.now();
             DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
@@ -169,8 +169,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId, TaskTypeEnum type) {
-        if (type.equals(TaskTypeEnum.project)) {
+    public Object getAllProjectTasksByUser(String userId, String projectId) {
+//        if (type.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
@@ -196,13 +196,13 @@ public class TaskServiceImpl implements TaskService {
         List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
-        } else {
-            List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
-        }
+//        } else {
+//            List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+//            if (member == null)
+//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+//            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
+//        }
 
     }
 
@@ -216,16 +216,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getProjectTask(String userId, String projectId, String taskId, TaskTypeEnum type) {
-        if (type.equals(TaskTypeEnum.project)) {
+    public Object getProjectTask(String userId, String projectId, String taskId) {
+//        if (type.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        } else if (type.equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-        }
+//        } else if (type.equals(TaskTypeEnum.taskGroup)){
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+//            if (member == null)
+//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+//        }
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
@@ -233,17 +233,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getProjectTaskFiles(String userId, String projectId, String taskId, TaskTypeEnum type) {
-        if (type.equals(TaskTypeEnum.project)){
+    public Object getProjectTaskFiles(String userId, String projectId, String taskId) {
+//        if (type.equals(TaskTypeEnum.project)){
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null){
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             }
-        } else if (type.equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-        }
+//        } else if (type.equals(TaskTypeEnum.taskGroup)){
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+//            if (member == null)
+//            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+//        }
         Object fileList = taskFileRepository.getAllTaskFiles(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
     }
@@ -253,7 +253,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project)) {
+//        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
@@ -266,17 +266,17 @@ public class TaskServiceImpl implements TaskService {
                     return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
                 }
             }
-        } else if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-            if (taskUpdateDto.getTaskAssignee() != null){
-                TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskUpdateDto.getTaskAssignee(), projectId);
-                if (assignee == null){
-                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-                }
-            }
-        }
+//        } else if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+//            if (member == null)
+//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+//            if (taskUpdateDto.getTaskAssignee() != null){
+//                TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskUpdateDto.getTaskAssignee(), projectId);
+//                if (assignee == null){
+//                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
+//                }
+//            }
+//        }
         TaskUpdateDto updateDto = new TaskUpdateDto();
 
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty()) {
@@ -317,31 +317,31 @@ public class TaskServiceImpl implements TaskService {
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskAssignee() != null) {
+        if (taskUpdateDto.getTaskAssignee() != null) {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskStatus() != null){
+        if (taskUpdateDto.getTaskStatus() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, "status", userId);
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskName() != null){
+        if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, "name", userId);
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskNotes() != null){
+        if (taskUpdateDto.getTaskNotes() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, "notes", userId);
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
-        if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.project) && taskUpdateDto.getTaskDueDate() != null){
+        if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, "dueDate", userId);
             });
@@ -352,24 +352,24 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object flagProjectTask(String userId, String projectId, String taskId, TaskTypeEnum taskType) {
+    public Object flagProjectTask(String userId, String projectId, String taskId) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (taskType.equals(TaskTypeEnum.project)) {
+//        if (taskType.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
                 return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
             notificationRepository.deleteNotification(taskId);
-        } else if (taskType.equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-            if (member.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
-                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
-        }
+//        } else if (taskType.equals(TaskTypeEnum.taskGroup)){
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+//            if (member == null)
+//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+//            if (member.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
+//                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+//        }
         taskRepository.flagProjectTask(taskId);
         subTaskRepository.flagTaskBoundSubTasks(taskId);
         List<TaskFile>  taskFileList = taskFileRepository.getAllTaskFiles(taskId);
@@ -412,11 +412,11 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public Object getProjectTaskCompletionUserDetails(String userId, String projectId, TaskTypeEnum type) {
+    public Object getProjectTaskCompletionUserDetails(String userId, String projectId) {
 //        List<User> userList = userRepository.getAllProjectUsers(projectId);
         List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
         Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
-        if (type.equals(TaskTypeEnum.project)) {
+//        if (type.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
@@ -443,34 +443,34 @@ public class TaskServiceImpl implements TaskService {
                 userTaskStatusList.add(userTaskStatus);
             }
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
-        } else if (type.equals(TaskTypeEnum.taskGroup)){
-            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-            if (member == null)
-                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-            List<UserTaskGroupResponseDto> userTaskStatusList = new ArrayList<>();
-            List<UserTaskGroupDto> userTaskGroupDtoList = userRepository.getUsersTaskGroupDetails(projectId);
-            for (UserTaskGroupDto taskGroupUser: userTaskGroupDtoList){
-                TaskCompletionDto taskStatus = userTaskCompletionMap.get(taskGroupUser.getAssigneeId());
-                UserTaskGroupResponseDto userTaskGroupStatus = new UserTaskGroupResponseDto();
-                userTaskGroupStatus.setAssigneeId(taskGroupUser.getAssigneeId());
-                userTaskGroupStatus.setTaskGroupId(taskGroupUser.getTaskGroupId());
-                userTaskGroupStatus.setAssigneeFirstName(taskGroupUser.getAssigneeFirstName());
-                userTaskGroupStatus.setAssigneeLastName(taskGroupUser.getAssigneeLastName());
-                userTaskGroupStatus.setAssigneeProfileImage(taskGroupUser.getAssigneeProfileImage());
-                userTaskGroupStatus.setTaskGroupRole(taskGroupUser.getTaskGroupRole());
-                if (taskStatus != null) {
-                    userTaskGroupStatus.setTasksCompleted(taskStatus.getCompleted());
-                    userTaskGroupStatus.setTotalTasks(taskStatus.getTotalTasks());
-                } else {
-                    userTaskGroupStatus.setTasksCompleted(0);
-                    userTaskGroupStatus.setTotalTasks(0);
-                }
-                userTaskStatusList.add(userTaskGroupStatus);
-            }
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
-        } else {
-            return new ErrorMessage("Invalid Task Type", HttpStatus.BAD_REQUEST);
-        }
+//        } else if (type.equals(TaskTypeEnum.taskGroup)){
+//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
+//            if (member == null)
+//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+//            List<UserTaskGroupResponseDto> userTaskStatusList = new ArrayList<>();
+//            List<UserTaskGroupDto> userTaskGroupDtoList = userRepository.getUsersTaskGroupDetails(projectId);
+//            for (UserTaskGroupDto taskGroupUser: userTaskGroupDtoList){
+//                TaskCompletionDto taskStatus = userTaskCompletionMap.get(taskGroupUser.getAssigneeId());
+//                UserTaskGroupResponseDto userTaskGroupStatus = new UserTaskGroupResponseDto();
+//                userTaskGroupStatus.setAssigneeId(taskGroupUser.getAssigneeId());
+//                userTaskGroupStatus.setTaskGroupId(taskGroupUser.getTaskGroupId());
+//                userTaskGroupStatus.setAssigneeFirstName(taskGroupUser.getAssigneeFirstName());
+//                userTaskGroupStatus.setAssigneeLastName(taskGroupUser.getAssigneeLastName());
+//                userTaskGroupStatus.setAssigneeProfileImage(taskGroupUser.getAssigneeProfileImage());
+//                userTaskGroupStatus.setTaskGroupRole(taskGroupUser.getTaskGroupRole());
+//                if (taskStatus != null) {
+//                    userTaskGroupStatus.setTasksCompleted(taskStatus.getCompleted());
+//                    userTaskGroupStatus.setTotalTasks(taskStatus.getTotalTasks());
+//                } else {
+//                    userTaskGroupStatus.setTasksCompleted(0);
+//                    userTaskGroupStatus.setTotalTasks(0);
+//                }
+//                userTaskStatusList.add(userTaskGroupStatus);
+//            }
+//            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
+//        } else {
+//            return new ErrorMessage("Invalid Task Type", HttpStatus.BAD_REQUEST);
+//        }
     }
 
     @Override
@@ -728,8 +728,6 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
-        if (!task.getTaskType().equals(TaskTypeEnum.project))
-            return new ErrorMessage("Cannot Add Sprints to Non-Project Tasks", HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (!task.getProjectId().equals(projectId))
             return new ErrorMessage("Task doesnot belong to the project", HttpStatus.BAD_REQUEST);

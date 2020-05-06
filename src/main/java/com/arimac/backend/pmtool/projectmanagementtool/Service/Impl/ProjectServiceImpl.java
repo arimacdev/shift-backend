@@ -223,7 +223,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.flagProject(projectId);
             List<Task> taskList = taskRepository.getAllProjectTasksByUser(projectId);
             for(Task task : taskList) {
-                taskService.flagProjectTask(userId, projectId, task.getTaskId(), TaskTypeEnum.project);
+                taskService.flagProjectTask(userId, projectId, task.getTaskId());
             }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
