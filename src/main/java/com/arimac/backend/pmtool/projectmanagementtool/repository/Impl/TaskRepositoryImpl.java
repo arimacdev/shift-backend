@@ -2,8 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -11,8 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -206,10 +203,10 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+    public void updateProjectTaskParent(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET parentId=? WHERE taskId=?");
-            preparedStatement.setString(1, taskParentUpdateDto.getNewParent());
+            preparedStatement.setString(1, taskParentChildUpdateDto.getNewParent());
             preparedStatement.setString(2, taskId);
 
             return preparedStatement;
@@ -217,11 +214,23 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public void transitionFromParentToChild(String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+    public void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET parentId=?, isParent=? WHERE taskId=?");
-            preparedStatement.setString(1, taskParentUpdateDto.getNewParent());
+            preparedStatement.setString(1, taskParentChildUpdateDto.getNewParent());
             preparedStatement.setBoolean(2, false);
+            preparedStatement.setString(3, taskId);
+
+            return preparedStatement;
+        });
+    }
+
+    @Override
+    public void addParentToParentTask(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET parentId=?, isParent=? WHERE taskId=?");
+            preparedStatement.setString(1, taskParentChildUpdateDto.getNewParent());
+            preparedStatement.setBoolean(2, true);
             preparedStatement.setString(3, taskId);
 
             return preparedStatement;

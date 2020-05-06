@@ -2,15 +2,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
-import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupService;
-import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -23,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -767,7 +762,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object updateProjectTaskParent(String userId, String projectId, String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+    public Object updateProjectTaskParent(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
@@ -780,20 +775,20 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
         if (task.getIsParent())
             return new ErrorMessage(ResponseMessage.TASK_NOT_CHILD_TASK, HttpStatus.BAD_REQUEST);
-        if (!task.getParentId().equals(taskParentUpdateDto.getPreviousParent()))
+        if (!task.getParentId().equals(taskParentChildUpdateDto.getPreviousParent()))
             return new ErrorMessage("Invalid Parent Task", HttpStatus.BAD_REQUEST);
-        Task newParent = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentUpdateDto.getNewParent());
+        Task newParent = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());
         if (newParent == null)
             return new ErrorMessage("New Parent Task Not Found", HttpStatus.NOT_FOUND);
         if (!newParent.getIsParent())
             return new ErrorMessage("New Parent Task is Not a Parent Task", HttpStatus.BAD_REQUEST);
-        taskRepository.updateProjectTaskParent(taskId, taskParentUpdateDto);
+        taskRepository.updateProjectTaskParent(taskId, taskParentChildUpdateDto);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentUpdateDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
     }
 
     @Override
-    public Object transitionFromParentToChild(String userId, String projectId, String taskId, TaskParentUpdateDto taskParentUpdateDto) {
+    public Object transitionFromParentToChild(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
@@ -804,16 +799,41 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
         if (!task.getIsParent())
             return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.BAD_REQUEST);
-        Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentUpdateDto.getNewParent());
+        if (taskRepository.checkChildTasksOfAParentTask(taskId))
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.BAD_REQUEST);
+        Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());
         if (parentTask == null)
             return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.BAD_REQUEST);
         if (!parentTask.getIsParent())
             return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+        taskRepository.transitionFromParentToChild(taskId, taskParentChildUpdateDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
+    }
+
+    @Override
+    public Object addParentToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
+            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
+        if (!task.getIsParent())
+            return new Response(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
         if (taskRepository.checkChildTasksOfAParentTask(taskId))
             return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.BAD_REQUEST);
-        taskRepository.transitionFromParentToChild(taskId, taskParentUpdateDto);
+        Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());
+        if (parentTask == null)
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.BAD_REQUEST);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentUpdateDto);
+        return null;
+    }
+
+    @Override
+    public Object addChildToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
+        return null;
     }
 
 
