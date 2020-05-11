@@ -65,6 +65,14 @@ public class TaskGroupTaskController extends ResponseController {
         return sendResponse(taskGroupTaskService.getAllTaskGroupTasksByUser(userId, taskgroupId));
     }
 
+    @ApiOperation(value = "Get Task completion of an TaskGroup By User", notes = "(People Tab) Get Task completion of a TaskGroup By User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskgroupId}/tasks/{userId}/completion/details")
+    public ResponseEntity<Object> getTaskCompletionUserDetails(@PathVariable("userId") String userId, @PathVariable("taskgroupId") String taskgroupId){
+        logger.info("HIT - GET /taskgroup/<taskgroupId>/tasks/<userId>/completion/details ---> getTaskCompletionUserDetails | taskgroupId: {} | userId: {}", taskgroupId, userId);
+        return sendResponse(taskGroupTaskService.getTaskCompletionUserDetails(userId, taskgroupId));
+    }
+
     @ApiOperation(value = "Get all Tasks of a TaskGroup assigned to a user", notes = "(My Tasks) Get all Tasks in a TaskGroup assigned to user")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{taskgroupId}/tasks/user")

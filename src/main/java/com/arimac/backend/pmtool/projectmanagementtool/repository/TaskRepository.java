@@ -1,13 +1,11 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 public interface TaskRepository {
@@ -30,6 +28,10 @@ public interface TaskRepository {
     //List<Task> getAllPersonalTasks(String userId);
     //update sprint
     void updateProjectTaskSprint(String taskId, TaskSprintUpdateDto taskSprintUpdateDto);
-    void updateProjectTaskParent(String taskId, TaskParentUpdateDto taskParentUpdateDto);
+    void updateProjectTaskParent(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
+    void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
+    void addParentToParentTask(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId);
+    boolean checkChildTasksOfAParentTask(String taskId);
+    List<Task> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
 }

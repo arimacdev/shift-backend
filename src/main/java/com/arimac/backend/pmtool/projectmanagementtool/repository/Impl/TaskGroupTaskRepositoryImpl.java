@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,6 +31,13 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
             return null;
         }
         return task;
+    }
+
+    @Override
+    public List<TaskGroupTask> getAllTaskGroupTasksByUser(String taskGroupId) {
+        String sql = "SELECT * FROM TaskGroupTask WHERE taskGroupId=? AND isDeleted=false";
+        List<TaskGroupTask> taskList = jdbcTemplate.query(sql, new TaskGroupTask(), taskGroupId);
+        return  taskList;
     }
 
     @Override

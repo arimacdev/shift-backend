@@ -60,12 +60,13 @@ public class PersonalTaskRepositoryImpl implements PersonalTaskRepository {
     @Override
     public void updatePersonalTask(String taskId, PersonalTaskUpdateDto personalTaskUpdateDto) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE PersonalTask SET taskName=?, taskNote=?, taskDueDateAt=?, taskReminderAt=?, taskStatus=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE PersonalTask SET taskName=?, taskNote=?, taskDueDateAt=?, taskReminderAt=?, taskStatus=? WHERE taskId=?");
             preparedStatement.setString(1, personalTaskUpdateDto.getTaskName());
             preparedStatement.setString(2, personalTaskUpdateDto.getTaskNotes());
             preparedStatement.setTimestamp(3, personalTaskUpdateDto.getTaskDueDate());
             preparedStatement.setTimestamp(4, personalTaskUpdateDto.getTaskRemindOnDate());
             preparedStatement.setString(5, personalTaskUpdateDto.getTaskStatus().toString());
+            preparedStatement.setString(6, taskId);
 
             return preparedStatement;
         });

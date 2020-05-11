@@ -3,12 +3,12 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.SprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -133,12 +133,12 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.updateProjectTaskSprint(userId, projectId, taskId, taskSprintUpdateDto));
     }
 
-    @ApiOperation(value = "Update Parent of a  Task", notes = "Update Sprint of a  Task")
+    @ApiOperation(value = "Update Parent of a  Task", notes = "Update Parent of a  Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}/parent")
-    public ResponseEntity<Object> updateProjectTaskParent(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentUpdateDto taskParentUpdateDto){
-        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent ---> updateProjectTaskParent | projectId: {} | userId: {} | taskId: {} | TaskParentUpdateDto: {}", projectId, userId, taskId, taskParentUpdateDto);
-        return sendResponse(taskService.updateProjectTaskParent(userId, projectId, taskId, taskParentUpdateDto));
+    public ResponseEntity<Object> updateProjectTaskParent(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent ---> updateProjectTaskParent | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
+        return sendResponse(taskService.updateProjectTaskParent(userId, projectId, taskId, taskParentChildUpdateDto));
     }
 
     @ApiOperation(value = "Get Children of a Parent Task", notes = "Get all Children of a Parent")
@@ -148,5 +148,41 @@ public class TaskController extends ResponseController {
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/children ---> getAllChildrenOfParentTask | projectId: {} | userId: {} | taskId: {} ", projectId, userId, taskId);
         return sendResponse(taskService.getAllChildrenOfParentTask(userId, projectId, taskId));
     }
+
+    @ApiOperation(value = "Transition from Parent to Child Task", notes = "Transition from Parent to Child Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/tasks/{taskId}/parent/transition")
+    public ResponseEntity<Object> transitionFromParentToChild(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent/transition ---> transitionFromParentToChild | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
+        return sendResponse(taskService.transitionFromParentToChild(userId, projectId, taskId, taskParentChildUpdateDto));
+    }
+
+    @Deprecated
+    @ApiOperation(value = "Add Parent to a  Parent Task", notes = "Add Parent to a  Parent Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/{projectId}/tasks/{taskId}/parent")
+    public ResponseEntity<Object> addParentToParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent ---> addParentToParentTask | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
+        return sendResponse(taskService.addParentToParentTask(userId, projectId, taskId, taskParentChildUpdateDto));
+    }
+
+    @Deprecated
+    @ApiOperation(value = "Update Parent of a  Task", notes = "Add Child to a Parent Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/{projectId}/tasks/{taskId}/child")
+    public ResponseEntity<Object> addChildToParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/child ---> addChildToParentTask | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
+        return sendResponse(taskService.addChildToParentTask(userId, projectId, taskId, taskParentChildUpdateDto));
+    }
+
+    @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/filter")
+    public ResponseEntity<Object> filterTasks(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @RequestHeader("filterType")FilterTypeEnum filterType, @RequestHeader("issueType") String issueType, @RequestHeader("from")String from, @RequestHeader("to")String to, @RequestHeader("assignee")String assignee){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/filter ---> filterTasks | projectId: {} | userId: {}" ,projectId, userId);
+        return sendResponse(taskService.filterTasks(userId, projectId, filterType, issueType, from, to, assignee));
+    }
+
+
 
 }

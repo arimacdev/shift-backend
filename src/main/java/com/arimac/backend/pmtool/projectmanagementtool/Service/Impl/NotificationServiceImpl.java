@@ -112,9 +112,9 @@ public class NotificationServiceImpl implements NotificationService {
             body.getText().setType(MARK_DOWN);
             StringBuilder bodyText = new StringBuilder();
             bodyText.append(SlackMessages.TASK_ICON);
-            bodyText.append(task.getTaskName());
+            bodyText.append(getTaskUrl(task));
             bodyText.append(SlackMessages.PROJECT_ICON);
-            bodyText.append(project.getProjectName());
+            bodyText.append(getProjectUrl(project));
             bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
             if (sender.getUserSlackId()!= null) {
                 bodyText.append(getMentionedName(sender.getUserSlackId()));
@@ -182,9 +182,9 @@ public class NotificationServiceImpl implements NotificationService {
             body.getText().setType(MARK_DOWN);
             StringBuilder bodyText = new StringBuilder();
             bodyText.append(SlackMessages.TASK_ICON);
-            bodyText.append(task.getTaskName());
+            bodyText.append(getTaskUrl(task));
             bodyText.append(SlackMessages.PROJECT_ICON);
-            bodyText.append(project.getProjectName());
+            bodyText.append(getProjectUrl(project));
             bodyText.append(SlackMessages.TRANSITION_ICON);
             if (previous.getUserSlackId()!= null){
                 bodyText.append(getMentionedName(previous.getUserSlackId()));
@@ -266,9 +266,10 @@ public class NotificationServiceImpl implements NotificationService {
             body.getText().setType(MARK_DOWN);
             StringBuilder bodyText = new StringBuilder();
             bodyText.append(SlackMessages.TASK_ICON);
-            bodyText.append(task.getTaskName());
+            bodyText.append(getTaskUrl(task));
+            body.getText().setText(bodyText.toString());
             bodyText.append(SlackMessages.PROJECT_ICON);
-            bodyText.append(project.getProjectName());
+            bodyText.append(getProjectUrl(project));
             switch (type){
                 case "name":
                     bodyText.append(SlackMessages.MODIFIED_NAME_ICON);
@@ -375,9 +376,9 @@ public class NotificationServiceImpl implements NotificationService {
             body.getText().setType(MARK_DOWN);
             StringBuilder bodyText = new StringBuilder();
             bodyText.append(SlackMessages.TASK_ICON);
-            bodyText.append(task.getTaskName());
+            bodyText.append(getTaskUrl(task));
             bodyText.append(SlackMessages.PROJECT_ICON);
-            bodyText.append(project.getProjectName());
+            bodyText.append(getProjectUrl(project));
             bodyText.append(SlackMessages.UPLOADED_BY_ICON);
             bodyText.append(getMentionedName(user.getUserSlackId()));
             body.getText().setText(bodyText.toString());
@@ -869,6 +870,34 @@ public class NotificationServiceImpl implements NotificationService {
         footer.setElements(elements);
 
         return  footer;
+    }
+
+    private String getTaskUrl(Task task){
+        StringBuilder taskUrl = new StringBuilder();
+        taskUrl.append("*<");
+        taskUrl.append(SlackMessages.FRONTEND_URL);
+        taskUrl.append("task/");
+        taskUrl.append(task.getTaskId());
+        taskUrl.append("/?project=");
+        taskUrl.append(task.getProjectId());
+        taskUrl.append("|");
+        taskUrl.append(task.getTaskName());
+        taskUrl.append(">*");
+
+        return taskUrl.toString();
+    }
+
+    private String getProjectUrl(Project project){
+        StringBuilder taskUrl = new StringBuilder();
+        taskUrl.append("*<");
+        taskUrl.append(SlackMessages.FRONTEND_URL);
+        taskUrl.append("projects/");
+        taskUrl.append(project.getProjectId());
+        taskUrl.append("|");
+        taskUrl.append(project.getProjectName());
+        taskUrl.append(">*");
+
+        return taskUrl.toString();
     }
 
 }

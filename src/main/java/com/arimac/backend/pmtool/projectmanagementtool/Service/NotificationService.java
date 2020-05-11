@@ -9,10 +9,10 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 public interface NotificationService {
     @Deprecated
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
-    void sendTaskAssignNotification(Task task);
-    void sendTaskAssigneeUpdateNotification(Task task, String sender, String newAssignee);
-    void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor);
-    void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName);
+    void sendTaskAssignNotification(Task task); //done
+    void sendTaskAssigneeUpdateNotification(Task task, String sender, String newAssignee);  //done
+    void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor); //done
+    void sendTaskFileUploadNotification(String userId, String taskId, String file, String fileName); //done
 
     void sendSubTaskCreateNotification(String sender, SubTask subTask, ProjectUserResponseDto projectUser, Task task);
     void sendSubTaskUpdateNotification(String sender, Task task, SubTask previous, SubTask modified, ProjectUserResponseDto projectUser, String type);

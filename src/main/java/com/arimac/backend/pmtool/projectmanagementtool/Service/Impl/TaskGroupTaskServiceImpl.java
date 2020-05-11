@@ -2,21 +2,23 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskCompletionDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,12 +34,14 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
     private final TaskGroupRepository taskGroupRepository;
     private final TaskGroupTaskRepository taskGroupTaskRepository;
     private final TaskFileRepository taskFileRepository;
+    private final UserRepository userRepository;
     private final UtilsService utilsService;
 
-    public TaskGroupTaskServiceImpl(TaskGroupRepository taskGroupRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
+    public TaskGroupTaskServiceImpl(TaskGroupRepository taskGroupRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskFileRepository taskFileRepository, UserRepository userRepository, UtilsService utilsService) {
         this.taskGroupRepository = taskGroupRepository;
         this.taskGroupTaskRepository = taskGroupTaskRepository;
         this.taskFileRepository = taskFileRepository;
+        this.userRepository = userRepository;
         this.utilsService = utilsService;
     }
 
@@ -203,6 +207,36 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
     }
 
     @Override
+    public Object getTaskCompletionUserDetails(String userId, String taskGroupId) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+            if (member == null)
+                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<TaskGroupTask> taskList = taskGroupTaskRepository.getAllTaskGroupTasksByUser(taskGroupId);
+        Map<String, TaskCompletionDto> userTaskCompletionMap = getTaskCompletionMap(taskList);
+            List<UserTaskGroupResponseDto> userTaskStatusList = new ArrayList<>();
+            List<UserTaskGroupDto> userTaskGroupDtoList = userRepository.getUsersTaskGroupDetails(taskGroupId);
+            for (UserTaskGroupDto taskGroupUser: userTaskGroupDtoList){
+                TaskCompletionDto taskStatus = userTaskCompletionMap.get(taskGroupUser.getAssigneeId());
+                UserTaskGroupResponseDto userTaskGroupStatus = new UserTaskGroupResponseDto();
+                userTaskGroupStatus.setAssigneeId(taskGroupUser.getAssigneeId());
+                userTaskGroupStatus.setTaskGroupId(taskGroupUser.getTaskGroupId());
+                userTaskGroupStatus.setAssigneeFirstName(taskGroupUser.getAssigneeFirstName());
+                userTaskGroupStatus.setAssigneeLastName(taskGroupUser.getAssigneeLastName());
+                userTaskGroupStatus.setAssigneeProfileImage(taskGroupUser.getAssigneeProfileImage());
+                userTaskGroupStatus.setTaskGroupRole(taskGroupUser.getTaskGroupRole());
+                if (taskStatus != null) {
+                    userTaskGroupStatus.setTasksCompleted(taskStatus.getCompleted());
+                    userTaskGroupStatus.setTotalTasks(taskStatus.getTotalTasks());
+                } else {
+                    userTaskGroupStatus.setTasksCompleted(0);
+                    userTaskGroupStatus.setTotalTasks(0);
+                }
+                userTaskStatusList.add(userTaskGroupStatus);
+            }
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
+    }
+
+    @Override
     public Object getAllUserAssignedTasks(String userId, String taskGroupId) {
         TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
         if (member == null)
@@ -218,5 +252,36 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
          Object fileList = taskFileRepository.getAllTaskFiles(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
+    }
+
+    private Map<String, TaskCompletionDto> getTaskCompletionMap(List<TaskGroupTask> taskList){
+        Map<String, TaskCompletionDto> userTaskCompletionMap = new HashMap<>();
+        String user = null;
+        for (int i = 0 ; i < taskList.size(); i++){
+            TaskGroupTask task = taskList.get(i);
+            user = task.getTaskAssignee();
+            TaskCompletionDto taskCompletionDto = new TaskCompletionDto();
+            if (userTaskCompletionMap.get(user) != null){
+                taskCompletionDto = userTaskCompletionMap.get(user);
+                int completed = taskCompletionDto.getCompleted();
+                int total = taskCompletionDto.getTotalTasks();
+                if (task.getTaskStatus().equals(TaskGroupTaskStatusEnum.closed))
+                    completed += 1;
+                total += 1;
+                taskCompletionDto.setCompleted(completed);
+                taskCompletionDto.setTotalTasks(total);
+                userTaskCompletionMap.put(user, taskCompletionDto);
+            } else {
+                if (task.getTaskStatus().equals(TaskGroupTaskStatusEnum.closed)){
+                    taskCompletionDto.setCompleted(1);
+                } else {
+                    taskCompletionDto.setCompleted(0);
+                }
+                taskCompletionDto.setTotalTasks(1);
+                userTaskCompletionMap.put(user, taskCompletionDto);
+            }
+        }
+
+        return userTaskCompletionMap;
     }
 }

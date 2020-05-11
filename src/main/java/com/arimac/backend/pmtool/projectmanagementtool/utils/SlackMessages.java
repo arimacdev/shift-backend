@@ -44,6 +44,8 @@ public class SlackMessages {
     public static  final String PREVIOUS_DUE_DATE_ICON = "\n:red_circle:   *Previous DueDate:* ";
     public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
+    public static  final String FRONTEND_URL = "http://localhost:3000/";
+
     public static  final String CALENDER_THUMBNAIL = "https://api.slack.com/img/blocks/bkb_template_images/notifications.png";
     public static  final String ASSIGNMENT_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587030954303_assigned.png";
     public static  final String ASSIGNMENT_UPDATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587031448322_Changing%20the%20assignee.png";
@@ -57,11 +59,6 @@ public class SlackMessages {
     public static  final String SUBTASK_MODIFICATION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
     public static  final String SUBTASK_TRANSITION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
     public static  final String SUBTASK_FLAG_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
-    //    public static  final String ASSIGNMENT_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
-
-
-
-
 
 
 

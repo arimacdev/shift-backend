@@ -1,6 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Task;
 
-public class TaskParentUpdateDto {
+public class TaskParentChildUpdateDto {
     private String previousParent;
     private String newParent;
 
@@ -22,7 +22,7 @@ public class TaskParentUpdateDto {
 
     @Override
     public String toString() {
-        return "TaskParentUpdateDto{" +
+        return "TaskParentChildUpdateDto{" +
                 "previousParent='" + previousParent + '\'' +
                 ", newParent='" + newParent + '\'' +
                 '}';
