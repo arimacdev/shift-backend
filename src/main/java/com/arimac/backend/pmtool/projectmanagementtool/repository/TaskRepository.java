@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
 import java.util.List;
@@ -32,4 +33,5 @@ public interface TaskRepository {
     void addParentToParentTask(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId);
     boolean checkChildTasksOfAParentTask(String taskId);
+    List<Task> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
 }

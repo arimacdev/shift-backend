@@ -836,6 +836,24 @@ public class TaskServiceImpl implements TaskService {
         return null;
     }
 
+    @Override
+    public Object filterTasks(String userId, String projectId, FilterTypeEnum filterType, String issueType, String from, String to, String assignee) {
+        switch (filterType){
+            case dueDate:
+                if ((from == null || from.isEmpty()) || (to == null || to.isEmpty()))
+                    return new ErrorMessage("Invalid Request Headers", HttpStatus.BAD_REQUEST);
+                break;
+            case assignee:
+                if (assignee == null || assignee.isEmpty())
+                    return new ErrorMessage("Invalid Request Headers", HttpStatus.BAD_REQUEST);
+                break;
+        }
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        List<Task> filteredList = taskRepository.filterTasks(projectId, filterType, from, to, assignee, issueType.toString());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, filteredList);
+    }
 
 }
 

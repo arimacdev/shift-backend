@@ -4,6 +4,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpd
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 
 public interface TaskService {
     Object addTaskToProject(String projectId, TaskDto taskDto);
@@ -24,5 +26,6 @@ public interface TaskService {
     Object transitionFromParentToChild(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     Object addParentToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     Object addChildToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
+    Object filterTasks(String userId, String projectId, FilterTypeEnum filterType, String issueType, String from, String to, String assignee);
 
 }

@@ -7,6 +7,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpd
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -171,6 +173,14 @@ public class TaskController extends ResponseController {
     public ResponseEntity<Object> addChildToParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/child ---> addChildToParentTask | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
         return sendResponse(taskService.addChildToParentTask(userId, projectId, taskId, taskParentChildUpdateDto));
+    }
+
+    @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/filter")
+    public ResponseEntity<Object> filterTasks(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @RequestHeader("filterType")FilterTypeEnum filterType, @RequestHeader("issueType") String issueType, @RequestHeader("from")String from, @RequestHeader("to")String to, @RequestHeader("assignee")String assignee){
+        logger.info("HIT - PUT /projects/<projectId>/tasks/filter ---> filterTasks | projectId: {} | userId: {}" ,projectId, userId);
+        return sendResponse(taskService.filterTasks(userId, projectId, filterType, issueType, from, to, assignee));
     }
 
 

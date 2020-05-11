@@ -1,10 +1,14 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.TaskServiceImpl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,9 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     private static final String ALL= "all";
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
+
 
     @Override
     public Task addTaskToProject(Task task) {
@@ -252,6 +259,25 @@ public class TaskRepositoryImpl implements TaskRepository {
             return false;
         else
             return true;
+    }
+
+    @Override
+    public List<Task> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType) {
+        String sql;
+        switch (filterType){
+            case issueType:
+                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted= false AND issueType=?";
+                return jdbcTemplate.query(sql, new Task(),projectId, issueType);
+            case dueDate:
+                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted= false AND (taskDueDateAt BETWEEN ? AND ?)";
+                logger.info("sql {}", sql);
+                return jdbcTemplate.query(sql, new Task(), projectId, from, to);
+            case assignee:
+                sql = "SELECT * FROM Task WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
+                return jdbcTemplate.query(sql, new Task(), projectId, assignee);
+        }
+        return null;
+
     }
 
 
