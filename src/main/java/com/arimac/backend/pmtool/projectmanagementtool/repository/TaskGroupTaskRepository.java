@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface TaskGroupTaskRepository {
     TaskGroupTask getTaskByTaskGroupId(String TaskGroupId, String taskId);
+    List<TaskGroupTask> getAllTaskGroupTasksByUser(String TaskGroupId);
     void addTaskGroupTask(TaskGroupTask taskGroupTask);
     TaskGroupTaskUpdateDto updateTaskGroupTask(String taskId, TaskGroupTaskUpdateDto taskGroupTaskUpdateDto);
     void flagTaskGroupTask(String taskId);
