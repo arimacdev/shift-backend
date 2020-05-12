@@ -1,13 +1,18 @@
-package com.arimac.backend.pmtool.projectmanagementtool.model;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Files;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class TaskFile implements RowMapper<TaskFile> {
+public class TaskFileUserProfileDto implements RowMapper<TaskFileUserProfileDto> {
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String profileImage;
+
     private String taskFileId;
     private String taskId;
     private String taskFileName;
@@ -17,10 +22,14 @@ public class TaskFile implements RowMapper<TaskFile> {
     private Timestamp taskFileDate;
     private boolean isDeleted;
 
-    public TaskFile() {
+    public TaskFileUserProfileDto() {
     }
 
-    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, int taskFileSize, Timestamp taskFileDate, boolean isDeleted) {
+    public TaskFileUserProfileDto(String userId, String firstName, String lastName, String profileImage, String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, int taskFileSize, Timestamp taskFileDate, boolean isDeleted) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.profileImage = profileImage;
         this.taskFileId = taskFileId;
         this.taskId = taskId;
         this.taskFileName = taskFileName;
@@ -29,6 +38,38 @@ public class TaskFile implements RowMapper<TaskFile> {
         this.taskFileSize = taskFileSize;
         this.taskFileDate = taskFileDate;
         this.isDeleted = isDeleted;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     public String getTaskFileId() {
@@ -71,14 +112,6 @@ public class TaskFile implements RowMapper<TaskFile> {
         this.taskFileCreator = taskFileCreator;
     }
 
-    public Timestamp getTaskFileDate() {
-        return taskFileDate;
-    }
-
-    public void setTaskFileDate(Timestamp taskFileDate) {
-        this.taskFileDate = taskFileDate;
-    }
-
     public int getTaskFileSize() {
         return taskFileSize;
     }
@@ -87,7 +120,15 @@ public class TaskFile implements RowMapper<TaskFile> {
         this.taskFileSize = taskFileSize;
     }
 
-    public boolean getIsDeleted() {
+    public Timestamp getTaskFileDate() {
+        return taskFileDate;
+    }
+
+    public void setTaskFileDate(Timestamp taskFileDate) {
+        this.taskFileDate = taskFileDate;
+    }
+
+    public boolean isDeleted() {
         return isDeleted;
     }
 
@@ -95,9 +136,14 @@ public class TaskFile implements RowMapper<TaskFile> {
         isDeleted = deleted;
     }
 
+
     @Override
-    public TaskFile mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new TaskFile(
+    public TaskFileUserProfileDto mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new TaskFileUserProfileDto(
+                resultSet.getString("userId"),
+                resultSet.getString("firstName"),
+                resultSet.getString("lastName"),
+                resultSet.getString("profileImage"),
                 resultSet.getString("taskFileId"),
                 resultSet.getString("taskId"),
                 resultSet.getString("taskFileName"),

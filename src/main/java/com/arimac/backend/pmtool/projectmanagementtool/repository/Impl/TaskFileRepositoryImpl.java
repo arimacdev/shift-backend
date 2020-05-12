@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,7 +20,7 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
     @Override
     public Object uploadTaskFile(TaskFile taskFile) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO TaskFile (taskFileId, taskId, taskFileName, taskFileUrl, taskFileCreator, taskFileDate, isDeleted) VALUES(?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO TaskFile (taskFileId, taskId, taskFileName, taskFileUrl, taskFileCreator, taskFileDate, isDeleted, taskFileSize) VALUES(?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, taskFile.getTaskFileId());
             preparedStatement.setString(2, taskFile.getTaskId());
             preparedStatement.setString(3, taskFile.getTaskFileName());
@@ -27,6 +28,7 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
             preparedStatement.setString(5, taskFile.getTaskFileCreator());
             preparedStatement.setTimestamp(6, taskFile.getTaskFileDate());
             preparedStatement.setBoolean(7, false);
+            preparedStatement.setInt(8, taskFile.getTaskFileSize());
 
             return preparedStatement;
         });
@@ -38,6 +40,13 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
         String sql = "SELECT * FROM TaskFile WHERE taskId=? AND isDeleted=false";
         List<TaskFile> taskFileList = jdbcTemplate.query(sql, new TaskFile(), taskId);
         return taskFileList;
+    }
+
+    @Override
+    public List<TaskFileUserProfileDto> getTaskFilesWithUserProfile(String taskId) {
+        String sql = "SELECT * FROM TaskFile as TF INNER JOIN User AS U ON TF.taskFileCreator = U.userId WHERE TF.taskId=? AND TF.isDeleted=false";
+        List<TaskFileUserProfileDto> taskFileUserProfileList = jdbcTemplate.query(sql, new TaskFileUserProfileDto(), taskId);
+        return  taskFileUserProfileList;
     }
 
     @Override

@@ -83,6 +83,7 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFile.setTaskFileId(utilsService.getUUId());
                 taskFile.setTaskId(taskId);
                 taskFile.setTaskFileName(multipartFiles.getOriginalFilename());
+                taskFile.setTaskFileSize((int) multipartFiles.getSize());
                 taskFile.setTaskFileUrl(taskUrl);
                 taskFile.setTaskFileCreator(userId);
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
@@ -112,6 +113,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         taskFile.setTaskFileName(multipartFile.getOriginalFilename());
         taskFile.setTaskFileUrl(taskUrl);
         taskFile.setTaskFileCreator(userId);
+        taskFile.setTaskFileSize((int) multipartFile.getSize());
         taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
         taskFileRepository.uploadTaskFile(taskFile);
 
@@ -132,6 +134,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         taskFile.setTaskFileName(multipartFiles.getOriginalFilename());
         taskFile.setTaskFileUrl(taskUrl);
         taskFile.setTaskFileCreator(userId);
+        taskFile.setTaskFileSize((int) multipartFiles.getSize());
         taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
         taskFileRepository.uploadTaskFile(taskFile);
 
