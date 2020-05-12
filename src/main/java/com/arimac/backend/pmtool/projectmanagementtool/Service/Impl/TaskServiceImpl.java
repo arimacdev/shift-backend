@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
@@ -229,17 +230,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object getProjectTaskFiles(String userId, String projectId, String taskId) {
-//        if (type.equals(TaskTypeEnum.project)){
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null){
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             }
-//        } else if (type.equals(TaskTypeEnum.taskGroup)){
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-//            if (member == null)
-//            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-//        }
-        Object fileList = taskFileRepository.getAllTaskFiles(taskId);
+        List<TaskFileUserProfileDto> fileList = taskFileRepository.getTaskFilesWithUserProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
     }
 

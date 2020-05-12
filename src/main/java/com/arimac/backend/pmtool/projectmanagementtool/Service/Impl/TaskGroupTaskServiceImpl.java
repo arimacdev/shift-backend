@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskCompletionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
@@ -250,7 +251,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
         if (member == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-         Object fileList = taskFileRepository.getAllTaskFiles(taskId);
+         List<TaskFileUserProfileDto> fileList = taskFileRepository.getTaskFilesWithUserProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
     }
 

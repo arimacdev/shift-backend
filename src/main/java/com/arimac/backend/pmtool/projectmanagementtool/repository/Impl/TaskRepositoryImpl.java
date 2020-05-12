@@ -266,10 +266,10 @@ public class TaskRepositoryImpl implements TaskRepository {
         String sql;
         switch (filterType){
             case issueType:
-                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted= false AND issueType=?";
+                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted=false AND issueType=?";
                 return jdbcTemplate.query(sql, new Task(),projectId, issueType);
             case dueDate:
-                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted= false AND (taskDueDateAt BETWEEN ? AND ?)";
+                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted=false AND (taskDueDateAt BETWEEN ? AND ?)";
                 logger.info("sql {}", sql);
                 return jdbcTemplate.query(sql, new Task(), projectId, from, to);
             case assignee:
