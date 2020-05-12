@@ -277,7 +277,6 @@ public class TaskRepositoryImpl implements TaskRepository {
                 return jdbcTemplate.query(sql, new Task(), projectId, assignee);
         }
         return null;
-
     }
 
 
