@@ -165,6 +165,11 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             updatedProject.setProjectEndDate(modifierProject.getProjectEndDate());
         }
+        if (projectEditDto.getProjectAlias() != null && !projectEditDto.getProjectAlias().isEmpty()){
+            updatedProject.setProjectAlias(projectEditDto.getProjectAlias());
+        } else {
+            updatedProject.setProjectAlias(modifierProject.getProjectAlias());
+        }
         projectRepository.updateProject(updatedProject, projectId);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);

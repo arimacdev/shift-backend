@@ -9,8 +9,17 @@ public class ProjectEditDto {
     private String projectName;
     private String clientId;
     private String projectStatus;
+    private String projectAlias;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
+
+    public String getProjectAlias() {
+        return projectAlias;
+    }
+
+    public void setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
+    }
 
     public String getModifierId() {
         return modifierId;
@@ -67,6 +76,7 @@ public class ProjectEditDto {
                 ", projectName='" + projectName + '\'' +
                 ", clientId='" + clientId + '\'' +
                 ", projectStatus='" + projectStatus + '\'' +
+                ", projectAlias='" + projectAlias + '\'' +
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
                 '}';

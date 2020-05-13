@@ -81,13 +81,14 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public void updateProject(Project project, String projectId) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=? WHERE projectId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=? WHERE projectId=?");
             preparedStatement.setString(1, project.getProjectName());
             preparedStatement.setString(2, project.getClientId());
             preparedStatement.setTimestamp(3,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
             preparedStatement.setTimestamp(4, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
             preparedStatement.setString(5, project.getProjectStatus().toString());
-            preparedStatement.setString(6, projectId);
+            preparedStatement.setString(6, project.getProjectAlias());
+            preparedStatement.setString(7, projectId);
 
             return preparedStatement;
         });
@@ -183,6 +184,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
         projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
         projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
+        projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
         return projectUserResponseDto;
     };
 
