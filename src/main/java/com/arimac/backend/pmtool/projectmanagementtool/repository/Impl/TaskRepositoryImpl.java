@@ -187,7 +187,7 @@ public class TaskRepositoryImpl implements TaskRepository {
              sql = "SELECT * FROM Project_User AS pu\n" +
                     "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
                     "        INNER JOIN project p on pu.projectId = p.projectId\n" +
-                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )";
+                    "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL)";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
         } else {
             sql = "SELECT * FROM Task AS t\n" +
@@ -196,6 +196,18 @@ public class TaskRepositoryImpl implements TaskRepository {
                     "AND (t.taskDueDateAt BETWEEN ? AND ?)";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, from, to);
         }
+    }
+
+    @Override
+    public List<WorkLoadProjectDto> taskFilteration() {
+        String baseQuery = "SELECT * FROM Task INNER JOIN project ON projectId = projectIdentity";
+        String conditionQuery = "WHERE (project.isDeleted=false) AND (Task.isDeleted = false OR t.isDeleted IS NULL) AND";
+        String incomingQuery = "";
+        StringBuilder completeQuery = new StringBuilder();
+        completeQuery.append(baseQuery);
+        completeQuery.append(conditionQuery);
+        completeQuery.append(incomingQuery);
+        return jdbcTemplate.query(completeQuery.toString(), new WorkLoadProjectDto());
     }
 
     @Override
