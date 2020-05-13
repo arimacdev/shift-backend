@@ -98,5 +98,13 @@ public class TaskGroupTaskController extends ResponseController {
         return sendResponse(taskGroupTaskService.transitionFromParentToChild(userId, taskgroupId, taskId, taskParentChildUpdateDto));
     }
 
+    @ApiOperation(value = "Get Children of a Parent Task", notes = "Get Children of a Parent Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskgroupId}/tasks/{taskId}/children")
+    public ResponseEntity<Object> getAllChildrenOfParentTask(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /<taskgroupId>/tasks/<taskId>/children ---> getAllChildrenOfParentTask | taskgroupId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(taskGroupTaskService.getAllChildrenOfParentTask(userId, taskgroupId, taskId));
+    }
+
 
 }

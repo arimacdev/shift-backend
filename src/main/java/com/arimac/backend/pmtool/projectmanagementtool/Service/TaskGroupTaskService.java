@@ -14,4 +14,5 @@ public interface TaskGroupTaskService {
     Object getAllUserAssignedTasks(String userId, String taskGroupId);
     Object getProjectTaskFiles(String userId, String taskGroupId, String taskId);
     Object transitionFromParentToChild(String userId, String taskGroupId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
+    Object getAllChildrenOfParentTask(String userId, String taskGroupId, String taskId);
 }

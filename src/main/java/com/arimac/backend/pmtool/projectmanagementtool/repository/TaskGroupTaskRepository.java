@@ -18,4 +18,5 @@ public interface TaskGroupTaskRepository {
     List<TaskGroupTaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String taskGroupId);
     boolean checkChildTasksOfAParentTask(String taskId);
     void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
+    List<TaskGroupTask> getAllChildrenOfParentTask(String taskId);
 }

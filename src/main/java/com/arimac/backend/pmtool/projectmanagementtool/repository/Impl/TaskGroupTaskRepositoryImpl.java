@@ -135,6 +135,13 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
         });
     }
 
+    @Override
+    public List<TaskGroupTask> getAllChildrenOfParentTask(String taskId) {
+        String sql = "SELECT * FROM TaskGroupTask WHERE parentId=? AND isDeleted=false";
+        List<TaskGroupTask> taskList = jdbcTemplate.query(sql, new TaskGroupTask(), taskId);
+        return taskList;
+    }
+
 
 
 }
