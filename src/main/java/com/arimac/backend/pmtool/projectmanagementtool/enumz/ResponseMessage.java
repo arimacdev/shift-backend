@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 
 public enum ResponseMessage {
     SUCCESS("success"),
+    PROJECT_ALIAS_EXIST("Project Alias Exists"),
     NO_RECORD("No Record"),
     PROJECT_NOT_FOUND("Project Not Found"),
     NO_ACCESS("Records cannot be accessed"),

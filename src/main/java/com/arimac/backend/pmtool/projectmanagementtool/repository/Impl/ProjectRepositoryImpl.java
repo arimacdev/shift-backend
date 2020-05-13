@@ -165,6 +165,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         });
     }
 
+    @Override
+    public Project checkProjectAlias(String alias) {
+        String sql = "SELECT EXISTS (SELECT * FROM project WHERE projectAlias=?)";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project(), alias);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
