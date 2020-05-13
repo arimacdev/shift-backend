@@ -725,6 +725,8 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        if (!task.getIsParent())
+            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (!task.getProjectId().equals(projectId))
             return new ErrorMessage("Task doesnot belong to the project", HttpStatus.BAD_REQUEST);
@@ -745,7 +747,12 @@ public class TaskServiceImpl implements TaskService {
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         }
         taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
-
+        List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
+        for (Task child : children){
+            TaskSprintUpdateDto childSprint = new TaskSprintUpdateDto();
+            childSprint.setNewSprint(taskSprintUpdateDto.getNewSprint());
+            taskRepository.updateProjectTaskSprint(child.getTaskId(), childSprint);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskSprintUpdateDto);
     }
 
