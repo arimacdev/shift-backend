@@ -11,4 +11,7 @@ public interface PersonalTaskRepository {
     PersonalTask getPersonalTaskByUserId(String userId, String taskId);
     void updatePersonalTask(String taskId, PersonalTaskUpdateDto personalTaskUpdateDto);
     void flagPersonalTask(String taskId);
+
+    //INTERNAL ONLY
+    List<PersonalTask> getAllPersonalTasksOfAllUsers();
 }

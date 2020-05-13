@@ -18,4 +18,5 @@ public interface NpTaskService {
     Object deletePersonalTaskFile(String userId, String taskId, String taskFileId);
     Object flagPersonalTask(String userId, String taskId);
     Object flagPersonalSubTask(String userId, String taskId, String subTaskId);
+
 }

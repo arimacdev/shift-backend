@@ -20,4 +20,9 @@ public class InternalController extends ResponseController {
     public ResponseEntity<Object> updateProjectAlias(){
         return sendResponse(internalService.updateProjectAlias());
     }
+
+    @GetMapping("migrate/personal")
+    public ResponseEntity<Object> migratePersonalTask(){
+        return sendResponse(internalService.migratePersonalTask());
+    }
 }

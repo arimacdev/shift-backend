@@ -285,6 +285,8 @@ public class TaskServiceImpl implements TaskService {
             updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
         }
         if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty()) {
+            updateDto.setTaskStatus(task.getTaskStatus().toString());
+        } else {
             if(task.getIsParent()){
                 List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
                 for(Task child: children){
@@ -292,8 +294,6 @@ public class TaskServiceImpl implements TaskService {
                         return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_PENDING_CHILD_TASKS, HttpStatus.BAD_REQUEST);
                 }
             }
-            updateDto.setTaskStatus(task.getTaskStatus().toString());
-        } else {
             updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
         }
         if (taskUpdateDto.getTaskDueDate() == null) {
