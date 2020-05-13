@@ -45,8 +45,8 @@ public class ProjectServiceImpl implements ProjectService {
     public Object createProject(ProjectDto projectDto) {
         if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
-        Project checkAlias = projectRepository.checkProjectAlias(projectDto.getProjectAlias());
-        if (checkAlias!= null){
+        boolean checkAlias = projectRepository.checkProjectAlias(projectDto.getProjectAlias());
+        if (checkAlias){
             return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.BAD_REQUEST);
         }
         Project project = new Project();

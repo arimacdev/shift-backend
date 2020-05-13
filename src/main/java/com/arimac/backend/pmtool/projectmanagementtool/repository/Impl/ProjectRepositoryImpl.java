@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -166,12 +167,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public Project checkProjectAlias(String alias) {
-        String sql = "SELECT EXISTS (SELECT * FROM project WHERE projectAlias=?)";
+    public boolean checkProjectAlias(String alias) {
+        String sql = "SELECT EXISTS (SELECT * FROM project WHERE projectAlias=? LIMIT 1)";
         try {
-            return jdbcTemplate.queryForObject(sql, new Project(), alias);
-        } catch (EmptyResultDataAccessException e){
-            return null;
+            return jdbcTemplate.queryForObject(sql, Boolean.class, alias);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
         }
     }
 
