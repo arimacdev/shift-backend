@@ -286,5 +286,16 @@ public class TaskRepositoryImpl implements TaskRepository {
         return null;
     }
 
+    @Override
+    public void updateProjectAlias(String taskId, String alias) {
+       jdbcTemplate.update(connection -> {
+           PreparedStatement preparedStatement  = connection.prepareStatement("UPDATE Task SET secondaryTaskId=? WHERE taskId=?");
+           preparedStatement.setString(1, alias);
+           preparedStatement.setString(2,taskId);
+
+           return preparedStatement;
+       });
+    }
+
 
 }

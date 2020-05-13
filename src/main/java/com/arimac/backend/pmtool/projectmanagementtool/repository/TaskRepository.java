@@ -35,4 +35,7 @@ public interface TaskRepository {
     List<Task> getAllChildrenOfParentTask(String taskId);
     boolean checkChildTasksOfAParentTask(String taskId);
     List<Task> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
+
+    //QUERIES FOR INTERNAL PURPOSES
+    void updateProjectAlias(String taskId, String taskAlias);
 }

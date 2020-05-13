@@ -71,14 +71,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return project;
     }
 
-//    @Override
-//    public List<ProjectUserResponseDto> getAllProjects() {
-//        String sql = "SELECT * FROM Project AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false AND pu.isBlocked=false";
-//        List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
-//        return  projects;
-//    }
-
-    @Override
+     @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
         String sql = "SELECT * FROM Project_User AS pu INNER JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
@@ -192,6 +185,14 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
         return projectUserResponseDto;
     };
+
+
+    @Override
+    public List<Project> getAllProjects() {
+        String sql = "SELECT * FROM project";
+        return jdbcTemplate.query(sql, new Project());
+    }
+
 
 
 }
