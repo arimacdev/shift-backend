@@ -285,6 +285,13 @@ public class TaskServiceImpl implements TaskService {
             updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
         }
         if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty()) {
+            if(task.getIsParent()){
+                List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
+                for(Task child: children){
+                    if (child.getTaskStatus() != TaskStatusEnum.closed)
+                        return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_PENDING_CHILD_TASKS, HttpStatus.BAD_REQUEST);
+                }
+            }
             updateDto.setTaskStatus(task.getTaskStatus().toString());
         } else {
             updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
@@ -752,7 +759,7 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         if(!task.getIsParent())
             return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
-        List<TaskUserResponseDto> children = taskRepository.getAllChildrenOfParentTask(taskId);
+        List<TaskUserResponseDto> children = taskRepository.getAllChildrenOfParentTaskWithProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, children);
     }
 
@@ -806,6 +813,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Deprecated
     public Object addParentToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
@@ -827,6 +835,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Deprecated
     public Object addChildToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
         return null;
     }

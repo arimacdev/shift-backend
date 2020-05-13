@@ -18,7 +18,8 @@ public enum ResponseMessage {
     TASK_NOT_PARENT_TASK("This Task is not a Parent task"),
     CANNNOT_TRANSITION_CHILD_TASK("Cannot Transition a Child Task"),
     PARENT_TASK_NOT_FOUND("Parent Task Not Found"),
-    PARENT_TASK_HAS_CHILDREN("Parent Task Has Children")
+    PARENT_TASK_HAS_CHILDREN("Parent Task Has Children"),
+    PARENT_TASK_HAS_PENDING_CHILD_TASKS("Parent Task Has Pending Children")
     ;
 
 

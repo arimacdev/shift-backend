@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskCompletionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupResponseDto;
@@ -253,6 +254,27 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
          List<TaskFileUserProfileDto> fileList = taskFileRepository.getTaskFilesWithUserProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileList);
+    }
+
+    @Override
+    public Object transitionFromParentToChild(String userId, String taskGroupId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
+        TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+       if (!task.getIsParent())
+            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.BAD_REQUEST);
+        if (taskGroupTaskRepository.checkChildTasksOfAParentTask(taskId))
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.BAD_REQUEST);
+        TaskGroupTask parentTask = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskParentChildUpdateDto.getNewParent());
+        if (parentTask == null)
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.BAD_REQUEST);
+        if (!parentTask.getIsParent())
+            return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+        taskGroupTaskRepository.transitionFromParentToChild(taskId, taskParentChildUpdateDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
     }
 
     private Map<String, TaskCompletionDto> getTaskCompletionMap(List<TaskGroupTask> taskList){

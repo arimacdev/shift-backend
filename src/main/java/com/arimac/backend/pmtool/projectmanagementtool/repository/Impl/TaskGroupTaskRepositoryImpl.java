@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
@@ -111,5 +112,29 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
         List<TaskGroupTaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskGroupTaskUserResponseDto(), taskGroupId);
         return  taskList;
     }
+
+    @Override
+    public boolean checkChildTasksOfAParentTask(String taskId) {
+        String sql = "SELECT * FROM TaskGroupTask WHERE parentId=? AND isDeleted=false";
+        List<TaskGroupTask> children = jdbcTemplate.query(sql, new TaskGroupTask(), taskId);
+        if (children.isEmpty())
+            return false;
+        else
+            return true;
+    }
+
+    @Override
+    public void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE TaskGroupTask SET parentId=?, isParent=? WHERE taskId=?");
+            preparedStatement.setString(1, taskParentChildUpdateDto.getNewParent());
+            preparedStatement.setBoolean(2, false);
+            preparedStatement.setString(3, taskId);
+
+            return preparedStatement;
+        });
+    }
+
+
 
 }

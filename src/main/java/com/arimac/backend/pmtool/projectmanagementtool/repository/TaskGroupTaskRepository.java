@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
@@ -15,5 +16,6 @@ public interface TaskGroupTaskRepository {
     List<TaskGroupTaskUserResponseDto> getAllParentTasksWithProfile(String taskGroupId);
     List<TaskGroupTaskUserResponseDto> getAllChildTasksWithProfile(String taskGroupId);
     List<TaskGroupTaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String taskGroupId);
-
+    boolean checkChildTasksOfAParentTask(String taskId);
+    void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
 }

@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 
@@ -12,4 +13,5 @@ public interface TaskGroupTaskService {
     Object getTaskCompletionUserDetails(String userId, String taskGroupId);
     Object getAllUserAssignedTasks(String userId, String taskGroupId);
     Object getProjectTaskFiles(String userId, String taskGroupId, String taskId);
+    Object transitionFromParentToChild(String userId, String taskGroupId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
 }
