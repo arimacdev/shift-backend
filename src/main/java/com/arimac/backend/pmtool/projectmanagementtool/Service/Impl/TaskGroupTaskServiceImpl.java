@@ -289,7 +289,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         if(!task.getIsParent())
             return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
-        List<TaskGroupTask> children = taskGroupTaskRepository.getAllChildrenOfParentTask(taskId);
+        List<TaskGroupTaskUserResponseDto> children = taskGroupTaskRepository.getAllChildrenOfParentTaskWithProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, children);
     }
 

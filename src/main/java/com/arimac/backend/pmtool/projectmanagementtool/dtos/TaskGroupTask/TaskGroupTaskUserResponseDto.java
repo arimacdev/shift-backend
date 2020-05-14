@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskGroupTaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -23,6 +24,7 @@ public class TaskGroupTaskUserResponseDto implements RowMapper<TaskGroupTaskUser
     private boolean isDeleted;
     private String taskAssigneeProfileImage;
     private String parentId;
+    @JsonProperty
     private boolean isParent;
 
     public TaskGroupTaskUserResponseDto() {

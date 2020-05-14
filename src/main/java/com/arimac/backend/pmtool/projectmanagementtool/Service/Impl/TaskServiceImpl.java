@@ -157,10 +157,11 @@ public class TaskServiceImpl implements TaskService {
             notification.setHourly(false);
             notificationRepository.addTaskNotification(notification);
 //            Slack Notification
-            CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskAssignNotification(task);
-            });
+
         }
+        CompletableFuture.runAsync(()-> {
+            notificationService.sendTaskAssignNotification(task);
+        });
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 

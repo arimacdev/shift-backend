@@ -128,7 +128,7 @@ public class NotificationServiceImpl implements NotificationService {
                 DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
                 bodyText.append(getDueDate(dueUtc));
             } else {
-                bodyText.append("Not Due Date Assigned");
+                bodyText.append("No Due Date Assigned");
             }
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
@@ -214,7 +214,7 @@ public class NotificationServiceImpl implements NotificationService {
                 DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
                 bodyText.append(getDueDate(dueUtc));
             } else {
-                bodyText.append("Not Due Date Assigned");
+                bodyText.append("No Due Date Assigned");
             }
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
@@ -767,7 +767,7 @@ public class NotificationServiceImpl implements NotificationService {
 //            DateTime dueUtc = new DateTime(due, DateTimeZone.forID("UTC"));
             bodyText.append(getDueDate(dueUtc));
         } else {
-            bodyText.append("Not Due Date Assigned");
+            bodyText.append("No Due Date Assigned");
         }
         body.getText().setText(bodyText.toString());
         body.getAccessory().setType("image");
