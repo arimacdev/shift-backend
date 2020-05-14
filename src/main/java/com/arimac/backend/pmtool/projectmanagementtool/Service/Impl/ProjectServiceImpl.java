@@ -47,7 +47,7 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         boolean checkAlias = projectRepository.checkProjectAlias(projectDto.getProjectAlias());
         if (checkAlias){
-            return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.UNPROCESSABLE_ENTITY);
         }
         Project project = new Project();
         //TODO check role of user
