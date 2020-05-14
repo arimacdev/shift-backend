@@ -10,6 +10,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 public interface NpTaskService {
     Object addPersonalTask(PersonalTaskDto taskDto);
     Object getAllPersonalTasks(String userId);
+    Object getPersonalTask(String userId, String taskId);
     Object updatePersonalTask(String userId, String taskId, PersonalTaskUpdateDto taskUpdateDto);
     Object addSubTaskToPersonalTask(String taskId, SubTaskDto subTaskDto);
     Object getAllSubTaksOfATask(String userId, String taskId);

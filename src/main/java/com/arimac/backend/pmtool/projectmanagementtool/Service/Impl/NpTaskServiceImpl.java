@@ -78,6 +78,15 @@ public class NpTaskServiceImpl implements NpTaskService {
     }
 
     @Override
+    public Object getPersonalTask(String userId, String taskId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        PersonalTask personalTask = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, personalTask);
+    }
+
+    @Override
     public Object updatePersonalTask(String userId, String taskId, PersonalTaskUpdateDto taskUpdateDto) {
         PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
