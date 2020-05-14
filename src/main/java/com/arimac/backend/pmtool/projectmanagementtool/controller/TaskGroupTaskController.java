@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
@@ -88,5 +89,22 @@ public class TaskGroupTaskController extends ResponseController {
         logger.info("HIT - GET /taskgroup/<taskgroupId>/tasks/<taskId>/files ---> getTaskGroupTaskFiles | taskgroupId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
         return sendResponse(taskGroupTaskService.getProjectTaskFiles(userId, taskgroupId, taskId));
     }
+
+    @ApiOperation(value = "Transition from Parent to Child Task", notes = "Transition from Parent to Child Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{taskgroupId}/tasks/{taskId}/parent/transition")
+    public ResponseEntity<Object> transitionFromParentToChild(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+        logger.info("HIT - PUT /<taskgroupId>/tasks/<taskId>/parent/transition ---> transitionFromParentToChild | taskgroupId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", taskgroupId, userId, taskId, taskParentChildUpdateDto);
+        return sendResponse(taskGroupTaskService.transitionFromParentToChild(userId, taskgroupId, taskId, taskParentChildUpdateDto));
+    }
+
+    @ApiOperation(value = "Get Children of a Parent Task", notes = "Get Children of a Parent Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{taskgroupId}/tasks/{taskId}/children")
+    public ResponseEntity<Object> getAllChildrenOfParentTask(@RequestHeader("user") String userId, @PathVariable("taskgroupId") String taskgroupId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET /<taskgroupId>/tasks/<taskId>/children ---> getAllChildrenOfParentTask | taskgroupId: {} | userId: {} | taskId: {}", taskgroupId, userId, taskId);
+        return sendResponse(taskGroupTaskService.getAllChildrenOfParentTask(userId, taskgroupId, taskId));
+    }
+
 
 }

@@ -77,5 +77,11 @@ public class PersonalTaskRepositoryImpl implements PersonalTaskRepository {
         String sql = "UPDATE PersonalTask SET isDeleted=? WHERE taskId=?";
         jdbcTemplate.update(sql,true, taskId);
     }
+
+    @Override
+    public List<PersonalTask> getAllPersonalTasksOfAllUsers() {
+        String sql = "SELECT * FROM Task WHERE taskType=?";
+        return jdbcTemplate.query(sql, new PersonalTask(), "personal");
+    }
 }
 

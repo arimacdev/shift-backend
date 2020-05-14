@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 
 public enum ResponseMessage {
     SUCCESS("success"),
+    PROJECT_ALIAS_EXIST("Project Alias Exists"),
     NO_RECORD("No Record"),
     PROJECT_NOT_FOUND("Project Not Found"),
     NO_ACCESS("Records cannot be accessed"),
@@ -18,7 +19,8 @@ public enum ResponseMessage {
     TASK_NOT_PARENT_TASK("This Task is not a Parent task"),
     CANNNOT_TRANSITION_CHILD_TASK("Cannot Transition a Child Task"),
     PARENT_TASK_NOT_FOUND("Parent Task Not Found"),
-    PARENT_TASK_HAS_CHILDREN("Parent Task Has Children")
+    PARENT_TASK_HAS_CHILDREN("Parent Task Has Children"),
+    PARENT_TASK_HAS_PENDING_CHILD_TASKS("Parent Task Has Pending Children")
     ;
 
 

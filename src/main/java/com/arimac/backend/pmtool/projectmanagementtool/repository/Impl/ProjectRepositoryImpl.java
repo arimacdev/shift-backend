@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -70,14 +71,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return project;
     }
 
-//    @Override
-//    public List<ProjectUserResponseDto> getAllProjects() {
-//        String sql = "SELECT * FROM Project AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId AND p.isDeleted=false AND pu.isBlocked=false";
-//        List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query);
-//        return  projects;
-//    }
-
-    @Override
+     @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
         String sql = "SELECT * FROM Project_User AS pu INNER JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
@@ -87,13 +81,14 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public void updateProject(Project project, String projectId) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=? WHERE projectId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=? WHERE projectId=?");
             preparedStatement.setString(1, project.getProjectName());
             preparedStatement.setString(2, project.getClientId());
             preparedStatement.setTimestamp(3,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
             preparedStatement.setTimestamp(4, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
             preparedStatement.setString(5, project.getProjectStatus().toString());
-            preparedStatement.setString(6, projectId);
+            preparedStatement.setString(6, project.getProjectAlias());
+            preparedStatement.setString(7, projectId);
 
             return preparedStatement;
         });
@@ -165,6 +160,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         });
     }
 
+    @Override
+    public boolean checkProjectAlias(String alias) {
+        String sql = "SELECT EXISTS (SELECT * FROM project WHERE projectAlias=? LIMIT 1)";
+        try {
+            return jdbcTemplate.queryForObject(sql, Boolean.class, alias);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
@@ -179,8 +184,17 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
         projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
         projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
+        projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
         return projectUserResponseDto;
     };
+
+
+    @Override
+    public List<Project> getAllProjects() {
+        String sql = "SELECT * FROM project";
+        return jdbcTemplate.query(sql, new Project());
+    }
+
 
 
 }

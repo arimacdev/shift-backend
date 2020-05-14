@@ -19,12 +19,13 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private Timestamp projectEndDate;
     private boolean isDeleted;
     private boolean blockedStatus;
+    private String projectAlias;
 
     public ProjectUserResponseDto() {
     }
 
 
-    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus) {
+    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias) {
         this.projectId = projectId;
         this.clientId = clientId;
         this.assigneeId = assigneeId;
@@ -37,6 +38,7 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectEndDate = projectEndDate;
         this.isDeleted = isDeleted;
         this.blockedStatus = blockedStatus;
+        this.projectAlias = projectAlias;
     }
 
     public String getAssigneeJobRole() {
@@ -135,6 +137,14 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.clientId = clientId;
     }
 
+    public String getProjectAlias() {
+        return projectAlias;
+    }
+
+    public void setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
@@ -149,7 +159,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
                 resultSet.getBoolean("isDeleted"),
-                resultSet.getBoolean("blockedStatus")
+                resultSet.getBoolean("blockedStatus"),
+                resultSet.getString("projectAlias")
         );
     }
 }

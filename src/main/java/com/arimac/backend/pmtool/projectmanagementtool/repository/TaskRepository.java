@@ -24,6 +24,8 @@ public interface TaskRepository {
     void flagProjectBoundTasks(String projectId);
     List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
     List<WorkLoadProjectDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to);
+
+    List<WorkLoadProjectDto> taskFilteration();
     // Personal Tasks and Task List
     //List<Task> getAllPersonalTasks(String userId);
     //update sprint
@@ -31,7 +33,11 @@ public interface TaskRepository {
     void updateProjectTaskParent(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     void addParentToParentTask(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
-    List<TaskUserResponseDto> getAllChildrenOfParentTask(String taskId);
+    List<TaskUserResponseDto> getAllChildrenOfParentTaskWithProfile(String taskId);
+    List<Task> getAllChildrenOfParentTask(String taskId);
     boolean checkChildTasksOfAParentTask(String taskId);
     List<Task> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
+
+    //QUERIES FOR INTERNAL PURPOSES
+    void updateProjectAlias(String taskId, String taskAlias);
 }

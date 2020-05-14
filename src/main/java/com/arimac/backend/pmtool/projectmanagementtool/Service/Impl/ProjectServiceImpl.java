@@ -45,6 +45,10 @@ public class ProjectServiceImpl implements ProjectService {
     public Object createProject(ProjectDto projectDto) {
         if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        boolean checkAlias = projectRepository.checkProjectAlias(projectDto.getProjectAlias());
+        if (checkAlias){
+            return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.BAD_REQUEST);
+        }
         Project project = new Project();
         //TODO check role of user
         String projectId = utilsService.getUUId();
@@ -160,6 +164,11 @@ public class ProjectServiceImpl implements ProjectService {
             updatedProject.setProjectEndDate(projectEditDto.getProjectEndDate());
         } else {
             updatedProject.setProjectEndDate(modifierProject.getProjectEndDate());
+        }
+        if (projectEditDto.getProjectAlias() != null && !projectEditDto.getProjectAlias().isEmpty()){
+            updatedProject.setProjectAlias(projectEditDto.getProjectAlias());
+        } else {
+            updatedProject.setProjectAlias(modifierProject.getProjectAlias());
         }
         projectRepository.updateProject(updatedProject, projectId);
 
