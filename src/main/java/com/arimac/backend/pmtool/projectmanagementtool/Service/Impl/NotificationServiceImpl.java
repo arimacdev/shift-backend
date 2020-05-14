@@ -876,7 +876,7 @@ public class NotificationServiceImpl implements NotificationService {
         StringBuilder taskUrl = new StringBuilder();
         taskUrl.append("*<");
         taskUrl.append(SlackMessages.FRONTEND_URL);
-        taskUrl.append("task/");
+        taskUrl.append("/task/");
         taskUrl.append(task.getTaskId());
         taskUrl.append("/?project=");
         taskUrl.append(task.getProjectId());
@@ -891,7 +891,7 @@ public class NotificationServiceImpl implements NotificationService {
         StringBuilder taskUrl = new StringBuilder();
         taskUrl.append("*<");
         taskUrl.append(SlackMessages.FRONTEND_URL);
-        taskUrl.append("projects/");
+        taskUrl.append("/projects/");
         taskUrl.append(project.getProjectId());
         taskUrl.append("|");
         taskUrl.append(project.getProjectName());
