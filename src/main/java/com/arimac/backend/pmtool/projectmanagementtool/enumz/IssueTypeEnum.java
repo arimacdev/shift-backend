@@ -6,5 +6,6 @@ public enum IssueTypeEnum {
     bug,
     design,
     operational,
-    preSales
+    preSales,
+    general
 }

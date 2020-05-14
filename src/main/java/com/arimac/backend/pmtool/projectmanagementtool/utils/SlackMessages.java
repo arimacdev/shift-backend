@@ -44,7 +44,7 @@ public class SlackMessages {
     public static  final String PREVIOUS_DUE_DATE_ICON = "\n:red_circle:   *Previous DueDate:* ";
     public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
-    public static  final String FRONTEND_URL = ENVConfig.KEYCLOAK_HOST;
+    public static  final String FRONTEND_URL = ENVConfig.BASE_URL;
 
     public static  final String CALENDER_THUMBNAIL = "https://api.slack.com/img/blocks/bkb_template_images/notifications.png";
     public static  final String ASSIGNMENT_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587030954303_assigned.png";
