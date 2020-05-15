@@ -50,7 +50,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         User creator = userRepository.getUserByUserId(taskGroupDto.getTaskGroupCreator());
         if (creator == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         TaskGroup taskGroup = new TaskGroup();
         taskGroup.setTaskGroupId(utilsService.getUUId());
         taskGroup.setTaskGroupName(taskGroupDto.getTaskGroupName());
@@ -72,7 +72,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
     public Object getAllTaskGroupsByUser(String userId) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<TaskGroup_MemberResponseDto> taskGroups = taskGroupRepository.getAllTaskGroupsWithGroup(userId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskGroups);
     }
@@ -89,7 +89,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
             return new ErrorMessage("Already a member", HttpStatus.FORBIDDEN);
         User newUser = userRepository.getUserByUserId(taskGroupAddDto.getTaskGroupAssignee());
         if (newUser == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         TaskGroup_Member member = new TaskGroup_Member();
         member.setTaskGroupId(taskGroupAddDto.getTaskGroupId());
         member.setTaskGroupMemberId(taskGroupAddDto.getTaskGroupAssignee());
@@ -106,7 +106,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskGroupUpdateDto.getTaskGroupEditor(), taskGroupId);
         if (owner == null)
-            return new ErrorMessage("User is not the Group Member", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("User is not the Group Member", HttpStatus.UNAUTHORIZED);
         if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
             return new ErrorMessage("User is not the Group Owner", HttpStatus.UNAUTHORIZED);
         taskGroupRepository.updateTaskGroup(taskGroupId,taskGroupUpdateDto);
@@ -119,7 +119,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
     public Object flagTaskGroup(String taskGroupId, String userId) {
         TaskGroup_Member owner = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
         if (owner == null)
-            return new ErrorMessage("User is not the Group Member", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("User is not the Group Member", HttpStatus.UNAUTHORIZED);
         if (owner.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
             return new ErrorMessage("User is not the Group Owner", HttpStatus.UNAUTHORIZED);
         TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupId);

@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
     public Object getUserByUserId(String userId) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
 
         //JSONObject IdpUser = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
         UserResponseDto userResponseDto = new UserResponseDto();
@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
     public Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         UserUpdateDto dto = new UserUpdateDto();
         if (userUpdateDto.getEmail() != null){
             dto.setEmail(userUpdateDto.getEmail());
@@ -201,7 +201,7 @@ public class UserServiceImpl implements UserService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssigneeId());
         if (user == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         userRepository.addSlackIdToUser(userId, slackNotificationDto.getAssigneeSlackId());
         return new Response(ResponseMessage.SUCCESS);
     }
@@ -210,7 +210,7 @@ public class UserServiceImpl implements UserService {
     public Object updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto) {
         User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssigneeId());
         if (user == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!slackNotificationDto.getSlackAssignerId().equals(slackNotificationDto.getSlackAssigneeId()))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         if (user.getUserSlackId() == null)
