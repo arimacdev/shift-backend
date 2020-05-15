@@ -269,9 +269,9 @@ public class TaskServiceImpl implements TaskService {
         } else {
             updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
         }
-        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty()) {
+        if (taskUpdateDto.getTaskStatus() == null) {
             updateDto.setTaskStatus(task.getTaskStatus().toString());
-        } else {
+        } else if(task.getIsParent() && !taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed.toString())){
             if(task.getIsParent()){
                 List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
                 for(Task child: children){
@@ -280,7 +280,8 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
             updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
-        }
+        } else
+            updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
         if (taskUpdateDto.getTaskDueDate() == null) {
             updateDto.setTaskDueDate(task.getTaskDueDateAt());
         } else {
