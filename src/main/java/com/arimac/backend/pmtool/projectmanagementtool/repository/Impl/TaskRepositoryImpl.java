@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.slf4j.Logger;
@@ -175,7 +176,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion() {
 //        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false";
-        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL)";
+        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.project WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL)";
         List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto());
         return workLoadList;
     }
@@ -198,16 +199,23 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
     }
 
+
     @Override
-    public List<WorkLoadProjectDto> taskFilteration() {
-        String baseQuery = "SELECT * FROM Task INNER JOIN project ON projectId = projectIdentity";
-        String conditionQuery = "WHERE (project.isDeleted=false) AND (Task.isDeleted = false OR t.isDeleted IS NULL) AND";
-        String incomingQuery = "";
-        StringBuilder completeQuery = new StringBuilder();
-        completeQuery.append(baseQuery);
-        completeQuery.append(conditionQuery);
-        completeQuery.append(incomingQuery);
-        return jdbcTemplate.query(completeQuery.toString(), new WorkLoadProjectDto());
+    public List<WorkLoadProjectDto> taskFilteration(String incomingQuery, String orderQuery) {
+        String baseQuery = "SELECT * FROM Task INNER JOIN project ON projectId = project WHERE ";
+        String conditionQuery = " AND (project.isDeleted=false) AND (Task.isDeleted = false OR Task.isDeleted IS NULL)";
+        String orderBy = "ORDER BY ";
+        String completeQuery;
+        if (orderQuery == null || orderQuery.isEmpty())
+            completeQuery = baseQuery + incomingQuery + conditionQuery + orderBy;
+        else
+            completeQuery = baseQuery + incomingQuery + conditionQuery + orderBy + orderQuery;
+        logger.info("Final Query : {}", completeQuery);
+        try{
+            return jdbcTemplate.query(completeQuery, new WorkLoadProjectDto());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     @Override

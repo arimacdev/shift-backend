@@ -739,6 +739,12 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, filteredList);
     }
 
+    @Override
+    public Object workloadQueryFilter(String userId, String query, String order) {
+        List<WorkLoadProjectDto> list = taskRepository.taskFilteration(query, order);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
+    }
+
 }
 
 

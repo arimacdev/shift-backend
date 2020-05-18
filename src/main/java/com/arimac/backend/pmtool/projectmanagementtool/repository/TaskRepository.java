@@ -25,7 +25,7 @@ public interface TaskRepository {
     List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
     List<WorkLoadProjectDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to);
 
-    List<WorkLoadProjectDto> taskFilteration();
+    List<WorkLoadProjectDto> taskFilteration(String incomingQuery, String orderQuery);
     // Personal Tasks and Task List
     //List<Task> getAllPersonalTasks(String userId);
     //update sprint
