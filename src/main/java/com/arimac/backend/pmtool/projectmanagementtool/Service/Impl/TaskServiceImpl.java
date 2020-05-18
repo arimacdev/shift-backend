@@ -10,6 +10,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
@@ -21,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -741,7 +745,22 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object workloadQueryFilter(String userId, String query, String order) {
-        List<WorkLoadProjectDto> list = taskRepository.taskFilteration(query, order);
+        String decodedQuery;
+        try {
+            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e){
+            throw new PMException(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        String words[] = decodedQuery.split("\\s+");
+        for (String word : words){
+            boolean type = FilterQueryTypeEnum.contains(word);
+            boolean operator = FilterQueryOperatorEnum.contains(word);
+            boolean argument = word.startsWith("(\"") && word.endsWith("\")");
+            if (!type && !operator && !argument)
+                return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+            logger.info("word: {}", word, type);
+        }
+        List<WorkLoadProjectDto> list = taskRepository.taskFilteration(decodedQuery, order);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
     }
 
