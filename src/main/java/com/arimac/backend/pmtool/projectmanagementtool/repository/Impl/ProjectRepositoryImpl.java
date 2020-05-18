@@ -30,7 +30,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project createProject(Project project) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(projectId, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount) values (?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount) values (?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, project.getProjectId());
             preparedStatement.setString(2, project.getProjectName());
             preparedStatement.setString(3, project.getProjectAlias());
@@ -49,7 +49,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project getProjectById(String projectId) {
-        String sql = "SELECT * FROM project WHERE projectId=?";
+        String sql = "SELECT * FROM project WHERE project=?";
         Project project;
         try {
             return jdbcTemplate.queryForObject(sql, new Project(), projectId);
@@ -60,7 +60,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
+        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.project WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
         ProjectUserResponseDto project;
         try {
             project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
@@ -73,7 +73,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
      @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
-        String sql = "SELECT * FROM Project_User AS pu INNER JOIN project AS p ON pu.projectId=p.projectId WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
+        String sql = "SELECT * FROM Project_User AS pu INNER JOIN project AS p ON pu.projectId=p.project WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
     }
@@ -81,7 +81,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public void updateProject(Project project, String projectId) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=? WHERE projectId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=? WHERE project=?");
             preparedStatement.setString(1, project.getProjectName());
             preparedStatement.setString(2, project.getClientId());
             preparedStatement.setTimestamp(3,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
@@ -133,13 +133,13 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void flagProject(String projectId) {
-        String sql = "UPDATE project SET isDeleted=true WHERE projectId=?";
+        String sql = "UPDATE project SET isDeleted=true WHERE project=?";
         jdbcTemplate.update(sql,projectId);
     }
 
     @Override
     public void unFlagProject(String projectId) {
-        String sql = "UPDATE project SET isDeleted=false WHERE projectId=?";
+        String sql = "UPDATE project SET isDeleted=false WHERE project=?";
         jdbcTemplate.update(sql, projectId);
     }
 
@@ -152,7 +152,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public void updateIssueCount(String projectId, int issueId) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET issueCount=? WHERE projectId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET issueCount=? WHERE project=?");
             preparedStatement.setInt(1,issueId);
             preparedStatement.setString(2, projectId);
 
@@ -172,7 +172,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
-        projectUserResponseDto.setProjectId(resultSet.getString("projectId"));
+        projectUserResponseDto.setProjectId(resultSet.getString("project"));
         projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
         projectUserResponseDto.setClientId(resultSet.getString("clientId"));
         projectUserResponseDto.setProjectStartDate(resultSet.getTimestamp("projectStartDate"));
