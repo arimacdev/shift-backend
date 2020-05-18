@@ -95,7 +95,7 @@ public class ProjectServiceImpl implements ProjectService {
     public Object getProjectByUser(String projectId, String userId) {
         ProjectUserResponseDto userProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (userProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         return new Response(ResponseMessage.SUCCESS, userProject);
     }
 

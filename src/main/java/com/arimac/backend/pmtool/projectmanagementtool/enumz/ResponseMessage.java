@@ -4,6 +4,8 @@ public enum ResponseMessage {
     SUCCESS("success"),
     PROJECT_ALIAS_EXIST("Project Alias Exists"),
     NO_RECORD("No Record"),
+    SPRINT_NOT_FOUND("Sprint Not Found"),
+    TASK_NOT_FOUND("Task Not Found"),
     PROJECT_NOT_FOUND("Project Not Found"),
     NO_ACCESS("Records cannot be accessed"),
     ALREADY_ASSIGNED("Already Assigned"),

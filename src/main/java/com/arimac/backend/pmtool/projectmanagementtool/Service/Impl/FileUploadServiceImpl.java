@@ -103,7 +103,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskgroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         String taskUrl = fileQueue(multipartFile, fileType);
         List<String> fileUrlList = new ArrayList<>();
         fileUrlList.add(taskUrl);
@@ -124,7 +124,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     public Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
         PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<String> fileUrlList = new ArrayList<>();
         String taskUrl = fileQueue(multipartFiles, fileType);
         fileUrlList.add(taskUrl);
@@ -152,11 +152,11 @@ public class FileUploadServiceImpl implements FileUploadService {
     public Object deleteFileFromTask(String userId, String projectId, String taskId, String taskFile) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null) {
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+                return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
             }
             Task task = taskRepository.getProjectTask(taskId);
             if (task == null)
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+                return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
             if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
                 return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         taskFileRepository.flagTaskFile(taskFile);
@@ -170,7 +170,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskgroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         taskFileRepository.flagTaskFile(taskFile);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }

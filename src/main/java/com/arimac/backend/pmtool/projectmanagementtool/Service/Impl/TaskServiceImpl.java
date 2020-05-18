@@ -69,14 +69,6 @@ public class TaskServiceImpl implements TaskService {
                 if (taskAssignee == null)
                     return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_MEMBER, HttpStatus.NOT_FOUND);
             }
-//        } else if (taskDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskInitiator(), taskDto.getProjectId());
-//            if (member == null)
-//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-//            if (taskDto.getTaskAssignee() != null)
-//                if (taskGroupRepository.getTaskGroupMemberByTaskGroup(taskDto.getTaskAssignee(), taskDto.getProjectId()) == null)
-//                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-//        }
         Project project = projectRepository.getProjectById(projectId);
         if (project == null)
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -86,7 +78,7 @@ public class TaskServiceImpl implements TaskService {
             if (parentTask == null)
                 return new ErrorMessage("No Such Parent Task", HttpStatus.NOT_FOUND);
             if (!parentTask.getIsParent())
-                return new ErrorMessage("Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+                return new ErrorMessage("Task is not a Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
             task.setIsParent(false);
         } else {
             task.setIsParent(true);
@@ -193,14 +185,6 @@ public class TaskServiceImpl implements TaskService {
         List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
-//        } else {
-//            List<TaskUserResponseDto> taskList = taskRepository.getAllProjectTasksWithProfile(projectId);
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-//            if (member == null)
-//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-//            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
-//        }
-
     }
 
     @Override
@@ -285,18 +269,19 @@ public class TaskServiceImpl implements TaskService {
         } else {
             updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
         }
-        if (taskUpdateDto.getTaskStatus() == null || taskUpdateDto.getTaskStatus().isEmpty()) {
+        if (taskUpdateDto.getTaskStatus() == null) {
             updateDto.setTaskStatus(task.getTaskStatus().toString());
-        } else {
+        } else if(task.getIsParent() && !taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed.toString())){
             if(task.getIsParent()){
                 List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
                 for(Task child: children){
                     if (child.getTaskStatus() != TaskStatusEnum.closed)
-                        return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_PENDING_CHILD_TASKS, HttpStatus.BAD_REQUEST);
+                        return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_PENDING_CHILD_TASKS, HttpStatus.UNPROCESSABLE_ENTITY);
                 }
             }
             updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
-        }
+        } else
+            updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
         if (taskUpdateDto.getTaskDueDate() == null) {
             updateDto.setTaskDueDate(task.getTaskDueDateAt());
         } else {
@@ -361,20 +346,13 @@ public class TaskServiceImpl implements TaskService {
             if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
                 return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
             notificationRepository.deleteNotification(taskId);
-//        } else if (taskType.equals(TaskTypeEnum.taskGroup)){
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-//            if (member == null)
-//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-//            if (member.getTaskGroupRole() != TaskGroupRoleEnum.owner.getRoleValue())
-//                return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
-//        }
         taskRepository.flagProjectTask(taskId);
         subTaskRepository.flagTaskBoundSubTasks(taskId);
         List<TaskFile>  taskFileList = taskFileRepository.getAllTaskFiles(taskId);
         for (TaskFile taskFile: taskFileList) {
             taskFileRepository.flagTaskFile(taskFile.getTaskFileId());
         }
-        return new Response(ResponseMessage.SUCCESS);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     private Map<String, TaskCompletionDto> getTaskCompletionMap(List<Task> taskList){
@@ -441,34 +419,6 @@ public class TaskServiceImpl implements TaskService {
                 userTaskStatusList.add(userTaskStatus);
             }
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
-//        } else if (type.equals(TaskTypeEnum.taskGroup)){
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-//            if (member == null)
-//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-//            List<UserTaskGroupResponseDto> userTaskStatusList = new ArrayList<>();
-//            List<UserTaskGroupDto> userTaskGroupDtoList = userRepository.getUsersTaskGroupDetails(projectId);
-//            for (UserTaskGroupDto taskGroupUser: userTaskGroupDtoList){
-//                TaskCompletionDto taskStatus = userTaskCompletionMap.get(taskGroupUser.getAssigneeId());
-//                UserTaskGroupResponseDto userTaskGroupStatus = new UserTaskGroupResponseDto();
-//                userTaskGroupStatus.setAssigneeId(taskGroupUser.getAssigneeId());
-//                userTaskGroupStatus.setTaskGroupId(taskGroupUser.getTaskGroupId());
-//                userTaskGroupStatus.setAssigneeFirstName(taskGroupUser.getAssigneeFirstName());
-//                userTaskGroupStatus.setAssigneeLastName(taskGroupUser.getAssigneeLastName());
-//                userTaskGroupStatus.setAssigneeProfileImage(taskGroupUser.getAssigneeProfileImage());
-//                userTaskGroupStatus.setTaskGroupRole(taskGroupUser.getTaskGroupRole());
-//                if (taskStatus != null) {
-//                    userTaskGroupStatus.setTasksCompleted(taskStatus.getCompleted());
-//                    userTaskGroupStatus.setTotalTasks(taskStatus.getTotalTasks());
-//                } else {
-//                    userTaskGroupStatus.setTasksCompleted(0);
-//                    userTaskGroupStatus.setTotalTasks(0);
-//                }
-//                userTaskStatusList.add(userTaskGroupStatus);
-//            }
-//            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userTaskStatusList);
-//        } else {
-//            return new ErrorMessage("Invalid Task Type", HttpStatus.BAD_REQUEST);
-//        }
     }
 
     @Override
@@ -520,7 +470,7 @@ public class TaskServiceImpl implements TaskService {
         //TODO Admin validation
         User adminUser = userRepository.getUserByUserId(userId);
         if (adminUser == null){
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUsersWithTaskCompletion();
         if (workLoadList.isEmpty())
@@ -567,92 +517,14 @@ public class TaskServiceImpl implements TaskService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userWorkLoadResponse);
     }
 
-//    @Override
-//    public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
-//        User adminUser = userRepository.getUserByUserId(admin);
-//        if (adminUser == null)
-//            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-//        User projectUser = userRepository.getUserByUserId(userId);
-//        if (projectUser == null)
-//            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
-//        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId, from, to);
-//        Map<String,UserProjectWorkLoadDto> userProjectWorkLoadMap = new HashMap<>();
-//        for (WorkLoadTaskStatusDto workLoadTaskItem : workLoadList){
-//            UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
-//            if (mapItem != null){
-//                if (workLoadTaskItem.getTaskStatus().equals("closed")) {
-//                    mapItem.setCompleted(mapItem.getCompleted() + 1);
-//                    mapItem.setTotal(mapItem.getTotal() + 1);
-//                } else {
-//                    mapItem.setTotal(mapItem.getTotal() + 1);
-//                }
-//                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-//                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-//                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-//                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-//                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-//                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-//                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-//                    List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
-//                    taskList.add(projectTaskWorkLoad);
-//                    mapItem.setTaskList(taskList); /** check here */
-//                    userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
-//            } else {
-//                UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
-//                projectWorkLoad.setUserId(workLoadTaskItem.getUserId());
-//                projectWorkLoad.setProjectId(workLoadTaskItem.getProjectId());
-//                projectWorkLoad.setProjectName(workLoadTaskItem.getProjectName());
-//                ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-//                projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-//                projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-//                projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-//                projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-//                projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-//                projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-//                List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-//                taskList.add(projectTaskWorkLoad);
-//                projectWorkLoad.setTaskList(taskList);
-//                if (workLoadTaskItem.getTaskStatus().equals("closed")){
-//                    projectWorkLoad.setCompleted(1);
-//                    projectWorkLoad.setTotal(1);
-//                } else {
-//                    projectWorkLoad.setCompleted(0);
-//                    projectWorkLoad.setTotal(1);
-//                }
-//                userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), projectWorkLoad);
-//            }
-//        }
-//        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
-//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
-//    }
-
-//    @Override
-//    public Object getAllProjectsWithCompletion(String user, String userId) {
-//        List<ProjectUserResponseDto> projectList = projectRepository.getAllProjectsByUser(userId);
-//        List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>();
-//        for (ProjectUserResponseDto project : projectList){
-//            UserProjectWorkLoadDto projectWorkLoad = new UserProjectWorkLoadDto();
-//            projectWorkLoad.setUserId(project.getAssigneeId());
-//            projectWorkLoad.setProjectId(project.getProjectId());
-//            projectWorkLoad.setProjectName(project.getProjectName());
-//            projectWorkLoad.setCompleted(0);
-//            projectWorkLoad.setTotal(0);
-//            List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-//            projectWorkLoad.setTaskList(taskList);
-//            userProjectWorkLoadTaskResponse.add(projectWorkLoad);
-//        }
-//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
-//    }
-
-
     @Override
     public Object getAllUserAssignedTaskWithCompletion(String admin, String userId, String from, String to) {
         User adminUser = userRepository.getUserByUserId(admin);
         if (adminUser == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         User projectUser = userRepository.getUserByUserId(userId);
         if (projectUser == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<WorkLoadProjectDto> workLoadList = taskRepository.getAllUserAssignedTaskWithCompletion(userId, from, to);
         Map<String,UserProjectWorkLoadDto> userProjectWorkLoadMap = new HashMap<>();
         for (WorkLoadProjectDto workLoadTaskItem : workLoadList){
@@ -725,12 +597,12 @@ public class TaskServiceImpl implements TaskService {
     public Object updateProjectTaskSprint(String userId, String projectId, String taskId, TaskSprintUpdateDto taskSprintUpdateDto) {
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!task.getIsParent())
-            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.FORBIDDEN);
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (!task.getProjectId().equals(projectId))
-            return new ErrorMessage("Task doesnot belong to the project", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Task doesnot belong to the project", HttpStatus.FORBIDDEN);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
@@ -738,14 +610,14 @@ public class TaskServiceImpl implements TaskService {
         if (!taskSprintUpdateDto.getPreviousSprint().equals(DEFAULT)) {
             Sprint sprint = sprintRepository.getSprintById(taskSprintUpdateDto.getPreviousSprint());
             if (sprint == null)
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+                return new ErrorMessage(ResponseMessage.SPRINT_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (task.getSprintId().equals(taskSprintUpdateDto.getNewSprint()))
-            return new ErrorMessage("New Sprint Cannot be the Previous Sprint", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("New Sprint Cannot be the Previous Sprint", HttpStatus.UNPROCESSABLE_ENTITY);
         if (!taskSprintUpdateDto.getNewSprint().equals("default")) {
             Sprint newSprint = sprintRepository.getSprintById(taskSprintUpdateDto.getNewSprint());
             if (newSprint == null)
-                return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+                return new ErrorMessage(ResponseMessage.SPRINT_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
         List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
@@ -764,9 +636,9 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if(!task.getIsParent())
-            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         List<TaskUserResponseDto> children = taskRepository.getAllChildrenOfParentTaskWithProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, children);
     }
@@ -778,20 +650,20 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!task.getProjectId().equals(projectId))
-            return new ErrorMessage("Task doesn't belong to the project", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Task doesn't belong to the project", HttpStatus.UNPROCESSABLE_ENTITY);
         if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
         if (task.getIsParent())
-            return new ErrorMessage(ResponseMessage.TASK_NOT_CHILD_TASK, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (!task.getParentId().equals(taskParentChildUpdateDto.getPreviousParent()))
-            return new ErrorMessage("Invalid Parent Task", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("Invalid Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
         Task newParent = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());
         if (newParent == null)
             return new ErrorMessage("New Parent Task Not Found", HttpStatus.NOT_FOUND);
         if (!newParent.getIsParent())
-            return new ErrorMessage("New Parent Task is Not a Parent Task", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("New Parent Task is Not a Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
         taskRepository.updateProjectTaskParent(taskId, taskParentChildUpdateDto);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
@@ -804,18 +676,18 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
         if (!task.getIsParent())
-            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.BAD_REQUEST);
+            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (taskRepository.checkChildTasksOfAParentTask(taskId))
-            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.UNPROCESSABLE_ENTITY);
         Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());
         if (parentTask == null)
-            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.UNPROCESSABLE_ENTITY);
         if (!parentTask.getIsParent())
-            return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
         taskRepository.transitionFromParentToChild(taskId, taskParentChildUpdateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
     }
@@ -830,14 +702,14 @@ public class TaskServiceImpl implements TaskService {
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
         if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.UNAUTHORIZED);
         if (!task.getIsParent())
-            return new Response(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
+            return new Response(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (taskRepository.checkChildTasksOfAParentTask(taskId))
-            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.UNPROCESSABLE_ENTITY);
         Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());
         if (parentTask == null)
-            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.UNPROCESSABLE_ENTITY);
 
         return null;
     }

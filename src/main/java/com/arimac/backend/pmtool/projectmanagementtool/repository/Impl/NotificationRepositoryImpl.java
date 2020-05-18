@@ -49,10 +49,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 
     @Override
     public List<TaskAlertDto> getTaskAlertList() {
-//        String sql = "SELECT * FROM Task as t LEFT JOIN project as p ON t.projectId = p.projectId LEFT JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false";
-//        String sql = "SELECT * FROM Task as t LEFT JOIN project as p ON t.projectId = p.projectId LEFT JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL and  u.notification = true";
         String sql = "SELECT * FROM Task as t\n" +
-                "    INNER JOIN project as p ON t.projectId = p.projectId\n" +
+                "    INNER JOIN project as p ON t.projectId = p.project\n" +
                 "    INNER JOIN Notification as n ON n.taskId = t.taskId\n" +
                 "    INNER JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.daily = false OR n.hourly = false)";
         return jdbcTemplate.query(sql, new TaskAlertDto(), "closed");

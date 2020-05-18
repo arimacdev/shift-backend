@@ -67,7 +67,7 @@ public class NotificationServiceImpl implements NotificationService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         User user = userRepository.getUserByUserId(slackNotificationDto.getSlackAssignerId());
         if (user == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         userRepository.addSlackIdToUser(userId, slackNotificationDto.getAssigneeSlackId());
         return new Response(ResponseMessage.SUCCESS);
     }

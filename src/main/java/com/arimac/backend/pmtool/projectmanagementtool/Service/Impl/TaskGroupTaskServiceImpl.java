@@ -66,7 +66,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             if (parentTask == null)
                 return new ErrorMessage("No Such Parent Task", HttpStatus.NOT_FOUND);
             if (!parentTask.getIsParent())
-                return new ErrorMessage("Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+                return new ErrorMessage("Task is not a Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
             task.setIsParent(false);
             task.setParentId(taskDto.getParentTaskId());
         } else {
@@ -108,7 +108,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
 
@@ -119,7 +119,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (taskUpdateDto.getTaskAssignee() != null){
             TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskUpdateDto.getTaskAssignee(), taskGroupId);
             if (assignee == null){
@@ -166,7 +166,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
     public Object flagTaskGroupTask(String userId, String taskGroupId, String taskId) {
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
             TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskGroupId);
             if (member == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
@@ -265,16 +265,16 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
        if (!task.getIsParent())
-            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.BAD_REQUEST);
+            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (taskGroupTaskRepository.checkChildTasksOfAParentTask(taskId))
-            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.UNPROCESSABLE_ENTITY);
         TaskGroupTask parentTask = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskParentChildUpdateDto.getNewParent());
         if (parentTask == null)
-            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!parentTask.getIsParent())
-            return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.BAD_REQUEST);
+            return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
         taskGroupTaskRepository.transitionFromParentToChild(taskId, taskParentChildUpdateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
     }
@@ -286,9 +286,9 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
         TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskId);
         if (task == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if(!task.getIsParent())
-            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.BAD_REQUEST);
+            return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         List<TaskGroupTaskUserResponseDto> children = taskGroupTaskRepository.getAllChildrenOfParentTaskWithProfile(taskId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, children);
     }

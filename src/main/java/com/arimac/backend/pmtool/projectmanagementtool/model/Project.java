@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 public class Project implements RowMapper<Project> {
-    private String projectId;
+    private String project;
     private String projectName;
     private String projectAlias;
     private String clientId;
@@ -23,8 +23,8 @@ public class Project implements RowMapper<Project> {
     public Project() {
     }
 
-    public Project(String projectId, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount) {
-        this.projectId = projectId;
+    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount) {
+        this.project = project;
         this.projectName = projectName;
         this.projectAlias = projectAlias;
         this.clientId = clientId;
@@ -36,11 +36,11 @@ public class Project implements RowMapper<Project> {
     }
 
     public String getProjectId() {
-        return projectId;
+        return project;
     }
 
     public void setProjectId(String projectId) {
-        this.projectId = projectId;
+        this.project = projectId;
     }
 
     public String getProjectName() {
@@ -119,7 +119,7 @@ public class Project implements RowMapper<Project> {
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project(
-                resultSet.getString("projectId"),
+                resultSet.getString("project"),
                 resultSet.getString("projectName"),
                 resultSet.getString("projectAlias"),
                 resultSet.getString("clientId"),
