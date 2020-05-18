@@ -173,6 +173,7 @@ public class TaskRepositoryImpl implements TaskRepository {
         jdbcTemplate.update(sql, projectId);
     }
 
+    @Deprecated
     @Override
     public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion() {
 //        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false";
@@ -187,12 +188,12 @@ public class TaskRepositoryImpl implements TaskRepository {
         if (from.equals(ALL) || to.equals(ALL)) {
              sql = "SELECT * FROM Project_User AS pu\n" +
                     "        LEFT JOIN Task AS t ON (t.projectId = pu.projectId)\n" +
-                    "        INNER JOIN project p on pu.projectId = p.projectId\n" +
+                    "        INNER JOIN project p on pu.projectId = p.project\n" +
                     "WHERE (pu.assigneeId=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL)";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId);
         } else {
             sql = "SELECT * FROM Task AS t\n" +
-                    "INNER JOIN project p on t.projectId = p.projectId\n" +
+                    "INNER JOIN project p on projectId = p.project\n" +
                     "WHERE (t.taskAssignee=?) AND (p.isDeleted=false) AND (t.isDeleted = false OR t.isDeleted IS NULL )" +
                     "AND (t.taskDueDateAt BETWEEN ? AND ?)";
             return jdbcTemplate.query(sql, new WorkLoadProjectDto(), userId, from, to);
@@ -207,7 +208,7 @@ public class TaskRepositoryImpl implements TaskRepository {
         String orderBy = "ORDER BY ";
         String completeQuery;
         if (orderQuery == null || orderQuery.isEmpty())
-            completeQuery = baseQuery + incomingQuery + conditionQuery + orderBy;
+            completeQuery = baseQuery + incomingQuery + conditionQuery;
         else
             completeQuery = baseQuery + incomingQuery + conditionQuery + orderBy + orderQuery;
         logger.info("Final Query : {}", completeQuery);
