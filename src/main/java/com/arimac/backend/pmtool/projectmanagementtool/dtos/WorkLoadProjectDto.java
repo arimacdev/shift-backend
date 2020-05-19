@@ -1,4 +1,5 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -22,6 +23,7 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
     private Timestamp taskCreatedAt;
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
+    private IssueTypeEnum issueType;
 
     private String projectId;
     private String projectName;
@@ -33,7 +35,7 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
     }
 
 
-    public WorkLoadProjectDto(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate) {
+    public WorkLoadProjectDto(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, IssueTypeEnum issueType) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.taskAssignee = taskAssignee;
@@ -48,6 +50,7 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.clientId = clientId;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
+        this.issueType = issueType;
     }
 
     public String getTaskId() {
@@ -162,6 +165,14 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.projectEndDate = projectEndDate;
     }
 
+    public IssueTypeEnum getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(IssueTypeEnum issueType) {
+        this.issueType = issueType;
+    }
+
     @Override
     public WorkLoadProjectDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new WorkLoadProjectDto(
@@ -178,7 +189,8 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
                 resultSet.getString("projectName"),
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
-                resultSet.getTimestamp("projectEndDate")
+                resultSet.getTimestamp("projectEndDate"),
+                IssueTypeEnum.valueOf(resultSet.getString("issueType"))
         );
     }
 }
