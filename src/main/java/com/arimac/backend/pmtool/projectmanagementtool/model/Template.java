@@ -57,7 +57,10 @@ public class Template implements RowMapper<Template> {
     @Override
     public Template mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Template(
-//                resultSet
+                resultSet.getString("templateId"),
+                resultSet.getString("templateName"),
+                resultSet.getString("templateCreatorId"),
+                resultSet.getString("templateQuery")
         );
     }
 }

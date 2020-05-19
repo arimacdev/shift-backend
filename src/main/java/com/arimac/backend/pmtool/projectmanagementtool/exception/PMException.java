@@ -13,7 +13,7 @@ public class PMException  extends  RuntimeException{
     }
 
     public PMException(String message) {
-        this(new ErrorMessage(message, HttpStatus.INTERNAL_SERVER_ERROR));
+        this(new ErrorMessage(message, HttpStatus.BAD_REQUEST));
     }
 
 //    public PMException(ResponseMessage responseMessage){
@@ -29,7 +29,7 @@ public class PMException  extends  RuntimeException{
     }
 
     public PMException(Throwable cause){
-        this(new ErrorMessage(cause.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
+        this(new ErrorMessage(cause.getMessage(), HttpStatus.BAD_REQUEST));
     }
 
     public ErrorMessage getError(){
