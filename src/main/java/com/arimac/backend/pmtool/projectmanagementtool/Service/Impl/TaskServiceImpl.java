@@ -744,23 +744,46 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object workloadQueryFilter(String userId, String query, String order) {
+    public Object workloadQueryFilter(String userId, String query) {
         String decodedQuery;
+        String OrderBySubString = null;
+        query = query.replaceAll("%", "%25");
         try {
-            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e){
-            throw new PMException(e.getMessage(), HttpStatus.BAD_REQUEST);
+//            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
+            decodedQuery = URLDecoder.decode(query, "UTF-8");
+
+            if (decodedQuery.contains("ORDER BY")){
+            String[] split = decodedQuery.split("ORDER BY");
+            String baseSubstring = split[0];
+            OrderBySubString = split[1];
+
+            String[] words = OrderBySubString.split("\\s+");
+            List<String> orderBy = new ArrayList<String>(Arrays.asList(words));
+            orderBy.removeAll(Arrays.asList(""));
+            for (String word: orderBy){
+//                logger.info("word {}: ", word);
+                if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
+                    return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+            }
+            decodedQuery = baseSubstring;
         }
-        String words[] = decodedQuery.split("\\s+");
+        String[] words = decodedQuery.split("\\s+");
         for (String word : words){
             boolean type = FilterQueryTypeEnum.contains(word);
             boolean operator = FilterQueryOperatorEnum.contains(word);
-            boolean argument = word.startsWith("(\"") && word.endsWith("\")");
+            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")");
+//            && !word.matches("[A-Za-z0-9\\-,]
             if (!type && !operator && !argument)
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-            logger.info("word: {}", word, type);
+           // logger.info("word: {} {}", word, type);
         }
-        List<WorkLoadProjectDto> list = taskRepository.taskFilteration(decodedQuery, order);
+        } catch (UnsupportedEncodingException e){
+            throw new PMException(ResponseMessage.URL_DECODING_ERROR, HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        List<WorkLoadProjectDto> list = taskRepository.taskFilteration(decodedQuery, OrderBySubString);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
     }
 

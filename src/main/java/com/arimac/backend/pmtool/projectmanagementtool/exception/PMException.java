@@ -16,9 +16,9 @@ public class PMException  extends  RuntimeException{
         this(new ErrorMessage(message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    public PMException(ResponseMessage responseMessage){
-        this(new ErrorMessage(responseMessage, HttpStatus.INTERNAL_SERVER_ERROR));
-    }
+//    public PMException(ResponseMessage responseMessage){
+//        this(new ErrorMessage(responseMessage, HttpStatus.INTERNAL_SERVER_ERROR));
+//    }
 
     public PMException(String message, HttpStatus httpStatus){
         this(new ErrorMessage(message, httpStatus));

@@ -178,9 +178,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/workload/filter")
-    public ResponseEntity<Object> workloadQueryFilter(@RequestHeader("user") String userId, @RequestParam("query") String query, @RequestParam("order")String order){
+    public ResponseEntity<Object> workloadQueryFilter(@RequestHeader("user") String userId, @RequestParam("query") String query){
         logger.info("HIT - GET /tasks/workload/filter?query=<query> --->  query: {}" ,query);
-        return sendResponse(taskService.workloadQueryFilter(userId, query, order));
+        return sendResponse(taskService.workloadQueryFilter(userId, query));
     }
 
 

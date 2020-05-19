@@ -27,6 +27,6 @@ public interface TaskService {
     Object addParentToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     Object addChildToParentTask(String userId, String projectId, String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     Object filterTasks(String userId, String projectId, FilterTypeEnum filterType, String issueType, String from, String to, String assignee);
-    Object workloadQueryFilter(String userId, String query, String order);
+    Object workloadQueryFilter(String userId, String query);
 
 }

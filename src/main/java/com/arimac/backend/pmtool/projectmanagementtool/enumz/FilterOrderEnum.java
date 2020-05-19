@@ -3,17 +3,15 @@ package com.arimac.backend.pmtool.projectmanagementtool.enumz;
 import java.util.HashSet;
 import java.util.Set;
 
-public enum  FilterQueryOperatorEnum {
-    IN,
-    AND,
-    BETWEEN,
-    LIKE;
+public enum  FilterOrderEnum {
+    ASC,
+    DESC;
 
     private static Set<String> values = new HashSet<>();
 
     static {
-        for (FilterQueryOperatorEnum typeEnum: FilterQueryOperatorEnum.values()){
-            values.add(typeEnum.name());
+        for (FilterOrderEnum orderEnum: FilterOrderEnum.values()){
+            values.add(orderEnum.name());
         }
     }
 
