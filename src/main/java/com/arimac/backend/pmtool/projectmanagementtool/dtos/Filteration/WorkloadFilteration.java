@@ -1,18 +1,12 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration;
+
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
-//    private String userId;
-//    private String idpUserId;
-//    private String firstName;
-//    private String lastName;
-//    private String email;
-//    private String profileImage;
+public class WorkloadFilteration implements RowMapper<WorkloadFilteration> {
 
     private String taskId;
     private String taskName;
@@ -31,11 +25,15 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
 
-    public WorkLoadProjectDto() {
+    private String firstName;
+    private String lastName;
+    private String profileImage;
+
+
+    public WorkloadFilteration() {
     }
 
-
-    public WorkLoadProjectDto(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String issueType) {
+    public WorkloadFilteration(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String issueType, String firstName, String lastName, String profileImage) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.taskAssignee = taskAssignee;
@@ -51,6 +49,9 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
         this.issueType = issueType;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.profileImage = profileImage;
     }
 
     public String getTaskId() {
@@ -125,6 +126,14 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.taskReminderAt = taskReminderAt;
     }
 
+    public String getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(String issueType) {
+        this.issueType = issueType;
+    }
+
     public String getProjectId() {
         return projectId;
     }
@@ -165,17 +174,33 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.projectEndDate = projectEndDate;
     }
 
-    public String getIssueType() {
-        return issueType;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setIssueType(String issueType) {
-        this.issueType = issueType;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     @Override
-    public WorkLoadProjectDto mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new WorkLoadProjectDto(
+    public WorkloadFilteration mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new WorkloadFilteration(
                 resultSet.getString("taskId"),
                 resultSet.getString("taskName"),
                 resultSet.getString("taskAssignee"),
@@ -190,7 +215,12 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
-                resultSet.getString("issueType"));
+                resultSet.getString("issueType"),
+                resultSet.getString("firstName"),
+                resultSet.getString("lastName"),
+                resultSet.getString("profileImage")
+        );
 
     }
 }
+

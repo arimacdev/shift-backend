@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationServi
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
@@ -783,7 +784,7 @@ public class TaskServiceImpl implements TaskService {
         catch (Exception e){
             throw new PMException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        List<WorkLoadProjectDto> list = taskRepository.taskFilteration(decodedQuery, OrderBySubString);
+        List<WorkloadFilteration> list = taskRepository.taskFilteration(decodedQuery, OrderBySubString);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
     }
 

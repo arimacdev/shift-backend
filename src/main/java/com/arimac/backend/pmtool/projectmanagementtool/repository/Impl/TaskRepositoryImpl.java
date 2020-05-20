@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.TaskServiceImpl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
@@ -202,8 +203,8 @@ public class TaskRepositoryImpl implements TaskRepository {
 
 
     @Override
-    public List<WorkLoadProjectDto> taskFilteration(String incomingQuery, String orderQuery) {
-        String baseQuery = "SELECT * FROM Task INNER JOIN project ON projectId = project WHERE ";
+    public List<WorkloadFilteration> taskFilteration(String incomingQuery, String orderQuery) {
+        String baseQuery = "SELECT * FROM Task INNER JOIN project ON projectId = project LEFT JOIN User on taskAssignee = userId WHERE ";
         String conditionQuery = " AND (project.isDeleted=false) AND (Task.isDeleted = false OR Task.isDeleted IS NULL)";
         String orderBy = "ORDER BY ";
         String completeQuery;
@@ -213,7 +214,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             completeQuery = baseQuery + incomingQuery + conditionQuery + orderBy + orderQuery;
         logger.info("Final Query : {}", completeQuery);
         try{
-            return jdbcTemplate.query(completeQuery, new WorkLoadProjectDto());
+            return jdbcTemplate.query(completeQuery, new WorkloadFilteration());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
