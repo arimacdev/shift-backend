@@ -106,9 +106,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/tasks/users/workload")
-    public ResponseEntity<Object> getAllUsersWithTaskCompletion(@RequestHeader("user") String userId, @RequestParam("assignee")List<String> assignees){
-        logger.info("HIT - GET /projects/tasks/users/workload ---> getAllUsersWithTaskCompletion | userId: {} | Assignees: {}",  userId, assignees);
-        return sendResponse(taskService.getAllUsersWithTaskCompletion(userId, assignees));
+    public ResponseEntity<Object> getAllUsersWithTaskCompletion(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to, @RequestParam("assignee")List<String> assignees){
+        logger.info("HIT - GET /projects/tasks/users/workload ---> getAllUsersWithTaskCompletion | userId: {} | Assignees: {} From: {} | To: {}",  userId, assignees, from, to);
+        return sendResponse(taskService.getAllUsersWithTaskCompletion(userId, assignees, from, to));
     }
 
     @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")

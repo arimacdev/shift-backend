@@ -471,13 +471,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllUsersWithTaskCompletion(String userId, List<String> assignees) {
+    public Object getAllUsersWithTaskCompletion(String userId, List<String> assignees, String from, String to) {
         //TODO Admin validation
         User adminUser = userRepository.getUserByUserId(userId);
         if (adminUser == null){
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUsersWithTaskCompletion(assignees);
+        List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUsersWithTaskCompletion(assignees, from, to);
         if (workLoadList.isEmpty())
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, workLoadList);
         Map<String, UserWorkLoadDto> workStatusMap = new HashMap<>();
