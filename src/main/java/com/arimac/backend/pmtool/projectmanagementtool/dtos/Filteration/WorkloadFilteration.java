@@ -1,12 +1,13 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration;
+
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
+public class WorkloadFilteration implements RowMapper<WorkloadFilteration> {
+
     private String taskId;
     private String taskName;
     private String taskAssignee;
@@ -24,17 +25,21 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
 
+    private String firstName;
+    private String lastName;
+    private String profileImage;
+
     private String secondaryTaskId;
     private String parentId;
     private boolean isParent;
     private String sprintId;
 
 
-    public WorkLoadProjectDto() {
+    public WorkloadFilteration() {
     }
 
 
-    public WorkLoadProjectDto(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String issueType, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String secondaryTaskId, String parentId, boolean isParent, String sprintId) {
+    public WorkloadFilteration(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String issueType, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String firstName, String lastName, String profileImage, String secondaryTaskId, String parentId, boolean isParent, String sprintId) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.taskAssignee = taskAssignee;
@@ -50,10 +55,37 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.clientId = clientId;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.profileImage = profileImage;
         this.secondaryTaskId = secondaryTaskId;
         this.parentId = parentId;
         this.isParent = isParent;
         this.sprintId = sprintId;
+    }
+
+    public String getSecondaryTaskId() {
+        return secondaryTaskId;
+    }
+
+    public void setSecondaryTaskId(String secondaryTaskId) {
+        this.secondaryTaskId = secondaryTaskId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public boolean isParent() {
+        return isParent;
+    }
+
+    public void setParent(boolean parent) {
+        isParent = parent;
     }
 
     public String getTaskId() {
@@ -128,6 +160,14 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.taskReminderAt = taskReminderAt;
     }
 
+    public String getIssueType() {
+        return issueType;
+    }
+
+    public void setIssueType(String issueType) {
+        this.issueType = issueType;
+    }
+
     public String getProjectId() {
         return projectId;
     }
@@ -168,36 +208,28 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.projectEndDate = projectEndDate;
     }
 
-    public String getIssueType() {
-        return issueType;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setIssueType(String issueType) {
-        this.issueType = issueType;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getSecondaryTaskId() {
-        return secondaryTaskId;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSecondaryTaskId(String secondaryTaskId) {
-        this.secondaryTaskId = secondaryTaskId;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public String getParentId() {
-        return parentId;
+    public String getProfileImage() {
+        return profileImage;
     }
 
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
-    }
-
-    public boolean isParent() {
-        return isParent;
-    }
-
-    public void setParent(boolean parent) {
-        isParent = parent;
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     public String getSprintId() {
@@ -209,8 +241,8 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
     }
 
     @Override
-    public WorkLoadProjectDto mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new WorkLoadProjectDto(
+    public WorkloadFilteration mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new WorkloadFilteration(
                 resultSet.getString("taskId"),
                 resultSet.getString("taskName"),
                 resultSet.getString("taskAssignee"),
@@ -226,13 +258,18 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
+                resultSet.getString("firstName"),
+                resultSet.getString("lastName"),
+                resultSet.getString("profileImage"),
                 resultSet.getString("secondaryTaskId"),
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent"),
-                resultSet.getString("sprintId"));
+                resultSet.getString("sprintId")
+        );
 
     }
 
 
 
 }
+

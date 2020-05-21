@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
@@ -25,7 +26,7 @@ public interface TaskRepository {
     List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion();
     List<WorkLoadProjectDto> getAllUserAssignedTaskWithCompletion(String userId, String from, String to);
 
-    List<WorkLoadProjectDto> taskFilteration();
+    List<WorkloadFilteration> taskFilteration(String baseQuery, String orderQuery);
     // Personal Tasks and Task List
     //List<Task> getAllPersonalTasks(String userId);
     //update sprint

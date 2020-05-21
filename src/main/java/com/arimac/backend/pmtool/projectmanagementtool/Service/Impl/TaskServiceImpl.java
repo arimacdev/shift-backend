@@ -5,11 +5,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationServi
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
@@ -21,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -537,15 +542,15 @@ public class TaskServiceImpl implements TaskService {
                     } else {
                         mapItem.setTotal(mapItem.getTotal() + 1);
                     }
-                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-                    List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
-                    taskList.add(projectTaskWorkLoad);
+//                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+//                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+//                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+//                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+//                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+//                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+//                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+                    List<WorkLoadProjectDto> taskList = mapItem.getTaskList();
+                    taskList.add(workLoadTaskItem);
                     mapItem.setTaskList(taskList); /** check here */
                     userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
                 }
@@ -557,15 +562,15 @@ public class TaskServiceImpl implements TaskService {
                 //Add Tasks if exists
                 if (workLoadTaskItem.getTaskId() != null){
                     if (workLoadTaskItem.getTaskAssignee().equals(userId)) {
-                        ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-                        projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-                        projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-                        projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                        projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-                        projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-                        projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-                        List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-                        taskList.add(projectTaskWorkLoad);
+//                        ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+//                        projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+//                        projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+//                        projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+//                        projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+//                        projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+//                        projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+                        List<WorkLoadProjectDto> taskList = new ArrayList<>();
+                        taskList.add(workLoadTaskItem);
                         projectWorkLoad.setTaskList(taskList);
                         if (workLoadTaskItem.getTaskStatus().equals("closed")) {
                             projectWorkLoad.setCompleted(1);
@@ -575,13 +580,13 @@ public class TaskServiceImpl implements TaskService {
                             projectWorkLoad.setTotal(1);
                         }
                     } else {
-                        List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+                        List<WorkLoadProjectDto> taskList = new ArrayList<>();
                         projectWorkLoad.setTaskList(taskList);
                         projectWorkLoad.setCompleted(0);
                         projectWorkLoad.setTotal(0);
                     }
                 } else {
-                    List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+                    List<WorkLoadProjectDto> taskList = new ArrayList<>();
                     projectWorkLoad.setTaskList(taskList);
                     projectWorkLoad.setCompleted(0);
                     projectWorkLoad.setTotal(0);
@@ -737,6 +742,50 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         List<Task> filteredList = taskRepository.filterTasks(projectId, filterType, from, to, assignee, issueType.toString());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, filteredList);
+    }
+
+    @Override
+    public Object workloadQueryFilter(String userId, String query) {
+        String decodedQuery;
+        String OrderBySubString = null;
+        query = query.replaceAll("%", "%25");
+        try {
+//            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
+            decodedQuery = URLDecoder.decode(query, "UTF-8");
+
+            if (decodedQuery.contains("ORDER BY")){
+            String[] split = decodedQuery.split("ORDER BY");
+            String baseSubstring = split[0];
+            OrderBySubString = split[1];
+
+            String[] words = OrderBySubString.split("\\s+");
+            List<String> orderBy = new ArrayList<String>(Arrays.asList(words));
+            orderBy.removeAll(Arrays.asList(""));
+            for (String word: orderBy){
+//                logger.info("word {}: ", word);
+                if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
+                    return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+            }
+            decodedQuery = baseSubstring;
+        }
+        String[] words = decodedQuery.split("\\s+");
+        for (String word : words){
+            boolean type = FilterQueryTypeEnum.contains(word);
+            boolean operator = FilterQueryOperatorEnum.contains(word);
+            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")");
+//            && !word.matches("[A-Za-z0-9\\-,]
+            if (!type && !operator && !argument)
+                return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+           // logger.info("word: {} {}", word, type);
+        }
+        } catch (UnsupportedEncodingException e){
+            throw new PMException(ResponseMessage.URL_DECODING_ERROR, HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        List<WorkloadFilteration> list = taskRepository.taskFilteration(decodedQuery, OrderBySubString);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
     }
 
 }

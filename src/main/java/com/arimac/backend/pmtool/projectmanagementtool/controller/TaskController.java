@@ -69,14 +69,6 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.flagProjectTask(userId, projectId, taskId));
     }
 
-//    @ApiOperation(value = "Get Task completion of a Project By User", notes = "Get Task completion of a Project By User")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @GetMapping("/{projectId}/tasks/{userId}/completion")
-//    public ResponseEntity<Object> getProjectTaskCompletionByUser(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId){
-//        logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion ---> getProjectTaskCompletionByUser | projectId: {} | userId: {} ", projectId, userId);
-//        return sendResponse(taskService.getProjectTaskCompletionByUser(userId, projectId));
-//    }
-
     @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "(All Tasks) Get all Tasks in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks") //DONE
@@ -179,8 +171,16 @@ public class TaskController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/filter")
     public ResponseEntity<Object> filterTasks(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @RequestHeader("filterType")FilterTypeEnum filterType, @RequestHeader("issueType") String issueType, @RequestHeader("from")String from, @RequestHeader("to")String to, @RequestHeader("assignee")String assignee){
-        logger.info("HIT - PUT /projects/<projectId>/tasks/filter ---> filterTasks | projectId: {} | userId: {}" ,projectId, userId);
+        logger.info("HIT - GET /projects/<projectId>/tasks/filter ---> filterTasks | projectId: {} | userId: {}" ,projectId, userId);
         return sendResponse(taskService.filterTasks(userId, projectId, filterType, issueType, from, to, assignee));
+    }
+
+    @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/workload/filter")
+    public ResponseEntity<Object> workloadQueryFilter(@RequestHeader("user") String userId, @RequestParam("query") String query){
+        logger.info("HIT - GET /tasks/workload/filter?query=<query> --->  query: {}" ,query);
+        return sendResponse(taskService.workloadQueryFilter(userId, query));
     }
 
 
