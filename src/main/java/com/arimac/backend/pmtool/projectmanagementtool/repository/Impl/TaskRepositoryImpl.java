@@ -174,11 +174,22 @@ public class TaskRepositoryImpl implements TaskRepository {
         jdbcTemplate.update(sql, projectId);
     }
 
-    @Deprecated
     @Override
-    public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion() {
-//        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false";
-        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.project WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL)";
+    public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion(List<String> assignees) {
+        StringBuilder userQuery = new StringBuilder();
+        for (int u = 0; u < assignees.size(); u++){
+            String user1 = "\"" + assignees.get(u)+ "\"";
+            userQuery.append(user1);
+            if (u != assignees.size() - 1)
+            userQuery.append(",");
+        }
+        String sql = "SELECT * FROM User AS u "+
+                "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
+                "LEFT JOIN project AS p ON t.projectId = p.project " +
+                "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
+                "AND (p.isDeleted=false OR p.isDeleted IS NULL)" +
+                "AND userId IN (" + userQuery.toString() + ")";
+            logger.info("query {}", sql);
         List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto());
         return workLoadList;
     }
