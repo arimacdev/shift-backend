@@ -29,11 +29,17 @@ public class WorkloadFilteration implements RowMapper<WorkloadFilteration> {
     private String lastName;
     private String profileImage;
 
+    private String secondaryTaskId;
+    private String parentId;
+    private boolean isParent;
+    private String sprintId;
+
 
     public WorkloadFilteration() {
     }
 
-    public WorkloadFilteration(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String issueType, String firstName, String lastName, String profileImage) {
+
+    public WorkloadFilteration(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String issueType, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String firstName, String lastName, String profileImage, String secondaryTaskId, String parentId, boolean isParent, String sprintId) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.taskAssignee = taskAssignee;
@@ -43,15 +49,43 @@ public class WorkloadFilteration implements RowMapper<WorkloadFilteration> {
         this.taskCreatedAt = taskCreatedAt;
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
+        this.issueType = issueType;
         this.projectId = projectId;
         this.projectName = projectName;
         this.clientId = clientId;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
-        this.issueType = issueType;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profileImage = profileImage;
+        this.secondaryTaskId = secondaryTaskId;
+        this.parentId = parentId;
+        this.isParent = isParent;
+        this.sprintId = sprintId;
+    }
+
+    public String getSecondaryTaskId() {
+        return secondaryTaskId;
+    }
+
+    public void setSecondaryTaskId(String secondaryTaskId) {
+        this.secondaryTaskId = secondaryTaskId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public boolean isParent() {
+        return isParent;
+    }
+
+    public void setParent(boolean parent) {
+        isParent = parent;
     }
 
     public String getTaskId() {
@@ -198,6 +232,14 @@ public class WorkloadFilteration implements RowMapper<WorkloadFilteration> {
         this.profileImage = profileImage;
     }
 
+    public String getSprintId() {
+        return sprintId;
+    }
+
+    public void setSprintId(String sprintId) {
+        this.sprintId = sprintId;
+    }
+
     @Override
     public WorkloadFilteration mapRow(ResultSet resultSet, int i) throws SQLException {
         return new WorkloadFilteration(
@@ -210,17 +252,24 @@ public class WorkloadFilteration implements RowMapper<WorkloadFilteration> {
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
+                resultSet.getString("issueType"),
                 resultSet.getString("projectId"),
                 resultSet.getString("projectName"),
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
-                resultSet.getString("issueType"),
                 resultSet.getString("firstName"),
                 resultSet.getString("lastName"),
-                resultSet.getString("profileImage")
+                resultSet.getString("profileImage"),
+                resultSet.getString("secondaryTaskId"),
+                resultSet.getString("parentId"),
+                resultSet.getBoolean("isParent"),
+                resultSet.getString("sprintId")
         );
 
     }
+
+
+
 }
 
