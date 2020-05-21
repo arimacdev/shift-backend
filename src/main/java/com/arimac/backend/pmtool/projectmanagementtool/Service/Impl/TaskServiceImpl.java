@@ -542,15 +542,15 @@ public class TaskServiceImpl implements TaskService {
                     } else {
                         mapItem.setTotal(mapItem.getTotal() + 1);
                     }
-                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-                    List<ProjectTaskWorkLoadDto> taskList = mapItem.getTaskList();
-                    taskList.add(projectTaskWorkLoad);
+//                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+//                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+//                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+//                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+//                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+//                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+//                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+                    List<WorkLoadProjectDto> taskList = mapItem.getTaskList();
+                    taskList.add(workLoadTaskItem);
                     mapItem.setTaskList(taskList); /** check here */
                     userProjectWorkLoadMap.put(workLoadTaskItem.getProjectId(), mapItem);
                 }
@@ -562,15 +562,15 @@ public class TaskServiceImpl implements TaskService {
                 //Add Tasks if exists
                 if (workLoadTaskItem.getTaskId() != null){
                     if (workLoadTaskItem.getTaskAssignee().equals(userId)) {
-                        ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-                        projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-                        projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-                        projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-                        projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-                        projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-                        projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
-                        List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
-                        taskList.add(projectTaskWorkLoad);
+//                        ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
+//                        projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
+//                        projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
+//                        projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
+//                        projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
+//                        projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
+//                        projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
+                        List<WorkLoadProjectDto> taskList = new ArrayList<>();
+                        taskList.add(workLoadTaskItem);
                         projectWorkLoad.setTaskList(taskList);
                         if (workLoadTaskItem.getTaskStatus().equals("closed")) {
                             projectWorkLoad.setCompleted(1);
@@ -580,13 +580,13 @@ public class TaskServiceImpl implements TaskService {
                             projectWorkLoad.setTotal(1);
                         }
                     } else {
-                        List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+                        List<WorkLoadProjectDto> taskList = new ArrayList<>();
                         projectWorkLoad.setTaskList(taskList);
                         projectWorkLoad.setCompleted(0);
                         projectWorkLoad.setTotal(0);
                     }
                 } else {
-                    List<ProjectTaskWorkLoadDto> taskList = new ArrayList<>();
+                    List<WorkLoadProjectDto> taskList = new ArrayList<>();
                     projectWorkLoad.setTaskList(taskList);
                     projectWorkLoad.setCompleted(0);
                     projectWorkLoad.setTotal(0);

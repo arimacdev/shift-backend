@@ -6,7 +6,7 @@ public class UserProjectWorkLoadDto {
     private String userId;
     private String projectId;
     private String projectName;
-    private List<ProjectTaskWorkLoadDto> taskList;
+    private List<WorkLoadProjectDto> taskList;
     private int completed;
     private int total;
 
@@ -34,11 +34,11 @@ public class UserProjectWorkLoadDto {
         this.projectName = projectName;
     }
 
-    public List<ProjectTaskWorkLoadDto> getTaskList() {
+    public List<WorkLoadProjectDto> getTaskList() {
         return taskList;
     }
 
-    public void setTaskList(List<ProjectTaskWorkLoadDto> taskList) {
+    public void setTaskList(List<WorkLoadProjectDto> taskList) {
         this.taskList = taskList;
     }
 

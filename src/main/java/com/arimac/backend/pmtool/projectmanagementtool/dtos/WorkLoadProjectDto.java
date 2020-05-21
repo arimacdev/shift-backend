@@ -7,13 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
-//    private String userId;
-//    private String idpUserId;
-//    private String firstName;
-//    private String lastName;
-//    private String email;
-//    private String profileImage;
-
     private String taskId;
     private String taskName;
     private String taskAssignee;
@@ -31,11 +24,17 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
 
+    private String secondaryTaskId;
+    private String parentId;
+    private boolean isParent;
+    private String sprintId;
+
+
     public WorkLoadProjectDto() {
     }
 
 
-    public WorkLoadProjectDto(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String issueType) {
+    public WorkLoadProjectDto(String taskId, String taskName, String taskAssignee, String taskInitiator, String taskNote, String taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, String issueType, String projectId, String projectName, String clientId, Timestamp projectStartDate, Timestamp projectEndDate, String secondaryTaskId, String parentId, boolean isParent, String sprintId) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.taskAssignee = taskAssignee;
@@ -45,12 +44,16 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.taskCreatedAt = taskCreatedAt;
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
+        this.issueType = issueType;
         this.projectId = projectId;
         this.projectName = projectName;
         this.clientId = clientId;
         this.projectStartDate = projectStartDate;
         this.projectEndDate = projectEndDate;
-        this.issueType = issueType;
+        this.secondaryTaskId = secondaryTaskId;
+        this.parentId = parentId;
+        this.isParent = isParent;
+        this.sprintId = sprintId;
     }
 
     public String getTaskId() {
@@ -173,6 +176,38 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
         this.issueType = issueType;
     }
 
+    public String getSecondaryTaskId() {
+        return secondaryTaskId;
+    }
+
+    public void setSecondaryTaskId(String secondaryTaskId) {
+        this.secondaryTaskId = secondaryTaskId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public boolean isParent() {
+        return isParent;
+    }
+
+    public void setParent(boolean parent) {
+        isParent = parent;
+    }
+
+    public String getSprintId() {
+        return sprintId;
+    }
+
+    public void setSprintId(String sprintId) {
+        this.sprintId = sprintId;
+    }
+
     @Override
     public WorkLoadProjectDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new WorkLoadProjectDto(
@@ -185,12 +220,19 @@ public class WorkLoadProjectDto implements RowMapper<WorkLoadProjectDto> {
                 resultSet.getTimestamp("taskCreatedAt"),
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
+                resultSet.getString("issueType"),
                 resultSet.getString("projectId"),
                 resultSet.getString("projectName"),
                 resultSet.getString("clientId"),
                 resultSet.getTimestamp("projectStartDate"),
                 resultSet.getTimestamp("projectEndDate"),
-                resultSet.getString("issueType"));
+                resultSet.getString("secondaryTaskId"),
+                resultSet.getString("parentId"),
+                resultSet.getBoolean("isParent"),
+                resultSet.getString("sprintId"));
 
     }
+
+
+
 }
