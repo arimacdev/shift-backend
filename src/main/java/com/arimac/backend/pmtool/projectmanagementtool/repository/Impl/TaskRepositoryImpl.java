@@ -6,16 +6,20 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.Workload
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -174,12 +178,40 @@ public class TaskRepositoryImpl implements TaskRepository {
         jdbcTemplate.update(sql, projectId);
     }
 
-    @Deprecated
     @Override
-    public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion() {
-//        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.projectId WHERE t.isDeleted = false AND p.isDeleted=false";
-        String sql = "SELECT * FROM User AS u LEFT JOIN Task AS t on u.userId = t.taskAssignee LEFT JOIN project AS p ON t.projectId = p.project WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) AND (p.isDeleted=false OR p.isDeleted IS NULL)";
-        List<WorkLoadTaskStatusDto> workLoadList = jdbcTemplate.query(sql, new WorkLoadTaskStatusDto());
+    public List<WorkLoadTaskStatusDto> getAllUsersWithTaskCompletion(List<String> assignees, String from, String to) {
+        StringBuilder userQuery = new StringBuilder();
+        if (assignees.isEmpty())
+            throw  new PMException("Assignee List Empty", HttpStatus.BAD_REQUEST);
+        boolean allUsers = false;
+        for (int u = 0; u < assignees.size(); u++){
+            if (assignees.get(0).toLowerCase().equals("all")) {
+                allUsers = true;
+                break;
+            }
+            String user1 = "\"" + assignees.get(u)+ "\"";
+            userQuery.append(user1);
+            if (u != assignees.size() - 1)
+            userQuery.append(",");
+        }
+        String query;
+        List<WorkLoadTaskStatusDto> workLoadList;
+        if (allUsers){
+            query = "SELECT * FROM User AS u " +
+                    "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
+                    "LEFT JOIN project AS p ON t.projectId = p.project " +
+                    "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
+                    "AND (p.isDeleted=false OR p.isDeleted IS NULL)";
+        } else {
+            query = "SELECT * FROM User AS u " +
+                    "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
+                    "LEFT JOIN project AS p ON t.projectId = p.project " +
+                    "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
+                    "AND (p.isDeleted=false OR p.isDeleted IS NULL)" +
+                    "AND userId IN (" + userQuery.toString() + ")";
+        }
+        workLoadList = jdbcTemplate.query(query, new WorkLoadTaskStatusDto());
+        logger.info("query {}", query);
         return workLoadList;
     }
 

@@ -8,6 +8,7 @@ public enum ResponseMessage {
     TASK_NOT_FOUND("Task Not Found"),
     PROJECT_NOT_FOUND("Project Not Found"),
     NO_ACCESS("Records cannot be accessed"),
+    INVALID_DATE_FORMAT("Invalid Date Format"),
     ALREADY_ASSIGNED("Already Assigned"),
     UNAUTHORIZED("Insufficient privileges"),
     INVALID_FILTER_QUERY("Invalid Filter Query"),
