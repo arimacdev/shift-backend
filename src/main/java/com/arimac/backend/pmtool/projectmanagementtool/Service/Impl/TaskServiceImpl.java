@@ -26,6 +26,10 @@ import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -477,20 +481,36 @@ public class TaskServiceImpl implements TaskService {
         if (adminUser == null){
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
+        Date fromDate = null;
+        Date toDate = null;
+        if (!from.equals("all") || !to.equals("all")) {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            try {
+                fromDate = dateFormat.parse(from);
+                toDate = dateFormat.parse(to);
+            } catch (ParseException e) {
+                return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
+            }
+            if (fromDate.after(toDate) || toDate.before(fromDate))
+                return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
+        }
         List<WorkLoadTaskStatusDto> workLoadList = taskRepository.getAllUsersWithTaskCompletion(assignees, from, to);
         if (workLoadList.isEmpty())
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, workLoadList);
         Map<String, UserWorkLoadDto> workStatusMap = new HashMap<>();
+        boolean between = true;
         for (WorkLoadTaskStatusDto workLoadItem: workLoadList){
             UserWorkLoadDto mapItem = workStatusMap.get(workLoadItem.getUserId());
             if (mapItem != null){
-                    if (workLoadItem.getTaskStatus().equals("closed")){
-                        mapItem.setTotalTasks(mapItem.getTotalTasks() +1);
-                        mapItem.setTasksCompleted(mapItem.getTasksCompleted() +1);
-                    } else {
-                        mapItem.setTotalTasks(mapItem.getTotalTasks() + 1);
+                    if ( ((!from.equals("all") && !to.equals("all")) && dateBetweenDue(fromDate, toDate, workLoadItem.getTaskDueDateAt()) ) || (from.equals("all") && to.equals("all"))) {
+                        if (workLoadItem.getTaskStatus().equals("closed")) {
+                            mapItem.setTotalTasks(mapItem.getTotalTasks() + 1);
+                            mapItem.setTasksCompleted(mapItem.getTasksCompleted() + 1);
+                        } else {
+                            mapItem.setTotalTasks(mapItem.getTotalTasks() + 1);
+                        }
+                        workStatusMap.put(workLoadItem.getUserId(), mapItem);
                     }
-                    workStatusMap.put(workLoadItem.getUserId(), mapItem);
             } else {
                     UserWorkLoadDto userWorkLoad = new UserWorkLoadDto();
                 if (workLoadItem.getTaskId() != null) {
@@ -499,13 +519,18 @@ public class TaskServiceImpl implements TaskService {
                     userWorkLoad.setLastName(workLoadItem.getLastName());
                     userWorkLoad.setEmail(workLoadItem.getEmail());
                     userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
-                    if (workLoadItem.getTaskStatus().equals("closed")) {
-                        userWorkLoad.setTasksCompleted(1);
+                    if ( ((!from.equals("all") && !to.equals("all")) && dateBetweenDue(fromDate, toDate, workLoadItem.getTaskDueDateAt()) ) || (from.equals("all") && to.equals("all"))) {
+                        if (workLoadItem.getTaskStatus().equals("closed")) {
+                            userWorkLoad.setTasksCompleted(1);
+                        } else {
+                            userWorkLoad.setTasksCompleted(0);
+                        }
                         userWorkLoad.setTotalTasks(1);
                     } else {
+                        userWorkLoad.setTotalTasks(0);
                         userWorkLoad.setTasksCompleted(0);
-                        userWorkLoad.setTotalTasks(1);
                     }
+
                 } else  {
                     userWorkLoad.setUserId(workLoadItem.getUserId());
                     userWorkLoad.setFirstName(workLoadItem.getFirstName());
@@ -520,6 +545,14 @@ public class TaskServiceImpl implements TaskService {
         }
         List<UserWorkLoadDto> userWorkLoadResponse = new ArrayList<>(workStatusMap.values());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userWorkLoadResponse);
+    }
+
+    private boolean dateBetweenDue(Date from, Date to, Timestamp dueDate){
+        if (dueDate == null)
+            return false;
+        Date due = new Date(dueDate.getTime());
+        return !due.before(from) && !due.after(to);
+
     }
 
     @Override

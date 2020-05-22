@@ -197,45 +197,21 @@ public class TaskRepositoryImpl implements TaskRepository {
         String query;
         List<WorkLoadTaskStatusDto> workLoadList;
         if (allUsers){
-                if (from.equals("all") || to.equals("all")) {
-                    query = "SELECT * FROM User AS u " +
-                            "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
-                            "LEFT JOIN project AS p ON t.projectId = p.project " +
-                            "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
-                            "AND (p.isDeleted=false OR p.isDeleted IS NULL)";
-                    workLoadList = jdbcTemplate.query(query, new WorkLoadTaskStatusDto());
-                } else {
-                    query = "SELECT * FROM User AS u " +
-                            "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
-                            "LEFT JOIN project AS p ON t.projectId = p.project " +
-                            "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
-                            "AND (p.isDeleted=false OR p.isDeleted IS NULL) AND " +
-                            "t.taskDueDateAt BETWEEN ? AND ?";
-                    workLoadList = jdbcTemplate.query(query, new WorkLoadTaskStatusDto(), from, to);
-                }
-            logger.info("query {}", query);
+            query = "SELECT * FROM User AS u " +
+                    "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
+                    "LEFT JOIN project AS p ON t.projectId = p.project " +
+                    "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
+                    "AND (p.isDeleted=false OR p.isDeleted IS NULL)";
         } else {
-            if (from.equals("all") || to.equals("all")) {
-                query = "SELECT * FROM User AS u " +
-                        "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
-                        "LEFT JOIN project AS p ON t.projectId = p.project " +
-                        "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
-                        "AND (p.isDeleted=false OR p.isDeleted IS NULL)" +
-                        "AND userId IN (" + userQuery.toString() + ")";
-                workLoadList = jdbcTemplate.query(query, new WorkLoadTaskStatusDto());
-                logger.info("query {}", query);
-            } else {
-                query = "SELECT * FROM User AS u " +
-                        "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
-                        "LEFT JOIN project AS p ON t.projectId = p.project " +
-                        "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
-                        "AND (p.isDeleted=false OR p.isDeleted IS NULL)" +
-                        "AND userId IN (" + userQuery.toString() + ") AND " +
-                        "t.taskDueDateAt BETWEEN ? AND ?";
-                workLoadList = jdbcTemplate.query(query, new WorkLoadTaskStatusDto(), from, to);
-                logger.info("query {}", query);
-            }
+            query = "SELECT * FROM User AS u " +
+                    "LEFT JOIN Task AS t on u.userId = t.taskAssignee " +
+                    "LEFT JOIN project AS p ON t.projectId = p.project " +
+                    "WHERE (t.isDeleted = false OR t.isDeleted IS NULL ) " +
+                    "AND (p.isDeleted=false OR p.isDeleted IS NULL)" +
+                    "AND userId IN (" + userQuery.toString() + ")";
         }
+        workLoadList = jdbcTemplate.query(query, new WorkLoadTaskStatusDto());
+        logger.info("query {}", query);
         return workLoadList;
     }
 
