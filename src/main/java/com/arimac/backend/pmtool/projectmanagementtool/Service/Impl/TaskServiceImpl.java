@@ -38,6 +38,13 @@ public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     private static final String DEFAULT = "default";
+    private static final String ALL = "all";
+    private static final String NAME = "name";
+    private static final String STATUS = "status";
+    private static final String NOTES = "notes";
+    private static final String DUE_DATE = "dueDate";
+    private static final String CLOSED = "closed";
+    private static final String ORDER_BY = "ORDER BY";
 
     private final SubTaskRepository subTaskRepository;
     private final TaskRepository taskRepository;
@@ -207,15 +214,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object getProjectTask(String userId, String projectId, String taskId) {
-//        if (type.equals(TaskTypeEnum.project)) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-//        } else if (type.equals(TaskTypeEnum.taskGroup)){
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-//            if (member == null)
-//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.UNAUTHORIZED);
-//        }
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
@@ -250,17 +251,6 @@ public class TaskServiceImpl implements TaskService {
                     return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
                 }
             }
-//        } else if (taskUpdateDto.getTaskType().equals(TaskTypeEnum.taskGroup)){
-//            TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, projectId);
-//            if (member == null)
-//                return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-//            if (taskUpdateDto.getTaskAssignee() != null){
-//                TaskGroup_Member assignee = taskGroupRepository.getTaskGroupMemberByTaskGroup(taskUpdateDto.getTaskAssignee(), projectId);
-//                if (assignee == null){
-//                    return new ErrorMessage(ResponseMessage.USER_NOT_GROUP_MEMBER, HttpStatus.NOT_FOUND);
-//                }
-//            }
-//        }
         TaskUpdateDto updateDto = new TaskUpdateDto();
 
         if (taskUpdateDto.getTaskName() == null || taskUpdateDto.getTaskName().isEmpty()) {
@@ -280,7 +270,7 @@ public class TaskServiceImpl implements TaskService {
         }
         if (taskUpdateDto.getTaskStatus() == null) {
             updateDto.setTaskStatus(task.getTaskStatus().toString());
-        } else if(task.getIsParent() && !taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed.toString())){
+        } else if(task.getIsParent() && taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed.toString())){
             if(task.getIsParent()){
                 List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
                 for(Task child: children){
@@ -317,25 +307,25 @@ public class TaskServiceImpl implements TaskService {
         }
         if (taskUpdateDto.getTaskStatus() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "status", userId);
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "name", userId);
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskNotes() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "notes", userId);
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
             });
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, "dueDate", userId);
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
             });
 
         }
@@ -483,7 +473,7 @@ public class TaskServiceImpl implements TaskService {
         }
         Date fromDate = null;
         Date toDate = null;
-        if (!from.equals("all") || !to.equals("all")) {
+        if (!from.equals(ALL) || !to.equals(ALL)) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             try {
                 fromDate = dateFormat.parse(from);
@@ -498,12 +488,11 @@ public class TaskServiceImpl implements TaskService {
         if (workLoadList.isEmpty())
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, workLoadList);
         Map<String, UserWorkLoadDto> workStatusMap = new HashMap<>();
-        boolean between = true;
         for (WorkLoadTaskStatusDto workLoadItem: workLoadList){
             UserWorkLoadDto mapItem = workStatusMap.get(workLoadItem.getUserId());
             if (mapItem != null){
-                    if ( ((!from.equals("all") && !to.equals("all")) && dateBetweenDue(fromDate, toDate, workLoadItem.getTaskDueDateAt()) ) || (from.equals("all") && to.equals("all"))) {
-                        if (workLoadItem.getTaskStatus().equals("closed")) {
+                    if ( ((!from.equals(ALL) && !to.equals(ALL)) && dateBetweenDue(fromDate, toDate, workLoadItem.getTaskDueDateAt()) ) || (from.equals(ALL) && to.equals(ALL))) {
+                        if (workLoadItem.getTaskStatus().equals(CLOSED)) {
                             mapItem.setTotalTasks(mapItem.getTotalTasks() + 1);
                             mapItem.setTasksCompleted(mapItem.getTasksCompleted() + 1);
                         } else {
@@ -519,8 +508,8 @@ public class TaskServiceImpl implements TaskService {
                     userWorkLoad.setLastName(workLoadItem.getLastName());
                     userWorkLoad.setEmail(workLoadItem.getEmail());
                     userWorkLoad.setProfileImage(workLoadItem.getProfileImage());
-                    if ( ((!from.equals("all") && !to.equals("all")) && dateBetweenDue(fromDate, toDate, workLoadItem.getTaskDueDateAt()) ) || (from.equals("all") && to.equals("all"))) {
-                        if (workLoadItem.getTaskStatus().equals("closed")) {
+                    if ( ((!from.equals(ALL) && !to.equals(ALL)) && dateBetweenDue(fromDate, toDate, workLoadItem.getTaskDueDateAt()) ) || (from.equals(ALL) && to.equals(ALL))) {
+                        if (workLoadItem.getTaskStatus().equals(CLOSED)) {
                             userWorkLoad.setTasksCompleted(1);
                         } else {
                             userWorkLoad.setTasksCompleted(0);
@@ -569,7 +558,7 @@ public class TaskServiceImpl implements TaskService {
             UserProjectWorkLoadDto mapItem = userProjectWorkLoadMap.get(workLoadTaskItem.getProjectId());
             if (mapItem != null && workLoadTaskItem.getTaskId()!= null){
                 if (workLoadTaskItem.getTaskAssignee().equals(userId)) {
-                    if (workLoadTaskItem.getTaskStatus().equals("closed")) {
+                    if (workLoadTaskItem.getTaskStatus().equals(CLOSED)) {
                         mapItem.setCompleted(mapItem.getCompleted() + 1);
                         mapItem.setTotal(mapItem.getTotal() + 1);
                     } else {
@@ -605,7 +594,7 @@ public class TaskServiceImpl implements TaskService {
                         List<WorkLoadProjectDto> taskList = new ArrayList<>();
                         taskList.add(workLoadTaskItem);
                         projectWorkLoad.setTaskList(taskList);
-                        if (workLoadTaskItem.getTaskStatus().equals("closed")) {
+                        if (workLoadTaskItem.getTaskStatus().equals(CLOSED)) {
                             projectWorkLoad.setCompleted(1);
                             projectWorkLoad.setTotal(1);
                         } else {
@@ -640,7 +629,7 @@ public class TaskServiceImpl implements TaskService {
             return new ErrorMessage(ResponseMessage.TASK_NOT_PARENT_TASK, HttpStatus.FORBIDDEN);
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (!task.getProjectId().equals(projectId))
-            return new ErrorMessage("Task doesnot belong to the project", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("Task doesn't belong to the project", HttpStatus.FORBIDDEN);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
@@ -786,8 +775,8 @@ public class TaskServiceImpl implements TaskService {
 //            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
             decodedQuery = URLDecoder.decode(query, "UTF-8");
 
-            if (decodedQuery.contains("ORDER BY")){
-            String[] split = decodedQuery.split("ORDER BY");
+            if (decodedQuery.contains(ORDER_BY)){
+            String[] split = decodedQuery.split(ORDER_BY);
             String baseSubstring = split[0];
             OrderBySubString = split[1];
 
