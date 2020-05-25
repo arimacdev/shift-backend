@@ -61,7 +61,7 @@ public class TaskUpdateDto {
         return taskStatus;
     }
 
-    public void setTaskStatus(TaskStatusEnum TaskStatusEnum) {
+    public void setTaskStatus(TaskStatusEnum taskStatus) {
         this.taskStatus = taskStatus;
     }
 
@@ -89,8 +89,7 @@ public class TaskUpdateDto {
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
                 ", taskNotes='" + taskNotes + '\'' +
-                ", taskStatus='" + taskStatus + '\'' +
-//                ", taskType=" + taskType +
+                ", taskStatus=" + taskStatus +
                 ", issueType=" + issueType +
                 '}';
     }
