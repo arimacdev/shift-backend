@@ -328,7 +328,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             blocks.add(body);
             if (type.equals("status"))
-                blocks.add(getFooter(taskUpdateDto.getTaskStatus()));
+                blocks.add(getFooter(taskUpdateDto.getTaskStatus().toString()));
             else
             blocks.add(getFooter(task.getTaskStatus().toString()));
             blocks.add(divider);
