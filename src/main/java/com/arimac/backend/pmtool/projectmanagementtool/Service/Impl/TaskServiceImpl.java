@@ -269,8 +269,8 @@ public class TaskServiceImpl implements TaskService {
             updateDto.setTaskNotes(taskUpdateDto.getTaskNotes());
         }
         if (taskUpdateDto.getTaskStatus() == null) {
-            updateDto.setTaskStatus(task.getTaskStatus().toString());
-        } else if(task.getIsParent() && taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed.toString())){
+            updateDto.setTaskStatus(task.getTaskStatus());
+        } else if(task.getIsParent() && taskUpdateDto.getTaskStatus().equals(TaskStatusEnum.closed)){
             if(task.getIsParent()){
                 List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
                 for(Task child: children){
