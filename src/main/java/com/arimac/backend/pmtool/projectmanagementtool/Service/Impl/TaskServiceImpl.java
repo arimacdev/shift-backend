@@ -707,7 +707,7 @@ public class TaskServiceImpl implements TaskService {
         if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
         if (!task.getIsParent())
-            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
+            return new Response(ResponseMessage.CANNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (taskRepository.checkChildTasksOfAParentTask(taskId))
             return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.UNPROCESSABLE_ENTITY);
         Task parentTask = taskRepository.getTaskByProjectIdTaskId(projectId, taskParentChildUpdateDto.getNewParent());

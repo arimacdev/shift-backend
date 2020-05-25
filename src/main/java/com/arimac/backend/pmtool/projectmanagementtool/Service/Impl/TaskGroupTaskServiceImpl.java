@@ -267,7 +267,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         if (task == null)
             return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
        if (!task.getIsParent())
-            return new Response(ResponseMessage.CANNNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
+            return new Response(ResponseMessage.CANNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (taskGroupTaskRepository.checkChildTasksOfAParentTask(taskId))
             return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_CHILDREN, HttpStatus.UNPROCESSABLE_ENTITY);
         TaskGroupTask parentTask = taskGroupTaskRepository.getTaskByTaskGroupId(taskGroupId, taskParentChildUpdateDto.getNewParent());
