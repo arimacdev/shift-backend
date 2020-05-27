@@ -29,13 +29,13 @@ public class TaskUserDto implements RowMapper<TaskUserDto> {
 
     private String firstName;
     private String lastName;
-    private String profileImage;
+    private String taskAssigneeProfileImage;
 
 
     public TaskUserDto() {
     }
 
-    public TaskUserDto(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, String firstName, String lastName, String profileImage) {
+    public TaskUserDto(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, String firstName, String lastName, String taskAssigneeProfileImage) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -54,7 +54,7 @@ public class TaskUserDto implements RowMapper<TaskUserDto> {
         this.isParent = isParent;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.profileImage = profileImage;
+        this.taskAssigneeProfileImage = taskAssigneeProfileImage;
     }
 
     public String getTaskId() {
@@ -201,12 +201,13 @@ public class TaskUserDto implements RowMapper<TaskUserDto> {
         this.lastName = lastName;
     }
 
-    public String getProfileImage() {
-        return profileImage;
+
+    public String getTaskAssigneeProfileImage() {
+        return taskAssigneeProfileImage;
     }
 
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+    public void setTaskAssigneeProfileImage(String taskAssigneeProfileImage) {
+        this.taskAssigneeProfileImage = taskAssigneeProfileImage;
     }
 
     @Override
