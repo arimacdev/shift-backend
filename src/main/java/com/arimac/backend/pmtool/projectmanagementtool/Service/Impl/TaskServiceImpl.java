@@ -777,7 +777,6 @@ public class TaskServiceImpl implements TaskService {
         String OrderBySubString = null;
         query = query.replaceAll("%", "%25");
         try {
-//              decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
             decodedQuery = URLDecoder.decode(query, "UTF-8");
 
             if (decodedQuery.contains(ORDER_BY)){
@@ -789,7 +788,6 @@ public class TaskServiceImpl implements TaskService {
             List<String> orderBy = new ArrayList<String>(Arrays.asList(words));
             orderBy.removeAll(Arrays.asList(""));
             for (String word: orderBy){
-//                logger.info("word {}: ", word);
                 if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
                     return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
             }
@@ -799,11 +797,9 @@ public class TaskServiceImpl implements TaskService {
         for (String word : words){
             boolean type = FilterQueryTypeEnum.contains(word);
             boolean operator = FilterQueryOperatorEnum.contains(word);
-            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")");
-//            && !word.matches("[A-Za-z0-9\\-,]
+            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")") || word.startsWith("\"") || word.endsWith("\"");
             if (!type && !operator && !argument)
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-           // logger.info("word: {} {}", word, type);
         }
         } catch (UnsupportedEncodingException e){
             throw new PMException(ResponseMessage.URL_DECODING_ERROR, HttpStatus.BAD_REQUEST);

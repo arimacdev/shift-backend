@@ -19,6 +19,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Object getMobileStatus(String platform, int version) {
         Mobile status = mobileRepository.getMobileStatus(platform);
+        status.setCurrent_version(version);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, status);
     }
