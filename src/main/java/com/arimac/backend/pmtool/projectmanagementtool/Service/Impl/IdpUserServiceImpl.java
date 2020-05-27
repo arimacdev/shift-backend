@@ -2,6 +2,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -115,6 +117,8 @@ public class IdpUserServiceImpl implements IdpUserService {
                 if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                     getClientAccessToken();
                     return createUser(userRegistrationDto, UUID,false);
+                } else if (e.getStatusCode() == HttpStatus.CONFLICT){
+                    throw new PMException(new ErrorMessage(ResponseMessage.USERNAME_EXISTS, HttpStatus.CONFLICT));
                 }
                throw new PMException(e.getResponseBodyAsString());
              } catch (Exception e) {

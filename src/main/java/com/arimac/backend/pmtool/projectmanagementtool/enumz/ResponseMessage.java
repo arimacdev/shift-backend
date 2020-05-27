@@ -10,6 +10,7 @@ public enum ResponseMessage {
     NO_ACCESS("Records cannot be accessed"),
     INVALID_DATE_FORMAT("Invalid Date Format"),
     ALREADY_ASSIGNED("Already Assigned"),
+    USERNAME_EXISTS("Username Already Exists"),
     UNAUTHORIZED("Insufficient privileges"),
     INVALID_FILTER_QUERY("Invalid Filter Query"),
     URL_DECODING_ERROR("Error Decoding URL Query String"),
