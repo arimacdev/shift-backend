@@ -107,7 +107,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Object getAllBlockedProjectUsers(String projectId) {
-        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=true";
+        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User" +
+                " as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?" +
+                " AND isBlocked=true";
         return null;
     }
 

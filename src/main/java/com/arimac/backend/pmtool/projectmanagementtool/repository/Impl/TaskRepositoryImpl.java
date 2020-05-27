@@ -323,19 +323,19 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<Task> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType) {
+    public List<TaskUserDto> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType) {
         String sql;
         switch (filterType){
             case issueType:
-                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted=false AND issueType=?";
-                return jdbcTemplate.query(sql, new Task(),projectId, issueType);
+                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee  WHERE projectId=? AND isDeleted=false AND issueType=?";
+                return jdbcTemplate.query(sql, new TaskUserDto(),projectId, issueType);
             case dueDate:
-                sql = "SELECT * FROM Task WHERE projectId=? AND isDeleted=false AND (taskDueDateAt BETWEEN ? AND ?)";
+                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee WHERE projectId=? AND  isDeleted=false AND (taskDueDateAt BETWEEN ? AND ?)";
                 logger.info("sql {}", sql);
-                return jdbcTemplate.query(sql, new Task(), projectId, from, to);
+                return jdbcTemplate.query(sql, new TaskUserDto(), projectId, from, to);
             case assignee:
-                sql = "SELECT * FROM Task WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
-                return jdbcTemplate.query(sql, new Task(), projectId, assignee);
+                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
+                return jdbcTemplate.query(sql, new TaskUserDto(), projectId, assignee);
         }
         return null;
     }

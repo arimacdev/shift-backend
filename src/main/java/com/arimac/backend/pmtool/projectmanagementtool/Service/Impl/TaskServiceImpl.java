@@ -767,7 +767,7 @@ public class TaskServiceImpl implements TaskService {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        List<Task> filteredList = taskRepository.filterTasks(projectId, filterType, from, to, assignee, issueType.toString());
+        List<TaskUserDto> filteredList = taskRepository.filterTasks(projectId, filterType, from, to, assignee, issueType.toString());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, filteredList);
     }
 
