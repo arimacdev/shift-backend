@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+
 @Service
 public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
@@ -533,6 +534,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<UserWorkLoadDto> userWorkLoadResponse = new ArrayList<>(workStatusMap.values());
+        Collections.sort(userWorkLoadResponse, Comparator.comparingInt(UserWorkLoadDto::getTotalTasks));
+        Collections.reverse(userWorkLoadResponse);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userWorkLoadResponse);
     }
 
@@ -617,6 +620,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
+        Collections.sort(userProjectWorkLoadTaskResponse, Comparator.comparingInt(UserProjectWorkLoadDto::getTotal));
+        Collections.reverse(userProjectWorkLoadTaskResponse);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
     }
 
@@ -772,7 +777,7 @@ public class TaskServiceImpl implements TaskService {
         String OrderBySubString = null;
         query = query.replaceAll("%", "%25");
         try {
-//            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
+//              decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
             decodedQuery = URLDecoder.decode(query, "UTF-8");
 
             if (decodedQuery.contains(ORDER_BY)){
