@@ -343,7 +343,7 @@ public class TaskServiceImpl implements TaskService {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-            if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
+            if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())) // check for super admin privileges about delete
                 return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
             notificationRepository.deleteNotification(taskId);
         taskRepository.flagProjectTask(taskId);
