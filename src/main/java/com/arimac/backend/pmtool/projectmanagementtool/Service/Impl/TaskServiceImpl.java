@@ -797,7 +797,7 @@ public class TaskServiceImpl implements TaskService {
         for (String word : words){
             boolean type = FilterQueryTypeEnum.contains(word);
             boolean operator = FilterQueryOperatorEnum.contains(word);
-            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")") || word.startsWith("\"") || word.endsWith("\"");
+            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")") || word.startsWith("\"") || word.endsWith("\"") || word.startsWith("(");
             if (!type && !operator && !argument)
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         }
