@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+
 @Service
 public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
@@ -342,7 +343,7 @@ public class TaskServiceImpl implements TaskService {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-            if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()))) // check for super admin privileges about delete
+            if (!((task.getTaskAssignee().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())) // check for super admin privileges about delete
                 return new ErrorMessage("User doesn't have privileges", HttpStatus.FORBIDDEN);
             notificationRepository.deleteNotification(taskId);
         taskRepository.flagProjectTask(taskId);
@@ -533,6 +534,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<UserWorkLoadDto> userWorkLoadResponse = new ArrayList<>(workStatusMap.values());
+        Collections.sort(userWorkLoadResponse, Comparator.comparingInt(UserWorkLoadDto::getTotalTasks));
+        Collections.reverse(userWorkLoadResponse);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userWorkLoadResponse);
     }
 
@@ -617,6 +620,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<UserProjectWorkLoadDto> userProjectWorkLoadTaskResponse = new ArrayList<>(userProjectWorkLoadMap.values());
+        Collections.sort(userProjectWorkLoadTaskResponse, Comparator.comparingInt(UserProjectWorkLoadDto::getTotal));
+        Collections.reverse(userProjectWorkLoadTaskResponse);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userProjectWorkLoadTaskResponse);
     }
 
@@ -772,7 +777,6 @@ public class TaskServiceImpl implements TaskService {
         String OrderBySubString = null;
         query = query.replaceAll("%", "%25");
         try {
-//            decodedQuery = URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
             decodedQuery = URLDecoder.decode(query, "UTF-8");
 
             if (decodedQuery.contains(ORDER_BY)){
@@ -784,7 +788,6 @@ public class TaskServiceImpl implements TaskService {
             List<String> orderBy = new ArrayList<String>(Arrays.asList(words));
             orderBy.removeAll(Arrays.asList(""));
             for (String word: orderBy){
-//                logger.info("word {}: ", word);
                 if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
                     return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
             }
@@ -794,11 +797,9 @@ public class TaskServiceImpl implements TaskService {
         for (String word : words){
             boolean type = FilterQueryTypeEnum.contains(word);
             boolean operator = FilterQueryOperatorEnum.contains(word);
-            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")");
-//            && !word.matches("[A-Za-z0-9\\-,]
+            boolean argument = word.startsWith("(\"") && word.endsWith("\")") ||  word.startsWith("\"") && word.endsWith("\"") || word.startsWith("(") && word.endsWith(",") || word.startsWith("\"") && word.endsWith(")") || word.startsWith("\"") || word.endsWith("\"");
             if (!type && !operator && !argument)
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-           // logger.info("word: {} {}", word, type);
         }
         } catch (UnsupportedEncodingException e){
             throw new PMException(ResponseMessage.URL_DECODING_ERROR, HttpStatus.BAD_REQUEST);

@@ -31,7 +31,7 @@ public enum ResponseMessage {
 
 
     private String message;
-    private ResponseMessage(String message){
+    ResponseMessage(String message){
         this.message = message;
     }
 
