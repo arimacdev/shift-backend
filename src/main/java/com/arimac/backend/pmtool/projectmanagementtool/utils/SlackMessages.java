@@ -44,6 +44,16 @@ public class SlackMessages {
     public static  final String PREVIOUS_DUE_DATE_ICON = "\n:red_circle:   *Previous DueDate:* ";
     public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
+    //TaskGroup Tasks
+    public static final String TASKGROUP_TASK_ASSIGNMENT_TITLE = "New TaskGroup Task Assignment";
+    public static  final String TASKGROUP_TASK_GREETING =" You have been assigned to the following TaskGroup Task";
+
+
+    public static  final String TASKGROUP_ICON ="\n:briefcase:   *TaskGroup:* ";
+    public static  final String TASKGROUP_TASK_ICON =":gear:   *TaskGroup Task:* ";
+
+
+
     public static  final String FRONTEND_URL = ENVConfig.BASE_URL;
 
     public static  final String CALENDER_THUMBNAIL = "https://api.slack.com/img/blocks/bkb_template_images/notifications.png";

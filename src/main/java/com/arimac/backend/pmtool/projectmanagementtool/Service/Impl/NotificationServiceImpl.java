@@ -7,14 +7,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackElement;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
-import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.NotificationRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.SlackMessages;
 import org.joda.time.*;
@@ -31,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -49,14 +42,18 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final TaskGroupTaskRepository taskGroupTaskRepository;
+    private final TaskGroupRepository taskGroupRepository;
 
     private final RestTemplate restTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, RestTemplate restTemplate) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, RestTemplate restTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
+        this.taskGroupTaskRepository = taskGroupTaskRepository;
+        this.taskGroupRepository = taskGroupRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -410,6 +407,77 @@ public class NotificationServiceImpl implements NotificationService {
             HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
             Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
         }
+    }
+
+    @Override
+    public void sendTaskGroupTaskAssignNotification(TaskGroupTask taskGroupTask) {
+        User user = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
+        if (user.getUserSlackId() != null && user.getNotification()){
+            TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupTask.getTaskGroupId());
+            User sender = userRepository.getUserByUserId(taskGroupTask.getTaskInitiator());
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASKGROUP_TASK_ASSIGNMENT_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = new SlackBlock();
+            headerBlock.setType(SECTION);
+            headerBlock.getText().setType(MARK_DOWN);
+            StringBuilder greeting = new StringBuilder();
+            greeting.append(getWelcomeAddressing(user.getUserSlackId()));
+            greeting.append(SlackMessages.TASKGROUP_TASK_GREETING);
+            headerBlock.getText().setText(greeting.toString());
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            blocks.add(addDivider());
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASKGROUP_TASK_ICON);
+            bodyText.append(getTaskGroupTaskUrl(taskGroupTask));
+            bodyText.append(SlackMessages.TASKGROUP_ICON);
+            bodyText.append(getTaskGroupUrl(taskGroup));
+            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
+            if (sender.getUserSlackId()!= null) {
+                bodyText.append(getMentionedName(sender.getUserSlackId()));
+            } else {
+                bodyText.append(sender.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(sender.getLastName());
+            }
+            bodyText.append(SlackMessages.DUE_DATE_ICON);
+            if (taskGroupTask.getTaskDueDateAt() != null){
+                DateTime dueUtc = new DateTime(taskGroupTask.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
+                bodyText.append(getDueDate(dueUtc));
+            } else {
+                bodyText.append("No Due Date Assigned");
+            }
+            body.getText().setText(bodyText.toString());
+            body.getAccessory().setType("image");
+            body.getAccessory().setImage_url(SlackMessages.ASSIGNMENT_THUMBNAIL);
+            body.getAccessory().setAlt_text("Assignee Thumbnail");
+            blocks.add(body);
+            blocks.add(addDivider());
+
+            payload.put(BLOCKS, blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    private SlackBlock addDivider(){
+        SlackBlock divider = new SlackBlock();
+        divider.setType(DIVIDER);
+        divider.setText(null);
+        divider.setAccessory(null);
+        return divider;
     }
 
     @Override
@@ -885,6 +953,34 @@ public class NotificationServiceImpl implements NotificationService {
         taskUrl.append(">*");
 
         return taskUrl.toString();
+    }
+
+    private String getTaskGroupTaskUrl(TaskGroupTask taskGroupTask){
+        StringBuilder taskGroupTaskUrl = new StringBuilder();
+        taskGroupTaskUrl.append("*<");
+        taskGroupTaskUrl.append(SlackMessages.FRONTEND_URL);
+        taskGroupTaskUrl.append("/tasks/tasks");
+//        taskUrl.append(task.getTaskId());
+//        taskUrl.append("/?project=");
+//        taskUrl.append(task.getProjectId());
+        taskGroupTaskUrl.append("|");
+        taskGroupTaskUrl.append(taskGroupTask.getTaskName());
+        taskGroupTaskUrl.append(">*");
+
+        return taskGroupTaskUrl.toString();
+    }
+
+    private String getTaskGroupUrl(TaskGroup taskGroup){
+        StringBuilder taskGroupUrl = new StringBuilder();
+        taskGroupUrl.append("*<");
+        taskGroupUrl.append(SlackMessages.FRONTEND_URL);
+        taskGroupUrl.append("/tasks/tasks");
+        //taskUrl.append(project.getProjectId());
+        taskGroupUrl.append("|");
+        taskGroupUrl.append(taskGroup.getTaskGroupName());
+        taskGroupUrl.append(">*");
+
+        return taskGroupUrl.toString();
     }
 
     private String getProjectUrl(Project project){
