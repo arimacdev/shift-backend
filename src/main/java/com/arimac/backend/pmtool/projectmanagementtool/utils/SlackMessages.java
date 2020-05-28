@@ -9,7 +9,7 @@ public class SlackMessages {
     public static  final String TASK_FILE_UPLOAD_NOTIFICATION_TITLE ="Task File Upload";
     public static  final String TASK_MODIFICATION_TITLE ="Task Content Modification";
     public static  final String SUB_TASK_MODIFICATION_TITLE ="SubTask Content Modification";
-    public static  final String TASK_REMINDER_GREETING =" A Reminder for the following task";
+    public static  final String TASK_REMINDER_GREETING =" A Reminder for the following Task";
     public static  final String TASK_ASSIGNMENT_GREETING =" You have been assigned to the following Task";
     public static  final String ADDRESS_GREETING =":wave: Hey There ";
 
@@ -45,12 +45,16 @@ public class SlackMessages {
     public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
     //TaskGroup Tasks
-    public static final String TASKGROUP_TASK_ASSIGNMENT_TITLE = "New TaskGroup Task Assignment";
+    public static  final String TASKGROUP_TASK_ASSIGNMENT_TITLE = "New TaskGroup Task Assignment";
     public static  final String TASKGROUP_TASK_ASSIGNEE_UPDATE_TITLE ="Task Assignment Modification";
     public static  final String TASKGROUP_TASK_GREETING =" You have been assigned to the following TaskGroup Task";
     public static  final String TASKGROUP_TASK_MODIFICATION_GREETING =" A TaskGroup Task assigned to you has been modified";
     public static  final String TASKGROUP_ICON ="\n:briefcase:   *TaskGroup:* ";
     public static  final String TASKGROUP_TASK_ICON =":gear:   *TaskGroup Task:* ";
+    public static final String TASKGROUP_TASK_REMINDER_TITLE = "Task Reminder";
+    public static  final String TASKGROUP_TASK_REMINDER_GREETING =" A Reminder for the following TaskGroup Task";
+
+
 
     //Alt Texts
     public static  final String TASKGROUP_TASK_NAME_THUMBNAIL_TEXT ="TaskGroup Task Name Modification Thumbnail";
@@ -62,7 +66,7 @@ public class SlackMessages {
     public static  final String TASK_NOTE_THUMBNAIL_TEXT ="Task Note Modification Thumbnail";
     public static  final String TASK_DUE_THUMBNAIL_TEXT ="Task Due Date Modification Thumbnail";
     public static  final String TASK_TRANSITION_THUMBNAIL_TEXT ="Task Transition Thumbnail";
-//    public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";//
+    public static  final String REMINDER_THUMBNAIL ="Reminder Thumbnail";
 
 
     public static  final String FRONTEND_URL = ENVConfig.BASE_URL;

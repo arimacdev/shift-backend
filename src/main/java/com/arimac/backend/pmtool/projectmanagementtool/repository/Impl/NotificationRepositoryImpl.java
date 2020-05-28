@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
@@ -52,8 +53,17 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         String sql = "SELECT * FROM Task as t\n" +
                 "    INNER JOIN project as p ON t.projectId = p.project\n" +
                 "    INNER JOIN Notification as n ON n.taskId = t.taskId\n" +
-                "    INNER JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.daily = false OR n.hourly = false)";
+                "    INNER JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.hourly = false)";
         return jdbcTemplate.query(sql, new TaskAlertDto(), "closed");
+    }
+
+    public List<TaskGroupTaskAlertDto> getTaskGroupTaskAlertList(){
+        String sql = "SELECT * FROM TaskGroupTask as tgt\n" +
+                "    INNER JOIN TaskGroup as tg ON tg.taskGroupId = tgt.taskGroupId\n" +
+                "    INNER JOIN Notification as n ON n.taskId = tgt.taskId\n" +
+                "    INNER JOIN User as u ON tgt.taskAssignee = u.userId WHERE tgt.taskStatus !=? AND tgt.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.hourly = false)";
+        return jdbcTemplate.query(sql, new TaskGroupTaskAlertDto(), "closed");
+
     }
 
     @Override

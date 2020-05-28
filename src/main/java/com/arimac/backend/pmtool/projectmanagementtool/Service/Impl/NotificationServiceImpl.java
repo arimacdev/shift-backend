@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackElement;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
@@ -930,46 +931,74 @@ public class NotificationServiceImpl implements NotificationService {
                 DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
                 logger.info("dueCol {}",dueCol);
                 Duration duration = new Duration(nowCol, dueUtc);
-//                int mins = (int)duration.getStandardMinutes();
-//                Minutes minutes = Minutes.minutesBetween(dt, duedate);
                 int difference = (int) duration.getStandardMinutes();
-//                logger.info("days {} | {}", minutes,(int) duration.getStandardMinutes());
-//                logger.info("days {} | {}", minutes, duration.getStandardMinutes());
-//                logger.info("task {} || minutes left {}", taskAlert.getTaskId(),minutes);
                 logger.info("difference {}",difference);
                 int timeFixDifference = difference - 330;
                 logger.info("fix difference {}",timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
-                if(timeFixDifference < 60 && !taskAlert.getIsDaily()){
-                    //send notification
-                    NotificationUpdateDto updateDto = new NotificationUpdateDto();
-                    updateDto.setTaskId(taskAlert.getTaskId());
-                    updateDto.setIsDaily(true);
-                    updateDto.setIsHourly(true);
-                    notificationRepository.updateTaskNotification(updateDto);
-                }
                 if (timeFixDifference < 1440 && timeFixDifference > 0){
                     NotificationUpdateDto updateDto = new NotificationUpdateDto();
                     updateDto.setTaskId(taskAlert.getTaskId());
-                    if (timeFixDifference < 60){
+                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
                         //Hourly Notification
                         updateDto.setIsDaily(true);
                         updateDto.setIsHourly(true);
                         notificationRepository.updateTaskNotification(updateDto);
-                        sendSlackNotification(taskAlert, dueUtc);
+                        sendTaskReminder(taskAlert, dueUtc);
                     } else if (!taskAlert.getIsDaily()){
                         //Daily Notification
                         updateDto.setIsDaily(true);
                         updateDto.setIsHourly(false);
                         notificationRepository.updateTaskNotification(updateDto);
-                        sendSlackNotification(taskAlert, dueUtc);
+                        sendTaskReminder(taskAlert, dueUtc);
+                    }
+                }
+            }
+        }
+        List<TaskGroupTaskAlertDto> taskGroupTaskAlertList = notificationRepository.getTaskGroupTaskAlertList();
+
+        for(TaskGroupTaskAlertDto taskAlert : taskGroupTaskAlertList) {
+            if (taskAlert.getTaskDue() != null && taskAlert.getAssigneeSlackId() != null) {
+                logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
+                long due = taskAlert.getTaskDue().getTime();
+                DateTime duedate = new DateTime(due);
+                DateTime now = DateTime.now();
+                DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
+                logger.info("nowUTC {}",nowUTC);
+                DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+                logger.info("nowCol {}",nowCol);
+                DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+                logger.info("dueUtc {}",dueUtc);
+                DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
+                logger.info("dueCol {}",dueCol);
+                Duration duration = new Duration(nowCol, dueUtc);
+                int difference = (int) duration.getStandardMinutes();
+                logger.info("difference {}",difference);
+                int timeFixDifference = difference - 330;
+                logger.info("fix difference {}",timeFixDifference);
+                logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
+                if (timeFixDifference < 1440 && timeFixDifference > 0){
+                    NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                    updateDto.setTaskId(taskAlert.getTaskId());
+                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
+                        //Hourly Notification
+                        updateDto.setIsDaily(true);
+                        updateDto.setIsHourly(true);
+                        notificationRepository.deleteNotification(taskAlert.getTaskId());
+                        sendTaskGroupTaskReminder(taskAlert, dueUtc);
+                    } else if (!taskAlert.getIsDaily()){
+                        //Daily Notification
+                        updateDto.setIsDaily(true);
+                        updateDto.setIsHourly(false);
+                        notificationRepository.updateTaskNotification(updateDto);
+                        sendTaskGroupTaskReminder(taskAlert, dueUtc);
                     }
                 }
             }
         }
     }
 
-    private void sendSlackNotification(TaskAlertDto taskAlert, DateTime dueUtc){
+    private void sendTaskReminder(TaskAlertDto taskAlert, DateTime dueUtc){
         Project project = projectRepository.getProjectById(taskAlert.getProjectId());
         Task task = taskRepository.getProjectTask(taskAlert.getTaskId());
         JSONObject payload = new JSONObject();
@@ -977,44 +1006,31 @@ public class NotificationServiceImpl implements NotificationService {
         payload.put(TEXT, SlackMessages.TASK_REMINDER_TITLE);
         List<SlackBlock> blocks = new ArrayList<>();
 
-        SlackBlock headerBlock = new SlackBlock();
-        headerBlock.setType(SECTION);
-        headerBlock.getText().setType(MARK_DOWN);
-        StringBuilder addressing = new StringBuilder();
-        addressing.append(getWelcomeAddressing(taskAlert.getAssigneeSlackId()));
-        addressing.append(SlackMessages.TASK_REMINDER_GREETING);
-        headerBlock.getText().setText(addressing.toString());
+        SlackBlock headerBlock = addHeaderBlock(taskAlert.getAssigneeSlackId(), SlackMessages.TASK_REMINDER_GREETING);
         headerBlock.setAccessory(null);
         blocks.add(headerBlock);
 
-        SlackBlock divider = new SlackBlock();
-        divider.setType(DIVIDER);
-        divider.setText(null);
-        divider.setAccessory(null);
-        blocks.add(divider);
+        blocks.add(addDivider());
 
         SlackBlock body = new SlackBlock();
         body.setType(SECTION);
         body.getText().setType(MARK_DOWN);
         StringBuilder bodyText = new StringBuilder();
         bodyText.append(SlackMessages.TASK_ICON);
-        bodyText.append(task.getTaskName());
+        bodyText.append(getTaskUrl(task));
         bodyText.append(SlackMessages.PROJECT_ICON);
-        bodyText.append(project.getProjectName());
+        bodyText.append(getProjectUrl(project));
         bodyText.append(SlackMessages.DUE_DATE_ICON);
         if (task.getTaskDueDateAt() != null){
-//            DateTime dueUtc = new DateTime(due, DateTimeZone.forID("UTC"));
             bodyText.append(getDueDate(dueUtc));
         } else {
             bodyText.append("No Due Date Assigned");
         }
         body.getText().setText(bodyText.toString());
-        body.getAccessory().setType("image");
-        body.getAccessory().setImage_url(SlackMessages.CALENDER_THUMBNAIL);
-        body.getAccessory().setAlt_text("Calender Thumbnail");
+        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL);
         blocks.add(body);
         blocks.add(getFooter(task.getTaskStatus().toString()));
-        blocks.add(divider);
+        blocks.add(addDivider());
 
         payload.put(BLOCKS,blocks);
         StringBuilder url = new StringBuilder();
@@ -1023,26 +1039,49 @@ public class NotificationServiceImpl implements NotificationService {
         logger.info("Slack Message Url {}", url);
         HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
         Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
-//        try {
-//            JSONObject payload = new JSONObject();
-//            payload.put("channel", taskAlert.getAssigneeSlackId());
-//            StringBuilder message = new StringBuilder();
-//            message.append("Your Task: ");
-//            message.append(taskAlert.getTaskName());
-//            message.append(" of project ");
-//            message.append(taskAlert.getProjectName());
-//            message.append(" will be due at ");
-//            message.append(getDueDate(dueUtc));
-//            payload.put("text",message.toString());
-//            StringBuilder url = new StringBuilder();
-//            url.append(ENVConfig.SLACK_BASE_URL);
-//            url.append("/chat.postMessage");
-//            logger.info("Slack Message Url {}", url);
-//            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
-//            ResponseEntity<String> exchange = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
-//        } catch (Exception e){
-//            logger.info("Error calling Slack API");
-//        }
+    }
+
+    private void sendTaskGroupTaskReminder(TaskGroupTaskAlertDto taskAlert, DateTime dueUtc){
+        TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskAlert.getTaskGroupId());
+        TaskGroupTask task = taskGroupTaskRepository.getTaskByTaskGroupId(taskAlert.getTaskGroupId(), taskAlert.getTaskId());
+        JSONObject payload = new JSONObject();
+        payload.put(CHANNEL, taskAlert.getAssigneeSlackId());
+        payload.put(TEXT, SlackMessages.TASKGROUP_TASK_REMINDER_TITLE);
+        List<SlackBlock> blocks = new ArrayList<>();
+
+        SlackBlock headerBlock = addHeaderBlock(taskAlert.getAssigneeSlackId(), SlackMessages.TASKGROUP_TASK_REMINDER_GREETING);
+        headerBlock.setAccessory(null);
+        blocks.add(headerBlock);
+
+        blocks.add(addDivider());
+
+        SlackBlock body = new SlackBlock();
+        body.setType(SECTION);
+        body.getText().setType(MARK_DOWN);
+        StringBuilder bodyText = new StringBuilder();
+        bodyText.append(SlackMessages.TASKGROUP_TASK_ICON);
+        bodyText.append(getTaskGroupTaskUrl(task));
+        bodyText.append(SlackMessages.TASKGROUP_ICON);
+        bodyText.append(getTaskGroupUrl(taskGroup));
+        bodyText.append(SlackMessages.DUE_DATE_ICON);
+        if (task.getTaskDueDateAt() != null){
+            bodyText.append(getDueDate(dueUtc));
+        } else {
+            bodyText.append("No Due Date Assigned");
+        }
+        body.getText().setText(bodyText.toString());
+        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL);
+        blocks.add(body);
+        blocks.add(getFooter(task.getTaskStatus().toString()));
+        blocks.add(addDivider());
+
+        payload.put(BLOCKS,blocks);
+        StringBuilder url = new StringBuilder();
+        url.append(ENVConfig.SLACK_BASE_URL);
+        url.append("/chat.postMessage");
+        logger.info("Slack Message Url {}", url);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+        Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
     }
 
     private String getDueDate(DateTime dueUtc){
