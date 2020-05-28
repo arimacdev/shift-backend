@@ -164,6 +164,36 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             updateDto.setTaskRemindOnDate(taskUpdateDto.getTaskRemindOnDate());
         }
         Object updateTask = taskGroupTaskRepository.updateTaskGroupTask(taskId, updateDto);
+
+        //Notifications
+
+        if (taskUpdateDto.getTaskName() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "name", userId);;
+            });
+        }
+
+        if (taskUpdateDto.getTaskNotes() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "notes", userId);;
+            });
+        }
+
+        if (taskUpdateDto.getTaskDueDate() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "dueDate", userId);;
+            });
+        }
+
+        if (taskUpdateDto.getTaskStatus() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "status", userId);;
+            });
+        }
+
+
+
+
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
     }
 

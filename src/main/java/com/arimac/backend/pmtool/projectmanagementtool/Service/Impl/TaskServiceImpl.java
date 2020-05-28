@@ -304,13 +304,13 @@ public class TaskServiceImpl implements TaskService {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
             });
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+           // return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskStatus() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
             });
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+           // return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
@@ -322,7 +322,7 @@ public class TaskServiceImpl implements TaskService {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
             });
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+        //    return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
         }
         if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {

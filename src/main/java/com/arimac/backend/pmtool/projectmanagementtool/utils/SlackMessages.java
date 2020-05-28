@@ -47,10 +47,28 @@ public class SlackMessages {
     //TaskGroup Tasks
     public static final String TASKGROUP_TASK_ASSIGNMENT_TITLE = "New TaskGroup Task Assignment";
     public static  final String TASKGROUP_TASK_GREETING =" You have been assigned to the following TaskGroup Task";
-
-
+    public static  final String TASKGROUP_TASK_MODIFICATION_GREETING =" A TaskGroup Task assigned to you has been modified";
     public static  final String TASKGROUP_ICON ="\n:briefcase:   *TaskGroup:* ";
     public static  final String TASKGROUP_TASK_ICON =":gear:   *TaskGroup Task:* ";
+
+    //Alt Texts
+    public static  final String TASKGROUP_TASK_NAME_THUMBNAIL_TEXT ="TaskGroup Task Name Modification Thumbnail";
+    public static  final String TASKGROUP_TASK_NOTE_THUMBNAIL_TEXT =  "TaskGroup Task Note Modification Thumbnail";
+    public static  final String TASKGROUP_TASK_DATE_THUMBNAIL_TEXT = "TaskGroup Task Due Date Modification Thumbnail";
+    public static  final String TASKGROUP_TASK_TRANSITION_THUMBNAIL_TEXT ="TaskGroup Task Transition Thumbnail";
+
+    public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";
+    public static  final String TASK_NOTE_THUMBNAIL_TEXT ="Task Note Modification Thumbnail";
+    public static  final String TASK_DUE_THUMBNAIL_TEXT ="Task Due Date Modification Thumbnail";
+    public static  final String TASK_TRANSITION_THUMBNAIL_TEXT ="Task Transition Thumbnail";
+//    public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";//
+
+
+
+
+
+
+
 
 
 
