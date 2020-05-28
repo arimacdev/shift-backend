@@ -171,41 +171,43 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         //Notifications
         if (taskUpdateDto.getTaskAssignee() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskGroupTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
+                notificationService.sendTaskGroupTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());
             });
         }
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "name", userId);;
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "name", userId);
             });
         }
         if (taskUpdateDto.getTaskNotes() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "notes", userId);;
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "notes", userId);
             });
         }
            if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "dueDate", userId);;
-                DateTime duedate = new DateTime(taskUpdateDto.getTaskDueDate().getTime());
-                DateTime now = DateTime.now();
-                DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-                DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-                Duration duration = new Duration(nowCol, dueUtc);
-                int difference = (int) duration.getStandardMinutes();
-                int timeFixDifference = difference - 330;
-                Notification notification = new Notification();
-                notification.setNotificationId(utilsService.getUUId());
-                notification.setTaskId(task.getTaskId());
-                notification.setAssigneeId(task.getTaskAssignee());
-                notification.setTaskDueDateAt(task.getTaskDueDateAt());
-                if (timeFixDifference < 1440) {
-                    notification.setDaily(true);
-                } else {
-                    notification.setDaily(false);
-                }
-                notification.setHourly(false);
-                notificationRepository.addTaskNotification(notification);
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "dueDate", userId);
+                Notification taskNotfication = notificationRepository.getNotificationByTaskId(taskId);
+                if (taskNotfication != null) notificationRepository.deleteNotification(taskId);
+                    DateTime duedate = new DateTime(taskUpdateDto.getTaskDueDate().getTime());
+                    DateTime now = DateTime.now();
+                    DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+                    DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+                    Duration duration = new Duration(nowCol, dueUtc);
+                    int difference = (int) duration.getStandardMinutes();
+                    int timeFixDifference = difference - 330;
+                    Notification notification = new Notification();
+                    notification.setNotificationId(utilsService.getUUId());
+                    notification.setTaskId(task.getTaskId());
+                    notification.setAssigneeId(task.getTaskAssignee());
+                    notification.setTaskDueDateAt(task.getTaskDueDateAt());
+                    if (timeFixDifference < 1440) {
+                        notification.setDaily(true);
+                    } else {
+                        notification.setDaily(false);
+                    }
+                    notification.setHourly(false);
+                    notificationRepository.addTaskNotification(notification);
             });
         }
 

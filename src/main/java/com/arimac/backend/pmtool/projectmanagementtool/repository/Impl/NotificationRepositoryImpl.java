@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDt
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.NotificationRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,16 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 
             return preparedStatement;
         });
+    }
+
+    @Override
+    public Notification getNotificationByTaskId(String taskId) {
+        String sql = "SELECT * FROM Notification WHERE taskId=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Notification(), taskId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override

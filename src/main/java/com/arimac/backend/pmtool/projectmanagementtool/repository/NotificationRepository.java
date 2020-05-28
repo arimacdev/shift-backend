@@ -10,7 +10,7 @@ import java.util.List;
 public interface NotificationRepository {
 //    void addSlackIdToUser(Notification notification);
     void addTaskNotification(Notification notification);
-//    Notification getTaskNotification(String )
+    Notification getNotificationByTaskId(String taskId);
     void updateTaskNotification(NotificationUpdateDto notificationUpdateDto);
     List<TaskAlertDto> getTaskAlertList();
     List<TaskGroupTaskAlertDto> getTaskGroupTaskAlertList();
