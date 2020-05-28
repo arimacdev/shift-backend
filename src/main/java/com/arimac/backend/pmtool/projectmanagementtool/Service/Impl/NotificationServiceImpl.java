@@ -937,16 +937,13 @@ public class NotificationServiceImpl implements NotificationService {
                 logger.info("fix difference {}",timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
                 if (timeFixDifference < 1440 && timeFixDifference > 0){
-                    NotificationUpdateDto updateDto = new NotificationUpdateDto();
-                    updateDto.setTaskId(taskAlert.getTaskId());
                     if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
-                        //Hourly Notification
-                        updateDto.setIsDaily(true);
-                        updateDto.setIsHourly(true);
-                        notificationRepository.updateTaskNotification(updateDto);
+                        notificationRepository.deleteNotification(taskAlert.getTaskId());
                         sendTaskReminder(taskAlert, dueUtc);
                     } else if (!taskAlert.getIsDaily()){
                         //Daily Notification
+                        NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                        updateDto.setTaskId(taskAlert.getTaskId());
                         updateDto.setIsDaily(true);
                         updateDto.setIsHourly(false);
                         notificationRepository.updateTaskNotification(updateDto);
@@ -978,16 +975,14 @@ public class NotificationServiceImpl implements NotificationService {
                 logger.info("fix difference {}",timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
                 if (timeFixDifference < 1440 && timeFixDifference > 0){
-                    NotificationUpdateDto updateDto = new NotificationUpdateDto();
-                    updateDto.setTaskId(taskAlert.getTaskId());
                     if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
                         //Hourly Notification
-                        updateDto.setIsDaily(true);
-                        updateDto.setIsHourly(true);
                         notificationRepository.deleteNotification(taskAlert.getTaskId());
                         sendTaskGroupTaskReminder(taskAlert, dueUtc);
                     } else if (!taskAlert.getIsDaily()){
                         //Daily Notification
+                        NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                        updateDto.setTaskId(taskAlert.getTaskId());
                         updateDto.setIsDaily(true);
                         updateDto.setIsHourly(false);
                         notificationRepository.updateTaskNotification(updateDto);
