@@ -14,10 +14,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Notification;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.joda.time.DateTime;
@@ -26,6 +24,7 @@ import org.joda.time.Duration;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +93,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         if (taskDto.getTaskDueDate() != null){
             task.setTaskDueDateAt(taskDto.getTaskDueDate());
+            setNotification(task, taskDto.getTaskDueDate());
         }
         if (taskDto.getTaskRemindOnDate() != null){
             task.setTaskReminderAt(task.getTaskReminderAt());
@@ -189,25 +189,25 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
                 notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "dueDate", userId);
                 Notification taskNotfication = notificationRepository.getNotificationByTaskId(taskId);
                 if (taskNotfication != null) notificationRepository.deleteNotification(taskId);
-                    DateTime duedate = new DateTime(taskUpdateDto.getTaskDueDate().getTime());
-                    DateTime now = DateTime.now();
-                    DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-                    DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-                    Duration duration = new Duration(nowCol, dueUtc);
-                    int difference = (int) duration.getStandardMinutes();
-                    int timeFixDifference = difference - 330;
-                    Notification notification = new Notification();
-                    notification.setNotificationId(utilsService.getUUId());
-                    notification.setTaskId(task.getTaskId());
-                    notification.setAssigneeId(task.getTaskAssignee());
-                    notification.setTaskDueDateAt(task.getTaskDueDateAt());
-                    if (timeFixDifference < 1440) {
-                        notification.setDaily(true);
-                    } else {
-                        notification.setDaily(false);
-                    }
-                    notification.setHourly(false);
-                    notificationRepository.addTaskNotification(notification);
+//                    DateTime duedate = new DateTime(taskUpdateDto.getTaskDueDate().getTime());
+//                    DateTime now = DateTime.now();
+//                    DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+//                    DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+//                    Duration duration = new Duration(nowCol, dueUtc);
+//                    int difference = (int) duration.getStandardMinutes();
+//                    int timeFixDifference = difference - 330;
+//                    Notification notification = new Notification();
+//                    notification.setNotificationId(utilsService.getUUId());
+//                    notification.setTaskId(task.getTaskId());
+//                    notification.setAssigneeId(task.getTaskAssignee());
+//                    notification.setTaskDueDateAt(task.getTaskDueDateAt());
+//                    if (timeFixDifference < 1440) {
+//                        notification.setDaily(true);
+//                    } else {
+//                        notification.setDaily(false);
+//                    }
+//                    notification.setHourly(false);
+                    notificationRepository.addTaskNotification(setNotification(task, taskUpdateDto.getTaskDueDate()));
             });
         }
 
@@ -216,11 +216,30 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
                 notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "status", userId);;
             });
         }
-
-
-
-
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+    }
+
+    private Notification setNotification(TaskGroupTask task, Timestamp dueDate){
+        DateTime duedate = new DateTime(dueDate);
+        DateTime now = DateTime.now();
+        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+        DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+        Duration duration = new Duration(nowCol, dueUtc);
+        int difference = (int) duration.getStandardMinutes();
+        int timeFixDifference = difference - 330;
+        Notification notification = new Notification();
+        notification.setNotificationId(utilsService.getUUId());
+        notification.setTaskId(task.getTaskId());
+        notification.setAssigneeId(task.getTaskAssignee());
+        notification.setTaskDueDateAt(task.getTaskDueDateAt());
+        if (timeFixDifference < 1440) {
+            notification.setDaily(true);
+        } else {
+            notification.setDaily(false);
+        }
+        notification.setHourly(false);
+
+        return notification;
     }
 
     @Override

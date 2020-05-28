@@ -654,9 +654,6 @@ public class NotificationServiceImpl implements NotificationService {
             bodyText.append(getMentionedName(user.getUserSlackId()));
             body.getText().setText(bodyText.toString());
             setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_FILE_TEXT, SlackMessages.FILE_UPLOAD_THUMBNAIL);
-//            body.getAccessory().setType("image");
-//            body.getAccessory().setImage_url(SlackMessages.FILE_UPLOAD_THUMBNAIL);
-//            body.getAccessory().setAlt_text("File Upload Thumbnail");
             blocks.add(body);
 
             SlackBlock fileUpload = new SlackBlock();
@@ -929,46 +926,6 @@ public class NotificationServiceImpl implements NotificationService {
             HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
             Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
         }
-    }
-
-    @Override
-    public Object checkSlackNotification() {
-        JSONObject payload = new JSONObject();
-        payload.put("channel", "UGQ0FGZ5F");
-        payload.put("text", "New Task Assignment");
-        List<SlackBlock> blocks = new ArrayList<>();
-
-        SlackBlock headerBlock = new SlackBlock();
-        headerBlock.setType("section");
-        headerBlock.getText().setType("plain_text");
-        headerBlock.getText().setText(":wave: Hey There! You have been assigned to the following Task");
-        headerBlock.setAccessory(null);
-        blocks.add(headerBlock);
-
-        SlackBlock divider = new SlackBlock();
-        divider.setType("divider");
-        divider.setText(null);
-        divider.setAccessory(null);
-        blocks.add(divider);
-
-        SlackBlock body = new SlackBlock();
-        body.setType("section");
-        body.getText().setType("mrkdwn");
-        body.getText().setText(":gear: Task: *Notification API development*\n :briefcase: Project: *PM-Tool*\n:speaking_head_in_silhouette: Assigned By: *Naveen Perera* \n:hourglass_flowing_sand: Due Date: *2020/04/06*");
-        body.getAccessory().setType("image");
-        body.getAccessory().setImage_url("https://api.slack.com/img/blocks/bkb_template_images/notifications.png");
-        body.getAccessory().setAlt_text("Calender Thumbnail");
-        blocks.add(body);
-        blocks.add(divider);
-
-        payload.put("blocks",blocks);
-        StringBuilder url = new StringBuilder();
-        url.append(ENVConfig.SLACK_BASE_URL);
-        url.append("/chat.postMessage");
-        logger.info("Slack Message Url {}", url);
-        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
-        Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
-        return null;
     }
 
     @Scheduled(initialDelay = 10*1000, fixedRate = 30*60*1000)
