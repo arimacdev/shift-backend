@@ -269,7 +269,7 @@ public class NotificationServiceImpl implements NotificationService {
                     bodyText.append(taskUpdateDto.getTaskName());
                     bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
                     bodyText.append(task.getTaskName());
-                    setNotificationThumbnail(body, SlackMessages.TASK_NAME_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.UPDATE_TASK_NAME_THUMBNAIL, SlackMessages.TASK_NAME_THUMBNAIL_TEXT);
                  break;
                 case NOTES:
                     bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
@@ -279,7 +279,7 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append("<No Previous Task Note Content>");
                     else
                     bodyText.append(task.getTaskNote());
-                    setNotificationThumbnail(body, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT);
                  break;
                 case DUE_DATE:
                     bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
@@ -289,14 +289,14 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append("No Previous Due Date");
                     else
                         bodyText.append(getDate(task.getTaskDueDateAt()));
-                    setNotificationThumbnail(body, SlackMessages.TASK_DUE_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body,SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL, SlackMessages.TASK_DUE_THUMBNAIL_TEXT);
                  break;
                 case STATUS:
                     bodyText.append(SlackMessages.TRANSITION_ICON);
                     bodyText.append(task.getTaskStatus());
                     bodyText.append(SlackMessages.ARROW_ICON);
                     bodyText.append(taskUpdateDto.getTaskStatus());
-                    setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body,SlackMessages.TRANSITION_THUMBNAIL, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT);
                  break;
                 default:
                     return;
@@ -519,7 +519,7 @@ public class NotificationServiceImpl implements NotificationService {
 //                bodyText.append("No Due Date Assigned");
 //            }
             body.getText().setText(bodyText.toString());
-            setNotificationThumbnail(body, SlackMessages.ASSIGNMENT_UPDATE_THUMBNAIL);
+            setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_ASSIGNEE_UPDATE , SlackMessages.ASSIGNMENT_UPDATE_THUMBNAIL);
 
             blocks.add(body);
             blocks.add(getFooter(taskGroupTask.getTaskStatus().toString()));
@@ -566,7 +566,7 @@ public class NotificationServiceImpl implements NotificationService {
                     bodyText.append(taskGroupTaskUpdateDto.getTaskName());
                     bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
                     bodyText.append(taskGroupTask.getTaskName());
-                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_NAME_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_NAME_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NAME_THUMBNAIL);
                     break;
                 case NOTES:
                     bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
@@ -576,7 +576,7 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append("<No Previous Task Note Content>");
                     else
                         bodyText.append(taskGroupTask.getTaskNote());
-                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_NOTE_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
                     break;
                 case DUE_DATE:
                     bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
@@ -586,14 +586,14 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append("No Previous Due Date");
                     else
                         bodyText.append(getDate(taskGroupTask.getTaskDueDateAt()));
-                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_DATE_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_DATE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
                     break;
                 case STATUS:
                     bodyText.append(SlackMessages.TRANSITION_ICON);
                     bodyText.append(taskGroupTask.getTaskStatus());
                     bodyText.append(SlackMessages.ARROW_ICON);
                     bodyText.append(taskGroupTaskUpdateDto.getTaskStatus());
-                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_TRANSITION_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
                     break;
                 default:
                     return;
@@ -626,6 +626,64 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public void sendTaskGroupTaskFileUploadNotification(String userId, TaskGroupTask taskGroupTask, String taskGroupId, String file, String fileName) {
+        User user = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
+        if (user.getUserSlackId() != null && user.getNotification()){
+            TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupId);
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_FILE_UPLOAD_NOTIFICATION_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = addHeaderBlock(user.getUserSlackId(), SlackMessages.TASK_FILE_UPLOAD_GREETING);
+            headerBlock.setAccessory(null);
+            blocks.add(headerBlock);
+
+            blocks.add(addDivider());
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASKGROUP_TASK_ICON);
+            bodyText.append(getTaskGroupTaskUrl(taskGroupTask));
+            bodyText.append(SlackMessages.TASKGROUP_ICON);
+            bodyText.append(getTaskGroupUrl(taskGroup));
+            bodyText.append(SlackMessages.UPLOADED_BY_ICON);
+            bodyText.append(getMentionedName(user.getUserSlackId()));
+            body.getText().setText(bodyText.toString());
+            setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_FILE_TEXT, SlackMessages.FILE_UPLOAD_THUMBNAIL);
+//            body.getAccessory().setType("image");
+//            body.getAccessory().setImage_url(SlackMessages.FILE_UPLOAD_THUMBNAIL);
+//            body.getAccessory().setAlt_text("File Upload Thumbnail");
+            blocks.add(body);
+
+            SlackBlock fileUpload = new SlackBlock();
+            fileUpload.setType(SECTION);
+            fileUpload.getText().setType(MARK_DOWN);
+            StringBuilder fileText = new StringBuilder();
+            fileText.append(SlackMessages.UPLOADED_FILE_ICON);
+            fileText.append("*<");
+            fileText.append(file);
+            fileText.append("|");
+            fileText.append(fileName);
+            fileText.append(">*");
+            fileUpload.getText().setText(fileText.toString());
+            fileUpload.setAccessory(null);
+            blocks.add(fileUpload);
+            blocks.add(getFooter(taskGroupTask.getTaskStatus().toString()));
+            blocks.add(addDivider());
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
     private SlackBlock addDivider(){
         SlackBlock divider = new SlackBlock();
         divider.setType(DIVIDER);
@@ -646,9 +704,9 @@ public class NotificationServiceImpl implements NotificationService {
         return  headerBlock;
     }
 
-    private void setNotificationThumbnail(SlackBlock body, String altText){
+    private void setNotificationThumbnail(SlackBlock body, String altText, String thumbnail){
         body.getAccessory().setType("image");
-        body.getAccessory().setImage_url(SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
+        body.getAccessory().setImage_url(thumbnail);
         body.getAccessory().setAlt_text(altText);
     }
 
@@ -1022,7 +1080,7 @@ public class NotificationServiceImpl implements NotificationService {
             bodyText.append("No Due Date Assigned");
         }
         body.getText().setText(bodyText.toString());
-        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL);
+        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL_TEXT, SlackMessages.CALENDER_THUMBNAIL);
         blocks.add(body);
         blocks.add(getFooter(task.getTaskStatus().toString()));
         blocks.add(addDivider());
@@ -1065,7 +1123,7 @@ public class NotificationServiceImpl implements NotificationService {
             bodyText.append("No Due Date Assigned");
         }
         body.getText().setText(bodyText.toString());
-        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL);
+        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL_TEXT, SlackMessages.CALENDER_THUMBNAIL);
         blocks.add(body);
         blocks.add(getFooter(task.getTaskStatus().toString()));
         blocks.add(addDivider());

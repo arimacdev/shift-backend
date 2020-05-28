@@ -61,12 +61,16 @@ public class SlackMessages {
     public static  final String TASKGROUP_TASK_NOTE_THUMBNAIL_TEXT =  "TaskGroup Task Note Modification Thumbnail";
     public static  final String TASKGROUP_TASK_DATE_THUMBNAIL_TEXT = "TaskGroup Task Due Date Modification Thumbnail";
     public static  final String TASKGROUP_TASK_TRANSITION_THUMBNAIL_TEXT ="TaskGroup Task Transition Thumbnail";
+    public static  final String TASKGROUP_TASK_FILE_TEXT ="TaskGroup Task File Thumbnail";
+    public static  final String TASKGROUP_TASK_ASSIGNEE_UPDATE ="TaskGroup Task Assignee Update Thumbnail";
+
+
 
     public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";
     public static  final String TASK_NOTE_THUMBNAIL_TEXT ="Task Note Modification Thumbnail";
     public static  final String TASK_DUE_THUMBNAIL_TEXT ="Task Due Date Modification Thumbnail";
     public static  final String TASK_TRANSITION_THUMBNAIL_TEXT ="Task Transition Thumbnail";
-    public static  final String REMINDER_THUMBNAIL ="Reminder Thumbnail";
+    public static  final String REMINDER_THUMBNAIL_TEXT ="Reminder Thumbnail";
 
 
     public static  final String FRONTEND_URL = ENVConfig.BASE_URL;

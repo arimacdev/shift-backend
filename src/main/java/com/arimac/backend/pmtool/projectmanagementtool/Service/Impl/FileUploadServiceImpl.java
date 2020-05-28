@@ -117,6 +117,10 @@ public class FileUploadServiceImpl implements FileUploadService {
         taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
         taskFileRepository.uploadTaskFile(taskFile);
 
+        CompletableFuture.runAsync(()-> {
+            notificationService.sendTaskGroupTaskFileUploadNotification(userId, task, taskgroupId, taskUrl, multipartFile.getOriginalFilename());
+        });
+
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
     }
 
