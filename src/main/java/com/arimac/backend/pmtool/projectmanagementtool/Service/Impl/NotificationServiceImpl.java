@@ -461,6 +461,80 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendTaskGroupTaskAssigneeUpdateNotification(TaskGroupTask taskGroupTask, String userId, String newTaskAssignee) {
+         User previous = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
+        if (previous.getUserSlackId() != null && previous.getNotification()){
+            User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
+            TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupTask.getTaskGroupId());
+            User sender = userRepository.getUserByUserId(userId);
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, newAssignee.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASKGROUP_TASK_ASSIGNEE_UPDATE_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+            SlackBlock headerBlock = addHeaderBlock(newAssignee.getUserSlackId(), SlackMessages.TASKGROUP_TASK_MODIFICATION_GREETING);
+            headerBlock.setAccessory(null);
+            headerBlock.setElements(null);
+            blocks.add(headerBlock);
+
+            blocks.add(addDivider());
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASKGROUP_TASK_ICON);
+            bodyText.append(getTaskGroupTaskUrl(taskGroupTask));
+            bodyText.append(SlackMessages.TASKGROUP_ICON);
+            bodyText.append(getTaskGroupUrl(taskGroup));
+            bodyText.append(SlackMessages.TRANSITION_ICON);
+            if (previous.getUserSlackId()!= null){
+                bodyText.append(getMentionedName(previous.getUserSlackId()));
+            } else {
+                bodyText.append(previous.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(previous.getLastName());
+            }
+            bodyText.append(SlackMessages.ARROW_ICON);
+            if (newAssignee.getUserSlackId() != null){
+                bodyText.append(getMentionedName(newAssignee.getUserSlackId()));
+            } else {
+                bodyText.append(newAssignee.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(newAssignee.getLastName());
+            }
+            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
+            if (sender.getUserSlackId()!= null) {
+                bodyText.append(getMentionedName(sender.getUserSlackId()));
+            } else {
+                bodyText.append(sender.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(sender.getLastName());
+            }
+            //bodyText.append(SlackMessages.DUE_DATE_ICON);
+//            if (task.getTaskDueDateAt() != null){
+//                DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
+//                bodyText.append(getDueDate(dueUtc));
+//            } else {
+//                bodyText.append("No Due Date Assigned");
+//            }
+            body.getText().setText(bodyText.toString());
+            setNotificationThumbnail(body, SlackMessages.ASSIGNMENT_UPDATE_THUMBNAIL);
+
+            blocks.add(body);
+            blocks.add(getFooter(taskGroupTask.getTaskStatus().toString()));
+            blocks.add(addDivider());
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
     public void sendTaskGroupTaskContentModificationNotification(TaskGroupTask taskGroupTask, TaskGroupTaskUpdateDto taskGroupTaskUpdateDto, String type, String taskEditor) {
         User user = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
         if (user.getUserSlackId() != null && user.getNotification()){

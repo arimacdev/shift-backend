@@ -46,6 +46,7 @@ public class SlackMessages {
 
     //TaskGroup Tasks
     public static final String TASKGROUP_TASK_ASSIGNMENT_TITLE = "New TaskGroup Task Assignment";
+    public static  final String TASKGROUP_TASK_ASSIGNEE_UPDATE_TITLE ="Task Assignment Modification";
     public static  final String TASKGROUP_TASK_GREETING =" You have been assigned to the following TaskGroup Task";
     public static  final String TASKGROUP_TASK_MODIFICATION_GREETING =" A TaskGroup Task assigned to you has been modified";
     public static  final String TASKGROUP_ICON ="\n:briefcase:   *TaskGroup:* ";
@@ -62,14 +63,6 @@ public class SlackMessages {
     public static  final String TASK_DUE_THUMBNAIL_TEXT ="Task Due Date Modification Thumbnail";
     public static  final String TASK_TRANSITION_THUMBNAIL_TEXT ="Task Transition Thumbnail";
 //    public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";//
-
-
-
-
-
-
-
-
 
 
     public static  final String FRONTEND_URL = ENVConfig.BASE_URL;

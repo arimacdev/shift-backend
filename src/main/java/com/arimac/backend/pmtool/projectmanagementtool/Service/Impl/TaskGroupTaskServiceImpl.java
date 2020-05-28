@@ -167,6 +167,12 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
 
         //Notifications
 
+        if (taskUpdateDto.getTaskAssignee() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
+            });
+        }
+
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "name", userId);;
