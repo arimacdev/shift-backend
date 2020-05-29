@@ -192,7 +192,7 @@ public class IdpUserServiceImpl implements IdpUserService {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
             JSONObject updatePayload = new JSONObject();
-            updatePayload.put("email","nav");
+            updatePayload.put("enabled",false);
 
             HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
             StringBuilder userUpdateUrl = new StringBuilder();
