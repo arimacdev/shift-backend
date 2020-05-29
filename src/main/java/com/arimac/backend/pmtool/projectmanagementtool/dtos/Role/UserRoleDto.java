@@ -1,6 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Role;
 
-public class AddUserRoleDto {
+public class UserRoleDto {
     private String roleId;
     private String roleName;
     private String userId;

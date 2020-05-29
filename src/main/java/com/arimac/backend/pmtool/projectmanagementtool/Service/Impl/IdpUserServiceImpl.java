@@ -1,7 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.AddUserRoleDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -244,13 +244,13 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
-    public void addRoleToUser(String idpUserId, AddUserRoleDto addUserRoleDto, boolean firstRequest) {
+    public void addRoleToUser(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest) {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
             JSONArray addRolePayload = new JSONArray();
             JSONObject role = new JSONObject();
-            role.put("id", addUserRoleDto.getRoleId());
-            role.put("name", addUserRoleDto.getRoleName());
+            role.put("id", userRoleDto.getRoleId());
+            role.put("name", userRoleDto.getRoleName());
             addRolePayload.put(role);
 
             HttpEntity<Object> entity = new HttpEntity<>(addRolePayload.toString(), httpHeaders);
@@ -266,7 +266,38 @@ public class IdpUserServiceImpl implements IdpUserService {
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();
-                addRoleToUser(idpUserId, addUserRoleDto,false);
+                addRoleToUser(idpUserId, userRoleDto,false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void removerUserRole(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONArray addRolePayload = new JSONArray();
+            JSONObject role = new JSONObject();
+            role.put("id", userRoleDto.getRoleId());
+            role.put("name", userRoleDto.getRoleName());
+            addRolePayload.put(role);
+
+            HttpEntity<Object> entity = new HttpEntity<>(addRolePayload.toString(), httpHeaders);
+            StringBuilder addRoleUrl = new StringBuilder();
+            addRoleUrl.append(ENVConfig.KEYCLOAK_HOST);
+            addRoleUrl.append("/auth/admin/realms/");
+            addRoleUrl.append(ENVConfig.KEYCLOAK_REALM);
+            addRoleUrl.append("/users/");
+            addRoleUrl.append(idpUserId);
+            addRoleUrl.append("/role-mappings/realm");
+            logger.info("User Add Role URL {}", addRoleUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(addRoleUrl.toString(), HttpMethod.DELETE, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                addRoleToUser(idpUserId, userRoleDto,false);
             }
             throw new PMException(e.getLocalizedMessage());
         } catch (Exception e) {

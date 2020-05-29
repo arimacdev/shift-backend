@@ -3,8 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AdminService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.AddUserRoleDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -26,18 +25,26 @@ public class AdminController extends ResponseController {
 
     @ApiOperation(value = "Get All Realm Roles", notes = "Get All Realm Roles")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @GetMapping("/roles")
+    @GetMapping("/user/roles")
     public ResponseEntity<Object> getAllRealmRoles(@RequestHeader String userId){
-        logger.info("HIT -GET /admin/roles ---> getAllRealmRoles | userId: {}", userId);
+        logger.info("HIT -GET /user/roles ---> getAllRealmRoles | userId: {}", userId);
         return sendResponse(adminService.getAllRealmRoles(userId));
     }
 
     @ApiOperation(value = "Add Role To User", notes = "Add Role To User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping("/user/addrole")
-    public ResponseEntity<Object> addRoleToUser(@RequestBody AddUserRoleDto addUserRoleDto, @RequestHeader("userId") String userId){
-        logger.info("HIT -POST /admin/user/addrole ---> addRoleToUser | userId: {} | Dto : {}", userId, addUserRoleDto);
-        return sendResponse(adminService.addRoleToUser(userId, addUserRoleDto));
+    @PostMapping("/user/roles")
+    public ResponseEntity<Object> addRoleToUser(@RequestBody UserRoleDto userRoleDto, @RequestHeader("userId") String userId){
+        logger.info("HIT -POST /user/roles ---> addRoleToUser | userId: {} | Dto : {}", userId, userRoleDto);
+        return sendResponse(adminService.addRoleToUser(userId, userRoleDto));
+    }
+
+    @ApiOperation(value = "Add Role To User", notes = "Add Role To User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/user/roles")
+    public ResponseEntity<Object> removerUserRole(@RequestBody UserRoleDto userRoleDto, @RequestHeader("userId") String userId){
+        logger.info("HIT -DELETE /user/roles ---> removerUserRole | userId: {} | Dto : {}", userId, userRoleDto);
+        return sendResponse(adminService.removerUserRole(userId, userRoleDto));
     }
 
 

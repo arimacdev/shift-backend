@@ -3,7 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AdminService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.AddUserRoleDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.RealmRole;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -61,18 +61,31 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Object addRoleToUser(String userId, AddUserRoleDto addUserRoleDto) {
+    public Object addRoleToUser(String userId, UserRoleDto userRoleDto) {
         //CHECK ADMIN
         //Super Admin validation
         User admin = userRepository.getUserByUserId(userId);
         if (admin == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        User user = userRepository.getUserByUserId(addUserRoleDto.getUserId());
+        User user = userRepository.getUserByUserId(userRoleDto.getUserId());
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        idpUserService.addRoleToUser(user.getIdpUserId(), addUserRoleDto, true);
+        idpUserService.addRoleToUser(user.getIdpUserId(), userRoleDto, true);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, addUserRoleDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userRoleDto);
+    }
+
+    @Override
+    public Object removerUserRole(String userId, UserRoleDto userRoleDto) {
+        User admin = userRepository.getUserByUserId(userId);
+        if (admin == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User user = userRepository.getUserByUserId(userRoleDto.getUserId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        idpUserService.removerUserRole(user.getIdpUserId(), userRoleDto, true);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
 }
