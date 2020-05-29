@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
@@ -15,6 +16,7 @@ import java.util.List;
 @Service
 public class NotificationRepositoryImpl implements NotificationRepository {
 
+    private final String CLOSED = "closed";
     private final JdbcTemplate jdbcTemplate;
 
     public NotificationRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -65,7 +67,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
                 "    INNER JOIN project as p ON t.projectId = p.project\n" +
                 "    INNER JOIN Notification as n ON n.taskId = t.taskId\n" +
                 "    INNER JOIN User as u ON t.taskAssignee = u.userId WHERE t.taskStatus !=? AND t.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.hourly = false)";
-        return jdbcTemplate.query(sql, new TaskAlertDto(), "closed");
+        return jdbcTemplate.query(sql, new TaskAlertDto(), CLOSED);
     }
 
     public List<TaskGroupTaskAlertDto> getTaskGroupTaskAlertList(){
@@ -73,7 +75,15 @@ public class NotificationRepositoryImpl implements NotificationRepository {
                 "    INNER JOIN TaskGroup as tg ON tg.taskGroupId = tgt.taskGroupId\n" +
                 "    INNER JOIN Notification as n ON n.taskId = tgt.taskId\n" +
                 "    INNER JOIN User as u ON tgt.taskAssignee = u.userId WHERE tgt.taskStatus !=? AND tgt.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.hourly = false)";
-        return jdbcTemplate.query(sql, new TaskGroupTaskAlertDto(), "closed");
+        return jdbcTemplate.query(sql, new TaskGroupTaskAlertDto(), CLOSED);
+
+    }
+
+    public List<PersonalTaskAlertDto> getPersonalTaskAlertList(){
+        String sql = "SELECT * FROM PersonalTask as p\n" +
+                "    INNER JOIN Notification as n ON n.taskId = p.taskId\n" +
+                "    INNER JOIN User as u ON p.taskAssignee = u.userId WHERE p.taskStatus !=? AND p.isDeleted=false AND u.userSlackId IS NOT NULL AND  u.notification = true AND (n.hourly = false)";
+        return jdbcTemplate.query(sql, new PersonalTaskAlertDto(), CLOSED);
 
     }
 

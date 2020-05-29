@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.NotificationUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskAlertDto;
@@ -14,5 +15,6 @@ public interface NotificationRepository {
     void updateTaskNotification(NotificationUpdateDto notificationUpdateDto);
     List<TaskAlertDto> getTaskAlertList();
     List<TaskGroupTaskAlertDto> getTaskGroupTaskAlertList();
+    List<PersonalTaskAlertDto> getPersonalTaskAlertList();
     void deleteNotification(String taskId);
 }

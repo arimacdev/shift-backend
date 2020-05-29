@@ -189,24 +189,6 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
                 notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "dueDate", userId);
                 Notification taskNotfication = notificationRepository.getNotificationByTaskId(taskId);
                 if (taskNotfication != null) notificationRepository.deleteNotification(taskId);
-//                    DateTime duedate = new DateTime(taskUpdateDto.getTaskDueDate().getTime());
-//                    DateTime now = DateTime.now();
-//                    DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-//                    DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-//                    Duration duration = new Duration(nowCol, dueUtc);
-//                    int difference = (int) duration.getStandardMinutes();
-//                    int timeFixDifference = difference - 330;
-//                    Notification notification = new Notification();
-//                    notification.setNotificationId(utilsService.getUUId());
-//                    notification.setTaskId(task.getTaskId());
-//                    notification.setAssigneeId(task.getTaskAssignee());
-//                    notification.setTaskDueDateAt(task.getTaskDueDateAt());
-//                    if (timeFixDifference < 1440) {
-//                        notification.setDaily(true);
-//                    } else {
-//                        notification.setDaily(false);
-//                    }
-//                    notification.setHourly(false);
                     notificationRepository.addTaskNotification(setNotification(task, taskUpdateDto.getTaskDueDate()));
             });
         }

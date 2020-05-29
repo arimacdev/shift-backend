@@ -31,10 +31,10 @@ public class NotificationController extends ResponseController {
         return sendResponse(notificationService.addSlackIdToUser(userId, slackNotificationDto));
     }
 
-    @ApiOperation(value = "Update Slack Notification status", notes = "On/Off Slack notifications")
-    @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping("/slack")
-    public ResponseEntity<Object> updateNotificationStatus(){
-        return sendResponse(notificationService.checkSlackNotification());
-    }
+//    @ApiOperation(value = "Update Slack Notification status", notes = "On/Off Slack notifications")
+//    @ApiResponse(code = 200, message = "Success", response = Response.class)
+//    @PostMapping("/slack")
+//    public ResponseEntity<Object> updateNotificationStatus(){
+//        return sendResponse(notificationService.checkSlackNotification());
+//    }
 }

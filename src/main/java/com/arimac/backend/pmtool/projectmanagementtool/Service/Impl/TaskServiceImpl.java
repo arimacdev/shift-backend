@@ -146,27 +146,25 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.addTaskToProject(task);
         projectRepository.updateIssueCount(projectId, issueId);
         if (task.getTaskDueDateAt()!= null) {
-            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
-            DateTime now = DateTime.now();
-            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-            Duration duration = new Duration(nowCol, dueUtc);
-            int difference = (int) duration.getStandardMinutes();
-            int timeFixDifference = difference - 330;
-            Notification notification = new Notification();
-            notification.setNotificationId(utilsService.getUUId());
-            notification.setTaskId(task.getTaskId());
-            notification.setAssigneeId(task.getTaskAssignee());
-            notification.setTaskDueDateAt(task.getTaskDueDateAt());
-            if (timeFixDifference < 1440) {
-                notification.setDaily(true);
-            } else {
-                notification.setDaily(false);
-            }
-            notification.setHourly(false);
-            notificationRepository.addTaskNotification(notification);
-//            Slack Notification
-
+//            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
+//            DateTime now = DateTime.now();
+//            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+//            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+//            Duration duration = new Duration(nowCol, dueUtc);
+//            int difference = (int) duration.getStandardMinutes();
+//            int timeFixDifference = difference - 330;
+//            Notification notification = new Notification();
+//            notification.setNotificationId(utilsService.getUUId());
+//            notification.setTaskId(task.getTaskId());
+//            notification.setAssigneeId(task.getTaskAssignee());
+//            notification.setTaskDueDateAt(task.getTaskDueDateAt());
+//            if (timeFixDifference < 1440) {
+//                notification.setDaily(true);
+//            } else {
+//                notification.setDaily(false);
+//            }
+//            notification.setHourly(false);
+            notificationRepository.addTaskNotification(setNotification(task, task.getTaskDueDateAt()));
         }
         CompletableFuture.runAsync(()-> {
             notificationService.sendTaskAssignNotification(task);
@@ -326,27 +324,50 @@ public class TaskServiceImpl implements TaskService {
             });
             Notification taskNotification = notificationRepository.getNotificationByTaskId(taskId);
             if (taskNotification != null) notificationRepository.deleteNotification(taskId);
-            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
-            DateTime now = DateTime.now();
-            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-            Duration duration = new Duration(nowCol, dueUtc);
-            int difference = (int) duration.getStandardMinutes();
-            int timeFixDifference = difference - 330;
-            Notification notification = new Notification();
-            notification.setNotificationId(utilsService.getUUId());
-            notification.setTaskId(task.getTaskId());
-            notification.setAssigneeId(task.getTaskAssignee());
-            notification.setTaskDueDateAt(task.getTaskDueDateAt());
-            if (timeFixDifference < 1440) {
-                notification.setDaily(true);
-            } else {
-                notification.setDaily(false);
-            }
-            notification.setHourly(false);
-            notificationRepository.addTaskNotification(notification);
+//            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
+//            DateTime now = DateTime.now();
+//            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+//            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+//            Duration duration = new Duration(nowCol, dueUtc);
+//            int difference = (int) duration.getStandardMinutes();
+//            int timeFixDifference = difference - 330;
+//            Notification notification = new Notification();
+//            notification.setNotificationId(utilsService.getUUId());
+//            notification.setTaskId(task.getTaskId());
+//            notification.setAssigneeId(task.getTaskAssignee());
+//            notification.setTaskDueDateAt(task.getTaskDueDateAt());
+//            if (timeFixDifference < 1440) {
+//                notification.setDaily(true);
+//            } else {
+//                notification.setDaily(false);
+//            }
+//            notification.setHourly(false);
+            notificationRepository.addTaskNotification(setNotification(task, updateDto.getTaskDueDate()));
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+    }
+
+    private Notification setNotification(Task task, Timestamp dueDate){
+        DateTime duedate = new DateTime(dueDate.getTime());
+        DateTime now = DateTime.now();
+        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+        DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+        Duration duration = new Duration(nowCol, dueUtc);
+        int difference = (int) duration.getStandardMinutes();
+        int timeFixDifference = difference - 330;
+        Notification notification = new Notification();
+        notification.setNotificationId(utilsService.getUUId());
+        notification.setTaskId(task.getTaskId());
+        notification.setAssigneeId(task.getTaskAssignee());
+        notification.setTaskDueDateAt(task.getTaskDueDateAt());
+        if (timeFixDifference < 1440) {
+            notification.setDaily(true);
+        } else {
+            notification.setDaily(false);
+        }
+        notification.setHourly(false);
+
+        return notification;
     }
 
     @Override

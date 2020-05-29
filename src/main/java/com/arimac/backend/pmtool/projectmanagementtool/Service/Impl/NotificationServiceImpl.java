@@ -3,7 +3,9 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackElement;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
@@ -51,16 +53,18 @@ public class NotificationServiceImpl implements NotificationService {
     private final ProjectRepository projectRepository;
     private final TaskGroupTaskRepository taskGroupTaskRepository;
     private final TaskGroupRepository taskGroupRepository;
+    private final PersonalTaskRepository personalTaskRepository;
 
     private final RestTemplate restTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, RestTemplate restTemplate) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, PersonalTaskRepository personalTaskRepository, RestTemplate restTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.taskGroupTaskRepository = taskGroupTaskRepository;
         this.taskGroupRepository = taskGroupRepository;
+        this.personalTaskRepository = personalTaskRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -1006,6 +1010,47 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }
         }
+
+        List<PersonalTaskAlertDto> taskPersonalTaskAlertList = notificationRepository.getPersonalTaskAlertList();
+
+        for (PersonalTaskAlertDto taskAlert: taskPersonalTaskAlertList){
+            if (taskAlert.getTaskDue() != null && taskAlert.getAssigneeSlackId() != null) {
+                logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
+                long due = taskAlert.getTaskDue().getTime();
+                DateTime duedate = new DateTime(due);
+                DateTime now = DateTime.now();
+                DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
+                logger.info("nowUTC {}",nowUTC);
+                DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+                logger.info("nowCol {}",nowCol);
+                DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+                logger.info("dueUtc {}",dueUtc);
+                DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
+                logger.info("dueCol {}",dueCol);
+                Duration duration = new Duration(nowCol, dueUtc);
+                int difference = (int) duration.getStandardMinutes();
+                logger.info("difference {}",difference);
+                int timeFixDifference = difference - 330;
+                logger.info("fix difference {}",timeFixDifference);
+                logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
+                if (timeFixDifference < 1440 && timeFixDifference > 0){
+                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
+                        //Hourly Notification
+                        notificationRepository.deleteNotification(taskAlert.getTaskId());
+                        sendPersonalTaskReminder(taskAlert, dueUtc);
+                    } else if (!taskAlert.getIsDaily()){
+                        //Daily Notification
+                        NotificationUpdateDto updateDto = new NotificationUpdateDto();
+                        updateDto.setTaskId(taskAlert.getTaskId());
+                        updateDto.setIsDaily(true);
+                        updateDto.setIsHourly(false);
+                        notificationRepository.updateTaskNotification(updateDto);
+                        sendPersonalTaskReminder(taskAlert, dueUtc);
+                    }
+                }
+            }
+        }
+
     }
 
     private void sendTaskReminder(TaskAlertDto taskAlert, DateTime dueUtc){
@@ -1073,6 +1118,48 @@ public class NotificationServiceImpl implements NotificationService {
         bodyText.append(getTaskGroupTaskUrl(task));
         bodyText.append(SlackMessages.TASKGROUP_ICON);
         bodyText.append(getTaskGroupUrl(taskGroup));
+        bodyText.append(SlackMessages.DUE_DATE_ICON);
+        if (task.getTaskDueDateAt() != null){
+            bodyText.append(getDueDate(dueUtc));
+        } else {
+            bodyText.append("No Due Date Assigned");
+        }
+        body.getText().setText(bodyText.toString());
+        setNotificationThumbnail(body, SlackMessages.REMINDER_THUMBNAIL_TEXT, SlackMessages.CALENDER_THUMBNAIL);
+        blocks.add(body);
+        blocks.add(getFooter(task.getTaskStatus().toString()));
+        blocks.add(addDivider());
+
+        payload.put(BLOCKS,blocks);
+        StringBuilder url = new StringBuilder();
+        url.append(ENVConfig.SLACK_BASE_URL);
+        url.append("/chat.postMessage");
+        logger.info("Slack Message Url {}", url);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+        Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+    }
+
+    private void sendPersonalTaskReminder(PersonalTaskAlertDto taskAlert, DateTime dueUtc){
+        PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(taskAlert.getAssigneeId(), taskAlert.getTaskId());
+        JSONObject payload = new JSONObject();
+        payload.put(CHANNEL, taskAlert.getAssigneeSlackId());
+        payload.put(TEXT, SlackMessages.PERSONAL_TASK_REMINDER_TITLE);
+        List<SlackBlock> blocks = new ArrayList<>();
+
+        SlackBlock headerBlock = addHeaderBlock(taskAlert.getAssigneeSlackId(), SlackMessages.PERSONAL_TASK_REMINDER_GREETING);
+        headerBlock.setAccessory(null);
+        blocks.add(headerBlock);
+
+        blocks.add(addDivider());
+
+        SlackBlock body = new SlackBlock();
+        body.setType(SECTION);
+        body.getText().setType(MARK_DOWN);
+        StringBuilder bodyText = new StringBuilder();
+        bodyText.append(SlackMessages.PERSONAL_TASK_ICON);
+        bodyText.append(getPersonalTaskUrl(task));
+//        bodyText.append(SlackMessages.TASKGROUP_ICON);
+//        bodyText.append(getTaskGroupUrl(taskGroup));
         bodyText.append(SlackMessages.DUE_DATE_ICON);
         if (task.getTaskDueDateAt() != null){
             bodyText.append(getDueDate(dueUtc));
@@ -1205,14 +1292,23 @@ public class NotificationServiceImpl implements NotificationService {
         taskGroupTaskUrl.append("*<");
         taskGroupTaskUrl.append(SlackMessages.FRONTEND_URL);
         taskGroupTaskUrl.append("/tasks/tasks");
-//        taskUrl.append(task.getTaskId());
-//        taskUrl.append("/?project=");
-//        taskUrl.append(task.getProjectId());
         taskGroupTaskUrl.append("|");
         taskGroupTaskUrl.append(taskGroupTask.getTaskName());
         taskGroupTaskUrl.append(">*");
 
         return taskGroupTaskUrl.toString();
+    }
+
+    private String getPersonalTaskUrl(PersonalTask personalTask){
+        StringBuilder personalTaskUrl = new StringBuilder();
+        personalTaskUrl.append("*<");
+        personalTaskUrl.append(SlackMessages.FRONTEND_URL);
+        personalTaskUrl.append("/tasks/tasks");
+        personalTaskUrl.append("|");
+        personalTaskUrl.append(personalTask.getTaskName());
+        personalTaskUrl.append(">*");
+
+        return personalTaskUrl.toString();
     }
 
     private String getTaskGroupUrl(TaskGroup taskGroup){

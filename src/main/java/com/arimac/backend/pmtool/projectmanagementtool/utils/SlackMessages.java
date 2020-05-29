@@ -54,6 +54,10 @@ public class SlackMessages {
     public static final String TASKGROUP_TASK_REMINDER_TITLE = "Task Reminder";
     public static  final String TASKGROUP_TASK_REMINDER_GREETING =" A Reminder for the following TaskGroup Task";
 
+    //Personal Tasks
+    public static final String PERSONAL_TASK_REMINDER_TITLE = "Personal Task Reminder";
+    public static  final String PERSONAL_TASK_REMINDER_GREETING =" A Reminder for the following Personal Task";
+    public static  final String PERSONAL_TASK_ICON =":gear:   *Personal Task:* ";
 
 
     //Alt Texts

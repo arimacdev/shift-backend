@@ -8,16 +8,18 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.Persona
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -31,15 +33,17 @@ public class NpTaskServiceImpl implements NpTaskService {
     private final UserRepository userRepository;
     private final SubTaskRepository subTaskRepository;
     private final TaskFileRepository taskFileRepository;
+    private final NotificationRepository notificationRepository;
 
 
-    public NpTaskServiceImpl(UtilsService utilsService, PersonalTaskRepository personalTaskRepository, TaskRepository taskRepository, UserRepository userRepository, SubTaskRepository subTaskRepository, TaskFileRepository taskFileRepository) {
+    public NpTaskServiceImpl(UtilsService utilsService, PersonalTaskRepository personalTaskRepository, TaskRepository taskRepository, UserRepository userRepository, SubTaskRepository subTaskRepository, TaskFileRepository taskFileRepository, NotificationRepository notificationRepository) {
         this.utilsService = utilsService;
         this.personalTaskRepository = personalTaskRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.subTaskRepository = subTaskRepository;
         this.taskFileRepository = taskFileRepository;
+        this.notificationRepository = notificationRepository;
     }
 
 
@@ -58,6 +62,8 @@ public class NpTaskServiceImpl implements NpTaskService {
         personalTask.setTaskStatus(PersonalTaskEnum.open);
         personalTask.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         if (taskDto.getTaskDueDate() != null){
+            setNotification(personalTask, taskDto.getTaskDueDate());
+            notificationRepository.addTaskNotification(setNotification(personalTask, taskDto.getTaskDueDate()));
             personalTask.setTaskDueDateAt(taskDto.getTaskDueDate());
         }
         if (taskDto.getTaskRemindOnDate() != null){
@@ -100,12 +106,41 @@ public class NpTaskServiceImpl implements NpTaskService {
             taskUpdateDto.setTaskNotes(task.getTaskNote());
         if (taskUpdateDto.getTaskStatus() == null)
             taskUpdateDto.setTaskStatus(task.getTaskStatus());
-        if (taskUpdateDto.getTaskDueDate() == null)
+        if (taskUpdateDto.getTaskDueDate() == null) {
             taskUpdateDto.setTaskDueDate(task.getTaskDueDateAt());
+        } else {
+            Notification notification = notificationRepository.getNotificationByTaskId(taskId);
+            if (notification != null) notificationRepository.deleteNotification(taskId);
+            setNotification(task, taskUpdateDto.getTaskDueDate());
+            notificationRepository.addTaskNotification(setNotification(task, taskUpdateDto.getTaskDueDate()));
+        }
         if (taskUpdateDto.getTaskRemindOnDate() == null)
             taskUpdateDto.setTaskRemindOnDate(task.getTaskReminderAt());
        personalTaskRepository.updatePersonalTask(taskId, taskUpdateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskUpdateDto);
+    }
+
+    private Notification setNotification(PersonalTask task, Timestamp dueDate){
+        DateTime duedate = new DateTime(dueDate);
+        DateTime now = DateTime.now();
+        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+        DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+        Duration duration = new Duration(nowCol, dueUtc);
+        int difference = (int) duration.getStandardMinutes();
+        int timeFixDifference = difference - 330;
+        Notification notification = new Notification();
+        notification.setNotificationId(utilsService.getUUId());
+        notification.setTaskId(task.getTaskId());
+        notification.setAssigneeId(task.getTaskAssignee());
+        notification.setTaskDueDateAt(task.getTaskDueDateAt());
+        if (timeFixDifference < 1440) {
+            notification.setDaily(true);
+        } else {
+            notification.setDaily(false);
+        }
+        notification.setHourly(false);
+
+        return notification;
     }
 
     @Override
