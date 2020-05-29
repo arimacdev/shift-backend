@@ -4,7 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.DeactivateUserDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserActiveStatusDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -14,15 +14,12 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -221,17 +218,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Object deactivateUser(DeactivateUserDto deactivateUserDto) {
+    public Object deactivateUser(UserActiveStatusDto userActiveStatusDto) {
         //DO ADMIN Validation
-        User Admin = userRepository.getUserByUserId(deactivateUserDto.getAdminId());
+        User Admin = userRepository.getUserByUserId(userActiveStatusDto.getAdminId());
         if (Admin == null)
             return new ErrorMessage(ResponseMessage.ADMIN_USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        User user = userRepository.getUserByUserId(deactivateUserDto.getUserId());
+        User user = userRepository.getUserByUserId(userActiveStatusDto.getUserId());
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!user.getIsActive())
             return new ErrorMessage(ResponseMessage.ALREADY_DEACTIVATED, HttpStatus.UNPROCESSABLE_ENTITY);
-        idpUserService.deactivateUser(user.getIdpUserId(), true);
+        idpUserService.changeUserActiveSatatus(user.getIdpUserId(), false, true);
+        userRepository.changeUserUpdateStatus(userActiveStatusDto.getUserId(), false);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object activateUser(UserActiveStatusDto userActiveStatusDto) {
+        //DO ADMIN Validation
+        User Admin = userRepository.getUserByUserId(userActiveStatusDto.getAdminId());
+        if (Admin == null)
+            return new ErrorMessage(ResponseMessage.ADMIN_USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User user = userRepository.getUserByUserId(userActiveStatusDto.getUserId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (user.getIsActive())
+            return new ErrorMessage(ResponseMessage.ALREADY_ACTIVATED, HttpStatus.UNPROCESSABLE_ENTITY);
+        idpUserService.changeUserActiveSatatus(user.getIdpUserId(), true, true);
+        userRepository.changeUserUpdateStatus(userActiveStatusDto.getUserId(), true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

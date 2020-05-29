@@ -188,25 +188,25 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
-    public void deactivateUser(String idpUserId, boolean firstRequest) {
+    public void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest) {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
-            JSONObject updatePayload = new JSONObject();
-            updatePayload.put("enabled",false);
+            JSONObject deactivatePayload = new JSONObject();
+            deactivatePayload.put("enabled",status);
 
-            HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
-            StringBuilder userUpdateUrl = new StringBuilder();
-            userUpdateUrl.append(ENVConfig.KEYCLOAK_HOST);
-            userUpdateUrl.append("/auth/admin/realms/");
-            userUpdateUrl.append(ENVConfig.KEYCLOAK_REALM);
-            userUpdateUrl.append("/users/");
-            userUpdateUrl.append(idpUserId);
-            logger.info("User update URL {}", userUpdateUrl);
-            ResponseEntity<String> exchange = restTemplate.exchange(userUpdateUrl.toString(), HttpMethod.PUT, entity, String.class);
+            HttpEntity<Object> entity = new HttpEntity<>(deactivatePayload.toString(), httpHeaders);
+            StringBuilder deactivateUrl = new StringBuilder();
+            deactivateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            deactivateUrl.append("/auth/admin/realms/");
+            deactivateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            deactivateUrl.append("/users/");
+            deactivateUrl.append(idpUserId);
+            logger.info("User Deactivate URL {}", deactivateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(deactivateUrl.toString(), HttpMethod.PUT, entity, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();
-                deactivateUser(idpUserId, false);
+                changeUserActiveSatatus(idpUserId, status,false);
             }
             throw new PMException(e.getLocalizedMessage());
         } catch (Exception e) {

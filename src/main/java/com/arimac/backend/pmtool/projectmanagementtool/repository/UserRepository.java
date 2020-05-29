@@ -20,4 +20,5 @@ public interface UserRepository {
     Object getAllBlockedProjectUsers(String projectId);
     void addSlackIdToUser(String userId, String slackId);
     void updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto);
+    void changeUserUpdateStatus(String userId, boolean status);
 }

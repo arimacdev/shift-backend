@@ -8,5 +8,5 @@ public interface IdpUserService {
     JSONObject getUserByIdpUserId(String idpUserId, boolean firstRequest);
     void updateUserPassword(String idpUserId);
     void updateUserEmail(String idpUserId, String email, boolean firstRequest);
-    void deactivateUser(String idpUserId, boolean firstRequest);
+    void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest);
 }

@@ -136,4 +136,15 @@ public class UserRepositoryImpl implements UserRepository {
     });
     }
 
+    @Override
+    public void changeUserUpdateStatus(String userId, boolean status) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE User SET isActive=? WHERE userId=?");
+            preparedStatement.setBoolean(1, status);
+            preparedStatement.setString(2, userId);
+
+            return preparedStatement;
+        });
+    }
+
 }

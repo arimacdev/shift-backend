@@ -1,6 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.User;
 
-public class DeactivateUserDto {
+public class UserActiveStatusDto {
     private String adminId;
     private String userId;
 
@@ -22,7 +22,7 @@ public class DeactivateUserDto {
 
     @Override
     public String toString() {
-        return "DeactivateUserDto{" +
+        return "UserActiveStatusDto{" +
                 "adminId='" + adminId + '\'' +
                 ", userId='" + userId + '\'' +
                 '}';
