@@ -240,6 +240,9 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         for (TaskFile taskFile: taskFileList) {
             taskFileRepository.flagTaskFile(taskFile.getTaskFileId());
         }
+        CompletableFuture.runAsync(()-> {
+            notificationService.sendTaskGroupTaskDeleteNotification(task,  userId);
+        });
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

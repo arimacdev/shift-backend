@@ -403,6 +403,55 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendTaskDeleteNotification(Task task, String deletedBy) {
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null && user.getNotification()){
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            User remover = userRepository.getUserByUserId(deletedBy);
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASK_ASSIGNEE_DELETE_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = addHeaderBlock(user.getUserSlackId(), SlackMessages.TASK_DELETION_GREETING);
+            headerBlock.setAccessory(null);
+            headerBlock.setElements(null);
+
+            blocks.add(headerBlock);
+            blocks.add(addDivider());
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASK_ICON);
+            bodyText.append(getTaskUrl(task));
+            bodyText.append(SlackMessages.PROJECT_ICON);
+            bodyText.append(getProjectUrl(project));
+            bodyText.append(SlackMessages.DELETED_BY_ICON);
+            if (remover.getUserSlackId()!= null) {
+                bodyText.append(getMentionedName(remover.getUserSlackId()));
+            } else {
+                bodyText.append(remover.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(remover.getLastName());
+            }
+            body.getText().setText(bodyText.toString());
+            setNotificationThumbnail(body,SlackMessages.TASK_DELETE_THUMBNAIL_TEXT, SlackMessages.DELETED_BY_THUMBNAIL);
+            blocks.add(body);
+            blocks.add(addDivider());
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
+    @Override
     public void sendTaskGroupTaskAssignNotification(TaskGroupTask taskGroupTask) {
         User user = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
         if (user.getUserSlackId() != null && user.getNotification()){
@@ -685,6 +734,55 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public void sendTaskGroupTaskDeleteNotification(TaskGroupTask task, String deletedBy) {
+        User user = userRepository.getUserByUserId(task.getTaskAssignee());
+        if (user.getUserSlackId() != null && user.getNotification()){
+            TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(task.getTaskGroupId());
+            User remover = userRepository.getUserByUserId(deletedBy);
+            JSONObject payload = new JSONObject();
+            payload.put(CHANNEL, user.getUserSlackId());
+            payload.put(TEXT, SlackMessages.TASKGROUP_TASK_DELETION_TITLE);
+            List<SlackBlock> blocks = new ArrayList<>();
+
+            SlackBlock headerBlock = addHeaderBlock(user.getUserSlackId(), SlackMessages.TASKGROUP_TASK_DELETION_GREETING);
+            headerBlock.setAccessory(null);
+            headerBlock.setElements(null);
+
+            blocks.add(headerBlock);
+            blocks.add(addDivider());
+
+            SlackBlock body = new SlackBlock();
+            body.setType(SECTION);
+            body.getText().setType(MARK_DOWN);
+            StringBuilder bodyText = new StringBuilder();
+            bodyText.append(SlackMessages.TASKGROUP_TASK_ICON);
+            bodyText.append(getTaskGroupTaskUrl(task));
+            bodyText.append(SlackMessages.TASKGROUP_ICON);
+            bodyText.append(getTaskGroupUrl(taskGroup));
+            bodyText.append(SlackMessages.DELETED_BY_ICON);
+            if (remover.getUserSlackId()!= null) {
+                bodyText.append(getMentionedName(remover.getUserSlackId()));
+            } else {
+                bodyText.append(remover.getFirstName());
+                bodyText.append(" ");
+                bodyText.append(remover.getLastName());
+            }
+            body.getText().setText(bodyText.toString());
+            setNotificationThumbnail(body,SlackMessages.TASK_DELETE_THUMBNAIL_TEXT, SlackMessages.DELETED_BY_THUMBNAIL);
+            blocks.add(body);
+            blocks.add(addDivider());
+
+            payload.put(BLOCKS,blocks);
+            StringBuilder url = new StringBuilder();
+            url.append(ENVConfig.SLACK_BASE_URL);
+            url.append("/chat.postMessage");
+            logger.info("Slack Message Url {}", url);
+            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+        }
+    }
+
     private SlackBlock addDivider(){
         SlackBlock divider = new SlackBlock();
         divider.setType(DIVIDER);
@@ -917,7 +1015,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             body.getText().setText(bodyText.toString());
             body.getAccessory().setType("image");
-            body.getAccessory().setImage_url(SlackMessages.SUBTASK_FLAG_THUMBNAIL);
+            body.getAccessory().setImage_url(SlackMessages.DELETED_BY_ICON);
             body.getAccessory().setAlt_text("Subtask Delete thumbnail");
             blocks.add(body);
             blocks.add(divider);
