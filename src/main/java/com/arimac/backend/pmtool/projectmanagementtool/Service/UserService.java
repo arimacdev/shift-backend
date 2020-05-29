@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.DeactivateUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -17,4 +18,5 @@ public interface UserService {
     Object getAllBlockedProjectUsers(String projectId);
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
     Object updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto);
+    Object deactivateUser(DeactivateUserDto deactivateUserDto);
 }

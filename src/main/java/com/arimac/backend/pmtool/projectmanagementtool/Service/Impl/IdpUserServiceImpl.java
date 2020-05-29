@@ -187,6 +187,34 @@ public class IdpUserServiceImpl implements IdpUserService {
         }
     }
 
+    @Override
+    public void deactivateUser(String idpUserId, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject updatePayload = new JSONObject();
+            updatePayload.put("email","nav");
+
+            HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
+            StringBuilder userUpdateUrl = new StringBuilder();
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userUpdateUrl.append("/auth/admin/realms/");
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userUpdateUrl.append("/users/");
+            userUpdateUrl.append(idpUserId);
+            logger.info("User update URL {}", userUpdateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userUpdateUrl.toString(), HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                deactivateUser(idpUserId, false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+
     private String getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
         try {
             HttpEntity<Object> userGetEntity = new HttpEntity<>(null, httpHeaders);

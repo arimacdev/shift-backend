@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.DeactivateUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -100,6 +101,14 @@ public class UserController extends ResponseController {
     public ResponseEntity<Object> updateNotificationStatus(@PathVariable("userId") String userId, @RequestBody SlackNotificationDto slackNotificationDto){
         logger.info("HIT - PUT /users/<userId>/slack ---> addSlackIdToUser | userId: {}| dto: {}",userId,slackNotificationDto);
         return sendResponse(userService.updateNotificationStatus(userId, slackNotificationDto));
+    }
+
+    @ApiOperation(value = "Deactivate User", notes = "Deactivate User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/deactivate")
+    public ResponseEntity<Object> deactivateUser(@RequestBody DeactivateUserDto deactivateUserDto){
+        logger.info("HIT - POST /users/deactivate ---> deactivateUserDto | dto: {}", deactivateUserDto);
+        return sendResponse(userService.deactivateUser(deactivateUserDto));
     }
 
 }

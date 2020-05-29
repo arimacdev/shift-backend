@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.DeactivateUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -216,6 +217,21 @@ public class UserServiceImpl implements UserService {
         if (user.getUserSlackId() == null)
             return new ErrorMessage("You haven't activated slack notifications", HttpStatus.UNAUTHORIZED);
         userRepository.updateNotificationStatus(slackNotificationDto.getSlackAssigneeId(), slackNotificationDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object deactivateUser(DeactivateUserDto deactivateUserDto) {
+        //DO ADMIN Validation
+        User Admin = userRepository.getUserByUserId(deactivateUserDto.getAdminId());
+        if (Admin == null)
+            return new ErrorMessage(ResponseMessage.ADMIN_USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User user = userRepository.getUserByUserId(deactivateUserDto.getUserId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!user.getIsActive())
+            return new ErrorMessage(ResponseMessage.ALREADY_DEACTIVATED, HttpStatus.UNPROCESSABLE_ENTITY);
+        idpUserService.deactivateUser(user.getIdpUserId(), true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
