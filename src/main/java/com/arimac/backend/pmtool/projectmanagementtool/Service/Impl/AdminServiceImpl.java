@@ -53,6 +53,26 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Object getAllUserRoleMappings(String userId, String adminId) {
+        User admin = userRepository.getUserByUserId(adminId);
+        if (admin == null)
+            return new Response(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new Response(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        JSONArray roleList = idpUserService.getAllUserRoleMappings(user.getIdpUserId(), true);
+        List<RealmRole> userRoleList = new ArrayList<>();
+        for (int i = 0 ; i<roleList.length(); i++){
+            JSONObject userRole = roleList.getJSONObject(i);
+            RealmRole realmRole = new RealmRole();
+            realmRole.setId(userRole.getString(ID));
+            realmRole.setName(userRole.getString(NAME));
+            userRoleList.add(realmRole);
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userRoleList);
+    }
+
+    @Override
     public Object getMobileStatus(String platform, int version) {
         Mobile status = mobileRepository.getMobileStatus(platform);
         status.setCurrent_version(version);

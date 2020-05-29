@@ -26,9 +26,17 @@ public class AdminController extends ResponseController {
     @ApiOperation(value = "Get All Realm Roles", notes = "Get All Realm Roles")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/user/roles")
-    public ResponseEntity<Object> getAllRealmRoles(@RequestHeader String userId){
+    public ResponseEntity<Object> getAllRealmRoles(@RequestHeader("userId") String userId){
         logger.info("HIT -GET /user/roles ---> getAllRealmRoles | userId: {}", userId);
         return sendResponse(adminService.getAllRealmRoles(userId));
+    }
+
+    @ApiOperation(value = "Get Role Mappings of a User", notes = "Get Role Mappings of a User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/user/{userId}/roles")
+    public ResponseEntity<Object> getAllUserRoleMappings(@RequestHeader("userId") String adminId, @PathVariable("userId") String userId){
+        logger.info("HIT -GET /user/<userId>/roles ---> getAllUserRoleMappings | userId: {} | adminId: {}", userId, adminId);
+        return sendResponse(adminService.getAllUserRoleMappings(userId, adminId));
     }
 
     @ApiOperation(value = "Add Role To User", notes = "Add Role To User")

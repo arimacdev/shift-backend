@@ -305,6 +305,35 @@ public class IdpUserServiceImpl implements IdpUserService {
         }
     }
 
+    @Override
+    public JSONArray getAllUserRoleMappings(String idpUserId, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userGetEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder roleMappingUrl = new StringBuilder();
+            roleMappingUrl.append(ENVConfig.KEYCLOAK_HOST);
+            roleMappingUrl.append("/auth/admin/realms/");
+            roleMappingUrl.append(ENVConfig.KEYCLOAK_REALM);
+            roleMappingUrl.append("/users/");
+            roleMappingUrl.append(idpUserId);
+            roleMappingUrl.append("/role-mappings/realm");
+            logger.info("Role Mapping Url : {}", roleMappingUrl);
+            ResponseEntity<String> userRoles = restTemplate.exchange(roleMappingUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
+            return new JSONArray(userRoles.getBody());
+        }
+        catch(HttpClientErrorException | HttpServerErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getAllUserRoleMappings(idpUserId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new PMException(e);
+        }
+    }
+
 
     private String getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
         try {

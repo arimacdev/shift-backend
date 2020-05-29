@@ -14,5 +14,5 @@ public interface IdpUserService {
     JSONArray getAllRealmRoles(boolean firstRequest);
     void addRoleToUser(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
     void removerUserRole(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
-
+    JSONArray getAllUserRoleMappings(String idpUserId, boolean firstRequest);
 }
