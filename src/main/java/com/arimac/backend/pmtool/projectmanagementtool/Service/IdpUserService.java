@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.AddUserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,4 +12,5 @@ public interface IdpUserService {
     void updateUserEmail(String idpUserId, String email, boolean firstRequest);
     void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest);
     JSONArray getAllRealmRoles(boolean firstRequest);
+    void addRoleToUser(String idpUserId, AddUserRoleDto addUserRoleDto, boolean firstRequest);
 }

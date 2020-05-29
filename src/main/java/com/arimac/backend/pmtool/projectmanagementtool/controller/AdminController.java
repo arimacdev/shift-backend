@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AdminService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.AddUserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -31,7 +32,13 @@ public class AdminController extends ResponseController {
         return sendResponse(adminService.getAllRealmRoles(userId));
     }
 
-
+    @ApiOperation(value = "Add Role To User", notes = "Add Role To User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/user/addrole")
+    public ResponseEntity<Object> addRoleToUser(@RequestBody AddUserRoleDto addUserRoleDto, @RequestHeader("userId") String userId){
+        logger.info("HIT -POST /admin/user/addrole ---> addRoleToUser | userId: {} | Dto : {}", userId, addUserRoleDto);
+        return sendResponse(adminService.addRoleToUser(userId, addUserRoleDto));
+    }
 
 
 }

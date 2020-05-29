@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AdminService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.AddUserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.RealmRole;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -57,6 +58,21 @@ public class AdminServiceImpl implements AdminService {
         status.setCurrent_version(version);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, status);
+    }
+
+    @Override
+    public Object addRoleToUser(String userId, AddUserRoleDto addUserRoleDto) {
+        //CHECK ADMIN
+        //Super Admin validation
+        User admin = userRepository.getUserByUserId(userId);
+        if (admin == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User user = userRepository.getUserByUserId(addUserRoleDto.getUserId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        idpUserService.addRoleToUser(user.getIdpUserId(), addUserRoleDto, true);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, addUserRoleDto);
     }
 
 }
