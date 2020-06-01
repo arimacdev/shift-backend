@@ -230,6 +230,7 @@ public class UserServiceImpl implements UserService {
             return new ErrorMessage(ResponseMessage.ALREADY_DEACTIVATED, HttpStatus.UNPROCESSABLE_ENTITY);
         idpUserService.changeUserActiveSatatus(user.getIdpUserId(), false, true);
         userRepository.changeUserUpdateStatus(userActiveStatusDto.getUserId(), false);
+        projectRepository.blockOrUnblockUserFromAllRelatedProjects(true, userActiveStatusDto.getUserId());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -246,6 +247,7 @@ public class UserServiceImpl implements UserService {
             return new ErrorMessage(ResponseMessage.ALREADY_ACTIVATED, HttpStatus.UNPROCESSABLE_ENTITY);
         idpUserService.changeUserActiveSatatus(user.getIdpUserId(), true, true);
         userRepository.changeUserUpdateStatus(userActiveStatusDto.getUserId(), true);
+        projectRepository.blockOrUnblockUserFromAllRelatedProjects(true, userActiveStatusDto.getUserId());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

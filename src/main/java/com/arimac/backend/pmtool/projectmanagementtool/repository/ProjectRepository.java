@@ -19,6 +19,7 @@ public interface ProjectRepository {
     void flagProject(String projectId);
     void unFlagProject(String projectId);
     void blockOrUnBlockProjectUser(String userId, String projectId, boolean status);
+    void blockOrUnblockUserFromAllRelatedProjects(boolean status, String userId);
     void updateIssueCount(String projectId, int issueId);
     boolean checkProjectAlias(String alias);
 

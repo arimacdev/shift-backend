@@ -60,7 +60,9 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId) {
-        String sql = "SELECT * FROM Project_User AS pu LEFT JOIN project AS p ON pu.projectId=p.project WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
+        String sql = "SELECT * FROM Project_User AS pu " +
+                "LEFT JOIN project AS p ON pu.projectId=p.project" +
+                " WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
         ProjectUserResponseDto project;
         try {
             project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
@@ -147,6 +149,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     public void blockOrUnBlockProjectUser(String userId, String projectId, boolean status) {
         String sql = "update Project_User SET isBlocked=? WHERE projectId=? AND assigneeId=?";
         jdbcTemplate.update(sql, status, projectId, userId);
+    }
+
+    @Override
+    public void blockOrUnblockUserFromAllRelatedProjects(boolean status, String userId) {
+        String sql = "UPDATE Project_User SET isBlocked=? WHERE assigneeId=?";
+        jdbcTemplate.update(sql, status, userId);
     }
 
     @Override
