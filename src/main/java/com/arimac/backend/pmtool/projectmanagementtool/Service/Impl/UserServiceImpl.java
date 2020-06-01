@@ -247,7 +247,7 @@ public class UserServiceImpl implements UserService {
             return new ErrorMessage(ResponseMessage.ALREADY_ACTIVATED, HttpStatus.UNPROCESSABLE_ENTITY);
         idpUserService.changeUserActiveSatatus(user.getIdpUserId(), true, true);
         userRepository.changeUserUpdateStatus(userActiveStatusDto.getUserId(), true);
-        projectRepository.blockOrUnblockUserFromAllRelatedProjects(true, userActiveStatusDto.getUserId());
+        projectRepository.blockOrUnblockUserFromAllRelatedProjects(false, userActiveStatusDto.getUserId());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
