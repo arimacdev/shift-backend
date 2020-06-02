@@ -42,7 +42,7 @@ public class AdminController extends ResponseController {
     @ApiOperation(value = "Add Role To User", notes = "Add Role To User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/user/roles")
-    public ResponseEntity<Object> addRoleToUser(@RequestBody UserRoleDto userRoleDto, @RequestHeader("userId") String userId){
+    public ResponseEntity<Object> addRoleToUser(@RequestBody UserRoleDto userRoleDto, @RequestHeader("user") String userId){
         logger.info("HIT -POST /user/roles ---> addRoleToUser | userId: {} | Dto : {}", userId, userRoleDto);
         return sendResponse(adminService.addRoleToUser(userId, userRoleDto));
     }
@@ -50,7 +50,7 @@ public class AdminController extends ResponseController {
     @ApiOperation(value = "Add Role To User", notes = "Add Role To User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/user/roles")
-    public ResponseEntity<Object> removerUserRole(@RequestBody UserRoleDto userRoleDto, @RequestHeader("userId") String userId){
+    public ResponseEntity<Object> removerUserRole(@RequestBody UserRoleDto userRoleDto, @RequestHeader("user") String userId){
         logger.info("HIT -DELETE /user/roles ---> removerUserRole | userId: {} | Dto : {}", userId, userRoleDto);
         return sendResponse(adminService.removerUserRole(userId, userRoleDto));
     }
