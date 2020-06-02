@@ -16,6 +16,7 @@ public class User implements RowMapper<User> {
     private String userSlackId;
     @JsonProperty
     private boolean notification;
+    @JsonProperty
     private boolean isActive;
 
     public User() {

@@ -8,6 +8,7 @@ public class UserListResponseDto {
     private String email;
     private String userName;
     private String profileImage;
+    private boolean isActive;
 
     public String getUserId() {
         return userId;
@@ -57,6 +58,14 @@ public class UserListResponseDto {
         this.userName = userName;
     }
 
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean active) {
+        isActive = active;
+    }
+
     public String getProfileImage() {
         return profileImage;
     }
@@ -64,4 +73,6 @@ public class UserListResponseDto {
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+
+
 }

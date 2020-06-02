@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
             userResponse.setIdpUserId(user.getIdpUserId());
             userResponse.setUserName(user.getIdpUserId());
             userResponse.setProfileImage(user.getProfileImage());
+            userResponse.setIsActive(user.getIsActive());
             userResponseList.add(userResponse);
         }
         return new Response(ResponseMessage.SUCCESS, userResponseList);
@@ -148,6 +149,7 @@ public class UserServiceImpl implements UserService {
         userResponseDto.setProfileImage(user.getProfileImage());
         userResponseDto.setUserSlackId(user.getUserSlackId());
         userResponseDto.setNotification(user.getNotification());
+        userResponseDto.setIsActive(user.getIsActive());
 
         return new Response(ResponseMessage.SUCCESS, userResponseDto);
     }
