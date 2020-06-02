@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserActiveStatusDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -100,6 +101,22 @@ public class UserController extends ResponseController {
     public ResponseEntity<Object> updateNotificationStatus(@PathVariable("userId") String userId, @RequestBody SlackNotificationDto slackNotificationDto){
         logger.info("HIT - PUT /users/<userId>/slack ---> addSlackIdToUser | userId: {}| dto: {}",userId,slackNotificationDto);
         return sendResponse(userService.updateNotificationStatus(userId, slackNotificationDto));
+    }
+
+    @ApiOperation(value = "Activate User", notes = "Deactivate User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/activate")
+    public ResponseEntity<Object> activateUser(@RequestBody UserActiveStatusDto userActiveStatusDto){
+        logger.info("HIT - POST /users/activate ---> userActiveStatusDto | dto: {}", userActiveStatusDto);
+        return sendResponse(userService.activateUser(userActiveStatusDto));
+    }
+
+    @ApiOperation(value = "Deactivate User", notes = "Deactivate User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/deactivate")
+    public ResponseEntity<Object> deactivateUser(@RequestBody UserActiveStatusDto userActiveStatusDto){
+        logger.info("HIT - POST /users/deactivate ---> userActiveStatusDto | dto: {}", userActiveStatusDto);
+        return sendResponse(userService.deactivateUser(userActiveStatusDto));
     }
 
 }

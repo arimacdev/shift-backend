@@ -1,9 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskGroupTaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskCompletionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
@@ -12,25 +12,24 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup_Member;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
@@ -39,13 +38,17 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
     private final TaskGroupTaskRepository taskGroupTaskRepository;
     private final TaskFileRepository taskFileRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
     private final UtilsService utilsService;
 
-    public TaskGroupTaskServiceImpl(TaskGroupRepository taskGroupRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskFileRepository taskFileRepository, UserRepository userRepository, UtilsService utilsService) {
+    public TaskGroupTaskServiceImpl(TaskGroupRepository taskGroupRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskFileRepository taskFileRepository, UserRepository userRepository, NotificationService notificationService, NotificationRepository notificationRepository, UtilsService utilsService) {
         this.taskGroupRepository = taskGroupRepository;
         this.taskGroupTaskRepository = taskGroupTaskRepository;
         this.taskFileRepository = taskFileRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
         this.utilsService = utilsService;
     }
 
@@ -90,6 +93,7 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
         if (taskDto.getTaskDueDate() != null){
             task.setTaskDueDateAt(taskDto.getTaskDueDate());
+            setNotification(task, taskDto.getTaskDueDate());
         }
         if (taskDto.getTaskRemindOnDate() != null){
             task.setTaskReminderAt(task.getTaskReminderAt());
@@ -97,6 +101,10 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         task.setTaskReminderAt(taskDto.getTaskRemindOnDate());
         task.setIsDeleted(false);
         taskGroupTaskRepository.addTaskGroupTask(task);
+
+        CompletableFuture.runAsync(()-> {
+            notificationService.sendTaskGroupTaskAssignNotification(task);
+        });
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
@@ -159,7 +167,61 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
             updateDto.setTaskRemindOnDate(taskUpdateDto.getTaskRemindOnDate());
         }
         Object updateTask = taskGroupTaskRepository.updateTaskGroupTask(taskId, updateDto);
+
+        //Notifications
+        if (taskUpdateDto.getTaskAssignee() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());
+            });
+        }
+        if (taskUpdateDto.getTaskName() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "name", userId);
+            });
+        }
+        if (taskUpdateDto.getTaskNotes() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "notes", userId);
+            });
+        }
+           if (taskUpdateDto.getTaskDueDate() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "dueDate", userId);
+                Notification taskNotfication = notificationRepository.getNotificationByTaskId(taskId);
+                if (taskNotfication != null) notificationRepository.deleteNotification(taskId);
+                    notificationRepository.addTaskNotification(setNotification(task, taskUpdateDto.getTaskDueDate()));
+            });
+        }
+
+        if (taskUpdateDto.getTaskStatus() != null){
+            CompletableFuture.runAsync(()-> {
+                notificationService.sendTaskGroupTaskContentModificationNotification(task, taskUpdateDto, "status", userId);;
+            });
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+    }
+
+    private Notification setNotification(TaskGroupTask task, Timestamp dueDate){
+        DateTime duedate = new DateTime(dueDate);
+        DateTime now = DateTime.now();
+        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
+        DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
+        Duration duration = new Duration(nowCol, dueUtc);
+        int difference = (int) duration.getStandardMinutes();
+        int timeFixDifference = difference - 330;
+        Notification notification = new Notification();
+        notification.setNotificationId(utilsService.getUUId());
+        notification.setTaskId(task.getTaskId());
+        notification.setAssigneeId(task.getTaskAssignee());
+        notification.setTaskDueDateAt(task.getTaskDueDateAt());
+        if (timeFixDifference < 1440) {
+            notification.setDaily(true);
+        } else {
+            notification.setDaily(false);
+        }
+        notification.setHourly(false);
+
+        return notification;
     }
 
     @Override
@@ -178,6 +240,9 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         for (TaskFile taskFile: taskFileList) {
             taskFileRepository.flagTaskFile(taskFile.getTaskFileId());
         }
+        CompletableFuture.runAsync(()-> {
+            notificationService.sendTaskGroupTaskDeleteNotification(task,  userId);
+        });
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

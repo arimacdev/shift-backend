@@ -16,11 +16,13 @@ public class User implements RowMapper<User> {
     private String userSlackId;
     @JsonProperty
     private boolean notification;
+    @JsonProperty
+    private boolean isActive;
 
     public User() {
     }
 
-    public User(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage, String userSlackId, boolean notification) {
+    public User(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage, String userSlackId, boolean notification, boolean isActive) {
         this.userId = userId;
         this.idpUserId = idpUserId;
         this.firstName = firstName;
@@ -29,6 +31,7 @@ public class User implements RowMapper<User> {
         this.profileImage = profileImage;
         this.userSlackId = userSlackId;
         this.notification = notification;
+        this.isActive = isActive;
     }
 
     public String getIdpUserId() {
@@ -95,6 +98,14 @@ public class User implements RowMapper<User> {
         this.notification = notification;
     }
 
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean active) {
+        isActive = active;
+    }
+
     @Override
     public User mapRow(ResultSet resultSet, int i) throws SQLException {
         return new User(
@@ -105,7 +116,8 @@ public class User implements RowMapper<User> {
                 resultSet.getString("email"),
                 resultSet.getString("profileImage"),
                 resultSet.getString("userSlackId"),
-                resultSet.getBoolean("notification")
+                resultSet.getBoolean("notification"),
+                resultSet.getBoolean("isActive")
         );
     }
 }

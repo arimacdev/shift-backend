@@ -6,10 +6,11 @@ public class SlackMessages {
     public static final String SUB_TASK_CREATION_TITLE = "New Subtask Creation";
     public static final String SUB_TASK_DELETION_TITLE = "Subtask Deletion";
     public static  final String TASK_ASSIGNEE_UPDATE_TITLE ="Task Assignment Modification";
+    public static  final String TASK_ASSIGNEE_DELETE_TITLE ="Task Assignment Modification";
     public static  final String TASK_FILE_UPLOAD_NOTIFICATION_TITLE ="Task File Upload";
     public static  final String TASK_MODIFICATION_TITLE ="Task Content Modification";
     public static  final String SUB_TASK_MODIFICATION_TITLE ="SubTask Content Modification";
-    public static  final String TASK_REMINDER_GREETING =" A Reminder for the following task";
+    public static  final String TASK_REMINDER_GREETING =" A Reminder for the following Task";
     public static  final String TASK_ASSIGNMENT_GREETING =" You have been assigned to the following Task";
     public static  final String ADDRESS_GREETING =":wave: Hey There ";
 
@@ -22,6 +23,7 @@ public class SlackMessages {
     public static  final String TASK_ASSIGNMENT_TRANSITION_GREETING =" The following Task Assignment has been modified and has been assigned to you";
     public static  final String TASK_FILE_UPLOAD_GREETING =" A File has been uploaded to a task assigned to you";
     public static  final String TASK_MODIFICATION_GREETING =" A Task assigned to you has been modified";
+    public static  final String TASK_DELETION_GREETING =" A Task assigned to you has been deleted";
     public static  final String TASK_ICON =":gear:   *Task:* ";
     public static  final String SUB_TASK_ICON =":clipboard:   *Subtask:* ";
     public static  final String PROJECT_ICON ="\n:briefcase:   *Project:* ";
@@ -44,6 +46,45 @@ public class SlackMessages {
     public static  final String PREVIOUS_DUE_DATE_ICON = "\n:red_circle:   *Previous DueDate:* ";
     public static  final String MODIFIED_DUE_DATE_ICON =  "\n:large_blue_circle:   *Modified DueDate:* ";
 
+
+    //TaskGroup Tasks
+    public static  final String TASKGROUP_TASK_ASSIGNMENT_TITLE = "New TaskGroup Task Assignment";
+    public static  final String TASKGROUP_TASK_ASSIGNEE_UPDATE_TITLE ="Task Assignment Modification";
+    public static  final String TASKGROUP_TASK_GREETING =" You have been assigned to the following TaskGroup Task";
+    public static  final String TASKGROUP_TASK_MODIFICATION_GREETING =" A TaskGroup Task assigned to you has been modified";
+    public static  final String TASKGROUP_ICON ="\n:briefcase:   *TaskGroup:* ";
+    public static  final String TASKGROUP_TASK_ICON =":gear:   *TaskGroup Task:* ";
+    public static final String TASKGROUP_TASK_REMINDER_TITLE = "Task Reminder";
+    public static  final String TASKGROUP_TASK_REMINDER_GREETING =" A Reminder for the following TaskGroup Task";
+    public static  final String TASKGROUP_TASK_DELETION_GREETING =" A Task Group Task assigned to you has been deleted";
+    public static  final String TASKGROUP_TASK_DELETION_TITLE =" A Task assigned to you has been deleted";
+
+
+    //Personal Tasks
+    public static final String PERSONAL_TASK_REMINDER_TITLE = "Personal Task Reminder";
+    public static  final String PERSONAL_TASK_REMINDER_GREETING =" A Reminder for the following Personal Task";
+    public static  final String PERSONAL_TASK_ICON =":gear:   *Personal Task:* ";
+
+
+    //Alt Texts
+    public static  final String TASKGROUP_TASK_NAME_THUMBNAIL_TEXT ="TaskGroup Task Name Modification Thumbnail";
+    public static  final String TASKGROUP_TASK_NOTE_THUMBNAIL_TEXT =  "TaskGroup Task Note Modification Thumbnail";
+    public static  final String TASKGROUP_TASK_DATE_THUMBNAIL_TEXT = "TaskGroup Task Due Date Modification Thumbnail";
+    public static  final String TASKGROUP_TASK_TRANSITION_THUMBNAIL_TEXT ="TaskGroup Task Transition Thumbnail";
+    public static  final String TASKGROUP_TASK_FILE_TEXT ="TaskGroup Task File Thumbnail";
+    public static  final String TASKGROUP_TASK_ASSIGNEE_UPDATE ="TaskGroup Task Assignee Update Thumbnail";
+    public static  final String TASK_DELETE_THUMBNAIL_TEXT ="Task Delete Thumbnail";
+
+
+
+
+    public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";
+    public static  final String TASK_NOTE_THUMBNAIL_TEXT ="Task Note Modification Thumbnail";
+    public static  final String TASK_DUE_THUMBNAIL_TEXT ="Task Due Date Modification Thumbnail";
+    public static  final String TASK_TRANSITION_THUMBNAIL_TEXT ="Task Transition Thumbnail";
+    public static  final String REMINDER_THUMBNAIL_TEXT ="Reminder Thumbnail";
+
+
     public static  final String FRONTEND_URL = ENVConfig.BASE_URL;
 
     public static  final String CALENDER_THUMBNAIL = "https://api.slack.com/img/blocks/bkb_template_images/notifications.png";
@@ -58,7 +99,7 @@ public class SlackMessages {
     public static  final String SUBTASK_CREATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
     public static  final String SUBTASK_MODIFICATION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
     public static  final String SUBTASK_TRANSITION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
-    public static  final String SUBTASK_FLAG_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
+    public static  final String DELETED_BY_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
 
 
 

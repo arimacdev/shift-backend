@@ -9,6 +9,7 @@ public class UserResponseDto {
     private String profileImage;
     private String userSlackId;
     private boolean notification;
+    private boolean isActive;
 
     public String getUserId() {
         return userId;
@@ -72,5 +73,13 @@ public class UserResponseDto {
 
     public void setNotification(boolean notification) {
         this.notification = notification;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean active) {
+        isActive = active;
     }
 }

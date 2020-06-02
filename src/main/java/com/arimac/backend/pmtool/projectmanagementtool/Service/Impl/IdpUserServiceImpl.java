@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -186,6 +187,153 @@ public class IdpUserServiceImpl implements IdpUserService {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject deactivatePayload = new JSONObject();
+            deactivatePayload.put("enabled",status);
+
+            HttpEntity<Object> entity = new HttpEntity<>(deactivatePayload.toString(), httpHeaders);
+            StringBuilder deactivateUrl = new StringBuilder();
+            deactivateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            deactivateUrl.append("/auth/admin/realms/");
+            deactivateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            deactivateUrl.append("/users/");
+            deactivateUrl.append(idpUserId);
+            logger.info("User Deactivate URL {}", deactivateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(deactivateUrl.toString(), HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                changeUserActiveSatatus(idpUserId, status,false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public JSONArray getAllRealmRoles(boolean firstRequest) {
+        try {
+            HttpEntity<Object> userGetEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder userRetrieveUrl = new StringBuilder();
+            userRetrieveUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userRetrieveUrl.append("/auth/admin/realms/");
+            userRetrieveUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userRetrieveUrl.append("/roles");
+//            userRetrieveUrl.append(idpUserId);
+            logger.info("User Retrieval Url : {}", userRetrieveUrl);
+            ResponseEntity<String> idpUser = restTemplate.exchange(userRetrieveUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
+            return new JSONArray(idpUser.getBody());
+        }
+        catch(HttpClientErrorException | HttpServerErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getAllRealmRoles(false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new PMException(e);
+        }
+    }
+
+    @Override
+    public void addRoleToUser(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONArray addRolePayload = new JSONArray();
+            JSONObject role = new JSONObject();
+            role.put("id", userRoleDto.getRoleId());
+            role.put("name", userRoleDto.getRoleName());
+            addRolePayload.put(role);
+
+            HttpEntity<Object> entity = new HttpEntity<>(addRolePayload.toString(), httpHeaders);
+            StringBuilder addRoleUrl = new StringBuilder();
+            addRoleUrl.append(ENVConfig.KEYCLOAK_HOST);
+            addRoleUrl.append("/auth/admin/realms/");
+            addRoleUrl.append(ENVConfig.KEYCLOAK_REALM);
+            addRoleUrl.append("/users/");
+            addRoleUrl.append(idpUserId);
+            addRoleUrl.append("/role-mappings/realm");
+            logger.info("User Add Role URL {}", addRoleUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(addRoleUrl.toString(), HttpMethod.POST, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                addRoleToUser(idpUserId, userRoleDto,false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void removerUserRole(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONArray addRolePayload = new JSONArray();
+            JSONObject role = new JSONObject();
+            role.put("id", userRoleDto.getRoleId());
+            role.put("name", userRoleDto.getRoleName());
+            addRolePayload.put(role);
+
+            HttpEntity<Object> entity = new HttpEntity<>(addRolePayload.toString(), httpHeaders);
+            StringBuilder addRoleUrl = new StringBuilder();
+            addRoleUrl.append(ENVConfig.KEYCLOAK_HOST);
+            addRoleUrl.append("/auth/admin/realms/");
+            addRoleUrl.append(ENVConfig.KEYCLOAK_REALM);
+            addRoleUrl.append("/users/");
+            addRoleUrl.append(idpUserId);
+            addRoleUrl.append("/role-mappings/realm");
+            logger.info("User Add Role URL {}", addRoleUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(addRoleUrl.toString(), HttpMethod.DELETE, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                addRoleToUser(idpUserId, userRoleDto,false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public JSONArray getAllUserRoleMappings(String idpUserId, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userGetEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder roleMappingUrl = new StringBuilder();
+            roleMappingUrl.append(ENVConfig.KEYCLOAK_HOST);
+            roleMappingUrl.append("/auth/admin/realms/");
+            roleMappingUrl.append(ENVConfig.KEYCLOAK_REALM);
+            roleMappingUrl.append("/users/");
+            roleMappingUrl.append(idpUserId);
+            roleMappingUrl.append("/role-mappings/realm");
+            logger.info("Role Mapping Url : {}", roleMappingUrl);
+            ResponseEntity<String> userRoles = restTemplate.exchange(roleMappingUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
+            return new JSONArray(userRoles.getBody());
+        }
+        catch(HttpClientErrorException | HttpServerErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getAllUserRoleMappings(idpUserId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new PMException(e);
+        }
+    }
+
 
     private String getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
         try {

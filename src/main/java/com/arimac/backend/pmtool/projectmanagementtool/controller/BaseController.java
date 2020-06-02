@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,11 +25,4 @@ public class BaseController extends ResponseController {
     public ResponseEntity<Object> checkHealth(){
             return new ResponseEntity<Object>("Success", HttpStatus.OK);
         }
-
-    @GetMapping("/health/{platform}/{version}")
-    public  ResponseEntity<Object> mobileStatus(@PathVariable("platform") String platform, @PathVariable("version") int version){
-        return sendResponse(adminService.getMobileStatus(platform, version));
-    }
-
-
 }
