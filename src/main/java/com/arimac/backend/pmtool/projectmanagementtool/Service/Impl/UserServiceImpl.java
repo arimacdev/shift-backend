@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserActiveStatu
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -51,13 +52,15 @@ public class UserServiceImpl implements UserService {
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         String userUUID = utilsService.getUUId();
         String idpUserId = idpUserService.createUser(userRegistrationDto,  userUUID, true);
+        if (idpUserId == null)
+            return new PMException("IDP Server Error");
         User user = new User();
         user.setUserId(userUUID);
-        if (idpUserId != null){
+//        if (idpUserId != null){
             user.setIdpUserId(idpUserId);
-        } else {
-            user.setIdpUserId("idpUserId");
-        }
+//        } else {
+//            user.setIdpUserId("idpUserId");
+//        }
         user.setFirstName(userRegistrationDto.getFirstName());
         user.setLastName(userRegistrationDto.getLastName());
         user.setEmail(userRegistrationDto.getEmail());
@@ -156,6 +159,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto) {
+        if (userUpdateDto.getFirstName().isEmpty() || userUpdateDto.getFirstName() == null || userUpdateDto.getLastName().isEmpty() || userUpdateDto.getLastName() == null || userUpdateDto.getEmail().isEmpty() || userUpdateDto.getEmail() == null)
+            return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
