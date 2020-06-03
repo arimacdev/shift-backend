@@ -9,7 +9,6 @@ public class UserListResponseDto {
     private String userName;
     private String profileImage;
     private boolean isActive;
-    private String username;
 
     public String getUserId() {
         return userId;
@@ -75,11 +74,5 @@ public class UserListResponseDto {
         this.profileImage = profileImage;
     }
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 }
