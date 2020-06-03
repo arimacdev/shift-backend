@@ -516,9 +516,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendTaskGroupTaskAssigneeUpdateNotification(TaskGroupTask taskGroupTask, String userId, String newTaskAssignee) {
-         User previous = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
-        if (previous.getUserSlackId() != null && previous.getNotification()){
-            User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
+       //  User previous = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
+        User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
+        if (newAssignee.getUserSlackId() != null && newAssignee.getNotification()){
+           // User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
+            User previous = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
             TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupTask.getTaskGroupId());
             User sender = userRepository.getUserByUserId(userId);
             JSONObject payload = new JSONObject();

@@ -153,9 +153,16 @@ public class TaskGroupTaskServiceImpl implements TaskGroupTaskService {
         }
         if (taskUpdateDto.getTaskStatus() == null) {
             updateDto.setTaskStatus(task.getTaskStatus());
-        } else {
+        } else if (task.getIsParent() && taskUpdateDto.getTaskStatus() == TaskGroupTaskStatusEnum.closed){
+            List<TaskGroupTask> children = taskGroupTaskRepository.getAllChildrenOfParentTask(taskId);
+            for(TaskGroupTask child: children){
+                if (child.getTaskStatus() != TaskGroupTaskStatusEnum.closed)
+                    return new ErrorMessage(ResponseMessage.PARENT_TASK_HAS_PENDING_CHILD_TASKS, HttpStatus.UNPROCESSABLE_ENTITY);
+            }
             updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
-        }
+        } else
+            updateDto.setTaskStatus(taskUpdateDto.getTaskStatus());
+
         if (taskUpdateDto.getTaskDueDate() == null) {
             updateDto.setTaskDueDate(task.getTaskDueDateAt());
         } else {

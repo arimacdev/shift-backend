@@ -106,10 +106,9 @@ public class IdpUserServiceImpl implements IdpUserService {
             userCreateUrl.append("/users");
             logger.info("User Create URL {}", userCreateUrl);
             ResponseEntity<String> exchange = restTemplate.exchange(userCreateUrl.toString(), HttpMethod.POST, entity, String.class);
-            String idpUserId =  getIdpUserId(httpHeaders, userRegistrationDto, true);
-            setTemporaryPassword(idpUserId, true);
+            //setTemporaryPassword(idpUserId, true);
 
-            return idpUserId;
+            return getIdpUserId(httpHeaders, userRegistrationDto, true);
 
         }
             catch(HttpClientErrorException | HttpServerErrorException e) {
@@ -157,9 +156,38 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
-    public void updateUserPassword(String idpUserId) {
-
+    public void updateUserPassword(String idpUserId, boolean firstRequest, String password) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject updatePasswordPayload = new JSONObject();
+            JSONArray credentials = new JSONArray();
+            JSONObject user = new JSONObject();
+            user.put("type", "password");
+            user.put("value", password);
+            user.put("temporary", true);
+            credentials.put(user);
+            updatePasswordPayload.put("credentials", credentials);
+            HttpEntity<Object> entity = new HttpEntity<>(updatePasswordPayload.toString(), httpHeaders);
+            StringBuilder deactivateUrl = new StringBuilder();
+            deactivateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            deactivateUrl.append("/auth/admin/realms/");
+            deactivateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            deactivateUrl.append("/users/");
+            deactivateUrl.append(idpUserId);
+            logger.info("User Deactivate URL {}", deactivateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(deactivateUrl.toString(), HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                updateUserPassword(idpUserId, false, password);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
     }
+
+
 
     @Override
     public void updateUserEmail(String idpUserId, String email, boolean firstRequest) {

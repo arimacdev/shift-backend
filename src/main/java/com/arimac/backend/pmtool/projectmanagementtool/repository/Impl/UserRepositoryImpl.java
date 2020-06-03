@@ -25,12 +25,13 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Object createUser(User user) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO User(userId, firstName, lastName, email, idpUserId) values (?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO User(userId, firstName, lastName, email, idpUserId, isActive) values (?,?,?,?,?,?)");
             preparedStatement.setString(1, user.getUserId());
             preparedStatement.setString(2, user.getFirstName());
             preparedStatement.setString(3, user.getLastName());
             preparedStatement.setString(4, user.getEmail());
             preparedStatement.setString(5, user.getIdpUserId());
+            preparedStatement.setBoolean(6, true);
 
             return preparedStatement;
         });
