@@ -299,9 +299,9 @@ public class TaskServiceImpl implements TaskService {
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
         if (taskUpdateDto.getTaskAssignee() != null) {
-            CompletableFuture.runAsync(()-> {
+//            CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
-            });
+//            });
         }
         if (taskUpdateDto.getTaskStatus() != null){
             CompletableFuture.runAsync(()-> {
@@ -344,7 +344,7 @@ public class TaskServiceImpl implements TaskService {
 //            notification.setHourly(false);
             notificationRepository.addTaskNotification(setNotification(task, updateDto.getTaskDueDate()));
         }
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
+         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
     }
 
     private Notification setNotification(Task task, Timestamp dueDate){
