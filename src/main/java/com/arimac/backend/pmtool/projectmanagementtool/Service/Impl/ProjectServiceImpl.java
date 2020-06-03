@@ -45,6 +45,9 @@ public class ProjectServiceImpl implements ProjectService {
     public Object createProject(ProjectDto projectDto) {
         if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        User user = userRepository.getUserByUserId(projectDto.getProjectOwner());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         boolean checkAlias = projectRepository.checkProjectAlias(projectDto.getProjectAlias());
         if (checkAlias){
             return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -78,7 +81,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Object getAllProjects(String userId) {
         //TODO check role of a user
-
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<ProjectUserResponseDto> projectList;
 
         projectList = projectRepository.getAllProjectsByUser(userId);
@@ -93,6 +98,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object getProjectByUser(String projectId, String userId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         ProjectUserResponseDto userProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (userProject == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -114,23 +122,30 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage("You can't assign a higher privilege level", HttpStatus.UNAUTHORIZED);
         if (userAssignDto.getAssignerId().equals(userAssignDto.getAssigneeId()))
             return new ErrorMessage("You can't assign yourself to this project", HttpStatus.UNAUTHORIZED);
-        ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssigneeId()); // Check project assignee is vacant
-        if (assigneeProject != null)
-            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNAUTHORIZED);
+//        ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssigneeId()); // Check project assignee is vacant
+//        if (assigneeProject != null)
+//            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNAUTHORIZED);
         Project_User project_user = projectRepository.getProjectUser(projectId, userAssignDto.getAssigneeId());
-//        if (project_user != null)
+//        if (project_user != null && !project_user.getIsBlocked())
+//            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNPROCESSABLE_ENTITY);
 
-        Project_User assignment = new Project_User();
-        assignment.setProjectId(projectId);
-        assignment.setAssigneeId(userAssignDto.getAssigneeId());
-        assignment.setAssignedAt(utilsService.getCurrentTimestamp());
-        assignment.setAssigneeJobRole(userAssignDto.getAssigneeJobRole());
-        assignment.setAssigneeProjectRole(userAssignDto.getAssigneeProjectRole());
-        assignment.setIsBlocked(false);
+        if (project_user == null) {
+            Project_User assignment = new Project_User();
+            assignment.setProjectId(projectId);
+            assignment.setAssigneeId(userAssignDto.getAssigneeId());
+            assignment.setAssignedAt(utilsService.getCurrentTimestamp());
+            assignment.setAssigneeJobRole(userAssignDto.getAssigneeJobRole());
+            assignment.setAssigneeProjectRole(userAssignDto.getAssigneeProjectRole());
+            assignment.setIsBlocked(false);
 
-        projectRepository.assignUserToProject(projectId,assignment);
+            projectRepository.assignUserToProject(projectId,assignment);
+        } else if (project_user.getIsBlocked()){
+                projectRepository.blockOrUnBlockProjectUser(userAssignDto.getAssigneeId(), projectId, false);
+        } else if (!project_user.getIsBlocked()){
+            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
 
-       return new Response(ResponseMessage.SUCCESS);
+       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
 
     }
 
