@@ -9,6 +9,7 @@ import java.sql.SQLException;
 public class User implements RowMapper<User> {
     private String userId;
     private String idpUserId;
+    private String username;
     private String firstName;
     private String lastName;
     private String email;
@@ -22,9 +23,10 @@ public class User implements RowMapper<User> {
     public User() {
     }
 
-    public User(String userId, String idpUserId, String firstName, String lastName, String email, String profileImage, String userSlackId, boolean notification, boolean isActive) {
+    public User(String userId, String idpUserId, String username, String firstName, String lastName, String email, String profileImage, String userSlackId, boolean notification, boolean isActive) {
         this.userId = userId;
         this.idpUserId = idpUserId;
+        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -32,6 +34,14 @@ public class User implements RowMapper<User> {
         this.userSlackId = userSlackId;
         this.notification = notification;
         this.isActive = isActive;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getIdpUserId() {
@@ -111,6 +121,7 @@ public class User implements RowMapper<User> {
         return new User(
                 resultSet.getString("userId"),
                 resultSet.getString("idpUserId"),
+                resultSet.getString("username"),
                 resultSet.getString("firstName"),
                 resultSet.getString("lastName"),
                 resultSet.getString("email"),

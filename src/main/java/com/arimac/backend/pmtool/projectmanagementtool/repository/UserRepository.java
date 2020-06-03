@@ -21,4 +21,6 @@ public interface UserRepository {
     void addSlackIdToUser(String userId, String slackId);
     void updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto);
     void changeUserUpdateStatus(String userId, boolean status);
+    //REMOVE
+    void updateUserName(String userId, String username);
 }

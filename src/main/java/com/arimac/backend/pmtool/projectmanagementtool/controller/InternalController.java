@@ -25,4 +25,15 @@ public class InternalController extends ResponseController {
     public ResponseEntity<Object> migratePersonalTask(){
         return sendResponse(internalService.migratePersonalTask());
     }
+
+    @GetMapping("add/user/role")
+    public ResponseEntity<Object> addUserRole(){
+        return sendResponse(internalService.addUserRole());
+    }
+
+    @GetMapping("add/user/username")
+    public ResponseEntity<Object> addUserNameToUsers(){
+        return sendResponse(internalService.addUserNameToUsers());
+    }
+
 }
