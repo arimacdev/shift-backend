@@ -31,4 +31,9 @@ public class InternalController extends ResponseController {
         return sendResponse(internalService.addUserRole());
     }
 
+    @GetMapping("add/user/username")
+    public ResponseEntity<Object> addUserNameToUsers(){
+        return sendResponse(internalService.addUserNameToUsers());
+    }
+
 }

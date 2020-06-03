@@ -17,6 +17,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.PersonalTaskRe
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -92,6 +93,7 @@ public class InternalServiceImpl implements InternalService {
         List<User> userList = userRepository.getAllUsers();
         int userCount = 0;
         int failCount = 0;
+        logger.info("User List Size: {}", userList.size());
         for (User user: userList){
             UserRoleDto userRoleDto = new UserRoleDto();
             userRoleDto.setRoleId("554c46d8-16f6-4ac0-a881-c8636a666a14");
@@ -107,5 +109,23 @@ public class InternalServiceImpl implements InternalService {
 
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userCount);
+    }
+
+    @Override
+    public Object addUserNameToUsers() {
+        List<User> userList = userRepository.getAllUsers();
+        int userCount = 0;
+        int failCount = 0;
+        logger.info("User List Size: {}", userList.size());
+        for (User user: userList) {
+            try {
+                JSONObject userJO = idpUserService.getUserByIdpUserId(user.getIdpUserId(), true);
+                userRepository.updateUserName(user.getUserId(), userJO.getString("username"));
+                userCount +=1;
+            } catch (Exception e){
+                logger.info("Exception", e);
+            }
+        }
+        return new Response(ResponseMessage.SUCCESS,HttpStatus.OK,userCount);
     }
 }

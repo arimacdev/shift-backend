@@ -149,4 +149,19 @@ public class UserRepositoryImpl implements UserRepository {
         });
     }
 
+
+    //REMOVE
+
+    @Override
+    public void updateUserName(String userId, String userName) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE User SET username=? WHERE userId=?");
+            preparedStatement.setString(1, userName);
+            preparedStatement.setString(2, userId);
+
+            return preparedStatement;
+        });
+
+    }
+
 }

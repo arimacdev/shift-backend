@@ -4,4 +4,5 @@ public interface InternalService {
     Object updateProjectAlias();
     Object migratePersonalTask();
     Object addUserRole();
+    Object addUserNameToUsers();
 }
