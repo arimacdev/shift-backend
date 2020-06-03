@@ -93,7 +93,7 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM Project_User as pu " +
                 "LEFT JOIN User as u ON pu.assigneeId = u.userId " +
                 "LEFT JOIN ProjectRole as pr ON pu.assigneeProjectRole = pr.projectRoleId " +
-                "WHERE pu.projectId = ?";
+                "WHERE pu.projectId = ? AND pu.isBlocked=false";
         List<UserProjectDto> userProjectDtoList = jdbcTemplate.query(sql ,new UserProjectDto(), projectId);
         return userProjectDtoList;
     }
