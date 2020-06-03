@@ -106,10 +106,9 @@ public class IdpUserServiceImpl implements IdpUserService {
             userCreateUrl.append("/users");
             logger.info("User Create URL {}", userCreateUrl);
             ResponseEntity<String> exchange = restTemplate.exchange(userCreateUrl.toString(), HttpMethod.POST, entity, String.class);
-            String idpUserId =  getIdpUserId(httpHeaders, userRegistrationDto, true);
-            setTemporaryPassword(idpUserId, true);
+            //setTemporaryPassword(idpUserId, true);
 
-            return idpUserId;
+            return getIdpUserId(httpHeaders, userRegistrationDto, true);
 
         }
             catch(HttpClientErrorException | HttpServerErrorException e) {
