@@ -6,7 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public interface IdpUserService {
-    String createUser(UserRegistrationDto userRegistrationDto, String UUId, boolean firstRequest);
+    JSONObject createUser(UserRegistrationDto userRegistrationDto, String UUId, boolean firstRequest);
     JSONObject getUserByIdpUserId(String idpUserId, boolean firstRequest);
     void updateUserPassword(String idpUserId, boolean firstRequest, String password);
     void updateUserEmail(String idpUserId, String email, boolean firstRequest);

@@ -75,7 +75,7 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
-    public String createUser(UserRegistrationDto userRegistrationDto, String UUID,  boolean firstRequest) {
+    public JSONObject createUser(UserRegistrationDto userRegistrationDto, String UUID,  boolean firstRequest) {
         try {
             if (clientAccessToken == null)
                 getClientAccessToken();
@@ -363,7 +363,7 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
 
-    private String getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
+    private JSONObject getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
         try {
             HttpEntity<Object> userGetEntity = new HttpEntity<>(null, httpHeaders);
             StringBuilder userRetrieveUrl = new StringBuilder();
@@ -375,16 +375,16 @@ public class IdpUserServiceImpl implements IdpUserService {
             logger.info("User Retrieval Url : {}", userRetrieveUrl);
             ResponseEntity<String> userResult = restTemplate.exchange(userRetrieveUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
             String response = userResult.getBody();
-            String idpUserId = null;
+            JSONObject idpUser = new JSONObject();
             JSONArray jsonArray = new JSONArray(response);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jo = jsonArray.getJSONObject(i);
                 String userName = jo.getString("username");
                 if (userName.equals(userRegistrationDto.getUserName()))
-                    idpUserId = jo.getString("id");
+                    idpUser = jo;
             }
-            logger.info("Idp userID : {}", idpUserId);
-            return idpUserId;
+            logger.info("Idp userID : {}", idpUser);
+            return idpUser;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();

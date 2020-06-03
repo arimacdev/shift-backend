@@ -15,6 +15,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -51,13 +52,15 @@ public class UserServiceImpl implements UserService {
         if ((userRegistrationDto.getFirstName() == null ||userRegistrationDto.getFirstName().isEmpty()) || (userRegistrationDto.getLastName() == null ||userRegistrationDto.getLastName().isEmpty()) ||(userRegistrationDto.getEmail() == null ||userRegistrationDto.getEmail().isEmpty()))
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         String userUUID = utilsService.getUUId();
-        String idpUserId = idpUserService.createUser(userRegistrationDto,  userUUID, true);
-        if (idpUserId == null)
+        JSONObject idpUser = idpUserService.createUser(userRegistrationDto,  userUUID, true);
+        String idpUserId = idpUser.getString("id");
+        String userName = idpUser.getString("username");
+        if (idpUserId == null || userName == null)
             return new PMException("IDP Server Error");
         User user = new User();
         user.setUserId(userUUID);
         user.setIdpUserId(idpUserId);
-
+        user.setUsername(userName);
         user.setFirstName(userRegistrationDto.getFirstName());
         user.setLastName(userRegistrationDto.getLastName());
         user.setEmail(userRegistrationDto.getEmail());
@@ -77,11 +80,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Object createFirstUser(UserRegistrationDto userRegistrationDto) {
         String userUUID = utilsService.getUUId();
-        String idpUserId = idpUserService.createUser(userRegistrationDto,  userUUID, true);
+        JSONObject idpUserId = idpUserService.createUser(userRegistrationDto,  userUUID, true);
         User user = new User();
         user.setUserId(userUUID);
         if (idpUserId != null){
-            user.setIdpUserId(idpUserId);
+            user.setIdpUserId(idpUserId.getString("userId"));
         } else {
             user.setIdpUserId("idpUserId");
         }
@@ -124,8 +127,7 @@ public class UserServiceImpl implements UserService {
             userResponse.setLastName(user.getLastName());
             userResponse.setEmail(user.getEmail());
             userResponse.setIdpUserId(user.getIdpUserId());
-            userResponse.setIdpUserId(user.getIdpUserId());
-            userResponse.setUserName(user.getIdpUserId());
+            userResponse.setUserName(user.getUsername());
             userResponse.setProfileImage(user.getProfileImage());
             userResponse.setIsActive(user.getIsActive());
             userResponseList.add(userResponse);
