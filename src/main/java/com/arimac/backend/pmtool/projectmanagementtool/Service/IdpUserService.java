@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public interface IdpUserService {
     String createUser(UserRegistrationDto userRegistrationDto, String UUId, boolean firstRequest);
     JSONObject getUserByIdpUserId(String idpUserId, boolean firstRequest);
-    void updateUserPassword(String idpUserId);
+    void updateUserPassword(String idpUserId, boolean firstRequest, String password);
     void updateUserEmail(String idpUserId, String email, boolean firstRequest);
     void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest);
     JSONArray getAllRealmRoles(boolean firstRequest);

@@ -56,11 +56,8 @@ public class UserServiceImpl implements UserService {
             return new PMException("IDP Server Error");
         User user = new User();
         user.setUserId(userUUID);
-//        if (idpUserId != null){
-            user.setIdpUserId(idpUserId);
-//        } else {
-//            user.setIdpUserId("idpUserId");
-//        }
+        user.setIdpUserId(idpUserId);
+
         user.setFirstName(userRegistrationDto.getFirstName());
         user.setLastName(userRegistrationDto.getLastName());
         user.setEmail(userRegistrationDto.getEmail());
@@ -181,8 +178,8 @@ public class UserServiceImpl implements UserService {
         } else {
             dto.setLastName(user.getLastName());
         }
-        if (userUpdateDto.getPassword() !=null)
-            idpUserService.updateUserPassword(user.getIdpUserId());
+        if (userUpdateDto.getPassword() != null)
+            idpUserService.updateUserPassword(user.getIdpUserId(), true, userUpdateDto.getPassword());
         userRepository.updateUserByUserId(userId, dto);
 
         return new Response(ResponseMessage.SUCCESS);
