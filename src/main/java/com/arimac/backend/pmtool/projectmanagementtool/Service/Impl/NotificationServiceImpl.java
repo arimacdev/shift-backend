@@ -273,7 +273,7 @@ public class NotificationServiceImpl implements NotificationService {
                     bodyText.append(taskUpdateDto.getTaskName());
                     bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
                     bodyText.append(task.getTaskName());
-                    setNotificationThumbnail(body, SlackMessages.UPDATE_TASK_NAME_THUMBNAIL, SlackMessages.TASK_NAME_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASK_NAME_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NAME_THUMBNAIL);
                  break;
                 case NOTES:
                     bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
@@ -283,7 +283,7 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append("<No Previous Task Note Content>");
                     else
                     bodyText.append(task.getTaskNote());
-                    setNotificationThumbnail(body, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
                  break;
                 case DUE_DATE:
                     bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
@@ -293,15 +293,15 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append("No Previous Due Date");
                     else
                         bodyText.append(getDate(task.getTaskDueDateAt()));
-                    setNotificationThumbnail(body,SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL, SlackMessages.TASK_DUE_THUMBNAIL_TEXT);
+                    setNotificationThumbnail(body, SlackMessages.TASK_DUE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
                  break;
                 case STATUS:
                     bodyText.append(SlackMessages.TRANSITION_ICON);
                     bodyText.append(task.getTaskStatus());
                     bodyText.append(SlackMessages.ARROW_ICON);
                     bodyText.append(taskUpdateDto.getTaskStatus());
-                    setNotificationThumbnail(body,SlackMessages.TRANSITION_THUMBNAIL, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT);
-                 break;
+                    setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
+                    break;
                 default:
                     return;
             }

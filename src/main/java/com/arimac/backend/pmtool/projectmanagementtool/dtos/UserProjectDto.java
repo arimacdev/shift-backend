@@ -14,12 +14,13 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
     private String projectRoleName;
     private String projectJobRoleName;
     private String projectRoleId;
+    private boolean isUserBlocked;
 
     public UserProjectDto() {
     }
 
 
-    public UserProjectDto(String projectId, String assigneeId, String assigneeFirstName, String assigneeLastName, String assigneeProfileImage, String projectRoleName, String projectJobRoleName, String projectRoleId) {
+    public UserProjectDto(String projectId, String assigneeId, String assigneeFirstName, String assigneeLastName, String assigneeProfileImage, String projectRoleName, String projectJobRoleName, String projectRoleId, boolean isUserBlocked) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assigneeFirstName = assigneeFirstName;
@@ -28,6 +29,7 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
         this.projectRoleName = projectRoleName;
         this.projectJobRoleName = projectJobRoleName;
         this.projectRoleId = projectRoleId;
+        this.isUserBlocked = isUserBlocked;
     }
 
     public String getAssigneeProfileImage() {
@@ -94,6 +96,15 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
         this.projectRoleId = projectRoleId;
     }
 
+
+    public boolean getIsUserBlocked() {
+        return isUserBlocked;
+    }
+
+    public void setIsUserBlocked(boolean projectIsBlocked) {
+        this.isUserBlocked = isUserBlocked;
+    }
+
     @Override
     public UserProjectDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new UserProjectDto(
@@ -104,7 +115,8 @@ public class UserProjectDto implements RowMapper<UserProjectDto> {
           resultSet.getString("profileImage"),
           resultSet.getString("projectRoleName"),
           resultSet.getString("assigneeJobRole"),
-          resultSet.getString("projectRoleId")
+          resultSet.getString("projectRoleId"),
+          resultSet.getBoolean("isBlocked")
         );
     }
 }

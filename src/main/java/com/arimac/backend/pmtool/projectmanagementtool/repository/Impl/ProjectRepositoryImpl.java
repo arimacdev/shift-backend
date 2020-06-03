@@ -73,7 +73,20 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return project;
     }
 
-     @Override
+    @Override
+    public Project_User getProjectUser(String projectId, String userId) {
+        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=?";
+        Project_User project_user;
+        try {
+            project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            logger.info("Error {}", e.getLocalizedMessage());
+            return null;
+        }
+        return project_user;
+    }
+
+    @Override
     public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
         String sql = "SELECT * FROM Project_User AS pu INNER JOIN project AS p ON pu.projectId=p.project WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
@@ -147,7 +160,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void blockOrUnBlockProjectUser(String userId, String projectId, boolean status) {
-        String sql = "update Project_User SET isBlocked=? WHERE projectId=? AND assigneeId=?";
+        String sql = "UPDATE Project_User SET isBlocked=? WHERE projectId=? AND assigneeId=?";
         jdbcTemplate.update(sql, status, projectId, userId);
     }
 

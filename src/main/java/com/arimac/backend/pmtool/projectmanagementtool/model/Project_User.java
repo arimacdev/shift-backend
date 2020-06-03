@@ -79,7 +79,7 @@ public class Project_User implements RowMapper<Project_User> {
     public Project_User mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project_User(
                 resultSet.getString("projectId"),
-                resultSet.getString("userId"),
+                resultSet.getString("assigneeId"),
                 resultSet.getTimestamp("assignedAt"),
                 resultSet.getString("assigneeJobRole"),
                 resultSet.getInt("assigneeProjectRole"),

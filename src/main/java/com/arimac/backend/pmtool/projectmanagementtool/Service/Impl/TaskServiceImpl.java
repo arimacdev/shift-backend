@@ -449,6 +449,7 @@ public class TaskServiceImpl implements TaskService {
                 userTaskStatus.setProjectRoleId(projectUserDetails.getProjectRoleId());
                 userTaskStatus.setProjectRoleName(projectUserDetails.getProjectRoleName());
                 userTaskStatus.setProjectJobRoleName(projectUserDetails.getProjectJobRoleName());
+                userTaskStatus.setIsUserBlocked(projectUserDetails.getIsUserBlocked());
                 if (taskStatus != null) {
                     userTaskStatus.setTasksCompleted(taskStatus.getCompleted());
                     userTaskStatus.setTotalTasks(taskStatus.getTotalTasks());
