@@ -147,7 +147,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void blockOrUnBlockProjectUser(String userId, String projectId, boolean status) {
-        String sql = "update Project_User SET isBlocked=? WHERE projectId=? AND assigneeId=?";
+        String sql = "DELETE FROM Project_User WHERE projectId=? AND assigneeId=?";
         jdbcTemplate.update(sql, status, projectId, userId);
     }
 

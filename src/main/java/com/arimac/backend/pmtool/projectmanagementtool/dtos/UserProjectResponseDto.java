@@ -11,6 +11,7 @@ public class UserProjectResponseDto {
     private String projectRoleId;
     private int tasksCompleted;
     private int totalTasks;
+    private boolean isUserBlocked;
 
     public String getProjectId() {
         return projectId;
@@ -90,5 +91,13 @@ public class UserProjectResponseDto {
 
     public void setAssigneeProfileImage(String assigneeProfileImage) {
         this.assigneeProfileImage = assigneeProfileImage;
+    }
+
+    public boolean getIsUserBlocked() {
+        return isUserBlocked;
+    }
+
+    public void setIsUserBlocked(boolean userBlocked) {
+        isUserBlocked = userBlocked;
     }
 }
