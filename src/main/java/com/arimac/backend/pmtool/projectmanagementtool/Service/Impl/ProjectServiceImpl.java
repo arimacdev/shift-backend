@@ -117,6 +117,8 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssigneeId()); // Check project assignee is vacant
         if (assigneeProject != null)
             return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNAUTHORIZED);
+        Project_User project_user = projectRepository.getProjectUser(projectId, userAssignDto.getAssigneeId());
+//        if (project_user != null)
 
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
