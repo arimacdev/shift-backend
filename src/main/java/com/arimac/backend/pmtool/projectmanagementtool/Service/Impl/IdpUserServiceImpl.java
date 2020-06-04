@@ -362,6 +362,32 @@ public class IdpUserServiceImpl implements IdpUserService {
         }
     }
 
+    @Override
+    public void removeAllAssociatedUserSessions(String idpUserId, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject removeSessionPayload = new JSONObject();
+            HttpEntity<Object> entity = new HttpEntity<>(null, httpHeaders);
+            StringBuilder sessionRemoveUrl = new StringBuilder();
+            sessionRemoveUrl.append(ENVConfig.KEYCLOAK_HOST);
+            sessionRemoveUrl.append("/auth/admin/realms/");
+            sessionRemoveUrl.append(ENVConfig.KEYCLOAK_REALM);
+            sessionRemoveUrl.append("/users/");
+            sessionRemoveUrl.append(idpUserId);
+            sessionRemoveUrl.append("/logout");
+            logger.info("User Session Remove URL {}", sessionRemoveUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(sessionRemoveUrl.toString(), HttpMethod.POST, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                removeAllAssociatedUserSessions(idpUserId, false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
 
     private JSONObject getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
         try {
