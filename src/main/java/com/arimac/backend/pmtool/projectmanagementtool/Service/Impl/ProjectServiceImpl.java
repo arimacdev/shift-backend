@@ -261,7 +261,7 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
          ProjectUserResponseDto userTobeBlocked = projectRepository.getProjectByIdAndUserId(projectId, projectUserBlockDto.getBlockedUserId());
         if (userTobeBlocked == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if (userTobeBlocked.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         if ( !((executor.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (executor.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
