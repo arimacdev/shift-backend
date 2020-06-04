@@ -762,6 +762,9 @@ public class TaskServiceImpl implements TaskService {
         if (!parentTask.getIsParent())
             return new ErrorMessage("New Parent Task is not a Parent Task", HttpStatus.UNPROCESSABLE_ENTITY);
         taskRepository.transitionFromParentToChild(taskId, taskParentChildUpdateDto);
+        TaskSprintUpdateDto taskSprintUpdateDto = new TaskSprintUpdateDto();
+        taskSprintUpdateDto.setNewSprint(parentTask.getSprintId());
+        taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskParentChildUpdateDto);
     }
 

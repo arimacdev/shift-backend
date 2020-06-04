@@ -52,9 +52,16 @@ public class UserServiceImpl implements UserService {
         if ((userRegistrationDto.getFirstName() == null ||userRegistrationDto.getFirstName().isEmpty()) || (userRegistrationDto.getLastName() == null ||userRegistrationDto.getLastName().isEmpty()) ||(userRegistrationDto.getEmail() == null ||userRegistrationDto.getEmail().isEmpty()))
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         String userUUID = utilsService.getUUId();
-        JSONObject idpUser = idpUserService.createUser(userRegistrationDto,  userUUID, true);
-        String idpUserId = idpUser.getString("id");
-        String userName = idpUser.getString("username");
+        JSONObject idpUser = new JSONObject();
+        String idpUserId = null;
+        String userName = null;
+        try {
+             idpUser = idpUserService.createUser(userRegistrationDto,  userUUID, true);
+             idpUserId= idpUser.getString("id");
+             userName = idpUser.getString("username");
+        } catch (Exception e){
+            return new ErrorMessage(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         if (idpUserId == null || userName == null)
             return new PMException("IDP Server Error");
         User user = new User();

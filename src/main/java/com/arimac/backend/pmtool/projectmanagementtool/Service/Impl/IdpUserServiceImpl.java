@@ -118,10 +118,10 @@ public class IdpUserServiceImpl implements IdpUserService {
                     getClientAccessToken();
                     return createUser(userRegistrationDto, UUID,false);
                 } else if (e.getStatusCode() == HttpStatus.CONFLICT){
-                    throw new PMException(new ErrorMessage(ResponseMessage.USERNAME_EXISTS, HttpStatus.CONFLICT));
+                    throw new PMException(new ErrorMessage(response, e.getStatusCode()));
                 }
-               throw new PMException(e.getResponseBodyAsString());
-             } catch (Exception e) {
+                throw new PMException(new ErrorMessage(response, e.getStatusCode()));
+            } catch (Exception e) {
                 logger.error(e.getMessage());
                 throw new PMException(e);
               }
