@@ -258,7 +258,12 @@ public class ProjectServiceImpl implements ProjectService {
     public Object blockOrUnBlockProjectUser(String userId, String projectId, ProjectUserBlockDto projectUserBlockDto) {
         ProjectUserResponseDto executor = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (executor == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+         ProjectUserResponseDto userTobeBlocked = projectRepository.getProjectByIdAndUserId(projectId, projectUserBlockDto.getBlockedUserId());
+        if (userTobeBlocked == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (userTobeBlocked.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         if ( !((executor.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (executor.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.UNAUTHORIZED);
         if (projectUserBlockDto.getExecutorId().equals(projectUserBlockDto.getBlockedUserId()))
