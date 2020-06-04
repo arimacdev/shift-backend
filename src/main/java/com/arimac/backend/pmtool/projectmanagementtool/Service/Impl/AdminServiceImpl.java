@@ -91,7 +91,7 @@ public class AdminServiceImpl implements AdminService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         idpUserService.addRoleToUser(user.getIdpUserId(), userRoleDto, true);
-
+        idpUserService.removeAllAssociatedUserSessions(user.getIdpUserId(), true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userRoleDto);
     }
 
@@ -104,6 +104,7 @@ public class AdminServiceImpl implements AdminService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         idpUserService.removerUserRole(user.getIdpUserId(), userRoleDto, true);
+        idpUserService.removeAllAssociatedUserSessions(user.getIdpUserId(), true);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
