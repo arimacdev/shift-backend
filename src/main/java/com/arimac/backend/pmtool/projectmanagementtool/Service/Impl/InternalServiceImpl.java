@@ -96,7 +96,7 @@ public class InternalServiceImpl implements InternalService {
         logger.info("User List Size: {}", userList.size());
         for (User user: userList){
             UserRoleDto userRoleDto = new UserRoleDto();
-            userRoleDto.setRoleId("554c46d8-16f6-4ac0-a881-c8636a666a14");
+            userRoleDto.setRoleId("2a503dba-206b-4401-a3ba-3dd323e0530b");
             userRoleDto.setRoleName("USER");
             userRoleDto.setUserId(user.getUserId());
             try {
