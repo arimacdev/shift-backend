@@ -62,6 +62,7 @@ public class InternalServiceImpl implements InternalService {
                 issueCount +=1;
                 taskCount +=1;
             }
+            projectRepository.updateIssueCount(project.getProjectId(), issueCount);
             totalProjects += 1;
         }
         UpdateAliasDto updateAliasDto = new UpdateAliasDto();
