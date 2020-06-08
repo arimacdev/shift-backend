@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.enumz;
+package com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog;
 
 public enum  LogOperationEnum {
     CREATE,

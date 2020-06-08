@@ -1,7 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.EntityEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -14,22 +14,24 @@ public class ActivityLog implements RowMapper<ActivityLog> {
     private String entityId;
     private LogOperationEnum operation;
     private Timestamp actionTimestamp;
+    private String updateType;
     private String actor;
-    private String from;
-    private String to;
+    private String previousValue;
+    private String updatedvalue;
 
     public ActivityLog() {
     }
 
-    public ActivityLog(String logId, EntityEnum entityType, String entityId, LogOperationEnum operation, Timestamp actionTimestamp, String actor, String from, String to) {
+    public ActivityLog(String logId, EntityEnum entityType, String entityId, LogOperationEnum operation, Timestamp actionTimestamp, String updateType, String actor, String previousValue, String updatedvalue) {
         this.logId = logId;
         this.entityType = entityType;
         this.entityId = entityId;
         this.operation = operation;
         this.actionTimestamp = actionTimestamp;
+        this.updateType = updateType;
         this.actor = actor;
-        this.from = from;
-        this.to = to;
+        this.previousValue = previousValue;
+        this.updatedvalue = updatedvalue;
     }
 
     public String getLogId() {
@@ -72,6 +74,14 @@ public class ActivityLog implements RowMapper<ActivityLog> {
         this.actionTimestamp = actionTimestamp;
     }
 
+    public String getUpdateType() {
+        return updateType;
+    }
+
+    public void setUpdateType(String updateType) {
+        this.updateType = updateType;
+    }
+
     public String getActor() {
         return actor;
     }
@@ -80,20 +90,20 @@ public class ActivityLog implements RowMapper<ActivityLog> {
         this.actor = actor;
     }
 
-    public String getFrom() {
-        return from;
+    public String getPreviousValue() {
+        return previousValue;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setPreviousValue(String previousValue) {
+        this.previousValue = previousValue;
     }
 
-    public String getTo() {
-        return to;
+    public String getUpdatedvalue() {
+        return updatedvalue;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+    public void setUpdatedvalue(String updatedvalue) {
+        this.updatedvalue = updatedvalue;
     }
 
     @Override

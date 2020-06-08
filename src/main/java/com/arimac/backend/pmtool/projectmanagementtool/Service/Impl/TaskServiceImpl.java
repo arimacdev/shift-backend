@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
@@ -10,6 +11,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpd
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -25,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -57,8 +59,9 @@ public class TaskServiceImpl implements TaskService {
     private final NotificationRepository notificationRepository;
     private final TaskGroupRepository taskGroupRepository;
     private final SprintRepository sprintRepository;
+    private final ActivityLogService activityLogService;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, ActivityLogService activityLogService) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -69,6 +72,7 @@ public class TaskServiceImpl implements TaskService {
         this.notificationRepository = notificationRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.sprintRepository = sprintRepository;
+        this.activityLogService = activityLogService;
     }
 
     //TASK GROUP && PROJECT
@@ -310,6 +314,17 @@ public class TaskServiceImpl implements TaskService {
         }
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
+                ActivityLog activityLog = new ActivityLog();
+                activityLog.setLogId(utilsService.getUUId());
+                activityLog.setEntityType(EntityEnum.TASK);
+                activityLog.setEntityId(taskId);
+                activityLog.setActionTimestamp(utilsService.getCurrentTimestamp());
+                activityLog.setOperation(LogOperationEnum.UPDATE);
+                activityLog.setUpdateType("NAME");
+                activityLog.setPreviousValue(task.getTaskName());
+                activityLog.setUpdatedvalue(taskUpdateDto.getTaskName());
+                activityLog.setActor(userId);
+                activityLogService.addTaskLog(activityLog);
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
             });
         }

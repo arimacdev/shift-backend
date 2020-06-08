@@ -1,8 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskLogRespository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -13,37 +14,24 @@ import org.springframework.stereotype.Service;
 public class ActivityLogServiceImpl implements ActivityLogService {
     private static final Logger logger = LoggerFactory.getLogger(ActivityLogServiceImpl.class);
 
-    private static final int ADD = 1;
-    private static final int UPDATE = 2;
-    private static final int DELETE = 3;
-    private static final int ASSIGN = 4;
-
-    private final TaskLogRespository taskLogRespository;
+    private final ActivityLogRepository activityLogRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UtilsService utilsService;
 
-    public ActivityLogServiceImpl(TaskLogRespository taskLogRespository, TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
-        this.taskLogRespository = taskLogRespository;
+
+    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
+        this.activityLogRepository = activityLogRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.utilsService = utilsService;
     }
 
-//    @Override
-//    public Object addTaskLog(Task task) {
-//        TaskLog log = new TaskLog();
-//        log.setTaskLogId(utilsService.getUUId());
-//        log.setTasklogInitiator(task.getTaskInitiator());
-//        log.setProjectId(task.getProjectId());
-//        log.setTaskLogEntity(LogEntityEnum.Task.getEntityId());
-//        log.setTaskLogEntityId(task.getTaskId());
-//        log.setOperation(LogOperationEnum.CREATE.getOperationId());
-//        log.setTimestamp(utilsService.getCurrentTimestamp());
-//        taskLogRespository.addTaskLog(log);
-//        return null;
-//    }
-//
+    @Override
+    public void addTaskLog(ActivityLog activityLog) {
+          activityLogRepository.addActivityLogEntry(activityLog);
+    }
+
 //    @Override
 //    public Object getAllLogs(String projectId) {
 //        //Check project existence
