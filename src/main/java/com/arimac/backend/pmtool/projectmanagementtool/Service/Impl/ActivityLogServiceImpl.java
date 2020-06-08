@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -9,6 +10,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ActivityLogServiceImpl implements ActivityLogService {
@@ -30,6 +33,11 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     @Override
     public void addTaskLog(ActivityLog activityLog) {
           activityLogRepository.addActivityLogEntry(activityLog);
+    }
+
+    @Override
+    public List<UserActivityLog> getTaskActivity(String userId, String taskId) {
+        return activityLogRepository.getTaskActivity(taskId);
     }
 
 //    @Override

@@ -4,7 +4,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskLog;
 
+import java.util.List;
+
 public interface ActivityLogService {
     void addTaskLog(ActivityLog activityLog);
-//    Object getAllLogs(String projectId);
+    Object getTaskActivity(String userId, String taskId);
 }

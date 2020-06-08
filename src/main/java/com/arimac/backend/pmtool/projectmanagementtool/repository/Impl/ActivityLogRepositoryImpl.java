@@ -1,11 +1,14 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class ActivityLogRepositoryImpl implements ActivityLogRepository {
@@ -31,5 +34,15 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
 
             return preparedStatement;
         });
+    }
+
+    @Override
+    public List<UserActivityLog> getTaskActivity(String taskId) {
+        String sql = "SELECT * FROM ActivityLog AS AL LEFT JOIN User as U on AL.actor = U.userId WHERE entityId=?";
+        try {
+            return jdbcTemplate.query(sql, new UserActivityLog(), taskId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 }
