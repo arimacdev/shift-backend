@@ -1,30 +1,17 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
-import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskLogResponse;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskLogUser;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.LogEntityEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.LogOperationEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskLog;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskLogRespository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
-public class TaskLogServiceImpl implements TaskLogService {
-    private static final Logger logger = LoggerFactory.getLogger(TaskLogServiceImpl.class);
+public class ActivityLogServiceImpl implements ActivityLogService {
+    private static final Logger logger = LoggerFactory.getLogger(ActivityLogServiceImpl.class);
 
     private static final int ADD = 1;
     private static final int UPDATE = 2;
@@ -36,7 +23,7 @@ public class TaskLogServiceImpl implements TaskLogService {
     private final ProjectRepository projectRepository;
     private final UtilsService utilsService;
 
-    public TaskLogServiceImpl(TaskLogRespository taskLogRespository, TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
+    public ActivityLogServiceImpl(TaskLogRespository taskLogRespository, TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
         this.taskLogRespository = taskLogRespository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;

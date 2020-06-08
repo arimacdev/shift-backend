@@ -1,29 +1,22 @@
 package com.arimac.backend.pmtool.projectmanagementtool.controller;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
-import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskLogService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/log")
-public class TaskLogController extends ResponseController {
+public class ActivityLogController extends ResponseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(TaskLogController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivityLogController.class);
 
-    private final TaskLogService taskLogService;
+    private final ActivityLogService activityLogService;
 
-    public TaskLogController(TaskLogService taskLogService) {
-        this.taskLogService = taskLogService;
+    public ActivityLogController(ActivityLogService activityLogService) {
+        this.activityLogService = activityLogService;
     }
 
 
@@ -32,6 +25,6 @@ public class TaskLogController extends ResponseController {
 //    @GetMapping("/{projectId}")
 //    public ResponseEntity<Object> getAllLogs(@PathVariable("projectId") String projectId){
 //        logger.info("HIT - GET /logs ---> getAllLogs {}", projectId);
-//        return sendResponse(taskLogService.getAllLogs(projectId));
+//        return sendResponse(activityLogService.getAllLogs(projectId));
 //    }
 }
