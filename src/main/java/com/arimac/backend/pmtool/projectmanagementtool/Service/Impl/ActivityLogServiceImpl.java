@@ -2,19 +2,26 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.FieldValue;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.TaskLogResposeDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,13 +31,15 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private final ActivityLogRepository activityLogRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
     private final UtilsService utilsService;
 
 
-    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UtilsService utilsService) {
+    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, UtilsService utilsService) {
         this.activityLogRepository = activityLogRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
         this.utilsService = utilsService;
     }
 
@@ -45,7 +54,44 @@ public class ActivityLogServiceImpl implements ActivityLogService {
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
         int limit = endIndex - startIndex;
         List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId, limit, startIndex);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogList);
+        List<TaskLogResposeDto> taskLogResposeList = new ArrayList<>();
+        for (UserActivityLog activityLog : activityLogList){
+            TaskLogResposeDto taskLog = new TaskLogResposeDto();
+            taskLog.setLogId(activityLog.getLogId());
+            taskLog.setEntityType(activityLog.getEntityType());
+            taskLog.setEntityId(activityLog.getEntityId());
+            taskLog.setOperation(activityLog.getOperation());
+            taskLog.setActionTimestamp(activityLog.getActionTimestamp());
+            taskLog.setActor(activityLog.getActor());
+            taskLog.setActorFirstName(activityLog.getFirstName());
+            taskLog.setActorLastName(activityLog.getLastName());
+            taskLog.setActorProfileImage(activityLog.getActorProfileImage());
+            if (activityLog.getOperation().equals(LogOperationEnum.UPDATE)) {
+                taskLog.setUpdateType(activityLog.getUpdateType());
+                FieldValue previous = new FieldValue();
+                previous.setDisplayValue(activityLog.getPreviousValue());
+                FieldValue updated = new FieldValue();
+                updated.setDisplayValue(activityLog.getUpdatedvalue());
+                if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.ASSIGNEE.toString())){
+                    previous.setValue(activityLog.getPreviousValue());
+                    updated.setValue(activityLog.getUpdatedvalue());
+                    User previousUser;
+                    User updatedUser;
+                    if (activityLog.getPreviousValue()!= null) {
+                        previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
+                        previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
+                    }
+                    if (activityLog.getUpdatedvalue() != null) {
+                        updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+                        updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
+                    }
+                }
+                taskLog.setPreviousValue(previous);
+                taskLog.setUpdatedvalue(updated);
+            }
+            taskLogResposeList.add(taskLog);
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResposeList);
     }
 
 //    @Override
