@@ -306,31 +306,31 @@ public class TaskServiceImpl implements TaskService {
         if (taskUpdateDto.getTaskAssignee() != null) {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
-                activityLogService.addTaskLog(addTaskUpdateLog(userId, taskId, TaskUpdateTypeEnum.ASSIGNEE, task.getTaskAssignee(), taskUpdateDto.getTaskAssignee()));
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ASSIGNEE, task.getTaskAssignee(), taskUpdateDto.getTaskAssignee()));
             });
         }
         if (taskUpdateDto.getTaskStatus() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
-                activityLogService.addTaskLog(addTaskUpdateLog(userId, taskId, TaskUpdateTypeEnum.TASK_STATUS, task.getTaskStatus().toString(), taskUpdateDto.getTaskStatus().toString()));
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_STATUS, task.getTaskStatus().toString(), taskUpdateDto.getTaskStatus().toString()));
 
             });
         }
         if (taskUpdateDto.getIssueType() !=null){
             CompletableFuture.runAsync(() -> {
-                activityLogService.addTaskLog(addTaskUpdateLog(userId, taskId, TaskUpdateTypeEnum.ISSUE_TYPE, task.getIssueType().toString(), taskUpdateDto.getIssueType().toString()));
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ISSUE_TYPE, task.getIssueType().toString(), taskUpdateDto.getIssueType().toString()));
             });
         }
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
-                activityLogService.addTaskLog(addTaskUpdateLog(userId, taskId, TaskUpdateTypeEnum.TASK_NAME, task.getTaskName(), taskUpdateDto.getTaskName()));
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NAME, task.getTaskName(), taskUpdateDto.getTaskName()));
             });
         }
         if (taskUpdateDto.getTaskNotes() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
-                activityLogService.addTaskLog(addTaskUpdateLog(userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
             });
         }
         if (taskUpdateDto.getTaskDueDate() != null){
@@ -338,28 +338,13 @@ public class TaskServiceImpl implements TaskService {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
                 String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(task.getTaskDueDateAt());
                 String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(taskUpdateDto.getTaskDueDate());
-                activityLogService.addTaskLog(addTaskUpdateLog(userId, taskId, TaskUpdateTypeEnum.DUE_DATE, previousDate, updatedDate));
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.DUE_DATE, previousDate, updatedDate));
             });
             Notification taskNotification = notificationRepository.getNotificationByTaskId(taskId);
             if (taskNotification != null) notificationRepository.deleteNotification(taskId);
             notificationRepository.addTaskNotification(setNotification(task, updateDto.getTaskDueDate()));
         }
          return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
-    }
-
-    private ActivityLog addTaskUpdateLog(String actor, String taskId, TaskUpdateTypeEnum updateType, String previous, String updated){
-        ActivityLog activityLog = new ActivityLog();
-        activityLog.setLogId(utilsService.getUUId());
-        activityLog.setEntityType(EntityEnum.TASK);
-        activityLog.setEntityId(taskId);
-        activityLog.setActionTimestamp(utilsService.getCurrentTimestamp());
-        activityLog.setOperation(LogOperationEnum.UPDATE);
-        activityLog.setUpdateType(updateType.toString());
-        activityLog.setPreviousValue(previous);
-        activityLog.setUpdatedvalue(updated);
-        activityLog.setActor(actor);
-
-        return  activityLog;
     }
 
     private Notification setNotification(Task task, Timestamp dueDate){

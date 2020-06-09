@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface TaskFileRepository {
     Object uploadTaskFile(TaskFile taskFile);
+    TaskFile getTaskFileById(String fileId);
     List<TaskFile> getAllTaskFiles(String taskId);
     List<TaskFileUserProfileDto> getTaskFilesWithUserProfile(String taskId);
     void flagTaskFile(String taskFileId);

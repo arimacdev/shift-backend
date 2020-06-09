@@ -5,15 +5,17 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -39,6 +41,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUploadServiceImpl.class);
 
+    private final ActivityLogService activityLogService;
     private final AmazonS3 amazonS3Client;
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
@@ -51,7 +54,8 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final PersonalTaskRepository personalTaskRepository;
     private final TaskGroupTaskRepository taskGroupTaskRepository;
 
-    public FileUploadServiceImpl(AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository) {
+    public FileUploadServiceImpl(ActivityLogService activityLogService, AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository) {
+        this.activityLogService = activityLogService;
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -91,6 +95,8 @@ public class FileUploadServiceImpl implements FileUploadService {
 //            }
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.FILE, null, taskFile.getTaskFileId()));
+
             });
 
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);

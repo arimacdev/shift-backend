@@ -10,11 +10,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpd
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +30,16 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
 
 
-    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, UtilsService utilsService) {
+    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
         this.activityLogRepository = activityLogRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.taskFileRepository = taskFileRepository;
         this.utilsService = utilsService;
     }
 
@@ -84,6 +84,15 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                     if (activityLog.getUpdatedvalue() != null) {
                         updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
                         updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
+                    }
+                } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
+                    TaskFile taskFile;
+                    if (activityLog.getUpdatedvalue()!= null){
+                        taskFile = taskFileRepository.getTaskFileById(activityLog.getUpdatedvalue());
+                        if (taskFile != null) {
+                            updated.setDisplayValue(taskFile.getTaskFileName());
+                            updated.setValue(taskFile.getTaskFileUrl());
+                        }
                     }
                 }
                 taskLog.setPreviousValue(previous);

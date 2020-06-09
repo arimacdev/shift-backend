@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,16 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
             return preparedStatement;
         });
         return taskFile;
+    }
+
+    @Override
+    public TaskFile getTaskFileById(String fileId) {
+        String sql = "SELECT * FROM TaskFile Where taskFileId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new TaskFile(), fileId);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override
