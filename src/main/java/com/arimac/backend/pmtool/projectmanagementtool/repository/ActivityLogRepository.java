@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ActivityLogRepository {
     void addActivityLogEntry(ActivityLog activityLog);
-    List<UserActivityLog> getTaskActivity(String taskId);
+    List<UserActivityLog> getTaskActivity(String taskId, int limit, int offset);
 }

@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ActivityLogService {
     void addTaskLog(ActivityLog activityLog);
-    Object getTaskActivity(String userId, String taskId);
+    Object getTaskActivity(String userId, String taskId, int startIndex, int endIndex);
 }

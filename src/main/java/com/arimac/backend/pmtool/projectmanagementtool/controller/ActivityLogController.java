@@ -26,8 +26,8 @@ public class ActivityLogController extends ResponseController {
     @ApiOperation(value = "Get Logs of a Task", notes = "Get all logs")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/{taskId}")
-    public ResponseEntity<Object> getAllLogs(@PathVariable("taskId") String taskId, @RequestHeader("userId") String userId){
-        logger.info("HIT - GET /logs ---> getAllLogs of a Task  Task: {} | User: {}", taskId, userId);
-        return sendResponse(activityLogService.getTaskActivity(userId, taskId));
+    public ResponseEntity<Object> getAllLogs(@PathVariable("taskId") String taskId, @RequestHeader("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex){
+        logger.info("HIT - GET /logs ---> getAllLogs of a Task  Task: {} | User: {} | Start: {}| End: {}", taskId, userId,startIndex,endIndex);
+        return sendResponse(activityLogService.getTaskActivity(userId, taskId,startIndex,endIndex));
     }
 }

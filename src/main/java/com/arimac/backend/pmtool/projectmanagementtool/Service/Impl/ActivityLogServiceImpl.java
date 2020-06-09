@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -39,8 +40,11 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public Object getTaskActivity(String userId, String taskId) {
-        List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId);
+    public Object getTaskActivity(String userId, String taskId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId, limit, startIndex);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogList);
     }
 
