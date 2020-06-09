@@ -38,7 +38,7 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
 
     @Override
     public List<UserActivityLog> getTaskActivity(String taskId) {
-        String sql = "SELECT * FROM ActivityLog AS AL LEFT JOIN User as U on AL.actor = U.userId WHERE entityId=?";
+        String sql = "SELECT * FROM ActivityLog AS AL LEFT JOIN User as U on AL.actor = U.userId WHERE entityId=? ORDER BY actionTimestamp DESC";
         try {
             return jdbcTemplate.query(sql, new UserActivityLog(), taskId);
         } catch (EmptyResultDataAccessException e){

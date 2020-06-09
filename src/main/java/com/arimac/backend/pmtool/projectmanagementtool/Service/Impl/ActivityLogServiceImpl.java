@@ -1,7 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -9,6 +11,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,8 +39,9 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public List<UserActivityLog> getTaskActivity(String userId, String taskId) {
-        return activityLogRepository.getTaskActivity(taskId);
+    public Object getTaskActivity(String userId, String taskId) {
+        List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogList);
     }
 
 //    @Override
@@ -70,10 +74,8 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 //                            taskLogResponse.setModified(taskLog.getModified());
 //                        }
 //                        taskLogResponse.setTimestamp(taskLog.getTimestamp());
-//
 //                        taskLogResponseList.add(taskLogResponse);
 //                        break;
-//
 //                    }
 //                case (1):
 //                    Project project = projectRepository.getProjectById(projectId);
@@ -107,4 +109,5 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 ////        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, sortedUsers);
 //        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResponseList);
 //    }
+
 }

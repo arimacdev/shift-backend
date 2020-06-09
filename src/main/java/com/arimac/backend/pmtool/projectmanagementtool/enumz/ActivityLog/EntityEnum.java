@@ -4,5 +4,6 @@ public enum  EntityEnum {
     PROJECT,
     TASK,
     TASK_GROUP,
-    ADMIN
+    ADMIN,
+    FILE
 }
