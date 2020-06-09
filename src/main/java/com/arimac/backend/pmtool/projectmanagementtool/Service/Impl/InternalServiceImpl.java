@@ -61,6 +61,7 @@ public class InternalServiceImpl implements InternalService {
                 taskRepository.updateProjectAlias(task.getTaskId(), taskAlias);
                 issueCount +=1;
                 taskCount +=1;
+                projectRepository.updateIssueCount(project.getProjectId(), issueCount);
             }
             projectRepository.updateIssueCount(project.getProjectId(), issueCount);
             totalProjects += 1;
