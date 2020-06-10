@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogServic
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.FieldValue;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.TaskLogResposeDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
@@ -54,6 +55,56 @@ public class ActivityLogServiceImpl implements ActivityLogService {
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
         int limit = endIndex - startIndex;
         List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId, limit, startIndex);
+        List<TaskLogResposeDto> taskLogResposeList = getLogEntryList(activityLogList);
+//        for (UserActivityLog activityLog : activityLogList){
+//            TaskLogResposeDto taskLog = new TaskLogResposeDto();
+//            taskLog.setLogId(activityLog.getLogId());
+//            taskLog.setEntityType(activityLog.getEntityType());
+//            taskLog.setEntityId(activityLog.getEntityId());
+//            taskLog.setOperation(activityLog.getOperation());
+//            taskLog.setActionTimestamp(activityLog.getActionTimestamp());
+//            taskLog.setActor(activityLog.getActor());
+//            taskLog.setActorFirstName(activityLog.getFirstName());
+//            taskLog.setActorLastName(activityLog.getLastName());
+//            taskLog.setActorProfileImage(activityLog.getActorProfileImage());
+//            if (activityLog.getOperation().equals(LogOperationEnum.UPDATE)) {
+//                taskLog.setUpdateType(activityLog.getUpdateType());
+//                FieldValue previous = new FieldValue();
+//                previous.setDisplayValue(activityLog.getPreviousValue());
+//                FieldValue updated = new FieldValue();
+//                updated.setDisplayValue(activityLog.getUpdatedvalue());
+//                if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.ASSIGNEE.toString())){
+//                    previous.setValue(activityLog.getPreviousValue());
+//                    updated.setValue(activityLog.getUpdatedvalue());
+//                    User previousUser;
+//                    User updatedUser;
+//                    if (activityLog.getPreviousValue()!= null) {
+//                        previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
+//                        previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
+//                    }
+//                    if (activityLog.getUpdatedvalue() != null) {
+//                        updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+//                        updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
+//                    }
+//                } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
+//                    TaskFile taskFile;
+//                    if (activityLog.getUpdatedvalue()!= null){
+//                        taskFile = taskFileRepository.getTaskFileById(activityLog.getUpdatedvalue());
+//                        if (taskFile != null) {
+//                            updated.setDisplayValue(taskFile.getTaskFileName());
+//                            updated.setValue(taskFile.getTaskFileUrl());
+//                        }
+//                    }
+//                }
+//                taskLog.setPreviousValue(previous);
+//                taskLog.setUpdatedvalue(updated);
+//            }
+//            taskLogResposeList.add(taskLog);
+//        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResposeList);
+    }
+
+    private List<TaskLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList){
         List<TaskLogResposeDto> taskLogResposeList = new ArrayList<>();
         for (UserActivityLog activityLog : activityLogList){
             TaskLogResposeDto taskLog = new TaskLogResposeDto();
@@ -72,101 +123,50 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 previous.setDisplayValue(activityLog.getPreviousValue());
                 FieldValue updated = new FieldValue();
                 updated.setDisplayValue(activityLog.getUpdatedvalue());
-                if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.ASSIGNEE.toString())){
-                    previous.setValue(activityLog.getPreviousValue());
-                    updated.setValue(activityLog.getUpdatedvalue());
-                    User previousUser;
-                    User updatedUser;
-                    if (activityLog.getPreviousValue()!= null) {
-                        previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
-                        previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
-                    }
-                    if (activityLog.getUpdatedvalue() != null) {
-                        updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
-                        updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
-                    }
-                } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
-                    TaskFile taskFile;
-                    if (activityLog.getUpdatedvalue()!= null){
-                        taskFile = taskFileRepository.getTaskFileById(activityLog.getUpdatedvalue());
-                        if (taskFile != null) {
-                            updated.setDisplayValue(taskFile.getTaskFileName());
-                            updated.setValue(taskFile.getTaskFileUrl());
-                        }
-                    }
-                }
+                if (activityLog.getEntityType().equals(EntityEnum.TASK))
+                setTaskUpdateValues(activityLog, previous, updated);
+//                else if (activityLog.getEntityType().equals(EntityEnum.PROJECT))
                 taskLog.setPreviousValue(previous);
                 taskLog.setUpdatedvalue(updated);
             }
             taskLogResposeList.add(taskLog);
         }
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResposeList);
+
+        return taskLogResposeList;
     }
 
-//    @Override
-//    public Object getAllLogs(String projectId) {
-//        //Check project existence
-//        List<TaskLogUser> taskLogList = taskLogRespository.getAllLogs(projectId);
-//        List<TaskLogResponse> taskLogResponseList = new ArrayList<>();
-//        for (TaskLogUser taskLog : taskLogList){
-//            switch (taskLog.getTaskLogEntity()){
-//                case (2):
-//                    Task task = taskRepository.getProjectTaskWithDeleted(taskLog.getTaskLogEntityId());
-//                    if (task != null){
-//                        TaskLogResponse taskLogResponse = new TaskLogResponse();
-//                        //Entity Details
-//                        taskLogResponse.setTaskLogEntity(taskLog.getTaskLogEntity());
-//                        taskLogResponse.setTaskLogEntityId(taskLog.getTaskLogEntityId());
-//                        taskLogResponse.setOperation(taskLog.getOperation());
-//                        taskLogResponse.setTaskLogEntityName(task.getTaskName());
-//                        //Initiator Details
-//                        taskLogResponse.setTasklogInitiator(taskLog.getTasklogInitiator());
-//                        taskLogResponse.setUserId(taskLog.getTasklogInitiator());
-//                        taskLogResponse.setFirstName(taskLog.getFirstName());
-//                        taskLogResponse.setLastName(taskLog.getLastName());
-//                        taskLogResponse.setProfileImage(taskLog.getProfileImage());
-//                        //Task Log details
-//                        taskLogResponse.setTaskLogId(taskLog.getTaskLogId());
-//                        if (taskLog.getOperation() == UPDATE){ // If operation is update
-//                            taskLogResponse.setModifiedField(taskLog.getModified());
-//                            taskLogResponse.setPrevious(taskLog.getPrevious());
-//                            taskLogResponse.setModified(taskLog.getModified());
-//                        }
-//                        taskLogResponse.setTimestamp(taskLog.getTimestamp());
-//                        taskLogResponseList.add(taskLogResponse);
-//                        break;
-//                    }
-//                case (1):
-//                    Project project = projectRepository.getProjectById(projectId);
-//                    //Entity Details
-//                    TaskLogResponse taskLogResponse = new TaskLogResponse();
-//                    taskLogResponse.setTaskLogEntity(taskLog.getTaskLogEntity());
-//                    taskLogResponse.setTaskLogEntityId(taskLog.getTaskLogEntityId());
-//                    taskLogResponse.setOperation(taskLog.getOperation());
-//                    taskLogResponse.setTaskLogEntityName(project.getProjectName());
-//                    //Initiator Details
-//                    taskLogResponse.setTasklogInitiator(taskLog.getTasklogInitiator());
-//                    taskLogResponse.setUserId(taskLog.getTasklogInitiator());
-//                    taskLogResponse.setFirstName(taskLog.getFirstName());
-//                    taskLogResponse.setLastName(taskLog.getLastName());
-//                    taskLogResponse.setProfileImage(taskLog.getProfileImage());
-//                    //Task Log details
-//                    taskLogResponse.setTaskLogId(taskLog.getTaskLogId());
-//                    if (taskLog.getOperation() == UPDATE){ // If operation is update
-//                        taskLogResponse.setPrevious(taskLog.getPrevious());
-//                        taskLogResponse.setModified(taskLog.getModified());
-//                    }
-//                    taskLogResponse.setTimestamp(taskLog.getTimestamp());
-//
-//                    taskLogResponseList.add(taskLogResponse);
-//            }
-//
-//        }
-////        List<TaskLog> sortedUsers = taskLogList.stream()
-////                .sorted(Comparator.comparing(TaskLog::getTimestamp))
-////                .collect(Collectors.toList());
-////        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, sortedUsers);
-//        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResponseList);
-//    }
+    private void setTaskUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated){
+        if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.ASSIGNEE.toString())){
+            previous.setValue(activityLog.getPreviousValue());
+            updated.setValue(activityLog.getUpdatedvalue());
+            User previousUser;
+            User updatedUser;
+            if (activityLog.getPreviousValue()!= null) {
+                previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
+                previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
+            }
+            if (activityLog.getUpdatedvalue() != null) {
+                updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+                updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
+            }
+        } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
+            TaskFile taskFile;
+            if (activityLog.getUpdatedvalue()!= null){
+                taskFile = taskFileRepository.getTaskFileById(activityLog.getUpdatedvalue());
+                if (taskFile != null) {
+                    updated.setDisplayValue(taskFile.getTaskFileName());
+                    updated.setValue(taskFile.getTaskFileUrl());
+                } else {
+                    updated.setDisplayValue("DELETED");
+                }
+            }
+        }
+    }
+
+    private void setProjectUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated){
+
+    }
+
 
 }
+

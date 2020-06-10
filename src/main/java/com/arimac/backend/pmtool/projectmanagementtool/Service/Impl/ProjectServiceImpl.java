@@ -1,13 +1,16 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
@@ -28,13 +31,15 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String OWNER = "Owner";
 
     private final TaskService taskService;
+    private final ActivityLogService activityLogService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TaskService taskService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository,  UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
         this.taskService = taskService;
+        this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
@@ -159,6 +164,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project updatedProject = new Project();
         if (projectEditDto.getProjectName() != null && !projectEditDto.getProjectName().isEmpty()){
             updatedProject.setProjectName(projectEditDto.getProjectName());
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.PROJECT_NAME, modifierProject.getProjectName(), projectEditDto.getProjectName()));
         } else {
             updatedProject.setProjectName(modifierProject.getProjectName());
         }
