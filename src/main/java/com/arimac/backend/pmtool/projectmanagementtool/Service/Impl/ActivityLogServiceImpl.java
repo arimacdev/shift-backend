@@ -72,10 +72,10 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         if (project == null)
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<String> entityIds = projectRepository.getProjectTaskIds(projectId);
-       entityIds.add(projectId);
+        entityIds.add(projectId);
         List<UserActivityLog> activityLogList = activityLogRepository.getProjectActivity(projectId, entityIds,  limit, startIndex);
         ActivityLogCountResponse activityLogCountResponse = new ActivityLogCountResponse();
-//        activityLogCountResponse.setActivityLogCount(activityLogRepository.taskActivityLogCount(taskId));
+        activityLogCountResponse.setActivityLogCount(activityLogRepository.projectActivityLogCount(projectId, entityIds));
         activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
 

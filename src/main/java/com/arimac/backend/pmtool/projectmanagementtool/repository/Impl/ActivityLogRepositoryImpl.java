@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
+import io.swagger.models.auth.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -62,10 +63,17 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
     }
 
     @Override
-    public int taskActivityLogCount(String taskId) {
-        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId=?";
-//        return jdbcTemplate.queryForObject(sql,Integer.class, taskId);
-        return jdbcTemplate.queryForObject(sql, new Object[] {taskId} , Integer.class);
+    public int projectActivityLogCount(String projectId, List<String> entityIds) {
+        String sql = "SELECT COUNT(*) FROM ActivityLog AS AL LEFT JOIN User as U ON AL.actor = U.userId " +
+                "WHERE entityId IN (:ids) AND isDeleted=false ";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", entityIds);
+        return namedParameterJdbcTemplate.queryForObject(sql, parameters ,  Integer.class);
+    }
 
+    @Override
+    public int taskActivityLogCount(String taskId) {
+        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId=? AND isDeleted=false";
+        return jdbcTemplate.queryForObject(sql, new Object[] {taskId} , Integer.class);
     }
 }
