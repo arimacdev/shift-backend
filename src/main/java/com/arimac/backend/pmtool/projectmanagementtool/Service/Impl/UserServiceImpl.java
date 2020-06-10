@@ -53,8 +53,8 @@ public class UserServiceImpl implements UserService {
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         String userUUID = utilsService.getUUId();
         JSONObject idpUser = new JSONObject();
-        String idpUserId = null;
-        String userName = null;
+        String idpUserId;
+        String userName;
         try {
              idpUser = idpUserService.createUser(userRegistrationDto,  userUUID, true);
              idpUserId= idpUser.getString("id");

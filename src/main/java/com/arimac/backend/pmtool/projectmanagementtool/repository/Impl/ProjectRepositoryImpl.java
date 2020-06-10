@@ -19,8 +19,6 @@ import java.util.List;
 public class ProjectRepositoryImpl implements ProjectRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectRepositoryImpl.class);
-
-
     private final JdbcTemplate jdbcTemplate;
 
     public ProjectRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -56,6 +54,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         } catch (EmptyResultDataAccessException e){
             return null;
         }
+    }
+
+    @Override
+    public List<String> getProjectTaskIds(String projectId) {
+        String sql = "SELECT taskId from Task where projectId=?";
+        return jdbcTemplate.queryForList(sql, new Object[] {projectId}, String.class);
     }
 
     @Override

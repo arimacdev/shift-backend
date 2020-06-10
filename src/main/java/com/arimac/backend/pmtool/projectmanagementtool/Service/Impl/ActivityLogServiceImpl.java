@@ -11,10 +11,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOper
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.slf4j.Logger;
@@ -64,6 +61,24 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         activityLogCountResponse.setActivityLogCount(activityLogRepository.taskActivityLogCount(taskId));
         activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
+    }
+
+    @Override
+    public Object getAllProjectLogsWithTasks(String userId, String projectId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<String> entityIds = projectRepository.getProjectTaskIds(projectId);
+       entityIds.add(projectId);
+        List<UserActivityLog> activityLogList = activityLogRepository.getProjectActivity(projectId, entityIds,  limit, startIndex);
+        ActivityLogCountResponse activityLogCountResponse = new ActivityLogCountResponse();
+//        activityLogCountResponse.setActivityLogCount(activityLogRepository.taskActivityLogCount(taskId));
+        activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
+
     }
 
     private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList){

@@ -8,5 +8,7 @@ import java.util.List;
 public interface ActivityLogRepository {
     void addActivityLogEntry(ActivityLog activityLog);
     List<UserActivityLog> getTaskActivity(String taskId, int limit, int offset);
+    List<UserActivityLog> getProjectActivity(String projectId, List<String> entityIds, int limit, int offset);
     int taskActivityLogCount(String taskId);
+
 }

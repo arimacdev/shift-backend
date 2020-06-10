@@ -3,19 +3,24 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ActivityLogRepositoryImpl implements ActivityLogRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public ActivityLogRepositoryImpl(JdbcTemplate jdbcTemplate) {
+
+    public ActivityLogRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
@@ -39,9 +44,21 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
     @Override
     public List<UserActivityLog> getTaskActivity(String taskId, int limit, int offset) {
         String sql = "SELECT * FROM ActivityLog AS AL " +
-                "LEFT JOIN User as U on AL.actor = U.userId WHERE entityId=?" +
+                "LEFT JOIN User as U on AL.actor = U.userId WHERE entityId=? AND isDeleted=false" +
                 " ORDER BY actionTimestamp DESC LIMIT ? OFFSET ?";
             return jdbcTemplate.query(sql, new UserActivityLog(), taskId, limit, offset);
+    }
+
+    @Override
+    public List<UserActivityLog> getProjectActivity(String projectId, List<String> entityIds, int limit, int offset) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", entityIds);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", offset);
+        String sql = "SELECT * FROM ActivityLog AS AL LEFT JOIN User as U ON AL.actor = U.userId " +
+                "WHERE entityId IN (:ids) AND isDeleted=false " +
+                "ORDER BY AL.actionTimestamp DESC LIMIT :limit OFFSET :offset";
+        return namedParameterJdbcTemplate.query(sql,parameters, new UserActivityLog());
     }
 
     @Override
