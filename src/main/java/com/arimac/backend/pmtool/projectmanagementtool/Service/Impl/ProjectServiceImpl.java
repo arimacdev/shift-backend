@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Service
@@ -169,26 +170,35 @@ public class ProjectServiceImpl implements ProjectService {
             updatedProject.setProjectName(modifierProject.getProjectName());
         }
         if (projectEditDto.getClientId() != null && !projectEditDto.getClientId().isEmpty()){
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.CLIENT, modifierProject.getClientId(), projectEditDto.getClientId()));
             updatedProject.setClientId(projectEditDto.getClientId());
         } else {
             updatedProject.setClientId(modifierProject.getClientId());
         }
         if (projectEditDto.getProjectStatus() != null && !projectEditDto.getProjectStatus().isEmpty()){
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.STATUS, modifierProject.getProjectStatus(), projectEditDto.getProjectStatus()));
             updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(projectEditDto.getProjectStatus()));
         } else {
             updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(modifierProject.getProjectStatus()));
         }
         if (projectEditDto.getProjectStartDate() != null){
+            String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(modifierProject.getProjectStartDate());
+            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectEndDate());
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.START_DATE, previousDate, updatedDate));
             updatedProject.setProjectStartDate(projectEditDto.getProjectStartDate());
         } else {
             updatedProject.setProjectStartDate(modifierProject.getProjectStartDate());
         }
         if (projectEditDto.getProjectEndDate() != null){
+            String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(modifierProject.getProjectEndDate());
+            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectEndDate());
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.END_DATE, previousDate, updatedDate));
             updatedProject.setProjectEndDate(projectEditDto.getProjectEndDate());
         } else {
             updatedProject.setProjectEndDate(modifierProject.getProjectEndDate());
         }
         if (projectEditDto.getProjectAlias() != null && !projectEditDto.getProjectAlias().isEmpty()){
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.PROJECT_ALIAS, modifierProject.getProjectAlias(), projectEditDto.getProjectAlias()));
             updatedProject.setProjectAlias(projectEditDto.getProjectAlias());
         } else {
             updatedProject.setProjectAlias(modifierProject.getProjectAlias());
