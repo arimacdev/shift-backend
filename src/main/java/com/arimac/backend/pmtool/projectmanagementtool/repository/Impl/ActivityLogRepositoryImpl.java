@@ -79,6 +79,7 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
 
     @Override
     public void flagTaskLogs(String taskId) {
-//        String sql = "UPDATE ActivityLog SET isDeleted=true WHERE entityId=? AND operation!= f"
+        String sql = "UPDATE ActivityLog SET isDeleted=true WHERE entityId=? AND operation!=?";
+        jdbcTemplate.update(sql, taskId, "FLAG");
     }
 }
