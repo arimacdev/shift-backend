@@ -97,7 +97,6 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                     logResponse.setEntityName(task.getTaskName());
                 }
             }
-
             logResponse.setEntityType(activityLog.getEntityType());
             logResponse.setEntityId(activityLog.getEntityId());
             logResponse.setOperation(activityLog.getOperation());

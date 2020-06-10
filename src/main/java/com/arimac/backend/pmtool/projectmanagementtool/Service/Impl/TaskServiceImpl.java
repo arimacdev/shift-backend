@@ -336,7 +336,9 @@ public class TaskServiceImpl implements TaskService {
         if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
-                String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(task.getTaskDueDateAt());
+                String previousDate = null;
+                if (task.getTaskDueDateAt() != null)
+                previousDate =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(task.getTaskDueDateAt());
                 String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(taskUpdateDto.getTaskDueDate());
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.DUE_DATE, previousDate, updatedDate));
             });
