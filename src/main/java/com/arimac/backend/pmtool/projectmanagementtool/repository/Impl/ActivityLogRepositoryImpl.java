@@ -76,4 +76,9 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
         String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId=? AND isDeleted=false";
         return jdbcTemplate.queryForObject(sql, new Object[] {taskId} , Integer.class);
     }
+
+    @Override
+    public void flagTaskLogs(String taskId) {
+//        String sql = "UPDATE ActivityLog SET isDeleted=true WHERE entityId=? AND operation!= f"
+    }
 }

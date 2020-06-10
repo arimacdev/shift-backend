@@ -82,6 +82,11 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
     }
 
+    @Override
+    public void flagTaskLogs(String taskId) {
+        activityLogRepository.flagTaskLogs(taskId);
+    }
+
     private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList, EntityEnum entity){
         List<ActivityLogResposeDto> taskLogResposeList = new ArrayList<>();
         Map<String, String> taskMap = new HashMap<>();
@@ -92,7 +97,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 if (taskMap.get(activityLog.getEntityId()) != null)
                     logResponse.setEntityName(taskMap.get(activityLog.getEntityId()));
                 else {
-                    Task task = taskRepository.getProjectTask(activityLog.getEntityId());
+                    Task task = taskRepository.getProjectTasksWithFlag(activityLog.getEntityId());
                     taskMap.put(activityLog.getEntityId(), task.getTaskName());
                     logResponse.setEntityName(task.getTaskName());
                 }
