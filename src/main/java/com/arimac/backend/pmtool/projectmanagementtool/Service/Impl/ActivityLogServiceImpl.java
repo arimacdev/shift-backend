@@ -2,8 +2,9 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.ActivityLogCountResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.ActivityLogResposeDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.FieldValue;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.TaskLogResposeDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
@@ -11,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpd
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
@@ -54,71 +56,31 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
         int limit = endIndex - startIndex;
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null) //////// CHECK
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId, limit, startIndex);
-        List<TaskLogResposeDto> taskLogResposeList = getLogEntryList(activityLogList);
-//        for (UserActivityLog activityLog : activityLogList){
-//            TaskLogResposeDto taskLog = new TaskLogResposeDto();
-//            taskLog.setLogId(activityLog.getLogId());
-//            taskLog.setEntityType(activityLog.getEntityType());
-//            taskLog.setEntityId(activityLog.getEntityId());
-//            taskLog.setOperation(activityLog.getOperation());
-//            taskLog.setActionTimestamp(activityLog.getActionTimestamp());
-//            taskLog.setActor(activityLog.getActor());
-//            taskLog.setActorFirstName(activityLog.getFirstName());
-//            taskLog.setActorLastName(activityLog.getLastName());
-//            taskLog.setActorProfileImage(activityLog.getActorProfileImage());
-//            if (activityLog.getOperation().equals(LogOperationEnum.UPDATE)) {
-//                taskLog.setUpdateType(activityLog.getUpdateType());
-//                FieldValue previous = new FieldValue();
-//                previous.setDisplayValue(activityLog.getPreviousValue());
-//                FieldValue updated = new FieldValue();
-//                updated.setDisplayValue(activityLog.getUpdatedvalue());
-//                if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.ASSIGNEE.toString())){
-//                    previous.setValue(activityLog.getPreviousValue());
-//                    updated.setValue(activityLog.getUpdatedvalue());
-//                    User previousUser;
-//                    User updatedUser;
-//                    if (activityLog.getPreviousValue()!= null) {
-//                        previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
-//                        previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
-//                    }
-//                    if (activityLog.getUpdatedvalue() != null) {
-//                        updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
-//                        updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
-//                    }
-//                } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
-//                    TaskFile taskFile;
-//                    if (activityLog.getUpdatedvalue()!= null){
-//                        taskFile = taskFileRepository.getTaskFileById(activityLog.getUpdatedvalue());
-//                        if (taskFile != null) {
-//                            updated.setDisplayValue(taskFile.getTaskFileName());
-//                            updated.setValue(taskFile.getTaskFileUrl());
-//                        }
-//                    }
-//                }
-//                taskLog.setPreviousValue(previous);
-//                taskLog.setUpdatedvalue(updated);
-//            }
-//            taskLogResposeList.add(taskLog);
-//        }
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskLogResposeList);
+        ActivityLogCountResponse activityLogCountResponse = new ActivityLogCountResponse();
+        activityLogCountResponse.setActivityLogCount(activityLogRepository.taskActivityLogCount(taskId));
+        activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
     }
 
-    private List<TaskLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList){
-        List<TaskLogResposeDto> taskLogResposeList = new ArrayList<>();
+    private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList){
+        List<ActivityLogResposeDto> taskLogResposeList = new ArrayList<>();
         for (UserActivityLog activityLog : activityLogList){
-            TaskLogResposeDto taskLog = new TaskLogResposeDto();
-            taskLog.setLogId(activityLog.getLogId());
-            taskLog.setEntityType(activityLog.getEntityType());
-            taskLog.setEntityId(activityLog.getEntityId());
-            taskLog.setOperation(activityLog.getOperation());
-            taskLog.setActionTimestamp(activityLog.getActionTimestamp());
-            taskLog.setActor(activityLog.getActor());
-            taskLog.setActorFirstName(activityLog.getFirstName());
-            taskLog.setActorLastName(activityLog.getLastName());
-            taskLog.setActorProfileImage(activityLog.getActorProfileImage());
+            ActivityLogResposeDto logResponse = new ActivityLogResposeDto();
+            logResponse.setLogId(activityLog.getLogId());
+            logResponse.setEntityType(activityLog.getEntityType());
+            logResponse.setEntityId(activityLog.getEntityId());
+            logResponse.setOperation(activityLog.getOperation());
+            logResponse.setActionTimestamp(activityLog.getActionTimestamp());
+            logResponse.setActor(activityLog.getActor());
+            logResponse.setActorFirstName(activityLog.getFirstName());
+            logResponse.setActorLastName(activityLog.getLastName());
+            logResponse.setActorProfileImage(activityLog.getActorProfileImage());
             if (activityLog.getOperation().equals(LogOperationEnum.UPDATE)) {
-                taskLog.setUpdateType(activityLog.getUpdateType());
+                logResponse.setUpdateType(activityLog.getUpdateType());
                 FieldValue previous = new FieldValue();
                 previous.setDisplayValue(activityLog.getPreviousValue());
                 FieldValue updated = new FieldValue();
@@ -126,10 +88,10 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 if (activityLog.getEntityType().equals(EntityEnum.TASK))
                 setTaskUpdateValues(activityLog, previous, updated);
 //                else if (activityLog.getEntityType().equals(EntityEnum.PROJECT))
-                taskLog.setPreviousValue(previous);
-                taskLog.setUpdatedvalue(updated);
+                logResponse.setPreviousValue(previous);
+                logResponse.setUpdatedvalue(updated);
             }
-            taskLogResposeList.add(taskLog);
+            taskLogResposeList.add(logResponse);
         }
 
         return taskLogResposeList;

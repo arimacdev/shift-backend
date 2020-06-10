@@ -5,7 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOper
 
 import java.sql.Timestamp;
 
-public class TaskLogResposeDto {
+public class ActivityLogResposeDto {
     private String logId;
     private EntityEnum entityType;
     private String entityId;

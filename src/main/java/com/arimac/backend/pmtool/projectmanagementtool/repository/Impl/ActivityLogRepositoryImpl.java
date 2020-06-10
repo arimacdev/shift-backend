@@ -43,4 +43,12 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
                 " ORDER BY actionTimestamp DESC LIMIT ? OFFSET ?";
             return jdbcTemplate.query(sql, new UserActivityLog(), taskId, limit, offset);
     }
+
+    @Override
+    public int taskActivityLogCount(String taskId) {
+        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId=?";
+//        return jdbcTemplate.queryForObject(sql,Integer.class, taskId);
+        return jdbcTemplate.queryForObject(sql, new Object[] {taskId} , Integer.class);
+
+    }
 }
