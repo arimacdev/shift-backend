@@ -47,6 +47,18 @@ public class UtilsService {
         return  activityLog;
     }
 
+    public ActivityLog addTaskAddorFlagLog(LogOperationEnum operation, String actor, String taskId){
+        ActivityLog activityLog = new ActivityLog();
+        activityLog.setLogId(getUUId());
+        activityLog.setEntityType(EntityEnum.TASK);
+        activityLog.setEntityId(taskId);
+        activityLog.setActionTimestamp(getCurrentTimestamp());
+        activityLog.setOperation(operation);
+        activityLog.setActor(actor);
+
+        return  activityLog;
+    }
+
     public ActivityLog addProjectUpdateLog(LogOperationEnum operation, String actor, String projectId, ProjectUpdateTypeEnum updateType, String previous, String updated){
         ActivityLog activityLog = new ActivityLog();
         activityLog.setLogId(getUUId());

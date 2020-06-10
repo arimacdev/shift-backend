@@ -85,7 +85,7 @@ public class TaskServiceImpl implements TaskService {
             ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
             if (taskInitiator == null)
                 return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-            ProjectUserResponseDto taskAssignee = null;
+            ProjectUserResponseDto taskAssignee;
             if (taskDto.getTaskAssignee() != null) {
                 taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
                 if (taskAssignee == null)
@@ -151,28 +151,11 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.addTaskToProject(task);
         projectRepository.updateIssueCount(projectId, issueId);
         if (task.getTaskDueDateAt()!= null) {
-//            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
-//            DateTime now = DateTime.now();
-//            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-//            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-//            Duration duration = new Duration(nowCol, dueUtc);
-//            int difference = (int) duration.getStandardMinutes();
-//            int timeFixDifference = difference - 330;
-//            Notification notification = new Notification();
-//            notification.setNotificationId(utilsService.getUUId());
-//            notification.setTaskId(task.getTaskId());
-//            notification.setAssigneeId(task.getTaskAssignee());
-//            notification.setTaskDueDateAt(task.getTaskDueDateAt());
-//            if (timeFixDifference < 1440) {
-//                notification.setDaily(true);
-//            } else {
-//                notification.setDaily(false);
-//            }
-//            notification.setHourly(false);
             notificationRepository.addTaskNotification(setNotification(task, task.getTaskDueDateAt()));
         }
         CompletableFuture.runAsync(()-> {
             notificationService.sendTaskAssignNotification(task);
+            activityLogService.addTaskLog(utilsService.addTaskAddorFlagLog(LogOperationEnum.CREATE, taskDto.getTaskInitiator(), task.getTaskId()));
         });
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
@@ -392,6 +375,7 @@ public class TaskServiceImpl implements TaskService {
         }
         CompletableFuture.runAsync(()-> {
             notificationService.sendTaskDeleteNotification(task,  userId);
+            activityLogService.addTaskLog(utilsService.addTaskAddorFlagLog(LogOperationEnum.FLAG, userId, task.getTaskId()));
         });
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
