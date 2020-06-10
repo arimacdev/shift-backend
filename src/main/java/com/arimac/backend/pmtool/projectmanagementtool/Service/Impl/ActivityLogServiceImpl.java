@@ -144,10 +144,12 @@ public class ActivityLogServiceImpl implements ActivityLogService {
             if (activityLog.getPreviousValue()!= null) {
                 previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
                 previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
+                previous.setProfileImage(previousUser.getProfileImage());
             }
             if (activityLog.getUpdatedvalue() != null) {
                 updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
                 updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
+                updated.setProfileImage(updatedUser.getProfileImage());
             }
         } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
             TaskFile taskFile;
