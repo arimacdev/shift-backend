@@ -2,13 +2,15 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.sql.Timestamp;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActivityLogResposeDto {
     private String logId;
     private EntityEnum entityType;
     private String entityId;
+    private String entityName;
     private LogOperationEnum operation;
     private Timestamp actionTimestamp;
     private String updateType;
@@ -26,6 +28,14 @@ public class ActivityLogResposeDto {
 
     public void setLogId(String logId) {
         this.logId = logId;
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
     }
 
     public EntityEnum getEntityType() {

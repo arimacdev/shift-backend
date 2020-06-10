@@ -20,7 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ActivityLogServiceImpl implements ActivityLogService {
@@ -59,7 +61,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         List<UserActivityLog> activityLogList = activityLogRepository.getTaskActivity(taskId, limit, startIndex);
         ActivityLogCountResponse activityLogCountResponse = new ActivityLogCountResponse();
         activityLogCountResponse.setActivityLogCount(activityLogRepository.taskActivityLogCount(taskId));
-        activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList));
+        activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList, EntityEnum.TASK));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
     }
 
@@ -76,16 +78,26 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         List<UserActivityLog> activityLogList = activityLogRepository.getProjectActivity(projectId, entityIds,  limit, startIndex);
         ActivityLogCountResponse activityLogCountResponse = new ActivityLogCountResponse();
         activityLogCountResponse.setActivityLogCount(activityLogRepository.projectActivityLogCount(projectId, entityIds));
-        activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList));
+        activityLogCountResponse.setActivityLogList(getLogEntryList(activityLogList, EntityEnum.PROJECT));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, activityLogCountResponse);
-
     }
 
-    private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList){
+    private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList, EntityEnum entity){
         List<ActivityLogResposeDto> taskLogResposeList = new ArrayList<>();
+        Map<String, String> taskMap = new HashMap<>();
         for (UserActivityLog activityLog : activityLogList){
             ActivityLogResposeDto logResponse = new ActivityLogResposeDto();
             logResponse.setLogId(activityLog.getLogId());
+            if (entity.equals(EntityEnum.PROJECT) && activityLog.getEntityType().equals(EntityEnum.TASK)) {
+                if (taskMap.get(activityLog.getEntityId()) != null)
+                    logResponse.setEntityName(taskMap.get(activityLog.getEntityId()));
+                else {
+                    Task task = taskRepository.getProjectTask(activityLog.getEntityId());
+                    taskMap.put(activityLog.getEntityId(), task.getTaskName());
+                    logResponse.setEntityName(task.getTaskName());
+                }
+            }
+
             logResponse.setEntityType(activityLog.getEntityType());
             logResponse.setEntityId(activityLog.getEntityId());
             logResponse.setOperation(activityLog.getOperation());
