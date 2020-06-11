@@ -83,8 +83,8 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public void flagTaskLogs(String taskId) {
-        activityLogRepository.flagTaskLogs(taskId);
+    public void flagEntityActivityLogs(String taskId) {
+        activityLogRepository.flagEntityActivityLogs(taskId);
     }
 
     private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList, EntityEnum entity){
@@ -151,8 +151,12 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 if (taskFile != null) {
                     updated.setDisplayValue(taskFile.getTaskFileName());
                     updated.setValue(taskFile.getTaskFileUrl());
-                } else {
-                    updated.setDisplayValue("DELETED");
+                }
+            } else {
+                taskFile = taskFileRepository.getTaskFileById(activityLog.getPreviousValue());
+                if (taskFile != null) {
+                    previous.setDisplayValue(taskFile.getTaskFileName());
+                    previous.setValue(taskFile.getTaskFileUrl());
                 }
             }
         }

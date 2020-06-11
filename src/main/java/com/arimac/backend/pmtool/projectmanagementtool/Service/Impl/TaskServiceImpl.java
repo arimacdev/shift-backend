@@ -376,7 +376,7 @@ public class TaskServiceImpl implements TaskService {
         CompletableFuture.runAsync(()-> {
             notificationService.sendTaskDeleteNotification(task,  userId);
             activityLogService.addTaskLog(utilsService.addTaskAddorFlagLog(LogOperationEnum.FLAG, userId, task.getTaskId()));
-            activityLogService.flagTaskLogs(taskId);
+            activityLogService.flagEntityActivityLogs(taskId);
 
         });
 

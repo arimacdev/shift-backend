@@ -170,6 +170,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
                 return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         taskFileRepository.flagTaskFile(taskFile);
+        activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.FILE, taskFile, null));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
