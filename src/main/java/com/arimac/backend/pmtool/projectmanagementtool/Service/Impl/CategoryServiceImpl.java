@@ -32,7 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
         User admin = userRepository.getUserByUserId(userId);
         if (admin == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Category checkCategory = categoryRepository.findCategoryByName(categoryAddDto.getCategoryName());
+        Category checkCategory = categoryRepository.getCategoryByName(categoryAddDto.getCategoryName());
         if (checkCategory != null)
             return new ErrorMessage(ResponseMessage.CATEGORY_NAME_EXIST, HttpStatus.CONFLICT);
         Category category = new Category();
@@ -42,5 +42,13 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryCreatedAt(utilsService.getCurrentTimestamp());
         categoryRepository.createCategory(category);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getAllCategories(String userId) {
+        User admin = userRepository.getUserByUserId(userId);
+        if (admin == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, categoryRepository.getAllCategory());
     }
 }

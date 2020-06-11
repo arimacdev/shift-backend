@@ -4,4 +4,5 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryAdd
 
 public interface CategoryService {
     Object createCategory(String userId, CategoryAddDto categoryAddDto);
+    Object getAllCategories(String userId);
 }

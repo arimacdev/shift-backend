@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class CategoryRepositoryImpl implements CategoryRepository {
@@ -21,18 +22,25 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Override
     public void createCategory(Category category) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Category (categoryId, categoryName, categoryCreator, categoryCreatedAt) VALUES(?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Category (categoryId, categoryName, categoryCreator, categoryCreatedAt, isDeleted) VALUES(?,?,?,?,?)");
             preparedStatement.setString(1, category.getCategoryId());
             preparedStatement.setString(2, category.getCategoryName());
             preparedStatement.setString(3, category.getCategoryCreator());
             preparedStatement.setTimestamp(4, category.getCategoryCreatedAt());
+            preparedStatement.setBoolean(5, category.getIsDeleted());
 
             return preparedStatement;
         });
     }
 
     @Override
-    public Category findCategoryByName(String categoryName) {
+    public List<Category> getAllCategory() {
+        String sql = "SELECT * FROM Category WHERE isDeleted=?";
+        return jdbcTemplate.query(sql, new Category(), false);
+    }
+
+    @Override
+    public Category getCategoryByName(String categoryName) {
         String sql = "SELECT * FROM Category WHERE categoryName=?";
         try {
             return jdbcTemplate.queryForObject(sql, new Category(), categoryName);

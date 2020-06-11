@@ -29,16 +29,24 @@ public class CategoryController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
     public ResponseEntity<Object> createCategory(@Valid @RequestBody CategoryAddDto categoryAddDto, @RequestHeader("userId") String userId){
-        logger.info("HIT - POST /skill/category | userId: {} | dto: {}", userId, categoryAddDto);
+        logger.info("HIT - POST | createCategory /skill/category | userId: {} | dto: {}", userId, categoryAddDto);
         return sendResponse(categoryService.createCategory(userId, categoryAddDto));
     }
 
     @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping
-    public ResponseEntity<Object> getAll(@Valid @RequestBody CategoryAddDto categoryAddDto, @RequestHeader("userId") String userId){
-        logger.info("HIT - POST /skill/category | userId: {} | dto: {}", userId, categoryAddDto);
-        return sendResponse(categoryService.createCategory(userId, categoryAddDto));
+    @GetMapping
+    public ResponseEntity<Object> getAllCategories(@RequestHeader("userId") String userId){
+        logger.info("HIT - GET | getAllCategories /skill/category | userId: {}", userId);
+        return sendResponse(categoryService.getAllCategories(userId));
+    }
+
+    @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<Object> getCategoryById(@RequestHeader("userId") String userId, @PathVariable("")){
+        logger.info("HIT - GET | getAllCategories /skill/category | userId: {}", userId);
+        return sendResponse(categoryService.getAllCategories(userId));
     }
 
 }
