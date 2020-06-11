@@ -71,6 +71,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
         projectRepository.createProject(project);
+        activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
@@ -267,6 +268,8 @@ public class ProjectServiceImpl implements ProjectService {
             for(Task task : taskList) {
                 taskService.flagProjectTask(userId, projectId, task.getTaskId());
             }
+        activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.FLAG, userId, projectId));
+        activityLogService.flagEntityActivityLogs(projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

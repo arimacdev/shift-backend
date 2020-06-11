@@ -73,4 +73,16 @@ public class UtilsService {
 
         return  activityLog;
     }
+
+    public ActivityLog addProjectAddorFlagLog(LogOperationEnum operation, String actor, String projectId){
+        ActivityLog activityLog = new ActivityLog();
+        activityLog.setLogId(getUUId());
+        activityLog.setEntityType(EntityEnum.PROJECT);
+        activityLog.setEntityId(projectId);
+        activityLog.setActionTimestamp(getCurrentTimestamp());
+        activityLog.setOperation(operation);
+        activityLog.setActor(actor);
+
+        return  activityLog;
+    }
 }

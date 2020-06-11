@@ -10,5 +10,5 @@ public interface ActivityLogService {
     void addTaskLog(ActivityLog activityLog);
     Object getTaskActivity(String userId, String taskId, int startIndex, int endIndex);
     Object getAllProjectLogsWithTasks(String userId, String projectId, int startIndex, int endIndex);
-    void flagEntityActivityLogs(String taskId);
+    void flagEntityActivityLogs(String entityId);
 }

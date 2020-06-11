@@ -83,8 +83,8 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public void flagEntityActivityLogs(String taskId) {
-        activityLogRepository.flagEntityActivityLogs(taskId);
+    public void flagEntityActivityLogs(String entityId) {
+        activityLogRepository.flagEntityActivityLogs(entityId);
     }
 
     private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList, EntityEnum entity){

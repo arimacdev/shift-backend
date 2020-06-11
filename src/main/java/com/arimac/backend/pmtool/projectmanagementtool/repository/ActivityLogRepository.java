@@ -11,5 +11,5 @@ public interface ActivityLogRepository {
     List<UserActivityLog> getProjectActivity(String projectId, List<String> entityIds, int limit, int offset);
     int projectActivityLogCount(String projectId, List<String> entityIds);
     int taskActivityLogCount(String taskId);
-    void flagEntityActivityLogs(String taskId);
+    void flagEntityActivityLogs(String entityId);
 }
