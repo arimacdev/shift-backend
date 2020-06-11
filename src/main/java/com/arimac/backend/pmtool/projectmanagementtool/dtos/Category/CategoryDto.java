@@ -5,7 +5,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-public class CategoryAddDto {
+public class CategoryDto {
     @NotEmpty(message = "Provide a Category Name")
     private String categoryName;
 
@@ -20,7 +20,7 @@ public class CategoryAddDto {
 
     @Override
     public String toString() {
-        return "CategoryAddDto{" +
+        return "CategoryDto{" +
                 "categoryName='" + categoryName + '\'' +
                 '}';
     }

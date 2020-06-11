@@ -2,7 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.CategoryService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryAddDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Category;
@@ -27,17 +27,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Object createCategory(String userId, CategoryAddDto categoryAddDto) {
+    public Object createCategory(String userId, CategoryDto categoryDto) {
         //Check if Admin
         User admin = userRepository.getUserByUserId(userId);
         if (admin == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Category checkCategory = categoryRepository.getCategoryByName(categoryAddDto.getCategoryName());
+        Category checkCategory = categoryRepository.getCategoryByName(categoryDto.getCategoryName());
         if (checkCategory != null)
             return new ErrorMessage(ResponseMessage.CATEGORY_NAME_EXIST, HttpStatus.CONFLICT);
         Category category = new Category();
         category.setCategoryId(utilsService.getUUId());
-        category.setCategoryName(categoryAddDto.getCategoryName());
+        category.setCategoryName(categoryDto.getCategoryName());
         category.setCategoryCreator(userId);
         category.setCategoryCreatedAt(utilsService.getCurrentTimestamp());
         categoryRepository.createCategory(category);
@@ -58,5 +58,17 @@ public class CategoryServiceImpl implements CategoryService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, categoryRepository.getCategoryById(categoryId));
+    }
+
+    @Override
+    public Object updateCategory(String userId, String categoryId, CategoryDto categoryDto) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return  new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        categoryRepository.updateCategory(categoryId, categoryDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

@@ -3,7 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.CategoryService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryAddDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -28,9 +28,9 @@ public class CategoryController extends ResponseController {
     @ApiOperation(value = "Category Create", notes = "Create Category for Skill Matrix")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
-    public ResponseEntity<Object> createCategory(@Valid @RequestBody CategoryAddDto categoryAddDto, @RequestHeader("userId") String userId){
-        logger.info("HIT - POST | createCategory /skill/category | userId: {} | dto: {}", userId, categoryAddDto);
-        return sendResponse(categoryService.createCategory(userId, categoryAddDto));
+    public ResponseEntity<Object> createCategory(@Valid @RequestBody CategoryDto categoryDto, @RequestHeader("userId") String userId){
+        logger.info("HIT - POST | createCategory /skill/category | userId: {} | dto: {}", userId, categoryDto);
+        return sendResponse(categoryService.createCategory(userId, categoryDto));
     }
 
     @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
@@ -45,6 +45,22 @@ public class CategoryController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{categoryId}")
     public ResponseEntity<Object> getCategoryById(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId){
+        logger.info("HIT - GET | getCategoryById /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
+        return sendResponse(categoryService.getCategoryById(userId, categoryId));
+    }
+
+    @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{categoryId}")
+    public ResponseEntity<Object> updateCategory(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @RequestBody CategoryDto categoryDto){
+        logger.info("HIT - PUT | updateCategory /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
+        return sendResponse(categoryService.updateCategory(userId, categoryId, categoryDto));
+    }
+
+    @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<Object> deleteCategory(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId){
         logger.info("HIT - GET | getCategoryById /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
         return sendResponse(categoryService.getCategoryById(userId, categoryId));
     }

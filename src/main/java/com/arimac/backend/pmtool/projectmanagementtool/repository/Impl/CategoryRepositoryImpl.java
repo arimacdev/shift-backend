@@ -1,6 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryAddDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Category;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.CategoryRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -47,6 +47,12 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         } catch (EmptyResultDataAccessException e){
             return null;
         }
+    }
+
+    @Override
+    public void updateCategory(String categoryId, CategoryDto categoryDto) {
+        String sql = "UPDATE Category SET categoryName=? WHERE categoryId=?";
+        jdbcTemplate.update(sql, categoryDto.getCategoryName(), categoryId);
     }
 
     @Override
