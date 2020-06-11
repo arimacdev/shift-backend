@@ -7,4 +7,5 @@ public interface CategoryService {
     Object getAllCategories(String userId);
     Object getCategoryById(String userId, String categoryId);
     Object updateCategory(String userId, String categoryId, CategoryDto categoryDto);
+    Object deleteCategory(String userId, String categoryId);
 }

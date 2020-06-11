@@ -11,4 +11,5 @@ public interface CategoryRepository {
     List<Category> getAllCategory();
     Category getCategoryById(String categoryId);
     void updateCategory(String categoryId, CategoryDto categoryDto);
+    void flagCategory(String categoryId);
 }

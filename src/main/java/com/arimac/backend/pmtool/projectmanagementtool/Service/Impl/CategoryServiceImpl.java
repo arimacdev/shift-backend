@@ -57,7 +57,10 @@ public class CategoryServiceImpl implements CategoryService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, categoryRepository.getCategoryById(categoryId));
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, category);
     }
 
     @Override
@@ -69,6 +72,18 @@ public class CategoryServiceImpl implements CategoryService {
         if (category == null)
             return  new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
         categoryRepository.updateCategory(categoryId, categoryDto);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object deleteCategory(String userId, String categoryId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return  new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        categoryRepository.flagCategory(categoryId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

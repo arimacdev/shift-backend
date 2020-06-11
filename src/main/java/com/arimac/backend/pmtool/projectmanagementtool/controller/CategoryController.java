@@ -41,7 +41,7 @@ public class CategoryController extends ResponseController {
         return sendResponse(categoryService.getAllCategories(userId));
     }
 
-    @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
+    @ApiOperation(value = "Get Category By Id", notes = "Get All Categories")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{categoryId}")
     public ResponseEntity<Object> getCategoryById(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId){
@@ -49,7 +49,7 @@ public class CategoryController extends ResponseController {
         return sendResponse(categoryService.getCategoryById(userId, categoryId));
     }
 
-    @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
+    @ApiOperation(value = "Update Category By Id", notes = "Get All Categories")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{categoryId}")
     public ResponseEntity<Object> updateCategory(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @RequestBody CategoryDto categoryDto){
@@ -57,12 +57,12 @@ public class CategoryController extends ResponseController {
         return sendResponse(categoryService.updateCategory(userId, categoryId, categoryDto));
     }
 
-    @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
+    @ApiOperation(value = "Delete Category", notes = "Get All Categories")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Object> deleteCategory(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId){
-        logger.info("HIT - GET | getCategoryById /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
-        return sendResponse(categoryService.getCategoryById(userId, categoryId));
+        logger.info("HIT - DELETE | deleteCategory /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
+        return sendResponse(categoryService.deleteCategory(userId, categoryId));
     }
 
 }

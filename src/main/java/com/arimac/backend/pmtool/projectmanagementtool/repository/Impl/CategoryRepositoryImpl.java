@@ -56,6 +56,12 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
+    public void flagCategory(String categoryId) {
+        String sql = "UPDATE Category SET isDeleted=true WHERE categoryId=?";
+        jdbcTemplate.update(sql, categoryId);
+    }
+
+    @Override
     public Category getCategoryByName(String categoryName) {
         String sql = "SELECT * FROM Category WHERE categoryName=? AND isDeleted=false";
         try {
