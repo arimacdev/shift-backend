@@ -150,6 +150,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         } else if (project_user.getIsBlocked()){
                 projectRepository.blockOrUnBlockProjectUser(userAssignDto.getAssigneeId(), projectId, false);
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userAssignDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ADD_USER, null, userAssignDto.getAssigneeId()));
+
         } else if (!project_user.getIsBlocked()){
             return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -291,7 +293,10 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectUserBlockDto.getExecutorId().equals(projectUserBlockDto.getBlockedUserId()))
             return new ErrorMessage("You can't block/unblock yourself", HttpStatus.UNAUTHORIZED);
          projectRepository.blockOrUnBlockProjectUser(projectUserBlockDto.getBlockedUserId(), projectId, projectUserBlockDto.getBlockedStatus());
-
-         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        if (projectUserBlockDto.getBlockedStatus())
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.REMOVE_USER, projectUserBlockDto.getBlockedUserId(), null));
+        else
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.ADD_USER, null, projectUserBlockDto.getBlockedUserId()));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

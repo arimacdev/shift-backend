@@ -90,6 +90,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private List<ActivityLogResposeDto> getLogEntryList(List<UserActivityLog> activityLogList, EntityEnum entity){
         List<ActivityLogResposeDto> taskLogResposeList = new ArrayList<>();
         Map<String, String> taskMap = new HashMap<>();
+        Map<String, User> userMap = new HashMap<>();
         for (UserActivityLog activityLog : activityLogList){
             ActivityLogResposeDto logResponse = new ActivityLogResposeDto();
             logResponse.setLogId(activityLog.getLogId());
@@ -117,9 +118,9 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 FieldValue updated = new FieldValue();
                 updated.setDisplayValue(activityLog.getUpdatedvalue());
                 if (activityLog.getEntityType().equals(EntityEnum.TASK))
-                setTaskUpdateValues(activityLog, previous, updated);
+                setTaskUpdateValues(activityLog, previous, updated, userMap);
                 else if (activityLog.getEntityType().equals(EntityEnum.PROJECT))
-                setProjectUpdateValues(activityLog, previous, updated);
+                setProjectUpdateValues(activityLog, previous, updated, userMap);
                 logResponse.setPreviousValue(previous);
                 logResponse.setUpdatedvalue(updated);
             }
@@ -129,7 +130,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         return taskLogResposeList;
     }
 
-    private void setTaskUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated){
+    private void setTaskUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated, Map<String, User> userMap){
         if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.ASSIGNEE.toString())){
             previous.setValue(activityLog.getPreviousValue());
             updated.setValue(activityLog.getUpdatedvalue());
@@ -163,9 +164,33 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         }
     }
 
-    private void setProjectUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated){
-        if (activityLog.getUpdateType().equals(ProjectUpdateTypeEnum.ADD_USER)){
-            User addedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+    private void setProjectUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated, Map<String, User> userMap){
+        if (activityLog.getUpdateType().equals(ProjectUpdateTypeEnum.ADD_USER.toString())){
+            User addedUser;
+            if (userMap.containsKey(activityLog.getUpdatedvalue())){
+                addedUser = userMap.get(activityLog.getUpdatedvalue());
+            } else {
+            addedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+            userMap.put(activityLog.getUpdatedvalue(), addedUser);
+            }
+            if (addedUser != null){
+                updated.setValue(activityLog.getUpdatedvalue());
+                updated.setDisplayValue(addedUser.getFirstName() + " " + addedUser.getLastName());
+                updated.setProfileImage(addedUser.getProfileImage());
+            }
+        } else if (activityLog.getUpdateType().equals(ProjectUpdateTypeEnum.REMOVE_USER.toString())){
+            User removeUser;
+            if (userMap.containsKey(activityLog.getPreviousValue())){
+                removeUser = userMap.get(activityLog.getPreviousValue());
+            } else {
+                removeUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
+                userMap.put(activityLog.getPreviousValue(), removeUser);
+            }
+            if (removeUser != null){
+                previous.setDisplayValue(removeUser.getFirstName() + " " + removeUser.getLastName());
+                previous.setValue(removeUser.getUserId());
+                previous.setProfileImage(removeUser.getProfileImage());
+            }
         }
     }
 
