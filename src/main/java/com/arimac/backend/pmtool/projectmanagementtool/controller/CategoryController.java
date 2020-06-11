@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/skill/category")
+@RequestMapping("/category")
 public class CategoryController extends ResponseController {
 
     private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
