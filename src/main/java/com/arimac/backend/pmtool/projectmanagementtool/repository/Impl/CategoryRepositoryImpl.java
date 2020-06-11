@@ -40,8 +40,18 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
+    public Category getCategoryById(String categoryId) {
+        String sql = "SELECT * FROM Category WHERE categoryId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Category(), categoryId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
     public Category getCategoryByName(String categoryName) {
-        String sql = "SELECT * FROM Category WHERE categoryName=?";
+        String sql = "SELECT * FROM Category WHERE categoryName=? AND isDeleted=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Category(), categoryName);
         } catch (EmptyResultDataAccessException e){

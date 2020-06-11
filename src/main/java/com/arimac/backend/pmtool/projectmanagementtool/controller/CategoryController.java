@@ -44,9 +44,9 @@ public class CategoryController extends ResponseController {
     @ApiOperation(value = "Get All Categories", notes = "Get All Categories")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Object> getCategoryById(@RequestHeader("userId") String userId, @PathVariable("")){
-        logger.info("HIT - GET | getAllCategories /skill/category | userId: {}", userId);
-        return sendResponse(categoryService.getAllCategories(userId));
+    public ResponseEntity<Object> getCategoryById(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId){
+        logger.info("HIT - GET | getCategoryById /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
+        return sendResponse(categoryService.getCategoryById(userId, categoryId));
     }
 
 }

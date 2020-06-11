@@ -51,4 +51,12 @@ public class CategoryServiceImpl implements CategoryService {
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, categoryRepository.getAllCategory());
     }
+
+    @Override
+    public Object getCategoryById(String userId, String categoryId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, categoryRepository.getCategoryById(categoryId));
+    }
 }

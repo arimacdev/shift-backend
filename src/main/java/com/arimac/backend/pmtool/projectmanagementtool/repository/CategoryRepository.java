@@ -9,4 +9,5 @@ public interface CategoryRepository {
     void createCategory(Category category);
     Category getCategoryByName(String categoryName);
     List<Category> getAllCategory();
+    Category getCategoryById(String categoryId);
 }
