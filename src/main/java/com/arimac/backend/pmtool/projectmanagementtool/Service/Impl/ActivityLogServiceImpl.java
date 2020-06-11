@@ -34,14 +34,16 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskFileRepository taskFileRepository;
+    private final ProjectFileRepository projectFileRepository;
     private final UtilsService utilsService;
 
-    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
+    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, ProjectFileRepository projectFileRepository, UtilsService utilsService) {
         this.activityLogRepository = activityLogRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskFileRepository = taskFileRepository;
+        this.projectFileRepository = projectFileRepository;
         this.utilsService = utilsService;
     }
 
@@ -137,28 +139,38 @@ public class ActivityLogServiceImpl implements ActivityLogService {
             User previousUser;
             User updatedUser;
             if (activityLog.getPreviousValue()!= null) {
-                previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
+                if (userMap.containsKey(activityLog.getPreviousValue()))
+                    previousUser = userMap.get(activityLog.getPreviousValue());
+                else {
+                    previousUser = userRepository.getUserByUserId(activityLog.getPreviousValue());
+                    userMap.put(activityLog.getPreviousValue(), previousUser);
+                }
                 previous.setDisplayValue(previousUser.getFirstName() + " " + previousUser.getLastName());
                 previous.setProfileImage(previousUser.getProfileImage());
             }
             if (activityLog.getUpdatedvalue() != null) {
-                updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+                if (userMap.containsKey(activityLog.getUpdatedvalue()))
+                    updatedUser = userMap.get(activityLog.getUpdatedvalue());
+                else {
+                    updatedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+                    userMap.put(activityLog.getUpdatedvalue(), updatedUser);
+                }
                 updated.setDisplayValue(updatedUser.getFirstName() + " " + updatedUser.getLastName());
                 updated.setProfileImage(updatedUser.getProfileImage());
             }
         } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.FILE.toString())){
             TaskFile taskFile;
             if (activityLog.getUpdatedvalue()!= null){
-                taskFile = taskFileRepository.getTaskFileById(activityLog.getUpdatedvalue());
+                taskFile = taskFileRepository.getTaskFileWithFlag(activityLog.getUpdatedvalue());
                 if (taskFile != null) {
                     updated.setDisplayValue(taskFile.getTaskFileName());
                     updated.setValue(taskFile.getTaskFileUrl());
                 }
             } else {
-                taskFile = taskFileRepository.getTaskFileById(activityLog.getPreviousValue());
+                taskFile = taskFileRepository.getTaskFileWithFlag(activityLog.getPreviousValue());
                 if (taskFile != null) {
                     previous.setDisplayValue(taskFile.getTaskFileName());
-                    previous.setValue(taskFile.getTaskFileUrl());
+                   // previous.setValue(taskFile.getTaskFileUrl());
                 }
             }
         }
@@ -190,6 +202,19 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 previous.setDisplayValue(removeUser.getFirstName() + " " + removeUser.getLastName());
                 previous.setValue(removeUser.getUserId());
                 previous.setProfileImage(removeUser.getProfileImage());
+            }
+        } else if (activityLog.getUpdateType().equals(ProjectUpdateTypeEnum.FILE.toString())){
+            if (activityLog.getUpdatedvalue() != null){
+                ProjectFile projectFile = projectFileRepository.getProjectFileWithFlag(activityLog.getUpdatedvalue());
+                if (projectFile != null){
+                    updated.setDisplayValue(projectFile.getProjectFileName());
+                    updated.setValue(projectFile.getProjectFileUrl());
+                }
+            } else if (activityLog.getPreviousValue() != null){
+                ProjectFile projectFile = projectFileRepository.getProjectFileWithFlag(activityLog.getPreviousValue());
+                if (projectFile != null){
+                    previous.setDisplayValue(projectFile.getProjectFileName());
+                }
             }
         }
     }

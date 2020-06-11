@@ -7,6 +7,7 @@ public class FieldValue {
     private String value;
     private String displayValue;
     private String profileImage;
+    private String otherDisplayValue;
 
     public String getValue() {
         return value;
@@ -30,5 +31,13 @@ public class FieldValue {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getOtherDisplayValue() {
+        return otherDisplayValue;
+    }
+
+    public void setOtherDisplayValue(String otherDisplayValue) {
+        this.otherDisplayValue = otherDisplayValue;
     }
 }

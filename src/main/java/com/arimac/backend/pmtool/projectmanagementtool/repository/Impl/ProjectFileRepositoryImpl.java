@@ -60,4 +60,14 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
         }
 
     }
+
+    @Override
+    public ProjectFile getProjectFileWithFlag(String projectFile) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectFileId=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new ProjectFile(), projectFile);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
 }

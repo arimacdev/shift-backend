@@ -9,5 +9,6 @@ public enum ProjectUpdateTypeEnum {
     END_DATE,
     ADD_USER,
     REMOVE_USER,
-    ROLE_UPDATE
+    ROLE_UPDATE,
+    FILE
 }

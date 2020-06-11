@@ -47,6 +47,16 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
     }
 
     @Override
+    public TaskFile getTaskFileWithFlag(String fileId) {
+        String sql = "SELECT * FROM TaskFile Where taskFileId=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new TaskFile(), fileId);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
     public List<TaskFile> getAllTaskFiles(String taskId) {
         String sql = "SELECT * FROM TaskFile WHERE taskId=? AND isDeleted=false";
         List<TaskFile> taskFileList = jdbcTemplate.query(sql, new TaskFile(), taskId);

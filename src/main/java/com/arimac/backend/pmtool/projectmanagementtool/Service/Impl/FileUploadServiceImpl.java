@@ -12,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.Persona
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -205,7 +206,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             projectFile.setProjectFileAddedOn(utilsService.getCurrentTimestamp());
             projectFile.setIsDeleted(false);
             projectFiles.add(projectFile);
-
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.FILE, null, projectFile.getProjectFileId()));
             projectFileRepository.uploadProjectFile(projectFile);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
@@ -231,6 +232,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         if (!((projectFile.getProjectFileAddedBy().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
         projectFileRepository.flagProjectFile(projectFileId);
+        activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.FILE, projectFile.getProjectFileId(), null));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
