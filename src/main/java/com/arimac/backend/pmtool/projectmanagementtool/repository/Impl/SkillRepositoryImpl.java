@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class SkillRepositoryImpl implements SkillRepository {
@@ -33,11 +34,33 @@ public class SkillRepositoryImpl implements SkillRepository {
 
     @Override
     public Skill getSkillByNameAndCategory(String categoryId, String name) {
-        String sql = "SELECT * FROM Skill WHERE categoryId=? AND skillName=?";
+        String sql = "SELECT * FROM Skill WHERE categoryId=? AND skillName=? AND isDeleted=?";
         try {
-            return jdbcTemplate.queryForObject(sql, new Skill(), categoryId, name);
+            return jdbcTemplate.queryForObject(sql, new Skill(), categoryId, name, false);
         } catch (EmptyResultDataAccessException e){
             return null;
         }
+    }
+
+    @Override
+    public List<Skill> getAllCategorySkills(String categoryId) {
+        String sql = "SELECT * FROM Skill WHERE categoryId=? AND isDeleted=?";
+        return jdbcTemplate.query(sql, new Skill(), categoryId, false);
+    }
+
+    @Override
+    public Skill getSkillByIdAndCategory(String categoryId, String skillId) {
+        String sql = "SELECT * FROM Skill WHERE categoryId=? AND skillId=? AND isDeleted=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Skill(), categoryId, skillId, false);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public void flagSkill(String skillId) {
+        String sql = "UPDATE Skill SET isDeleted=? WHERE skillId=?";
+        jdbcTemplate.update(sql, true, skillId);
     }
 }

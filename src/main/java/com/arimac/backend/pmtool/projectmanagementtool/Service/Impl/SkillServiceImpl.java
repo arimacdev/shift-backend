@@ -51,4 +51,30 @@ public class SkillServiceImpl implements SkillService {
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
+
+    @Override
+    public Object getAllCategorySkills(String userId, String categoryId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillRepository.getAllCategorySkills(categoryId));
+    }
+
+    @Override
+    public Object deleteSkill(String userId, String categoryId, String skillId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Skill skill = skillRepository.getSkillByIdAndCategory(categoryId, skillId);
+        if (skill == null)
+            return new ErrorMessage(ResponseMessage.SKILL_NOT_FOUND, HttpStatus.NOT_FOUND);
+        skillRepository.flagSkill(skillId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
 }

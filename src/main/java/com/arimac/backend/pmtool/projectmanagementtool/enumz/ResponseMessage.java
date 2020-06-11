@@ -33,6 +33,7 @@ public enum ResponseMessage {
     CATEGORY_NAME_EXIST("Category Exist By Category Name"),
     CATEGORY_NOT_FOUND("Category Not Found"),
     SKILL_NAME_EXIST("Skill Exist By Skill Name"),
+    SKILL_NOT_FOUND("Skill Not Found")
     ;
 
 

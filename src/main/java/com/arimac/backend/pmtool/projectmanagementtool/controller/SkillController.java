@@ -37,7 +37,15 @@ public class SkillController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{categoryId}/skill")
     public ResponseEntity<Object> getAllCategorySkills(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId){
-        logger.info("HIT - GET | addSkillToCategory /category/<categoryId>/skill | userId: {} | dto: {} | categoryId: {}", userId, skillDto, categoryId);
-        return sendResponse(skillService.addSkillToCategory(userId, categoryId, skillDto));
+        logger.info("HIT - GET | getAllCategorySkills /category/<categoryId>/skill | userId: {} |  categoryId: {}", userId,  categoryId);
+        return sendResponse(skillService.getAllCategorySkills(userId, categoryId));
+    }
+
+    @ApiOperation(value = "Delete a Skill", notes = "Delete Skill")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{categoryId}/skill/{skillId}")
+    public ResponseEntity<Object> deleteSkill(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @PathVariable("skillId") String skillId){
+        logger.info("HIT - DELETE | deleteSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {}", userId,  categoryId);
+        return sendResponse(skillService.deleteSkill(userId, categoryId, skillId));
     }
 }
