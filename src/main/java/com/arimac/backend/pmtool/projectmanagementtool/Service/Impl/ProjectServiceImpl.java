@@ -238,7 +238,7 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssigneeProjectRole(updateDto.getAssigneeProjectRole());
 
         projectRepository.updateAssigneeProjectRole(assignment);
-        activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, updateDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ROLE_UPDATE, String.valueOf(assigneeProject.getAssigneeProjectRole()), String.valueOf(updateDto.getAssigneeProjectRole())));
+       // activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, updateDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ROLE_UPDATE, String.valueOf(assigneeProject.getAssigneeProjectRole()), String.valueOf(updateDto.getAssigneeProjectRole())));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
 
     }

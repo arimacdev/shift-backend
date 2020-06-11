@@ -10,6 +10,7 @@ public enum TaskUpdateTypeEnum {
     TASK_NAME,
     DUE_DATE,
     TASK_NOTES,
+    TASK_SPRINT,
     FILE;
 
     private static Set<String> taskTypes = new HashSet<>();

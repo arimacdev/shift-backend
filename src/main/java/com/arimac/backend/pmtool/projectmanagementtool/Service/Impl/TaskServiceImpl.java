@@ -681,11 +681,13 @@ public class TaskServiceImpl implements TaskService {
                 return new ErrorMessage(ResponseMessage.SPRINT_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
+        activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_SPRINT, taskSprintUpdateDto.getPreviousSprint(), taskSprintUpdateDto.getNewSprint()));
         List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
         for (Task child : children){
             TaskSprintUpdateDto childSprint = new TaskSprintUpdateDto();
             childSprint.setNewSprint(taskSprintUpdateDto.getNewSprint());
             taskRepository.updateProjectTaskSprint(child.getTaskId(), childSprint);
+            activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, child.getTaskId(), TaskUpdateTypeEnum.TASK_SPRINT, child.getSprintId(), taskSprintUpdateDto.getNewSprint()));
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskSprintUpdateDto);
     }

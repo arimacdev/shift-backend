@@ -29,21 +29,26 @@ import java.util.Map;
 public class ActivityLogServiceImpl implements ActivityLogService {
     private static final Logger logger = LoggerFactory.getLogger(ActivityLogServiceImpl.class);
 
+    private final String DEFAULT = "default";
+    private final String DEFAULT_SPRINT = "Default Sprint";
+
     private final ActivityLogRepository activityLogRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskFileRepository taskFileRepository;
     private final ProjectFileRepository projectFileRepository;
+    private final SprintRepository sprintRepository;
     private final UtilsService utilsService;
 
-    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, ProjectFileRepository projectFileRepository, UtilsService utilsService) {
+    public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, ProjectFileRepository projectFileRepository, SprintRepository sprintRepository, UtilsService utilsService) {
         this.activityLogRepository = activityLogRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskFileRepository = taskFileRepository;
         this.projectFileRepository = projectFileRepository;
+        this.sprintRepository = sprintRepository;
         this.utilsService = utilsService;
     }
 
@@ -172,6 +177,27 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                     previous.setDisplayValue(taskFile.getTaskFileName());
                    // previous.setValue(taskFile.getTaskFileUrl());
                 }
+            }
+        } else if (activityLog.getUpdateType().equals(TaskUpdateTypeEnum.TASK_SPRINT.toString())){
+            Sprint previousSprint;
+            Sprint updatedSprint;
+            if (!activityLog.getPreviousValue().equals(DEFAULT)){
+                previousSprint = sprintRepository.getSprintById(activityLog.getPreviousValue());
+                if (previousSprint != null){
+                    previous.setValue(previousSprint.getSprintId());
+                    previous.setDisplayValue(previousSprint.getSprintName());
+                }
+            } else {
+                previous.setDisplayValue(DEFAULT_SPRINT);
+            }
+            if (!activityLog.getUpdateType().equals(DEFAULT)){
+                updatedSprint = sprintRepository.getSprintById(activityLog.getUpdatedvalue());
+                if (updatedSprint != null) {
+                    updated.setValue(updatedSprint.getSprintId());
+                    updated.setDisplayValue(updatedSprint.getSprintName());
+                }
+            } else {
+                updated.setDisplayValue(DEFAULT_SPRINT);
             }
         }
     }

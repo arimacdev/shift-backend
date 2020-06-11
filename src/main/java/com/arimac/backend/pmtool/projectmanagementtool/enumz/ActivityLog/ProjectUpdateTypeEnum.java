@@ -10,5 +10,7 @@ public enum ProjectUpdateTypeEnum {
     ADD_USER,
     REMOVE_USER,
     ROLE_UPDATE,
-    FILE
+    FILE,
+    SPRINT_ADD,
+    SPRINT_UPDATE
 }
