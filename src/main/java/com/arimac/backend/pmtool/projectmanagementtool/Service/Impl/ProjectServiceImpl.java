@@ -146,6 +146,8 @@ public class ProjectServiceImpl implements ProjectService {
             assignment.setIsBlocked(false);
 
             projectRepository.assignUserToProject(projectId,assignment);
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userAssignDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ADD_USER, null, userAssignDto.getAssigneeId()));
+
         } else if (project_user.getIsBlocked()){
                 projectRepository.blockOrUnBlockProjectUser(userAssignDto.getAssigneeId(), projectId, false);
         } else if (!project_user.getIsBlocked()){
@@ -234,8 +236,8 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssigneeProjectRole(updateDto.getAssigneeProjectRole());
 
         projectRepository.updateAssigneeProjectRole(assignment);
-
-        return new Response(ResponseMessage.SUCCESS);
+        activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, updateDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ROLE_UPDATE, String.valueOf(assigneeProject.getAssigneeProjectRole()), String.valueOf(updateDto.getAssigneeProjectRole())));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
 
     }
 
@@ -252,6 +254,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (assignee.equals(deleteDto.getAssignerId()))
             return new ErrorMessage("You can't remove yourself from the project", HttpStatus.UNAUTHORIZED);
         projectRepository.removeProjectAssignee(projectId, assignee);
+        activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, deleteDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.REMOVE_USER, assignee, null));
 
         return new Response(ResponseMessage.SUCCESS);
     }

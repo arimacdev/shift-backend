@@ -6,5 +6,8 @@ public enum ProjectUpdateTypeEnum {
     CLIENT,
     STATUS,
     START_DATE,
-    END_DATE
+    END_DATE,
+    ADD_USER,
+    REMOVE_USER,
+    ROLE_UPDATE
 }

@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.FieldVal
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -34,7 +35,6 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private final UserRepository userRepository;
     private final TaskFileRepository taskFileRepository;
     private final UtilsService utilsService;
-
 
     public ActivityLogServiceImpl(ActivityLogRepository activityLogRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService) {
         this.activityLogRepository = activityLogRepository;
@@ -118,7 +118,8 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 updated.setDisplayValue(activityLog.getUpdatedvalue());
                 if (activityLog.getEntityType().equals(EntityEnum.TASK))
                 setTaskUpdateValues(activityLog, previous, updated);
-//                else if (activityLog.getEntityType().equals(EntityEnum.PROJECT))
+                else if (activityLog.getEntityType().equals(EntityEnum.PROJECT))
+                setProjectUpdateValues(activityLog, previous, updated);
                 logResponse.setPreviousValue(previous);
                 logResponse.setUpdatedvalue(updated);
             }
@@ -163,7 +164,9 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     private void setProjectUpdateValues(UserActivityLog activityLog, FieldValue previous, FieldValue updated){
-
+        if (activityLog.getUpdateType().equals(ProjectUpdateTypeEnum.ADD_USER)){
+            User addedUser = userRepository.getUserByUserId(activityLog.getUpdatedvalue());
+        }
     }
 
 
