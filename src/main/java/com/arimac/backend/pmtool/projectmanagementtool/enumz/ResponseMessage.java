@@ -35,9 +35,8 @@ public enum ResponseMessage {
     SKILL_NAME_EXIST("Skill Exist By Skill Name"),
     SKILL_NOT_FOUND("Skill Not Found"),
     ASSIGNER_NOT_FOUND("Assigner Not Found"),
-    ASSIGNEE_NOT_FOUND("Assignee Not Found");
-
-
+    ASSIGNEE_NOT_FOUND("Assignee Not Found"),
+    SKILL_ALREADY_ADDED("Skill Already Added to User");
 
     private String message;
     ResponseMessage(String message){

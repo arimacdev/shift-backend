@@ -1,22 +1,28 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
 import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SkillRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SkillRepositoryImpl implements SkillRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public SkillRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    public SkillRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
@@ -83,4 +89,27 @@ public class SkillRepositoryImpl implements SkillRepository {
             return preparedStatement;
         });
     }
+
+    @Override
+    public boolean checkIfSkillAdded(String userId, String categoryId, Set<String> skills) {
+        String sql = "SELECT EXISTS (SELECT * FROM UserSkill WHERE skillId IN (:ids) AND userId=:userId AND categoryId=:categoryId LIMIT 1)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", skills);
+        parameters.addValue("userId", userId);
+        parameters.addValue("categoryId", categoryId);
+        try {
+            return namedParameterJdbcTemplate.queryForObject(sql, parameters, Boolean.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+//    @Override
+//    public int projectActivityLogCount(String projectId, List<String> entityIds) {
+//        String sql = "SELECT COUNT(*) FROM ActivityLog AS AL LEFT JOIN User as U ON AL.actor = U.userId " +
+//                "WHERE entityId IN (:ids) AND isDeleted=false ";
+//        MapSqlParameterSource parameters = new MapSqlParameterSource();
+//        parameters.addValue("ids", entityIds);
+//        return namedParameterJdbcTemplate.queryForObject(sql, parameters ,  Integer.class);
+//    }
 }

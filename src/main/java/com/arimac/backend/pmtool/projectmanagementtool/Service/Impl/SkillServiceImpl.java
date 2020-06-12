@@ -108,6 +108,8 @@ public class SkillServiceImpl implements SkillService {
         Category category = categoryRepository.getCategoryById(categoryId);
         if (category == null)
             return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (skillRepository.checkIfSkillAdded(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills()))
+            return new ErrorMessage(ResponseMessage.SKILL_ALREADY_ADDED, HttpStatus.CONFLICT);
         UserSkill userSkill = new UserSkill();
         userSkill.setCategoryId(categoryId);
         userSkill.setUserId(skillUserDto.getAssigneeId());

@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
 import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 
 import java.util.List;
+import java.util.Set;
 
 public interface SkillRepository {
     void addSkill(Skill skill);
@@ -14,5 +15,6 @@ public interface SkillRepository {
     void flagSkill(String skillId);
     void updateSkill(SkillDto skillDto, String skillId);
     void addSkillToUser(UserSkill userSkill);
+    boolean checkIfSkillAdded(String userId, String categoryId, Set<String> skills);
 
 }
