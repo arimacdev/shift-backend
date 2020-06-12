@@ -104,12 +104,18 @@ public class SkillRepositoryImpl implements SkillRepository {
         }
     }
 
-//    @Override
-//    public int projectActivityLogCount(String projectId, List<String> entityIds) {
-//        String sql = "SELECT COUNT(*) FROM ActivityLog AS AL LEFT JOIN User as U ON AL.actor = U.userId " +
-//                "WHERE entityId IN (:ids) AND isDeleted=false ";
-//        MapSqlParameterSource parameters = new MapSqlParameterSource();
-//        parameters.addValue("ids", entityIds);
-//        return namedParameterJdbcTemplate.queryForObject(sql, parameters ,  Integer.class);
-//    }
+    @Override
+    public void removeSkillsFromUser(String userId, String categoryId, Set<String> skills) {
+        String sql = "DELETE FROM UserSkill WHERE skillId IN (:ids) AND userId=:userId";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", skills);
+        parameters.addValue("userId", userId);
+        try {
+            namedParameterJdbcTemplate.update(sql, parameters);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+
 }

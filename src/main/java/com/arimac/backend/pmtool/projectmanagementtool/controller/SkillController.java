@@ -60,9 +60,17 @@ public class SkillController extends ResponseController {
 
     @ApiOperation(value = "Add Skills a User", notes = "Add Skills a User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PostMapping("/{categoryId}/skill/{skillId}")
-    public ResponseEntity<Object> addSkillsToUser(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @PathVariable("skillId") String skillId, @Valid @RequestBody SkillUserDto skillUserDto){
+    @PostMapping("/{categoryId}/user/skill")
+    public ResponseEntity<Object> addSkillsToUser(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @Valid @RequestBody SkillUserDto skillUserDto){
         logger.info("HIT - PUT | updateSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {} | skillUserDto : {}", userId,  categoryId, skillUserDto);
-        return sendResponse(skillService.addSkillsToUser(userId, categoryId, skillId, skillUserDto));
+        return sendResponse(skillService.addSkillsToUser(userId, categoryId, skillUserDto));
+    }
+
+    @ApiOperation(value = "Delete Skills from User", notes = "Delete Skills from User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/{categoryId}/user/skill")
+    public ResponseEntity<Object> deleteSkillsFromUser(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId,@Valid @RequestBody SkillUserDto skillUserDto){
+        logger.info("HIT - PUT | updateSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {} | skillUserDto : {}", userId,  categoryId, skillUserDto);
+        return sendResponse(skillService.deleteSkillsFromUser(userId, categoryId, skillUserDto));
     }
 }

@@ -16,5 +16,6 @@ public interface SkillRepository {
     void updateSkill(SkillDto skillDto, String skillId);
     void addSkillToUser(UserSkill userSkill);
     boolean checkIfSkillAdded(String userId, String categoryId, Set<String> skills);
+    void removeSkillsFromUser(String userId, String categoryId, Set<String> skills);
 
 }

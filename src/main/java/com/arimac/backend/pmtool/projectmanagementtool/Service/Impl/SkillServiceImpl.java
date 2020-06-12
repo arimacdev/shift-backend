@@ -98,7 +98,7 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public Object addSkillsToUser(String userId, String categoryId, String skillId, SkillUserDto skillUserDto) {
+    public Object addSkillsToUser(String userId, String categoryId, SkillUserDto skillUserDto) {
         User assigner = userRepository.getUserByUserId(userId);
         if (assigner == null)
             return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -121,5 +121,30 @@ public class SkillServiceImpl implements SkillService {
             }
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object deleteSkillsFromUser(String userId, String categoryId, SkillUserDto skillUserDto) {
+        User assigner = userRepository.getUserByUserId(userId);
+        if (assigner == null)
+            return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User assignee = userRepository.getUserByUserId(skillUserDto.getAssigneeId());
+        if (assignee == null)
+            return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!skillRepository.checkIfSkillAdded(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills()))
+            return new ErrorMessage(ResponseMessage.SKILL_NOT_ADDED, HttpStatus.NOT_FOUND);
+        skillRepository.removeSkillsFromUser(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills());
+//        for (String newSkill: skillUserDto.getSkills()){
+//            Skill skill = skillRepository.getSkillByIdAndCategory(categoryId, newSkill);
+//            if (skill != null) {
+//                skillRepository.removeSkillsFromUser(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills());
+//            }
+//        }
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+
     }
 }
