@@ -48,4 +48,12 @@ public class SkillController extends ResponseController {
         logger.info("HIT - DELETE | deleteSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {}", userId,  categoryId);
         return sendResponse(skillService.deleteSkill(userId, categoryId, skillId));
     }
+
+    @ApiOperation(value = "Update a Skill", notes = "Update a  Skill")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{categoryId}/skill/{skillId}")
+    public ResponseEntity<Object> updateSkill(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @PathVariable("skillId") String skillId, @Valid @RequestBody SkillDto skillDto){
+        logger.info("HIT - PUT | updateSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {} | skillDto : {}", userId,  categoryId, skillDto);
+        return sendResponse(skillService.updateSkill(userId, categoryId, skillId, skillDto));
+    }
 }

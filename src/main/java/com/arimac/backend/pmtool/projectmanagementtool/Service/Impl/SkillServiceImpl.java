@@ -77,4 +77,21 @@ public class SkillServiceImpl implements SkillService {
         skillRepository.flagSkill(skillId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
+
+    @Override
+    public Object updateSkill(String userId, String categoryId, String skillId, SkillDto skillDto) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Skill skill = skillRepository.getSkillByIdAndCategory(categoryId, skillId);
+        if (skill == null)
+            return new ErrorMessage(ResponseMessage.SKILL_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (skillRepository.getSkillByNameAndCategory(categoryId, skillDto.getSkillName()) != null)
+                return new ErrorMessage(ResponseMessage.SKILL_NAME_EXIST, HttpStatus.CONFLICT);
+        skillRepository.updateSkill(skillDto, skillId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
 }

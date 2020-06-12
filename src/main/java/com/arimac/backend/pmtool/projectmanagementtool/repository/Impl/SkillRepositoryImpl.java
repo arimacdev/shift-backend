@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SkillRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -62,5 +63,11 @@ public class SkillRepositoryImpl implements SkillRepository {
     public void flagSkill(String skillId) {
         String sql = "UPDATE Skill SET isDeleted=? WHERE skillId=?";
         jdbcTemplate.update(sql, true, skillId);
+    }
+
+    @Override
+    public void updateSkill(SkillDto skillDto, String skillId) {
+        String sql = "UPDATE Skill SET skillName=? WHERE skillId=?";
+        jdbcTemplate.update(sql, skillDto.getSkillName(), skillId);
     }
 }
