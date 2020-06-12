@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
 import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 
@@ -17,5 +18,5 @@ public interface SkillRepository {
     void addSkillToUser(UserSkill userSkill);
     boolean checkIfSkillAdded(String userId, String categoryId, Set<String> skills);
     void removeSkillsFromUser(String userId, String categoryId, Set<String> skills);
-
+    List<SkillUserResponseDto> getAllUserSkillMap(String userId);
 }

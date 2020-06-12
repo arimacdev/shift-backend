@@ -10,6 +10,5 @@ public interface SkillService {
     Object updateSkill(String userId, String categoryId, String skillId, SkillDto skillDto);
     Object addSkillsToUser(String userId, String categoryId,  SkillUserDto skillUserDto);
     Object deleteSkillsFromUser(String userId, String categoryId,  SkillUserDto skillUserDto);
-
-
+    Object getAllUserSkillMap(String userId, String assignee);
 }

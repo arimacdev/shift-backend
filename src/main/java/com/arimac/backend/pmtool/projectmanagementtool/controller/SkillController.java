@@ -73,4 +73,12 @@ public class SkillController extends ResponseController {
         logger.info("HIT - PUT | updateSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {} | skillUserDto : {}", userId,  categoryId, skillUserDto);
         return sendResponse(skillService.deleteSkillsFromUser(userId, categoryId, skillUserDto));
     }
+
+    @ApiOperation(value = "Add Skills a User", notes = "Add Skills a User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/user/{assignee}/skillmap")
+    public ResponseEntity<Object> getAllUserSkills(@RequestHeader("userId") String userId, @PathVariable("assignee") String assignee){
+        logger.info("HIT - GET | getAllUserSkills /category/user/<assignee>/skillmap| userId: {} | assignee: {} ", userId, assignee);
+        return sendResponse(skillService.getAllUserSkillMap(userId, assignee));
+    }
 }

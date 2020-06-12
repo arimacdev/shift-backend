@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SkillService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Category;
@@ -16,6 +17,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SkillServiceImpl implements SkillService {
@@ -137,14 +140,22 @@ public class SkillServiceImpl implements SkillService {
         if (!skillRepository.checkIfSkillAdded(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills()))
             return new ErrorMessage(ResponseMessage.SKILL_NOT_ADDED, HttpStatus.NOT_FOUND);
         skillRepository.removeSkillsFromUser(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills());
-//        for (String newSkill: skillUserDto.getSkills()){
-//            Skill skill = skillRepository.getSkillByIdAndCategory(categoryId, newSkill);
-//            if (skill != null) {
-//                skillRepository.removeSkillsFromUser(skillUserDto.getAssigneeId(), categoryId, skillUserDto.getSkills());
-//            }
-//        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
 
     }
+
+    @Override
+    public Object getAllUserSkillMap(String userId, String assignee) {
+        User assigner = userRepository.getUserByUserId(userId);
+        if (assigner == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User assigneeUser = userRepository.getUserByUserId(assignee);
+        if (assigneeUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userSkillList);
+    }
+
+
 }

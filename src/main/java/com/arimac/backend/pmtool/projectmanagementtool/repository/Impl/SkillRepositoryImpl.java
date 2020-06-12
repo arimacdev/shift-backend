@@ -1,7 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Category;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
 import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SkillRepository;
@@ -112,6 +114,16 @@ public class SkillRepositoryImpl implements SkillRepository {
         parameters.addValue("userId", userId);
         try {
             namedParameterJdbcTemplate.update(sql, parameters);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SkillUserResponseDto> getAllUserSkillMap(String userId) {
+        String sql = "SELECT * FROM UserSkill AS US INNER JOIN Category as C ON C.categoryId = US.categoryId INNER JOIN Skill AS S ON S.skillId = US.skillId WHERE US.userId=? AND C.isDeleted=false AND S.isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new SkillUserResponseDto(), userId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
