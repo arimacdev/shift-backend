@@ -1,13 +1,16 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
@@ -17,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Service
@@ -28,13 +32,15 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String OWNER = "Owner";
 
     private final TaskService taskService;
+    private final ActivityLogService activityLogService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TaskService taskService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository,  UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
         this.taskService = taskService;
+        this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
@@ -65,6 +71,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
         projectRepository.createProject(project);
+        activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 
         Project_User assignment = new Project_User();
         assignment.setProjectId(projectId);
@@ -139,8 +146,12 @@ public class ProjectServiceImpl implements ProjectService {
             assignment.setIsBlocked(false);
 
             projectRepository.assignUserToProject(projectId,assignment);
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userAssignDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ADD_USER, null, userAssignDto.getAssigneeId()));
+
         } else if (project_user.getIsBlocked()){
                 projectRepository.blockOrUnBlockProjectUser(userAssignDto.getAssigneeId(), projectId, false);
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userAssignDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ADD_USER, null, userAssignDto.getAssigneeId()));
+
         } else if (!project_user.getIsBlocked()){
             return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -159,30 +170,40 @@ public class ProjectServiceImpl implements ProjectService {
         Project updatedProject = new Project();
         if (projectEditDto.getProjectName() != null && !projectEditDto.getProjectName().isEmpty()){
             updatedProject.setProjectName(projectEditDto.getProjectName());
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.PROJECT_NAME, modifierProject.getProjectName(), projectEditDto.getProjectName()));
         } else {
             updatedProject.setProjectName(modifierProject.getProjectName());
         }
         if (projectEditDto.getClientId() != null && !projectEditDto.getClientId().isEmpty()){
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.CLIENT, modifierProject.getClientId(), projectEditDto.getClientId()));
             updatedProject.setClientId(projectEditDto.getClientId());
         } else {
             updatedProject.setClientId(modifierProject.getClientId());
         }
         if (projectEditDto.getProjectStatus() != null && !projectEditDto.getProjectStatus().isEmpty()){
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.STATUS, modifierProject.getProjectStatus(), projectEditDto.getProjectStatus()));
             updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(projectEditDto.getProjectStatus()));
         } else {
             updatedProject.setProjectStatus(ProjectStatusEnum.valueOf(modifierProject.getProjectStatus()));
         }
         if (projectEditDto.getProjectStartDate() != null){
+            String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(modifierProject.getProjectStartDate());
+            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectEndDate());
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.START_DATE, previousDate, updatedDate));
             updatedProject.setProjectStartDate(projectEditDto.getProjectStartDate());
         } else {
             updatedProject.setProjectStartDate(modifierProject.getProjectStartDate());
         }
         if (projectEditDto.getProjectEndDate() != null){
+            String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(modifierProject.getProjectEndDate());
+            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectEndDate());
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.END_DATE, previousDate, updatedDate));
             updatedProject.setProjectEndDate(projectEditDto.getProjectEndDate());
         } else {
             updatedProject.setProjectEndDate(modifierProject.getProjectEndDate());
         }
         if (projectEditDto.getProjectAlias() != null && !projectEditDto.getProjectAlias().isEmpty()){
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.PROJECT_ALIAS, modifierProject.getProjectAlias(), projectEditDto.getProjectAlias()));
             updatedProject.setProjectAlias(projectEditDto.getProjectAlias());
         } else {
             updatedProject.setProjectAlias(modifierProject.getProjectAlias());
@@ -217,8 +238,8 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssigneeProjectRole(updateDto.getAssigneeProjectRole());
 
         projectRepository.updateAssigneeProjectRole(assignment);
-
-        return new Response(ResponseMessage.SUCCESS);
+       // activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, updateDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.ROLE_UPDATE, String.valueOf(assigneeProject.getAssigneeProjectRole()), String.valueOf(updateDto.getAssigneeProjectRole())));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
 
     }
 
@@ -235,6 +256,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (assignee.equals(deleteDto.getAssignerId()))
             return new ErrorMessage("You can't remove yourself from the project", HttpStatus.UNAUTHORIZED);
         projectRepository.removeProjectAssignee(projectId, assignee);
+        activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, deleteDto.getAssignerId(), projectId, ProjectUpdateTypeEnum.REMOVE_USER, assignee, null));
 
         return new Response(ResponseMessage.SUCCESS);
     }
@@ -251,6 +273,8 @@ public class ProjectServiceImpl implements ProjectService {
             for(Task task : taskList) {
                 taskService.flagProjectTask(userId, projectId, task.getTaskId());
             }
+        activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.FLAG, userId, projectId));
+        activityLogService.flagEntityActivityLogs(projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -269,7 +293,10 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectUserBlockDto.getExecutorId().equals(projectUserBlockDto.getBlockedUserId()))
             return new ErrorMessage("You can't block/unblock yourself", HttpStatus.UNAUTHORIZED);
          projectRepository.blockOrUnBlockProjectUser(projectUserBlockDto.getBlockedUserId(), projectId, projectUserBlockDto.getBlockedStatus());
-
-         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        if (projectUserBlockDto.getBlockedStatus())
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.REMOVE_USER, projectUserBlockDto.getBlockedUserId(), null));
+        else
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.ADD_USER, null, projectUserBlockDto.getBlockedUserId()));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

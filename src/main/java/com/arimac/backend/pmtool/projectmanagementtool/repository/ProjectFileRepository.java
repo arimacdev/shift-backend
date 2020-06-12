@@ -10,4 +10,5 @@ public interface ProjectFileRepository {
     List<ProjectFileResponseDto> getAllProjectFiles(String projectId);
     void flagProjectFile(String projectFileId);
     ProjectFile getProjectFile(String projectFile);
+    ProjectFile getProjectFileWithFlag(String projectFile);
 }

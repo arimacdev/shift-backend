@@ -12,6 +12,7 @@ public interface UserRepository {
     Object createUser(User user);
     List<User> getAllUsers();
     User getUserByUserId(String userId);
+    User getUserWithFlag(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
     void updateProfilePicture(String userId, String profilePictureUrl);
     List<User> getAllProjectUsers(String projectId);

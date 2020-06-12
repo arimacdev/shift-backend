@@ -10,6 +10,7 @@ import java.util.List;
 public interface ProjectRepository {
     Project createProject(Project project);
     Project getProjectById(String projectId);
+    List<String> getProjectTaskIds(String projectId);
     ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId);
     Project_User getProjectUser(String projectId, String userId);
     List<ProjectUserResponseDto> getAllProjectsByUser(String userId);
