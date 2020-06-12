@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SkillService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -55,5 +56,13 @@ public class SkillController extends ResponseController {
     public ResponseEntity<Object> updateSkill(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @PathVariable("skillId") String skillId, @Valid @RequestBody SkillDto skillDto){
         logger.info("HIT - PUT | updateSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {} | skillDto : {}", userId,  categoryId, skillDto);
         return sendResponse(skillService.updateSkill(userId, categoryId, skillId, skillDto));
+    }
+
+    @ApiOperation(value = "Add Skills a User", notes = "Add Skills a User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/{categoryId}/skill/{skillId}")
+    public ResponseEntity<Object> addSkillsToUser(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @PathVariable("skillId") String skillId, @Valid @RequestBody SkillUserDto skillUserDto){
+        logger.info("HIT - PUT | updateSkill /category/<categoryId>/skill/<skillId> | userId: {} |  categoryId: {} | skillUserDto : {}", userId,  categoryId, skillUserDto);
+        return sendResponse(skillService.addSkillsToUser(userId, categoryId, skillId, skillUserDto));
     }
 }

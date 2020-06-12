@@ -3,11 +3,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SkillService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Category;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.CategoryRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SkillRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
@@ -92,6 +94,30 @@ public class SkillServiceImpl implements SkillService {
         if (skillRepository.getSkillByNameAndCategory(categoryId, skillDto.getSkillName()) != null)
                 return new ErrorMessage(ResponseMessage.SKILL_NAME_EXIST, HttpStatus.CONFLICT);
         skillRepository.updateSkill(skillDto, skillId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object addSkillsToUser(String userId, String categoryId, String skillId, SkillUserDto skillUserDto) {
+        User assigner = userRepository.getUserByUserId(userId);
+        if (assigner == null)
+            return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User assignee = userRepository.getUserByUserId(skillUserDto.getAssigneeId());
+        if (assignee == null)
+            return new ErrorMessage(ResponseMessage.ASSIGNEE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Category category = categoryRepository.getCategoryById(categoryId);
+        if (category == null)
+            return new ErrorMessage(ResponseMessage.CATEGORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+        UserSkill userSkill = new UserSkill();
+        userSkill.setCategoryId(categoryId);
+        userSkill.setUserId(skillUserDto.getAssigneeId());
+        for (String newSkill: skillUserDto.getSkills()){
+            Skill skill = skillRepository.getSkillByIdAndCategory(categoryId, newSkill);
+            if (skill != null) {
+                userSkill.setSkillId(newSkill);
+                skillRepository.addSkillToUser(userSkill);
+            }
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

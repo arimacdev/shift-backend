@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
+import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 
 import java.util.List;
 
@@ -12,5 +13,6 @@ public interface SkillRepository {
     Skill getSkillByIdAndCategory(String categoryId, String skillId);
     void flagSkill(String skillId);
     void updateSkill(SkillDto skillDto, String skillId);
+    void addSkillToUser(UserSkill userSkill);
 
 }

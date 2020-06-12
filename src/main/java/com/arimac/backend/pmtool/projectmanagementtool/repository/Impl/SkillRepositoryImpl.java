@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Skill;
+import com.arimac.backend.pmtool.projectmanagementtool.model.UserSkill;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SkillRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -69,5 +70,17 @@ public class SkillRepositoryImpl implements SkillRepository {
     public void updateSkill(SkillDto skillDto, String skillId) {
         String sql = "UPDATE Skill SET skillName=? WHERE skillId=?";
         jdbcTemplate.update(sql, skillDto.getSkillName(), skillId);
+    }
+
+    @Override
+    public void addSkillToUser(UserSkill userSkill) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO UserSkill (userId, categoryId, skillId) VALUES (?,?,?)");
+            preparedStatement.setString(1, userSkill.getUserId());
+            preparedStatement.setString(2, userSkill.getCategoryId());
+            preparedStatement.setString(3, userSkill.getSkillId());
+
+            return preparedStatement;
+        });
     }
 }
