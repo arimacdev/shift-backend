@@ -203,6 +203,8 @@ public class ProjectServiceImpl implements ProjectService {
             updatedProject.setProjectEndDate(modifierProject.getProjectEndDate());
         }
         if (projectEditDto.getProjectAlias() != null && !projectEditDto.getProjectAlias().isEmpty()){
+            if (projectRepository.checkProjectAlias(projectEditDto.getProjectAlias()))
+                return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.CONFLICT);
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.PROJECT_ALIAS, modifierProject.getProjectAlias(), projectEditDto.getProjectAlias()));
             updatedProject.setProjectAlias(projectEditDto.getProjectAlias());
         } else {
