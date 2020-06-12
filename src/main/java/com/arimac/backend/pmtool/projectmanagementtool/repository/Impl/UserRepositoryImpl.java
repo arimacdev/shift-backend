@@ -48,13 +48,18 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User getUserByUserId(String userId) {
-        String sql = "SELECT * FROM User WHERE userId=?";
+        String sql = "SELECT * FROM User WHERE userId=? AND isActive=true";
         User user = null;
         try {
             user = jdbcTemplate.queryForObject(sql,new User(), userId);
         } catch (EmptyResultDataAccessException e){
         }
         return user;
+    }
+
+    @Override
+    public User getUserWithFlag(String userId) {
+        return null;
     }
 
     @Override

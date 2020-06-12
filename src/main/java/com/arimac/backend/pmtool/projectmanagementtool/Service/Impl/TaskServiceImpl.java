@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
@@ -10,6 +11,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpd
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -25,7 +29,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -57,8 +60,9 @@ public class TaskServiceImpl implements TaskService {
     private final NotificationRepository notificationRepository;
     private final TaskGroupRepository taskGroupRepository;
     private final SprintRepository sprintRepository;
+    private final ActivityLogService activityLogService;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, ActivityLogService activityLogService) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -69,6 +73,7 @@ public class TaskServiceImpl implements TaskService {
         this.notificationRepository = notificationRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.sprintRepository = sprintRepository;
+        this.activityLogService = activityLogService;
     }
 
     //TASK GROUP && PROJECT
@@ -80,7 +85,7 @@ public class TaskServiceImpl implements TaskService {
             ProjectUserResponseDto taskInitiator = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
             if (taskInitiator == null)
                 return new ErrorMessage(ResponseMessage.ASSIGNER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-            ProjectUserResponseDto taskAssignee = null;
+            ProjectUserResponseDto taskAssignee;
             if (taskDto.getTaskAssignee() != null) {
                 taskAssignee = projectRepository.getProjectByIdAndUserId(projectId, taskDto.getTaskInitiator());
                 if (taskAssignee == null)
@@ -146,28 +151,11 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.addTaskToProject(task);
         projectRepository.updateIssueCount(projectId, issueId);
         if (task.getTaskDueDateAt()!= null) {
-//            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
-//            DateTime now = DateTime.now();
-//            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-//            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-//            Duration duration = new Duration(nowCol, dueUtc);
-//            int difference = (int) duration.getStandardMinutes();
-//            int timeFixDifference = difference - 330;
-//            Notification notification = new Notification();
-//            notification.setNotificationId(utilsService.getUUId());
-//            notification.setTaskId(task.getTaskId());
-//            notification.setAssigneeId(task.getTaskAssignee());
-//            notification.setTaskDueDateAt(task.getTaskDueDateAt());
-//            if (timeFixDifference < 1440) {
-//                notification.setDaily(true);
-//            } else {
-//                notification.setDaily(false);
-//            }
-//            notification.setHourly(false);
             notificationRepository.addTaskNotification(setNotification(task, task.getTaskDueDateAt()));
         }
         CompletableFuture.runAsync(()-> {
             notificationService.sendTaskAssignNotification(task);
+            activityLogService.addTaskLog(utilsService.addTaskAddorFlagLog(LogOperationEnum.CREATE, taskDto.getTaskInitiator(), task.getTaskId()));
         });
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task);
     }
@@ -299,49 +287,46 @@ public class TaskServiceImpl implements TaskService {
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
         if (taskUpdateDto.getTaskAssignee() != null) {
-//            CompletableFuture.runAsync(()-> {
+            CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
-//            });
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ASSIGNEE, task.getTaskAssignee(), taskUpdateDto.getTaskAssignee()));
+            });
         }
         if (taskUpdateDto.getTaskStatus() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_STATUS, task.getTaskStatus().toString(), taskUpdateDto.getTaskStatus().toString()));
+
+            });
+        }
+        if (taskUpdateDto.getIssueType() !=null){
+            CompletableFuture.runAsync(() -> {
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ISSUE_TYPE, task.getIssueType().toString(), taskUpdateDto.getIssueType().toString()));
             });
         }
         if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NAME, task.getTaskName(), taskUpdateDto.getTaskName()));
             });
         }
         if (taskUpdateDto.getTaskNotes() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
             });
         }
         if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
+                String previousDate = null;
+                if (task.getTaskDueDateAt() != null)
+                previousDate =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(task.getTaskDueDateAt());
+                String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(taskUpdateDto.getTaskDueDate());
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.DUE_DATE, previousDate, updatedDate));
             });
             Notification taskNotification = notificationRepository.getNotificationByTaskId(taskId);
             if (taskNotification != null) notificationRepository.deleteNotification(taskId);
-//            DateTime duedate = new DateTime(task.getTaskDueDateAt().getTime());
-//            DateTime now = DateTime.now();
-//            DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-//            DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-//            Duration duration = new Duration(nowCol, dueUtc);
-//            int difference = (int) duration.getStandardMinutes();
-//            int timeFixDifference = difference - 330;
-//            Notification notification = new Notification();
-//            notification.setNotificationId(utilsService.getUUId());
-//            notification.setTaskId(task.getTaskId());
-//            notification.setAssigneeId(task.getTaskAssignee());
-//            notification.setTaskDueDateAt(task.getTaskDueDateAt());
-//            if (timeFixDifference < 1440) {
-//                notification.setDaily(true);
-//            } else {
-//                notification.setDaily(false);
-//            }
-//            notification.setHourly(false);
             notificationRepository.addTaskNotification(setNotification(task, updateDto.getTaskDueDate()));
         }
          return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, updateTask);
@@ -390,6 +375,9 @@ public class TaskServiceImpl implements TaskService {
         }
         CompletableFuture.runAsync(()-> {
             notificationService.sendTaskDeleteNotification(task,  userId);
+            activityLogService.addTaskLog(utilsService.addTaskAddorFlagLog(LogOperationEnum.FLAG, userId, task.getTaskId()));
+            activityLogService.flagEntityActivityLogs(taskId);
+
         });
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
@@ -693,11 +681,13 @@ public class TaskServiceImpl implements TaskService {
                 return new ErrorMessage(ResponseMessage.SPRINT_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         taskRepository.updateProjectTaskSprint(taskId, taskSprintUpdateDto);
+        activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_SPRINT, taskSprintUpdateDto.getPreviousSprint(), taskSprintUpdateDto.getNewSprint()));
         List<Task> children = taskRepository.getAllChildrenOfParentTask(taskId);
         for (Task child : children){
             TaskSprintUpdateDto childSprint = new TaskSprintUpdateDto();
             childSprint.setNewSprint(taskSprintUpdateDto.getNewSprint());
             taskRepository.updateProjectTaskSprint(child.getTaskId(), childSprint);
+            activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, child.getTaskId(), TaskUpdateTypeEnum.TASK_SPRINT, child.getSprintId(), taskSprintUpdateDto.getNewSprint()));
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskSprintUpdateDto);
     }
