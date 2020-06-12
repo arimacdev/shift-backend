@@ -12,16 +12,18 @@ public class Category implements RowMapper<Category> {
     private String categoryCreator;
     private Timestamp categoryCreatedAt;
     private boolean isDeleted;
+    private String categoryColorCode;
 
     public Category() {
     }
 
-    public Category(String categoryId, String categoryName, String categoryCreator, Timestamp categoryCreatedAt, boolean isDeleted) {
+    public Category(String categoryId, String categoryName, String categoryCreator, Timestamp categoryCreatedAt, boolean isDeleted, String categoryColorCode) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.categoryCreator = categoryCreator;
         this.categoryCreatedAt = categoryCreatedAt;
         this.isDeleted = isDeleted;
+        this.categoryColorCode = categoryColorCode;
     }
 
     public String getCategoryId() {
@@ -64,6 +66,14 @@ public class Category implements RowMapper<Category> {
         isDeleted = deleted;
     }
 
+    public String getCategoryColorCode() {
+        return categoryColorCode;
+    }
+
+    public void setCategoryColorCode(String categoryColorCode) {
+        this.categoryColorCode = categoryColorCode;
+    }
+
     @Override
     public Category mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Category(
@@ -71,7 +81,8 @@ public class Category implements RowMapper<Category> {
                 resultSet.getString("categoryName"),
                 resultSet.getString("categoryCreator"),
                 resultSet.getTimestamp("categoryCreatedAt"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                resultSet.getString("categoryColorCode")
         );
     }
 }

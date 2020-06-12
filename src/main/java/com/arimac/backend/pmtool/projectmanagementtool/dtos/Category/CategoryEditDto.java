@@ -1,14 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Category;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
 
-public class CategoryDto {
-    @NotEmpty(message = "Provide a Category Name")
+public class CategoryEditDto {
     private String categoryName;
-    @NotEmpty
     private String categoryColorCode;
 
 

@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.CategoryService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Category.CategoryEditDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -52,9 +53,9 @@ public class CategoryController extends ResponseController {
     @ApiOperation(value = "Update Category By Id", notes = "Get All Categories")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Object> updateCategory(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @RequestBody CategoryDto categoryDto){
+    public ResponseEntity<Object> updateCategory(@RequestHeader("userId") String userId, @PathVariable("categoryId") String categoryId, @RequestBody CategoryEditDto categoryEditDto){
         logger.info("HIT - PUT | updateCategory /skill/category/<categoryId> | userId: {} | categoryId: {}", userId,categoryId);
-        return sendResponse(categoryService.updateCategory(userId, categoryId, categoryDto));
+        return sendResponse(categoryService.updateCategory(userId, categoryId, categoryEditDto));
     }
 
     @ApiOperation(value = "Delete Category", notes = "Get All Categories")

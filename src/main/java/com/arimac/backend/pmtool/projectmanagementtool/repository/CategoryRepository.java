@@ -10,6 +10,6 @@ public interface CategoryRepository {
     Category getCategoryByName(String categoryName);
     List<Category> getAllCategory();
     Category getCategoryById(String categoryId);
-    void updateCategory(String categoryId, CategoryDto categoryDto);
+    void updateCategory(String categoryId, Category category);
     void flagCategory(String categoryId);
 }

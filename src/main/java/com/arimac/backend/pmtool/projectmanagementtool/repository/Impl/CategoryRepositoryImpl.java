@@ -22,12 +22,13 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Override
     public void createCategory(Category category) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Category (categoryId, categoryName, categoryCreator, categoryCreatedAt, isDeleted) VALUES(?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Category (categoryId, categoryName, categoryCreator, categoryCreatedAt, isDeleted, categoryColorCode) VALUES(?,?,?,?,?,?)");
             preparedStatement.setString(1, category.getCategoryId());
             preparedStatement.setString(2, category.getCategoryName());
             preparedStatement.setString(3, category.getCategoryCreator());
             preparedStatement.setTimestamp(4, category.getCategoryCreatedAt());
             preparedStatement.setBoolean(5, category.getIsDeleted());
+            preparedStatement.setString(6, category.getCategoryColorCode());
 
             return preparedStatement;
         });
@@ -50,9 +51,9 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public void updateCategory(String categoryId, CategoryDto categoryDto) {
-        String sql = "UPDATE Category SET categoryName=? WHERE categoryId=?";
-        jdbcTemplate.update(sql, categoryDto.getCategoryName(), categoryId);
+    public void updateCategory(String categoryId, Category category) {
+        String sql = "UPDATE Category SET categoryName=?, categoryColorCode=? WHERE categoryId=?";
+        jdbcTemplate.update(sql, category.getCategoryName(), category.getCategoryColorCode(), categoryId);
     }
 
     @Override
