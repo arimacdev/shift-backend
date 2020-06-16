@@ -154,34 +154,34 @@ public class SkillServiceImpl implements SkillService {
         User assigneeUser = userRepository.getUserByUserId(assignee);
         if (assigneeUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Map<String,SkillCategory> skillMatrix = new HashMap<>();
         List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
-        for (SkillCategoryDto categorySkill: categorySkillList){
-            if (skillMatrix.get(categorySkill.getCategoryId())!= null){
-                SkillCategory skillCategory = skillMatrix.get(categorySkill.getCategoryId());
-                List<CategorySkill> skills = skillCategory.getSkillSet();
-                CategorySkill skill = new CategorySkill();
-                skill.setSkillId(categorySkill.getSkillId());
-                skill.setSkillName(categorySkill.getSkillName());
-                skill.setIsAssigned(false);
-                skills.add(skill);
-                skillCategory.setSkillSet(skills);
-                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
-            } else {
-                SkillCategory skillCategory = new SkillCategory();
-                skillCategory.setCategoryId(categorySkill.getCategoryId());
-                skillCategory.setCategoryName(categorySkill.getCategoryName());
-                skillCategory.setCategoryColorCode(categorySkill.getCategoryColorCode());
-                List<CategorySkill> skillSet = new ArrayList<>();
-                CategorySkill skill = new CategorySkill();
-                skill.setSkillId(categorySkill.getSkillId());
-                skill.setIsAssigned(false);
-                skill.setSkillName(categorySkill.getSkillName());
-                skillSet.add(skill);
-                skillCategory.setSkillSet(skillSet);
-                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
-            }
-        }
+        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList);
+//        for (SkillCategoryDto categorySkill: categorySkillList){
+//            if (skillMatrix.get(categorySkill.getCategoryId())!= null){
+//                SkillCategory skillCategory = skillMatrix.get(categorySkill.getCategoryId());
+//                List<CategorySkill> skills = skillCategory.getSkillSet();
+//                CategorySkill skill = new CategorySkill();
+//                skill.setSkillId(categorySkill.getSkillId());
+//                skill.setSkillName(categorySkill.getSkillName());
+//                skill.setIsAssigned(false);
+//                skills.add(skill);
+//                skillCategory.setSkillSet(skills);
+//                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
+//            } else {
+//                SkillCategory skillCategory = new SkillCategory();
+//                skillCategory.setCategoryId(categorySkill.getCategoryId());
+//                skillCategory.setCategoryName(categorySkill.getCategoryName());
+//                skillCategory.setCategoryColorCode(categorySkill.getCategoryColorCode());
+//                List<CategorySkill> skillSet = new ArrayList<>();
+//                CategorySkill skill = new CategorySkill();
+//                skill.setSkillId(categorySkill.getSkillId());
+//                skill.setIsAssigned(false);
+//                skill.setSkillName(categorySkill.getSkillName());
+//                skillSet.add(skill);
+//                skillCategory.setSkillSet(skillSet);
+//                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
+//            }
+//        }
 
         //List<SkillCategory> skillCategoryList = new ArrayList<>(skillMatrix.values());
 
@@ -215,14 +215,6 @@ public class SkillServiceImpl implements SkillService {
             skillMapUserResponse.setCategory(skillCategoryList1);
             skillMapUserResponseList.add(skillMapUserResponse);
         }
-
-//        List<Map<String, SkillCategory>> skillCategoryList1 = new ArrayList<>(userSkillMap.values());
-//        SkillMapUserResponse skillMapUserResponse = new SkillMapUserResponse();
-//        List<SkillCategory> skillist = new ArrayList<>(userSkillCategory1.values());
-//        skillMapUserResponse.setUserId("LK");
-//        skillMapUserResponse.setCategory(skillist);
-//        skillMapUserResponseList.add(skillMapUserResponse);
-
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMapUserResponseList);
     }
 
@@ -263,5 +255,49 @@ public class SkillServiceImpl implements SkillService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillsResponse);
     }
 
+    @Override
+    public Object getCategorySkillMapping(String userId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
+        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMatrix);
+
+    }
+
+
+    private Map<String, SkillCategory> getSkillMatrix(List<SkillCategoryDto> categorySkillList){
+        Map<String,SkillCategory> skillMatrix = new HashMap<>();
+        for (SkillCategoryDto categorySkill: categorySkillList){
+            if (skillMatrix.get(categorySkill.getCategoryId())!= null){
+                SkillCategory skillCategory = skillMatrix.get(categorySkill.getCategoryId());
+                List<CategorySkill> skills = skillCategory.getSkillSet();
+                CategorySkill skill = new CategorySkill();
+                skill.setSkillId(categorySkill.getSkillId());
+                skill.setSkillName(categorySkill.getSkillName());
+                skill.setIsAssigned(false);
+                skills.add(skill);
+                skillCategory.setSkillSet(skills);
+                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
+            } else {
+                SkillCategory skillCategory = new SkillCategory();
+                skillCategory.setCategoryId(categorySkill.getCategoryId());
+                skillCategory.setCategoryName(categorySkill.getCategoryName());
+                skillCategory.setCategoryColorCode(categorySkill.getCategoryColorCode());
+                List<CategorySkill> skillSet = new ArrayList<>();
+                CategorySkill skill = new CategorySkill();
+                skill.setSkillId(categorySkill.getSkillId());
+                skill.setIsAssigned(false);
+                skill.setSkillName(categorySkill.getSkillName());
+                skillSet.add(skill);
+                skillCategory.setSkillSet(skillSet);
+                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
+            }
+        }
+
+        return skillMatrix;
+    }
 
 }

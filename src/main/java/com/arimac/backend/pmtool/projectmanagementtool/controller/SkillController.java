@@ -90,5 +90,14 @@ public class SkillController extends ResponseController {
         return sendResponse(skillService.getAllUserMatchingSkills(userId, assignee));
     }
 
+    @ApiOperation(value = "Get Category/Skill Mapping", notes = "Get Category/Skill Mapping")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/skill/mapping")
+    public ResponseEntity<Object> getCategorySkillMapping(@RequestHeader("userId") String userId){
+        logger.info("HIT - GET | getAllUserMatchingSkills /category/skill/mapping| userId: {}" , userId);
+        return sendResponse(skillService.getCategorySkillMapping(userId));
+    }
+
+
 
 }
