@@ -2,9 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SkillService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Category;
@@ -18,7 +16,10 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SkillServiceImpl implements SkillService {
@@ -153,8 +154,76 @@ public class SkillServiceImpl implements SkillService {
         User assigneeUser = userRepository.getUserByUserId(assignee);
         if (assigneeUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Map<String,SkillCategory> skillMatrix = new HashMap<>();
+        List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
+        for (SkillCategoryDto categorySkill: categorySkillList){
+            if (skillMatrix.get(categorySkill.getCategoryId())!= null){
+                SkillCategory skillCategory = skillMatrix.get(categorySkill.getCategoryId());
+                List<CategorySkill> skills = skillCategory.getSkillSet();
+                CategorySkill skill = new CategorySkill();
+                skill.setSkillId(categorySkill.getSkillId());
+                skill.setSkillName(categorySkill.getSkillName());
+                skill.setIsAssigned(false);
+                skills.add(skill);
+                skillCategory.setSkillSet(skills);
+                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
+            } else {
+                SkillCategory skillCategory = new SkillCategory();
+                skillCategory.setCategoryId(categorySkill.getCategoryId());
+                skillCategory.setCategoryName(categorySkill.getCategoryName());
+                skillCategory.setCategoryColorCode(categorySkill.getCategoryColorCode());
+                List<CategorySkill> skillSet = new ArrayList<>();
+                CategorySkill skill = new CategorySkill();
+                skill.setSkillId(categorySkill.getSkillId());
+                skill.setIsAssigned(false);
+                skill.setSkillName(categorySkill.getSkillName());
+                skillSet.add(skill);
+                skillCategory.setSkillSet(skillSet);
+                skillMatrix.put(categorySkill.getCategoryId(), skillCategory);
+            }
+        }
+
+        List<SkillCategory> skillCategoryList = new ArrayList<>(skillMatrix.values());
+
+        List<SkillMapUserResponse> skillMapUserResponseList = new ArrayList<>();
         List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userSkillList);
+        //Map<String, List<SkillCategory>> userSkillMap = new HashMap<>();
+        Map<String, Map<String, SkillCategory>> userSkillMap = new HashMap<>();
+        Map<String, SkillCategory> userSkillCategory1 = new HashMap<>();
+        for (SkillUserResponseDto userSkill: userSkillList){
+            if (userSkillMap.get(userSkill.getUserId()) != null){
+                    Map<String, SkillCategory> userSkillCategory = userSkillMap.get(userSkill.getUserId());
+                    if (userSkillCategory.get(userSkill.getCategoryId())!= null){
+                        SkillCategory skillCategory = userSkillCategory.get(userSkill.getCategoryId());
+                        List<CategorySkill> skillSet = skillCategory.getSkillSet();
+                        for (CategorySkill skill : skillSet){
+                            if (userSkill.getSkillId().equals(skill.getSkillId())){
+                                skill.setIsAssigned(true);
+                            }
+                        }
+                    }
+            } else {
+                userSkillMap.put(userSkill.getUserId(), skillMatrix);
+            }
+
+        }
+
+        for (Map.Entry<String, Map<String,SkillCategory>> entry: userSkillMap.entrySet()){
+            SkillMapUserResponse skillMapUserResponse = new SkillMapUserResponse();
+            skillMapUserResponse.setUserId(entry.getKey());
+            List<SkillCategory> skillCategoryList1 = new ArrayList<>(entry.getValue().values());
+            skillMapUserResponse.setCategory(skillCategoryList1);
+            skillMapUserResponseList.add(skillMapUserResponse);
+        }
+
+        //List<Map<String, SkillCategory>> skillCategoryList1 = new ArrayList<>(userSkillMap.values());
+//        SkillMapUserResponse skillMapUserResponse = new SkillMapUserResponse();
+//        List<SkillCategory> skillist = new ArrayList<>(userSkillCategory1.values());
+//        skillMapUserResponse.setUserId("LK");
+//        skillMapUserResponse.setCategory(skillist);
+//        skillMapUserResponseList.add(skillMapUserResponse);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMapUserResponseList);
     }
 
 

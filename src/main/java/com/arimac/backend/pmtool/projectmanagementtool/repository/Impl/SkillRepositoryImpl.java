@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillCategoryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
@@ -121,9 +122,28 @@ public class SkillRepositoryImpl implements SkillRepository {
 
     @Override
     public List<SkillUserResponseDto> getAllUserSkillMap(String userId) {
-        String sql = "SELECT * FROM UserSkill AS US INNER JOIN Category as C ON C.categoryId = US.categoryId INNER JOIN Skill AS S ON S.skillId = US.skillId WHERE US.userId=? AND C.isDeleted=false AND S.isDeleted=false";
+//        String sql = "SELECT * FROM UserSkill AS US INNER JOIN Category as C " +
+//                "ON C.categoryId = US.categoryId " +
+//                "INNER JOIN Skill AS S ON S.skillId = US.skillId " +
+//                "WHERE US.userId=? AND C.isDeleted=false AND S.isDeleted=false";
+//        String sql = "SELECT * FROM Category AS C LEFT JOIN UserSkill as US " +
+//                "ON C.categoryId = US.categoryId AND US.userId=? " +
+//                "LEFT JOIN Skill AS S ON S.skillId = US.skillId " +
+//                "WHERE (C.isDeleted = false AND (S.isDeleted = false OR S.isDeleted IS NULL))";
+        String sql = "SELECT * FROM Category AS C INNER JOIN UserSkill as US ON C.categoryId = US.categoryId AND US.userId=? INNER JOIN Skill AS S ON S.skillId = US.skillId\n" +
+                "WHERE (C.isDeleted = false AND (S.isDeleted = false OR S.isDeleted IS NULL))";
         try {
             return jdbcTemplate.query(sql, new SkillUserResponseDto(), userId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SkillCategoryDto> getSkillMatrix() {
+        String sql = "SELECT * FROM Category AS C INNER JOIN Skill AS S ON S.categoryId = C.categoryId WHERE C.isDeleted=false AND S.isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new SkillCategoryDto());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
