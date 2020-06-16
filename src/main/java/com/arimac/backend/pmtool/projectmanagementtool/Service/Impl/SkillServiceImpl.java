@@ -183,7 +183,7 @@ public class SkillServiceImpl implements SkillService {
             }
         }
 
-        List<SkillCategory> skillCategoryList = new ArrayList<>(skillMatrix.values());
+        //List<SkillCategory> skillCategoryList = new ArrayList<>(skillMatrix.values());
 
         List<SkillMapUserResponse> skillMapUserResponseList = new ArrayList<>();
         List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee);
@@ -216,7 +216,7 @@ public class SkillServiceImpl implements SkillService {
             skillMapUserResponseList.add(skillMapUserResponse);
         }
 
-        //List<Map<String, SkillCategory>> skillCategoryList1 = new ArrayList<>(userSkillMap.values());
+//        List<Map<String, SkillCategory>> skillCategoryList1 = new ArrayList<>(userSkillMap.values());
 //        SkillMapUserResponse skillMapUserResponse = new SkillMapUserResponse();
 //        List<SkillCategory> skillist = new ArrayList<>(userSkillCategory1.values());
 //        skillMapUserResponse.setUserId("LK");
@@ -224,6 +224,43 @@ public class SkillServiceImpl implements SkillService {
 //        skillMapUserResponseList.add(skillMapUserResponse);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMapUserResponseList);
+    }
+
+    @Override
+    public Object getAllUserMatchingSkills(String userId, String assignee) {
+        User assigner = userRepository.getUserByUserId(userId);
+        if (assigner == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        User assigneeUser = userRepository.getUserByUserId(assignee);
+        if (assigneeUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserMatchingSkills(userId);
+        Map<String, UserMatchingSkillsResponse> categorizedList = new HashMap<>();
+        for (SkillUserResponseDto userSkill: userSkillList){
+            if (categorizedList.get(userSkill.getCategoryId())!= null){
+                List<CategorySkill> skillSet = categorizedList.get(userSkill.getCategoryId()).getSkillSet();
+                CategorySkill categorySkill = new CategorySkill();
+                categorySkill.setSkillName(userSkill.getSkillName());
+                categorySkill.setSkillId(userSkill.getSkillId());
+                categorySkill.setIsAssigned(true);
+                skillSet.add(categorySkill);
+            } else {
+                UserMatchingSkillsResponse category = new UserMatchingSkillsResponse();
+                category.setCategoryId(userSkill.getCategoryId());
+                category.setCategoryName(userSkill.getCategoryName());
+                category.setCategoryColorCode(userSkill.getCategoryColorCode());
+                List<CategorySkill> skillSet = new ArrayList<>();
+                CategorySkill categorySkill = new CategorySkill();
+                categorySkill.setSkillName(userSkill.getSkillName());
+                categorySkill.setSkillId(userSkill.getSkillId());
+                categorySkill.setIsAssigned(true);
+                skillSet.add(categorySkill);
+                category.setSkillSet(skillSet);
+                categorizedList.put(userSkill.getCategoryId(),category);
+            }
+        }
+        List<UserMatchingSkillsResponse> skillsResponse = new ArrayList<>(categorizedList.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillsResponse);
     }
 
 

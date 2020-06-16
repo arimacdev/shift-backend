@@ -21,4 +21,5 @@ public interface SkillRepository {
     void removeSkillsFromUser(String userId, String categoryId, Set<String> skills);
     List<SkillUserResponseDto> getAllUserSkillMap(String userId);
     List<SkillCategoryDto> getSkillMatrix();
+    List<SkillUserResponseDto> getAllUserMatchingSkills(String userId);
 }

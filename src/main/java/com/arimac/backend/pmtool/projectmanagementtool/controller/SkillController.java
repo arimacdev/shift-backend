@@ -81,4 +81,14 @@ public class SkillController extends ResponseController {
         logger.info("HIT - GET | getAllUserSkills /category/user/<assignee>/skillmap| userId: {} | assignee: {} ", userId, assignee);
         return sendResponse(skillService.getAllUserSkillMap(userId, assignee));
     }
+
+    @ApiOperation(value = "Add Skills a User for User Profile", notes = "Add Skills a User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/user/{assignee}/skillmap/profile")
+    public ResponseEntity<Object> getAllUserMatchingSkills(@RequestHeader("userId") String userId, @PathVariable("assignee") String assignee){
+        logger.info("HIT - GET | getAllUserMatchingSkills /category/user/<assignee>/skillmap/profile| userId: {} | assignee: {} ", userId, assignee);
+        return sendResponse(skillService.getAllUserMatchingSkills(userId, assignee));
+    }
+
+
 }
