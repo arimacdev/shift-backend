@@ -155,7 +155,7 @@ public class SkillServiceImpl implements SkillService {
         if (assigneeUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
-        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList);
+        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, true);
 //        for (SkillCategoryDto categorySkill: categorySkillList){
 //            if (skillMatrix.get(categorySkill.getCategoryId())!= null){
 //                SkillCategory skillCategory = skillMatrix.get(categorySkill.getCategoryId());
@@ -261,14 +261,14 @@ public class SkillServiceImpl implements SkillService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
-        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList);
+        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMatrix);
 
     }
 
 
-    private Map<String, SkillCategory> getSkillMatrix(List<SkillCategoryDto> categorySkillList){
+    private Map<String, SkillCategory> getSkillMatrix(List<SkillCategoryDto> categorySkillList, boolean isAssigned){
         Map<String,SkillCategory> skillMatrix = new HashMap<>();
         for (SkillCategoryDto categorySkill: categorySkillList){
             if (skillMatrix.get(categorySkill.getCategoryId())!= null){
@@ -277,6 +277,7 @@ public class SkillServiceImpl implements SkillService {
                 CategorySkill skill = new CategorySkill();
                 skill.setSkillId(categorySkill.getSkillId());
                 skill.setSkillName(categorySkill.getSkillName());
+                if (isAssigned)
                 skill.setIsAssigned(false);
                 skills.add(skill);
                 skillCategory.setSkillSet(skills);
@@ -289,6 +290,7 @@ public class SkillServiceImpl implements SkillService {
                 List<CategorySkill> skillSet = new ArrayList<>();
                 CategorySkill skill = new CategorySkill();
                 skill.setSkillId(categorySkill.getSkillId());
+                if (isAssigned)
                 skill.setIsAssigned(false);
                 skill.setSkillName(categorySkill.getSkillName());
                 skillSet.add(skill);

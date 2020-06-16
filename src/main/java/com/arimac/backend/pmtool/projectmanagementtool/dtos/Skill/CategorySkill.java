@@ -1,5 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class CategorySkill {
     private String skillId;
     private String skillName;
