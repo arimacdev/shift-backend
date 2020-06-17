@@ -261,9 +261,9 @@ public class SkillServiceImpl implements SkillService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
-        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
+//        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMatrix);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, categorySkillList);
 
     }
 
