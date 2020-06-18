@@ -190,7 +190,7 @@ public class NotificationServiceImpl implements NotificationService {
         StringBuilder message = new StringBuilder();
         message.append(OneSignalMessages.GREETING);
         message.append(user.getFirstName());
-        message.append(",");
+        //message.append(",");
         message.append(title);
         message.append(OneSignalMessages.TASK);
         message.append(task.getTaskName());
@@ -307,91 +307,139 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskModificationNotification(Task task, TaskUpdateDto taskUpdateDto, String type, String taskEditor) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        if (user.getUserSlackId() != null && user.getNotification()){
+        List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(task.getTaskAssignee(), NotificationEnum.OneSignal.toString(), true);
+        if ((user.getUserSlackId() != null && user.getNotification()) && !oneSignalDevices.isEmpty()) {
             User editor = userRepository.getUserByUserId(taskEditor);
             Project project = projectRepository.getProjectById(task.getProjectId());
-            JSONObject payload = new JSONObject();
-            payload.put(CHANNEL, user.getUserSlackId());
-            payload.put(TEXT, SlackMessages.TASK_MODIFICATION_TITLE);
-            List<SlackBlock> blocks = new ArrayList<>();
 
-            SlackBlock headerBlock = addHeaderBlock(user.getUserSlackId(), SlackMessages.TASK_MODIFICATION_GREETING);
-            headerBlock.setAccessory(null);
-            blocks.add(headerBlock);
-            blocks.add(addDivider());
-
-            SlackBlock body = new SlackBlock();
-            body.setType(SECTION);
-            body.getText().setType(MARK_DOWN);
-            StringBuilder bodyText = new StringBuilder();
-            bodyText.append(SlackMessages.TASK_ICON);
-            bodyText.append(getTaskUrl(task));
-            body.getText().setText(bodyText.toString());
-            bodyText.append(SlackMessages.PROJECT_ICON);
-            bodyText.append(getProjectUrl(project));
-            switch (type){
-                case NAME:
-                    bodyText.append(SlackMessages.MODIFIED_NAME_ICON);
-                    bodyText.append(taskUpdateDto.getTaskName());
-                    bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
-                    bodyText.append(task.getTaskName());
-                    setNotificationThumbnail(body, SlackMessages.TASK_NAME_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NAME_THUMBNAIL);
-                 break;
-                case NOTES:
-                    bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
-                    bodyText.append(taskUpdateDto.getTaskNotes());
-                    bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
-                    if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
-                        bodyText.append("<No Previous Task Note Content>");
-                    else
-                    bodyText.append(task.getTaskNote());
-                    setNotificationThumbnail(body, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
-                 break;
-                case DUE_DATE:
-                    bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
-                    bodyText.append(getDate(taskUpdateDto.getTaskDueDate()));
-                    bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
-                    if (task.getTaskDueDateAt() == null)
-                        bodyText.append("No Previous Due Date");
-                    else
-                        bodyText.append(getDate(task.getTaskDueDateAt()));
-                    setNotificationThumbnail(body, SlackMessages.TASK_DUE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
-                 break;
-                case STATUS:
-                    bodyText.append(SlackMessages.TRANSITION_ICON);
-                    bodyText.append(task.getTaskStatus());
-                    bodyText.append(SlackMessages.ARROW_ICON);
-                    bodyText.append(taskUpdateDto.getTaskStatus());
-                    setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
-                    break;
-                default:
-                    return;
-            }
-            bodyText.append(SlackMessages.MODIFIED_BY_ICON);
-            if (editor.getUserSlackId() != null){
-                bodyText.append(getMentionedName(editor.getUserSlackId()));
-            } else {
-                bodyText.append(editor.getFirstName());
-                bodyText.append(" ");
-                bodyText.append(editor.getLastName());
+            if (!oneSignalDevices.isEmpty()) {
+                for (UserNotification device : oneSignalDevices) {
+                    StringBuilder oneSignalTaskUpdateNotf = getOneSignalMessage(user, task, project, OneSignalMessages.TASK_MODIFICATION);
+                    switch (type) {
+                        case NAME:
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskUpdateNotf.append(taskUpdateDto.getTaskName());
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.PREVIOUS);
+                            oneSignalTaskUpdateNotf.append(task.getTaskName());
+                            break;
+//                        case NOTES:
+//                            bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
+//                            bodyText.append(taskUpdateDto.getTaskNotes());
+//                            bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
+//                            if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
+//                                bodyText.append("<No Previous Task Note Content>");
+//                            else
+//                                bodyText.append(task.getTaskNote());
+//                            setNotificationThumbnail(body, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
+//                            break;
+//                        case DUE_DATE:
+//                            bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
+//                            bodyText.append(getDate(taskUpdateDto.getTaskDueDate()));
+//                            bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
+//                            if (task.getTaskDueDateAt() == null)
+//                                bodyText.append("No Previous Due Date");
+//                            else
+//                                bodyText.append(getDate(task.getTaskDueDateAt()));
+//                            setNotificationThumbnail(body, SlackMessages.TASK_DUE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
+//                            break;
+//                        case STATUS:
+//                            bodyText.append(SlackMessages.TRANSITION_ICON);
+//                            bodyText.append(task.getTaskStatus());
+//                            bodyText.append(SlackMessages.ARROW_ICON);
+//                            bodyText.append(taskUpdateDto.getTaskStatus());
+//                            setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
+//                            break;
+                        default:
+                            return;
+                    }
+                    sendOneSignalNotification(oneSignalTaskUpdateNotf.toString(), device.getSubscriptionId());
+                }
             }
 
-            body.getText().setText(bodyText.toString());
+            if (user.getUserSlackId() != null && user.getNotification()) {
+                JSONObject payload = new JSONObject();
+                payload.put(CHANNEL, user.getUserSlackId());
+                payload.put(TEXT, SlackMessages.TASK_MODIFICATION_TITLE);
+                List<SlackBlock> blocks = new ArrayList<>();
 
-            blocks.add(body);
-            if (type.equals(STATUS))
-                blocks.add(getFooter(taskUpdateDto.getTaskStatus().toString()));
-            else
-            blocks.add(getFooter(task.getTaskStatus().toString()));
-            blocks.add(addDivider());
+                SlackBlock headerBlock = addHeaderBlock(user.getUserSlackId(), SlackMessages.TASK_MODIFICATION_GREETING);
+                headerBlock.setAccessory(null);
+                blocks.add(headerBlock);
+                blocks.add(addDivider());
 
-            payload.put(BLOCKS,blocks);
-            StringBuilder url = new StringBuilder();
-            url.append(ENVConfig.SLACK_BASE_URL);
-            url.append("/chat.postMessage");
-            logger.info("Slack Message Url {}", url);
-            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
-            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+                SlackBlock body = new SlackBlock();
+                body.setType(SECTION);
+                body.getText().setType(MARK_DOWN);
+                StringBuilder bodyText = new StringBuilder();
+                bodyText.append(SlackMessages.TASK_ICON);
+                bodyText.append(getTaskUrl(task));
+                body.getText().setText(bodyText.toString());
+                bodyText.append(SlackMessages.PROJECT_ICON);
+                bodyText.append(getProjectUrl(project));
+                switch (type) {
+                    case NAME:
+                        bodyText.append(SlackMessages.MODIFIED_NAME_ICON);
+                        bodyText.append(taskUpdateDto.getTaskName());
+                        bodyText.append(SlackMessages.PREVIOUS_NAME_ICON);
+                        bodyText.append(task.getTaskName());
+                        setNotificationThumbnail(body, SlackMessages.TASK_NAME_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NAME_THUMBNAIL);
+                        break;
+                    case NOTES:
+                        bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
+                        bodyText.append(taskUpdateDto.getTaskNotes());
+                        bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
+                        if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
+                            bodyText.append("<No Previous Task Note Content>");
+                        else
+                            bodyText.append(task.getTaskNote());
+                        setNotificationThumbnail(body, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
+                        break;
+                    case DUE_DATE:
+                        bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
+                        bodyText.append(getDate(taskUpdateDto.getTaskDueDate()));
+                        bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
+                        if (task.getTaskDueDateAt() == null)
+                            bodyText.append("No Previous Due Date");
+                        else
+                            bodyText.append(getDate(task.getTaskDueDateAt()));
+                        setNotificationThumbnail(body, SlackMessages.TASK_DUE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
+                        break;
+                    case STATUS:
+                        bodyText.append(SlackMessages.TRANSITION_ICON);
+                        bodyText.append(task.getTaskStatus());
+                        bodyText.append(SlackMessages.ARROW_ICON);
+                        bodyText.append(taskUpdateDto.getTaskStatus());
+                        setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
+                        break;
+                    default:
+                        return;
+                }
+                bodyText.append(SlackMessages.MODIFIED_BY_ICON);
+                if (editor.getUserSlackId() != null) {
+                    bodyText.append(getMentionedName(editor.getUserSlackId()));
+                } else {
+                    bodyText.append(editor.getFirstName());
+                    bodyText.append(" ");
+                    bodyText.append(editor.getLastName());
+                }
+
+                body.getText().setText(bodyText.toString());
+
+                blocks.add(body);
+                if (type.equals(STATUS))
+                    blocks.add(getFooter(taskUpdateDto.getTaskStatus().toString()));
+                else
+                    blocks.add(getFooter(task.getTaskStatus().toString()));
+                blocks.add(addDivider());
+
+                payload.put(BLOCKS, blocks);
+                StringBuilder url = new StringBuilder();
+                url.append(ENVConfig.SLACK_BASE_URL);
+                url.append("/chat.postMessage");
+                logger.info("Slack Message Url {}", url);
+                HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+                Object response = restTemplate.exchange(url.toString(), HttpMethod.POST, entity, String.class);
+            }
         }
     }
 
