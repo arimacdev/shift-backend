@@ -788,23 +788,21 @@ public class NotificationServiceImpl implements NotificationService {
                             else
                                 oneSignalTaskGroupTaskNtf.append(taskGroupTask.getTaskNote());
                             break;
-//                        case DUE_DATE:
-//                            bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
-//                            bodyText.append(getDate(taskGroupTaskUpdateDto.getTaskDueDate()));
-//                            bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
-//                            if (taskGroupTask.getTaskDueDateAt() == null)
-//                                bodyText.append("No Previous Due Date");
-//                            else
-//                                bodyText.append(getDate(taskGroupTask.getTaskDueDateAt()));
-//                            setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_DATE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
-//                            break;
-//                        case STATUS:
-//                            bodyText.append(SlackMessages.TRANSITION_ICON);
-//                            bodyText.append(taskGroupTask.getTaskStatus());
-//                            bodyText.append(SlackMessages.ARROW_ICON);
-//                            bodyText.append(taskGroupTaskUpdateDto.getTaskStatus());
-//                            setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
-//                            break;
+                        case DUE_DATE:
+                            oneSignalTaskGroupTaskNtf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskGroupTaskNtf.append(getDate(taskGroupTaskUpdateDto.getTaskDueDate()));
+                            oneSignalTaskGroupTaskNtf.append(OneSignalMessages.PREVIOUS);
+                            if (taskGroupTask.getTaskDueDateAt() == null)
+                                oneSignalTaskGroupTaskNtf.append("No Previous Due Date");
+                            else
+                                oneSignalTaskGroupTaskNtf.append(getDate(taskGroupTask.getTaskDueDateAt()));
+                            break;
+                        case STATUS:
+                            oneSignalTaskGroupTaskNtf.append(OneSignalMessages.TRANSITION);
+                            oneSignalTaskGroupTaskNtf.append(taskGroupTask.getTaskStatus());
+                            oneSignalTaskGroupTaskNtf.append(OneSignalMessages.ARROW);
+                            oneSignalTaskGroupTaskNtf.append(taskGroupTaskUpdateDto.getTaskStatus());
+                            break;
                         default:
                             return;
                     }
