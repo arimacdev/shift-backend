@@ -27,7 +27,10 @@ public class OneSignalMessages {
     public static final String TASK_MODIFICATION = "! A Task assigned to you has been modified";
     public static final String TASK_GROUP_TASK_MODIFICATION = "! A TaskGroup Task assigned to you has been modified";
     public static final String TASK_FILE_UPLOAD = "! A File has been uploaded to a task assigned to you";
+    public static final String TASK_GROUP_TASK_FILE_UPLOAD = "! A File has been uploaded to a TaskGroup Task assigned to you";
     public static final String TASK_DELETE = "! A Task assigned to you has been deleted";
+    public static final String TASK_GROUP_TASK_DELETE = "! A TaskGroup Task assigned to you has been deleted";
+
 
 
 
