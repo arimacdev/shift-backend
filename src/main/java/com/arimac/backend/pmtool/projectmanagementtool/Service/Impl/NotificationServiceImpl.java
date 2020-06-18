@@ -10,6 +10,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.Persona
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackElement;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Notification.NotificationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -90,6 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
         userNotification.setUserId(notificationRegisterDto.getSubscriberId());
         userNotification.setSubscriptionId(notificationRegisterDto.getSubscriptionId());
         userNotification.setProvider(notificationRegisterDto.getProvider().toString());
+        userNotification.setPlatform(notificationRegisterDto.getPlatform().toString());
         userNotification.setNotificationStatus(true);
         userNotificationRepository.registerForNotifications(userNotification);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
@@ -106,7 +108,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskAssignNotification(Task task) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        UserNotification userNotification = userNotificationRepository.getNotificationUserByProviderAndStatus(task.getTaskAssignee(), "OneSignal", true);
+        UserNotification userNotification = userNotificationRepository.getNotificationUserByProviderAndStatus(task.getTaskAssignee(), NotificationEnum.OneSignal.toString(), true);
         if ((user.getUserSlackId() != null && user.getNotification()) || userNotification!= null) {
             Project project = projectRepository.getProjectById(task.getProjectId());
             User sender = userRepository.getUserByUserId(task.getTaskInitiator());

@@ -7,6 +7,9 @@ public class OneSignalMessages {
     public static final String PROJECT = "\nProject: ";
     public static final String ASSIGNED_BY = "\nAssigned By: ";
 
+    public static final String TASK_ASSIGNMENT_UPDATE = "\nThe following Task Assignment has been modified and has been assigned to you";
+
+
 
 
 

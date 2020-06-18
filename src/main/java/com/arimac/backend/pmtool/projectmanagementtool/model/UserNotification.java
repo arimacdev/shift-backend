@@ -10,16 +10,18 @@ public class UserNotification implements RowMapper<UserNotification> {
     private String subscriptionId;
     private String provider;
     private boolean notificationStatus;
+    private String platform;
 
 
     public UserNotification() {
     }
 
-    public UserNotification(String userId, String subscriptionId, String provider, boolean notificationStatus) {
+    public UserNotification(String userId, String subscriptionId, String provider, boolean notificationStatus, String platform) {
         this.userId = userId;
         this.subscriptionId = subscriptionId;
         this.provider = provider;
         this.notificationStatus = notificationStatus;
+        this.platform = platform;
     }
 
     public String getUserId() {
@@ -54,13 +56,23 @@ public class UserNotification implements RowMapper<UserNotification> {
         this.notificationStatus = notificationStatus;
     }
 
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
+
     @Override
     public UserNotification mapRow(ResultSet resultSet, int i) throws SQLException {
         return new UserNotification(
                 resultSet.getString("userId"),
                 resultSet.getString("subscriptionId"),
                 resultSet.getString("provider"),
-                resultSet.getBoolean("notificationStatus")
+                resultSet.getBoolean("notificationStatus"),
+                resultSet.getString("platform")
         );
     }
 }

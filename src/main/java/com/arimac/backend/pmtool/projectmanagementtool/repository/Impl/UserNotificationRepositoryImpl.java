@@ -25,11 +25,12 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
     @Override
     public void registerForNotifications(UserNotification userNotification) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO UserNotification(userId, subscriptionId, provider, notificationStatus) VALUES (?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO UserNotification(userId, subscriptionId, provider, notificationStatus, platform) VALUES (?,?,?,?,?)");
             preparedStatement.setString(1, userNotification.getUserId());
             preparedStatement.setString(2, userNotification.getSubscriptionId());
             preparedStatement.setString(3, userNotification.getProvider());
             preparedStatement.setBoolean(4, userNotification.getNotificationStatus());
+            preparedStatement.setString(5, userNotification.getPlatform());
 
             return preparedStatement;
         });

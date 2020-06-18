@@ -33,7 +33,7 @@ public class NotificationController extends ResponseController {
     }
     @ApiOperation(value = "Add Slack Id to User", notes = "User and SlackId mapping")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PutMapping("/register")
+    @PostMapping("/register")
     public ResponseEntity<Object> registerForNotifications(@RequestBody NotificationRegisterDto notificationRegisterDto, @RequestHeader("userId") String userId){
         logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId,notificationRegisterDto);
         return sendResponse(notificationService.registerForNotifications(userId, notificationRegisterDto));
