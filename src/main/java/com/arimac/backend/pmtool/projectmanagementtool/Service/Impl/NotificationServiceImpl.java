@@ -778,18 +778,16 @@ public class NotificationServiceImpl implements NotificationService {
                             oneSignalTaskGroupTaskNtf.append(taskGroupTaskUpdateDto.getTaskName());
                             oneSignalTaskGroupTaskNtf.append(OneSignalMessages.PREVIOUS);
                             oneSignalTaskGroupTaskNtf.append(taskGroupTask.getTaskName());
-                            sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                             break;
-//                        case NOTES:
-//                            bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
-//                            bodyText.append(taskGroupTaskUpdateDto.getTaskNotes());
-//                            bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
-//                            if (taskGroupTask.getTaskNote() == null || taskGroupTask.getTaskNote().isEmpty())
-//                                bodyText.append("<No Previous Task Note Content>");
-//                            else
-//                                bodyText.append(taskGroupTask.getTaskNote());
-//                            setNotificationThumbnail(body, SlackMessages.TASKGROUP_TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
-//                            break;
+                        case NOTES:
+                            oneSignalTaskGroupTaskNtf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskGroupTaskNtf.append(taskGroupTaskUpdateDto.getTaskNotes());
+                            oneSignalTaskGroupTaskNtf.append(OneSignalMessages.PREVIOUS);
+                            if (taskGroupTask.getTaskNote() == null || taskGroupTask.getTaskNote().isEmpty())
+                                oneSignalTaskGroupTaskNtf.append("<No Previous Task Note Content>");
+                            else
+                                oneSignalTaskGroupTaskNtf.append(taskGroupTask.getTaskNote());
+                            break;
 //                        case DUE_DATE:
 //                            bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
 //                            bodyText.append(getDate(taskGroupTaskUpdateDto.getTaskDueDate()));
@@ -810,6 +808,11 @@ public class NotificationServiceImpl implements NotificationService {
                         default:
                             return;
                     }
+                    oneSignalTaskGroupTaskNtf.append(OneSignalMessages.MODIFIED_BY);
+                    oneSignalTaskGroupTaskNtf.append(editor.getFirstName());
+                    oneSignalTaskGroupTaskNtf.append(" ");
+                    oneSignalTaskGroupTaskNtf.append(editor.getLastName());
+                    sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                 }
             }
             if (user.getUserSlackId() != null && user.getNotification()) {

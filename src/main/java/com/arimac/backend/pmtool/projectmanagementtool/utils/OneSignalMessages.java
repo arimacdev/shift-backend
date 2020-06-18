@@ -16,6 +16,8 @@ public class OneSignalMessages {
     public static final String UPLOADED_FILE = "\nUploaded File: ";
     public static final String UPLOADED_BY = "\nUploaded By: ";
     public static final String DELETED_BY = "\nDeleted By: ";
+    public static final String MODIFIED_BY = "\nModified By: ";
+
 
 
 
