@@ -114,7 +114,7 @@ public class NotificationServiceImpl implements NotificationService {
             User sender = userRepository.getUserByUserId(task.getTaskInitiator());
             if (!oneSignalDevices.isEmpty()) {
                 for (UserNotification device : oneSignalDevices) {
-                    StringBuilder oneSignalAssigneeNotif = getOneSignalMessage(user,task,project,OneSignalMessages.TASK_ASSIGNMENT);
+                    StringBuilder oneSignalAssigneeNotif = getTaskOneSignalMessage(user,task,project,OneSignalMessages.TASK_ASSIGNMENT);
                     oneSignalAssigneeNotif.append(OneSignalMessages.ASSIGNED_BY);
                     oneSignalAssigneeNotif.append(sender.getFirstName());
                     oneSignalAssigneeNotif.append(" ");
@@ -186,11 +186,10 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    private StringBuilder getOneSignalMessage(User user, Task task, Project project, String title){
+    private StringBuilder getTaskOneSignalMessage(User user, Task task, Project project, String title){
         StringBuilder message = new StringBuilder();
         message.append(OneSignalMessages.GREETING);
         message.append(user.getFirstName());
-        //message.append(",");
         message.append(title);
         message.append(OneSignalMessages.TASK);
         message.append(task.getTaskName());
@@ -199,6 +198,19 @@ public class NotificationServiceImpl implements NotificationService {
 
         return message;
 
+    }
+
+    private StringBuilder getTaskGroupTaskOneSignalMessage(User user, TaskGroupTask task, TaskGroup taskGroup, String title){
+        StringBuilder message = new StringBuilder();
+        message.append(OneSignalMessages.GREETING);
+        message.append(user.getFirstName());
+        message.append(title);
+        message.append(OneSignalMessages.TASKGROUP_TASK);
+        message.append(task.getTaskName());
+        message.append(OneSignalMessages.TASKGROUP);
+        message.append(taskGroup.getTaskGroupName());
+
+        return message;
     }
 
     @Override
@@ -211,7 +223,7 @@ public class NotificationServiceImpl implements NotificationService {
             User sender = userRepository.getUserByUserId(userId);
             if (!oneSignalDevices.isEmpty()) {
                 for (UserNotification device : oneSignalDevices) {
-                    StringBuilder oneSignalTaskAssigneeUpdateNotf = getOneSignalMessage(newAssignee, task, project, OneSignalMessages.TASK_ASSIGNMENT_UPDATE);
+                    StringBuilder oneSignalTaskAssigneeUpdateNotf = getTaskOneSignalMessage(newAssignee, task, project, OneSignalMessages.TASK_ASSIGNMENT_UPDATE);
                     oneSignalTaskAssigneeUpdateNotf.append(OneSignalMessages.TRANSITION);
                     oneSignalTaskAssigneeUpdateNotf.append(previous.getFirstName());
                     oneSignalTaskAssigneeUpdateNotf.append(" ");
@@ -314,7 +326,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             if (!oneSignalDevices.isEmpty()) {
                 for (UserNotification device : oneSignalDevices) {
-                    StringBuilder oneSignalTaskUpdateNotf = getOneSignalMessage(user, task, project, OneSignalMessages.TASK_MODIFICATION);
+                    StringBuilder oneSignalTaskUpdateNotf = getTaskOneSignalMessage(user, task, project, OneSignalMessages.TASK_MODIFICATION);
                     switch (type) {
                         case NAME:
                             oneSignalTaskUpdateNotf.append(OneSignalMessages.MODIFIED);
@@ -449,7 +461,7 @@ public class NotificationServiceImpl implements NotificationService {
             Project project = projectRepository.getProjectById(task.getProjectId());
             if (!oneSignalDevices.isEmpty()) {
              for (UserNotification device: oneSignalDevices){
-                 StringBuilder oneSignalFileUploadNotf = getOneSignalMessage(user, task, project, OneSignalMessages.TASK_FILE_UPLOAD);
+                 StringBuilder oneSignalFileUploadNotf = getTaskOneSignalMessage(user, task, project, OneSignalMessages.TASK_FILE_UPLOAD);
                  oneSignalFileUploadNotf.append(OneSignalMessages.UPLOADED_FILE);
                  oneSignalFileUploadNotf.append(fileName);
                  oneSignalFileUploadNotf.append(OneSignalMessages.UPLOADED_BY);
@@ -528,12 +540,12 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendTaskDeleteNotification(Task task, String deletedBy) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
         List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(task.getTaskAssignee(), NotificationEnum.OneSignal.toString(), true);
-        if (((user.getUserSlackId() != null && user.getNotification())) && !oneSignalDevices.isEmpty()) {
+        if (((user.getUserSlackId() != null && user.getNotification())) || !oneSignalDevices.isEmpty()) {
             Project project = projectRepository.getProjectById(task.getProjectId());
             User remover = userRepository.getUserByUserId(deletedBy);
             if (!oneSignalDevices.isEmpty()) {
                 for (UserNotification device: oneSignalDevices){
-                    StringBuilder oneSignalTaskDeleteNotf = getOneSignalMessage(user, task, project, OneSignalMessages.TASK_DELETE);
+                    StringBuilder oneSignalTaskDeleteNotf = getTaskOneSignalMessage(user, task, project, OneSignalMessages.TASK_DELETE);
                     oneSignalTaskDeleteNotf.append(OneSignalMessages.DELETED_BY);
                     oneSignalTaskDeleteNotf.append(remover.getFirstName());
                     oneSignalTaskDeleteNotf.append(" ");
@@ -589,9 +601,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskGroupTaskAssignNotification(TaskGroupTask taskGroupTask) {
         User user = userRepository.getUserByUserId(taskGroupTask.getTaskAssignee());
-        if (user.getUserSlackId() != null && user.getNotification()){
+        List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(taskGroupTask.getTaskAssignee(), NotificationEnum.OneSignal.toString(), true);
+        if ((user.getUserSlackId() != null && user.getNotification()) || !oneSignalDevices.isEmpty()){
             TaskGroup taskGroup = taskGroupRepository.getTaskGroupById(taskGroupTask.getTaskGroupId());
             User sender = userRepository.getUserByUserId(taskGroupTask.getTaskInitiator());
+            if (!oneSignalDevices.isEmpty()){
+                for (UserNotification device: oneSignalDevices){
+                    StringBuilder oneSignalTaskGroupTaskNtf = getTaskGroupTaskOneSignalMessage(user, taskGroupTask, taskGroup, OneSignalMessages.TASK_GROUP_TASK_ASSIGNMENT);
+                    oneSignalTaskGroupTaskNtf.append(OneSignalMessages.ASSIGNED_BY);
+                    oneSignalTaskGroupTaskNtf.append(sender.getFirstName());
+                    oneSignalTaskGroupTaskNtf.append(" ");
+                    oneSignalTaskGroupTaskNtf.append(sender.getLastName());
+
+                    sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
+                }
+            }
             JSONObject payload = new JSONObject();
             payload.put(CHANNEL, user.getUserSlackId());
             payload.put(TEXT, SlackMessages.TASKGROUP_TASK_ASSIGNMENT_TITLE);

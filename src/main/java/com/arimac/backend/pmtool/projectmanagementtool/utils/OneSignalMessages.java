@@ -3,8 +3,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.utils;
 public class OneSignalMessages {
     public static final String GREETING = "Hey ";
     public static final String TASK_ASSIGNMENT = " You have been assigned to a Task ";
+    public static final String TASK_GROUP_TASK_ASSIGNMENT = "! You have been assigned to the following TaskGroup Task";
     public static final String TASK = "\nTask: ";
     public static final String PROJECT = "\nProject: ";
+    public static final String TASKGROUP_TASK = "\nTaskGroup Task: ";
+    public static final String TASKGROUP = "\nTaskGroup: ";
     public static final String ASSIGNED_BY = "\nAssigned By: ";
     public static final String TRANSITION = "\nTransition: ";
     public static final String ARROW = " ⟶ ";
