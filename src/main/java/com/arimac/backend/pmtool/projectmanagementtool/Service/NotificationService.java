@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationRegisterDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
@@ -10,8 +11,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 
 public interface NotificationService {
-    @Deprecated
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
+    Object registerForNotifications(String userId, NotificationRegisterDto notificationRegisterDto);
 
     void sendTaskAssignNotification(Task task); //done
     void sendTaskAssigneeUpdateNotification(Task task, String sender, String newAssignee);  //done
@@ -31,5 +32,8 @@ public interface NotificationService {
     void sendSubTaskCreateNotification(String sender, SubTask subTask, ProjectUserResponseDto projectUser, Task task);
     void sendSubTaskUpdateNotification(String sender, Task task, SubTask previous, SubTask modified, ProjectUserResponseDto projectUser, String type);
     void sendSubTaskFlagNotification(String sender, Task task, SubTask subTask, ProjectUserResponseDto projectUser);
+
+    //OneSignal
+    void sendNotification();
 
 }

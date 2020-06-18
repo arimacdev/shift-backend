@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationRegisterDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
@@ -78,6 +79,17 @@ public class NotificationServiceImpl implements NotificationService {
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         userRepository.addSlackIdToUser(userId, slackNotificationDto.getAssigneeSlackId());
         return new Response(ResponseMessage.SUCCESS);
+    }
+
+    @Override
+    public Object registerForNotifications(String userId, NotificationRegisterDto notificationRegisterDto) {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUserId(notificationRegisterDto.getSubscriberId());
+        userNotification.setSubscriptionId(notificationRegisterDto.getSubscriptionId());
+        userNotification.setProvider(notificationRegisterDto.getProvider().toString());
+        userNotification.setNotificationStatus(true);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     private HttpHeaders getHttpHeaders(){
@@ -1030,6 +1042,30 @@ public class NotificationServiceImpl implements NotificationService {
             HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
             Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
         }
+    }
+
+    @Override
+    public void sendNotification() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Authorization", "Basic " + "NGY0OWQwNTYtM2E2Ny00NmMzLWFiN2QtZjdhZjA2OWMwZTgw");
+        httpHeaders.set("Content-Type", "application/json; charset=utf-8");
+        String url = "https://onesignal.com/api/v1/notifications";
+
+        JSONObject payload = new JSONObject();
+        List<String> segmants = new ArrayList<>();
+        segmants.add("Subscribed Users");
+        payload.put("included_segments", segmants);
+        payload.put("app_id", "fe6df906-c5cf-4c5e-bc1f-21003be4b2d5");
+        JSONObject contents = new JSONObject();
+        contents.put("en", "HELLO!!!");
+        payload.put("contents", contents);
+
+        logger.info("URL {}", url);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+        logger.info("Payload {}", payload.toString());
+
+        ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
     }
 
     @Scheduled(initialDelay = 10*1000, fixedRate = 30*60*1000)

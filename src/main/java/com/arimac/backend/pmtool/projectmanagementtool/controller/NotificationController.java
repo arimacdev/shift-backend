@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationRegisterDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,11 +31,11 @@ public class NotificationController extends ResponseController {
         logger.info("HIT - PUT /users/<userId>/slack ---> addSlackIdToUser | userId: {}| dto: {}",userId,slackNotificationDto);
         return sendResponse(notificationService.addSlackIdToUser(userId, slackNotificationDto));
     }
-
-//    @ApiOperation(value = "Update Slack Notification status", notes = "On/Off Slack notifications")
-//    @ApiResponse(code = 200, message = "Success", response = Response.class)
-//    @PostMapping("/slack")
-//    public ResponseEntity<Object> updateNotificationStatus(){
-//        return sendResponse(notificationService.checkSlackNotification());
-//    }
+    @ApiOperation(value = "Add Slack Id to User", notes = "User and SlackId mapping")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/register")
+    public ResponseEntity<Object> registerForNotifications(@RequestBody NotificationRegisterDto notificationRegisterDto, @RequestHeader("userId") String userId){
+        logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId,notificationRegisterDto);
+        return sendResponse(notificationService.registerForNotifications(userId, notificationRegisterDto));
+    }
 }
