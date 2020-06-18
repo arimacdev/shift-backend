@@ -322,26 +322,24 @@ public class NotificationServiceImpl implements NotificationService {
                             oneSignalTaskUpdateNotf.append(OneSignalMessages.PREVIOUS);
                             oneSignalTaskUpdateNotf.append(task.getTaskName());
                             break;
-//                        case NOTES:
-//                            bodyText.append(SlackMessages.MODIFIED_NOTES_ICON);
-//                            bodyText.append(taskUpdateDto.getTaskNotes());
-//                            bodyText.append(SlackMessages.PREVIOUS_NOTES_ICON);
-//                            if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
-//                                bodyText.append("<No Previous Task Note Content>");
-//                            else
-//                                bodyText.append(task.getTaskNote());
-//                            setNotificationThumbnail(body, SlackMessages.TASK_NOTE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_NOTE_THUMBNAIL);
-//                            break;
-//                        case DUE_DATE:
-//                            bodyText.append(SlackMessages.MODIFIED_DUE_DATE_ICON);
-//                            bodyText.append(getDate(taskUpdateDto.getTaskDueDate()));
-//                            bodyText.append(SlackMessages.PREVIOUS_DUE_DATE_ICON);
-//                            if (task.getTaskDueDateAt() == null)
-//                                bodyText.append("No Previous Due Date");
-//                            else
-//                                bodyText.append(getDate(task.getTaskDueDateAt()));
-//                            setNotificationThumbnail(body, SlackMessages.TASK_DUE_THUMBNAIL_TEXT, SlackMessages.UPDATE_TASK_DUE_DATE_THUMBNAIL);
-//                            break;
+                        case NOTES:
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskUpdateNotf.append(taskUpdateDto.getTaskNotes());
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.PREVIOUS);
+                            if (task.getTaskNote() == null || task.getTaskNote().isEmpty())
+                                oneSignalTaskUpdateNotf.append("<No Previous Task Note Content>");
+                            else
+                                oneSignalTaskUpdateNotf.append(task.getTaskNote());
+                            break;
+                        case DUE_DATE:
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskUpdateNotf.append(taskUpdateDto.getTaskDueDate());
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.PREVIOUS);
+                            if (task.getTaskDueDateAt() == null)
+                                oneSignalTaskUpdateNotf.append("No Previous Due Date");
+                            else
+                                oneSignalTaskUpdateNotf.append(getDate(task.getTaskDueDateAt()));
+                            break;
 //                        case STATUS:
 //                            bodyText.append(SlackMessages.TRANSITION_ICON);
 //                            bodyText.append(task.getTaskStatus());
