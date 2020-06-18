@@ -222,7 +222,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto) {
-        notificationService.sendNotification();
+       // notificationService.sendNotification();
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);

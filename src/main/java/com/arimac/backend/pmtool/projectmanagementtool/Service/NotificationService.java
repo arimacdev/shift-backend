@@ -34,6 +34,6 @@ public interface NotificationService {
     void sendSubTaskFlagNotification(String sender, Task task, SubTask subTask, ProjectUserResponseDto projectUser);
 
     //OneSignal
-    void sendNotification();
+   // void sendOneSignalNotification();
 
 }

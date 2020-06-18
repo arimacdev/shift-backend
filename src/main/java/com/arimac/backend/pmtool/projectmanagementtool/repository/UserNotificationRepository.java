@@ -4,4 +4,5 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.UserNotification;
 
 public interface UserNotificationRepository {
     void registerForNotifications(UserNotification userNotification);
+    UserNotification getNotificationUserByProviderAndStatus(String userId, String provider, boolean status);
 }
