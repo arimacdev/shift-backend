@@ -340,13 +340,12 @@ public class NotificationServiceImpl implements NotificationService {
                             else
                                 oneSignalTaskUpdateNotf.append(getDate(task.getTaskDueDateAt()));
                             break;
-//                        case STATUS:
-//                            bodyText.append(SlackMessages.TRANSITION_ICON);
-//                            bodyText.append(task.getTaskStatus());
-//                            bodyText.append(SlackMessages.ARROW_ICON);
-//                            bodyText.append(taskUpdateDto.getTaskStatus());
-//                            setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
-//                            break;
+                        case STATUS:
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.TRANSITION);
+                            oneSignalTaskUpdateNotf.append(task.getTaskStatus().toString());
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.ARROW);
+                            oneSignalTaskUpdateNotf.append(taskUpdateDto.getTaskStatus());
+                            break;
                         default:
                             return;
                     }

@@ -7,7 +7,7 @@ public class OneSignalMessages {
     public static final String PROJECT = "\nProject: ";
     public static final String ASSIGNED_BY = "\nAssigned By: ";
     public static final String TRANSITION = "\nTransition: ";
-    public static final String ARROW = "⟶";
+    public static final String ARROW = " ⟶ ";
     public static final String PREVIOUS = "\nPrevious: ";
     public static final String MODIFIED = "\nModified: ";
 
