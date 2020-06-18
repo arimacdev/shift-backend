@@ -108,26 +108,20 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTaskAssignNotification(Task task) {
         User user = userRepository.getUserByUserId(task.getTaskAssignee());
-        UserNotification userNotification = userNotificationRepository.getNotificationUserByProviderAndStatus(task.getTaskAssignee(), NotificationEnum.OneSignal.toString(), true);
-        if ((user.getUserSlackId() != null && user.getNotification()) || userNotification!= null) {
+        List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(task.getTaskAssignee(), NotificationEnum.OneSignal.toString(), true);
+        if ((user.getUserSlackId() != null && user.getNotification()) || !oneSignalDevices.isEmpty()) {
             Project project = projectRepository.getProjectById(task.getProjectId());
             User sender = userRepository.getUserByUserId(task.getTaskInitiator());
-            if (userNotification != null) {
-                StringBuilder oneSignalAssigneeNotif = new StringBuilder();
-                oneSignalAssigneeNotif.append(OneSignalMessages.GREETING);
-                oneSignalAssigneeNotif.append(user.getFirstName());
-                oneSignalAssigneeNotif.append(",");
-                oneSignalAssigneeNotif.append(OneSignalMessages.TASK_ASSIGNMENT);
-                oneSignalAssigneeNotif.append(OneSignalMessages.TASK);
-                oneSignalAssigneeNotif.append(task.getTaskName());
-                oneSignalAssigneeNotif.append(OneSignalMessages.PROJECT);
-                oneSignalAssigneeNotif.append(project.getProjectName());
-                oneSignalAssigneeNotif.append(OneSignalMessages.ASSIGNED_BY);
-                oneSignalAssigneeNotif.append(sender.getFirstName());
-                oneSignalAssigneeNotif.append(" ");
-                oneSignalAssigneeNotif.append(sender.getLastName());
+            if (!oneSignalDevices.isEmpty()) {
+                for (UserNotification device : oneSignalDevices) {
+                    StringBuilder oneSignalAssigneeNotif = getOneSignalMessage(user,task,project,OneSignalMessages.TASK_ASSIGNMENT);
+                    oneSignalAssigneeNotif.append(OneSignalMessages.ASSIGNED_BY);
+                    oneSignalAssigneeNotif.append(sender.getFirstName());
+                    oneSignalAssigneeNotif.append(" ");
+                    oneSignalAssigneeNotif.append(sender.getLastName());
 
-                sendOneSignalNotification(oneSignalAssigneeNotif.toString(), userNotification.getSubscriptionId());
+                    sendOneSignalNotification(oneSignalAssigneeNotif.toString(), device.getSubscriptionId());
+                }
             }
             if (user.getUserSlackId() != null && user.getNotification()) {
                 JSONObject payload = new JSONObject();
@@ -192,90 +186,121 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    private StringBuilder getOneSignalMessage(User user, Task task, Project project, String title){
+        StringBuilder message = new StringBuilder();
+        message.append(OneSignalMessages.GREETING);
+        message.append(user.getFirstName());
+        message.append(",");
+        message.append(title);
+        message.append(OneSignalMessages.TASK);
+        message.append(task.getTaskName());
+        message.append(OneSignalMessages.PROJECT);
+        message.append(project.getProjectName());
+
+        return message;
+
+    }
+
     @Override
     public void sendTaskAssigneeUpdateNotification(Task task, String userId, String newTaskAssignee) {
         User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
-        if (newAssignee.getUserSlackId() != null && newAssignee.getNotification()){
+        List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(newTaskAssignee, NotificationEnum.OneSignal.toString(), true);
+        if ((newAssignee.getUserSlackId() != null && newAssignee.getNotification()) && !oneSignalDevices.isEmpty()) {
             User previous = userRepository.getUserByUserId(task.getTaskAssignee());
-           // User newAssignee = userRepository.getUserByUserId(newTaskAssignee);
             Project project = projectRepository.getProjectById(task.getProjectId());
             User sender = userRepository.getUserByUserId(userId);
-            JSONObject payload = new JSONObject();
-            payload.put(CHANNEL, newAssignee.getUserSlackId());
-            payload.put(TEXT, SlackMessages.TASK_ASSIGNEE_UPDATE_TITLE);
-            List<SlackBlock> blocks = new ArrayList<>();
+            if (!oneSignalDevices.isEmpty()) {
+                for (UserNotification device : oneSignalDevices) {
+                    StringBuilder oneSignalTaskAssigneeUpdateNotf = getOneSignalMessage(newAssignee, task, project, OneSignalMessages.TASK_ASSIGNMENT_UPDATE);
+                    oneSignalTaskAssigneeUpdateNotf.append(OneSignalMessages.TRANSITION);
+                    oneSignalTaskAssigneeUpdateNotf.append(previous.getFirstName());
+                    oneSignalTaskAssigneeUpdateNotf.append(" ");
+                    oneSignalTaskAssigneeUpdateNotf.append(previous.getLastName());
+                    oneSignalTaskAssigneeUpdateNotf.append(OneSignalMessages.ARROW);
+                    oneSignalTaskAssigneeUpdateNotf.append(newAssignee.getFirstName());
+                    oneSignalTaskAssigneeUpdateNotf.append(" ");
+                    oneSignalTaskAssigneeUpdateNotf.append(newAssignee.getLastName());
 
-            SlackBlock headerBlock = new SlackBlock();
-            headerBlock.setType(SECTION);
-            headerBlock.getText().setType(MARK_DOWN);
-            StringBuilder greeting = new StringBuilder();
-            greeting.append(getWelcomeAddressing(newAssignee.getUserSlackId()));
-            greeting.append(SlackMessages.TASK_ASSIGNMENT_TRANSITION_GREETING);
-            headerBlock.getText().setText(greeting.toString());
-            headerBlock.setAccessory(null);
-            headerBlock.setElements(null);
-            blocks.add(headerBlock);
+                    sendOneSignalNotification(oneSignalTaskAssigneeUpdateNotf.toString(), device.getSubscriptionId());
+                }
+            }
+            if (newAssignee.getUserSlackId() != null && newAssignee.getNotification()) {
+                JSONObject payload = new JSONObject();
+                payload.put(CHANNEL, newAssignee.getUserSlackId());
+                payload.put(TEXT, SlackMessages.TASK_ASSIGNEE_UPDATE_TITLE);
+                List<SlackBlock> blocks = new ArrayList<>();
+                SlackBlock headerBlock = new SlackBlock();
+                headerBlock.setType(SECTION);
+                headerBlock.getText().setType(MARK_DOWN);
+                StringBuilder greeting = new StringBuilder();
+                greeting.append(getWelcomeAddressing(newAssignee.getUserSlackId()));
+                greeting.append(SlackMessages.TASK_ASSIGNMENT_TRANSITION_GREETING);
+                headerBlock.getText().setText(greeting.toString());
+                headerBlock.setAccessory(null);
+                headerBlock.setElements(null);
+                blocks.add(headerBlock);
 
-            SlackBlock divider = new SlackBlock();
-            divider.setType(DIVIDER);
-            divider.setText(null);
-            divider.setAccessory(null);
-            blocks.add(divider);
+                SlackBlock divider = new SlackBlock();
+                divider.setType(DIVIDER);
+                divider.setText(null);
+                divider.setAccessory(null);
+                blocks.add(divider);
 
-            SlackBlock body = new SlackBlock();
-            body.setType(SECTION);
-            body.getText().setType(MARK_DOWN);
-            StringBuilder bodyText = new StringBuilder();
-            bodyText.append(SlackMessages.TASK_ICON);
-            bodyText.append(getTaskUrl(task));
-            bodyText.append(SlackMessages.PROJECT_ICON);
-            bodyText.append(getProjectUrl(project));
-            bodyText.append(SlackMessages.TRANSITION_ICON);
-            if (previous.getUserSlackId()!= null){
-                bodyText.append(getMentionedName(previous.getUserSlackId()));
-            } else {
-                bodyText.append(previous.getFirstName());
-                bodyText.append(" ");
-                bodyText.append(previous.getLastName());
-            }
-            bodyText.append(SlackMessages.ARROW_ICON);
-            if (newAssignee.getUserSlackId() != null){
-                bodyText.append(getMentionedName(newAssignee.getUserSlackId()));
-            } else {
-                bodyText.append(newAssignee.getFirstName());
-                bodyText.append(" ");
-                bodyText.append(newAssignee.getLastName());
-            }
-            bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
-            if (sender.getUserSlackId()!= null) {
-                bodyText.append(getMentionedName(sender.getUserSlackId()));
-            } else {
-                bodyText.append(sender.getFirstName());
-                bodyText.append(" ");
-                bodyText.append(sender.getLastName());
-            }
-            bodyText.append(SlackMessages.DUE_DATE_ICON);
-            if (task.getTaskDueDateAt() != null){
-                DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
-                bodyText.append(getDueDate(dueUtc));
-            } else {
-                bodyText.append("No Due Date Assigned");
-            }
-            body.getText().setText(bodyText.toString());
-            body.getAccessory().setType("image");
-            body.getAccessory().setImage_url(SlackMessages.ASSIGNMENT_UPDATE_THUMBNAIL);
-            body.getAccessory().setAlt_text("Calender Thumbnail");
-            blocks.add(body);
-            blocks.add(getFooter(task.getTaskStatus().toString()));
-            blocks.add(divider);
+                SlackBlock body = new SlackBlock();
+                body.setType(SECTION);
+                body.getText().setType(MARK_DOWN);
+                StringBuilder bodyText = new StringBuilder();
+                bodyText.append(SlackMessages.TASK_ICON);
+                bodyText.append(getTaskUrl(task));
+                bodyText.append(SlackMessages.PROJECT_ICON);
+                bodyText.append(getProjectUrl(project));
+                bodyText.append(SlackMessages.TRANSITION_ICON);
+                if (previous.getUserSlackId() != null) {
+                    bodyText.append(getMentionedName(previous.getUserSlackId()));
+                } else {
+                    bodyText.append(previous.getFirstName());
+                    bodyText.append(" ");
+                    bodyText.append(previous.getLastName());
+                }
+                bodyText.append(SlackMessages.ARROW_ICON);
+                if (newAssignee.getUserSlackId() != null) {
+                    bodyText.append(getMentionedName(newAssignee.getUserSlackId()));
+                } else {
+                    bodyText.append(newAssignee.getFirstName());
+                    bodyText.append(" ");
+                    bodyText.append(newAssignee.getLastName());
+                }
+                bodyText.append(SlackMessages.ASSIGNED_BY_ICON);
+                if (sender.getUserSlackId() != null) {
+                    bodyText.append(getMentionedName(sender.getUserSlackId()));
+                } else {
+                    bodyText.append(sender.getFirstName());
+                    bodyText.append(" ");
+                    bodyText.append(sender.getLastName());
+                }
+                bodyText.append(SlackMessages.DUE_DATE_ICON);
+                if (task.getTaskDueDateAt() != null) {
+                    DateTime dueUtc = new DateTime(task.getTaskDueDateAt(), DateTimeZone.forID("UTC"));
+                    bodyText.append(getDueDate(dueUtc));
+                } else {
+                    bodyText.append("No Due Date Assigned");
+                }
+                body.getText().setText(bodyText.toString());
+                body.getAccessory().setType("image");
+                body.getAccessory().setImage_url(SlackMessages.ASSIGNMENT_UPDATE_THUMBNAIL);
+                body.getAccessory().setAlt_text("Calender Thumbnail");
+                blocks.add(body);
+                blocks.add(getFooter(task.getTaskStatus().toString()));
+                blocks.add(divider);
 
-            payload.put(BLOCKS,blocks);
-            StringBuilder url = new StringBuilder();
-            url.append(ENVConfig.SLACK_BASE_URL);
-            url.append("/chat.postMessage");
-            logger.info("Slack Message Url {}", url);
-            HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
-            Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
+                payload.put(BLOCKS, blocks);
+                StringBuilder url = new StringBuilder();
+                url.append(ENVConfig.SLACK_BASE_URL);
+                url.append("/chat.postMessage");
+                logger.info("Slack Message Url {}", url);
+                HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+                Object response = restTemplate.exchange(url.toString(), HttpMethod.POST, entity, String.class);
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class UserNotificationRepositoryImpl implements UserNotificationRepository {
@@ -36,10 +37,10 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
         });
     }
     @Override
-    public UserNotification getNotificationUserByProviderAndStatus(String userId, String provider, boolean status) {
+    public List<UserNotification> getNotificationUserByProviderAndStatus(String userId, String provider, boolean status) {
         String sql = "SELECT * FROM UserNotification WHERE userId=? AND provider=? AND notificationStatus=?";
         try {
-            return jdbcTemplate.queryForObject(sql, new UserNotification(), userId, provider, status);
+            return jdbcTemplate.query(sql, new UserNotification(), userId, provider, status);
         } catch (EmptyResultDataAccessException e) {
            return null;
         }
