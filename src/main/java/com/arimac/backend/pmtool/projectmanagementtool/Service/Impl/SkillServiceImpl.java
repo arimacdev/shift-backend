@@ -185,31 +185,32 @@ public class SkillServiceImpl implements SkillService {
 
         //List<SkillCategory> skillCategoryList = new ArrayList<>(skillMatrix.values());
 
+        Map<String, Map<String, SkillCategory>> userSkillMap = new HashMap<>();
         List<SkillMapUserResponse> skillMapUserResponseList = new ArrayList<>();
         List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee);
         if (userSkillList.isEmpty()){
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new ArrayList<>(getSkillMatrix(categorySkillList, true).values()));
-        }
-        //List<SkillCategory> skillList = new ArrayList<>(getSkillMatrix(categorySkillList, false).values());
-
-        Map<String, Map<String, SkillCategory>> userSkillMap = new HashMap<>();
-        //Map<String, SkillCategory> userSkillCategory1 = new HashMap<>();
-        for (SkillUserResponseDto userSkill: userSkillList){
-            if (userSkillMap.get(userSkill.getUserId()) != null){
+            userSkillMap.put(assignee, skillMatrix);
+           // return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new ArrayList<>(getSkillMatrix(categorySkillList, true).values()));
+        } else {
+            //List<SkillCategory> skillList = new ArrayList<>(getSkillMatrix(categorySkillList, false).values());
+            //Map<String, SkillCategory> userSkillCategory1 = new HashMap<>();
+            for (SkillUserResponseDto userSkill : userSkillList) {
+                if (userSkillMap.get(userSkill.getUserId()) != null) {
                     Map<String, SkillCategory> userSkillCategory = userSkillMap.get(userSkill.getUserId());
-                    if (userSkillCategory.get(userSkill.getCategoryId())!= null){
+                    if (userSkillCategory.get(userSkill.getCategoryId()) != null) {
                         SkillCategory skillCategory = userSkillCategory.get(userSkill.getCategoryId());
                         List<CategorySkill> skillSet = skillCategory.getSkillSet();
-                        for (CategorySkill skill : skillSet){
-                            if (userSkill.getSkillId().equals(skill.getSkillId())){
+                        for (CategorySkill skill : skillSet) {
+                            if (userSkill.getSkillId().equals(skill.getSkillId())) {
                                 skill.setIsAssigned(true);
                             }
                         }
                     }
-            } else {
-                userSkillMap.put(userSkill.getUserId(), skillMatrix);
-            }
+                } else {
+                    userSkillMap.put(userSkill.getUserId(), skillMatrix);
+                }
 
+            }
         }
 
         for (Map.Entry<String, Map<String,SkillCategory>> entry: userSkillMap.entrySet()){

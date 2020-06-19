@@ -31,11 +31,19 @@ public class NotificationController extends ResponseController {
         logger.info("HIT - PUT /users/<userId>/slack ---> addSlackIdToUser | userId: {}| dto: {}",userId,slackNotificationDto);
         return sendResponse(notificationService.addSlackIdToUser(userId, slackNotificationDto));
     }
-    @ApiOperation(value = "Add Slack Id to User", notes = "User and SlackId mapping")
+    @ApiOperation(value = "Register for Notifications", notes = "Register for Notifications")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/register")
     public ResponseEntity<Object> registerForNotifications(@RequestBody NotificationRegisterDto notificationRegisterDto, @RequestHeader("userId") String userId){
         logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId,notificationRegisterDto);
         return sendResponse(notificationService.registerForNotifications(userId, notificationRegisterDto));
     }
+    @ApiOperation(value = "Unsubscribe from Notifications", notes = "Unsubscribe from Notifications")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/register")
+    public ResponseEntity<Object> unsubscribeFromNotifications(@RequestBody NotificationRegisterDto notificationRegisterDto, @RequestHeader("userId") String userId){
+        logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId,notificationRegisterDto);
+        return sendResponse(notificationService.registerForNotifications(userId, notificationRegisterDto));
+    }
+
 }

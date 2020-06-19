@@ -362,7 +362,7 @@ public class NotificationServiceImpl implements NotificationService {
                         default:
                             return;
                     }
-                    sendOneSignalNotification(oneSignalTaskUpdateNotf.toString(), device.getSubscriptionId());
+                    sendOneSignalMobileNotification(oneSignalTaskUpdateNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
                 }
             }
 
@@ -1279,16 +1279,19 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-
-    public void sendOneSignalNotification(String message, String recipientId) {
+    private HttpHeaders getOneSignalHeaders(){
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Authorization", "Basic " + "NGY0OWQwNTYtM2E2Ny00NmMzLWFiN2QtZjdhZjA2OWMwZTgw");
         httpHeaders.set("Content-Type", "application/json; charset=utf-8");
+
+        return httpHeaders;
+    }
+
+
+    private void sendOneSignalNotification(String message, String recipientId) {
         String url = "https://onesignal.com/api/v1/notifications";
 
         JSONObject payload = new JSONObject();
-//        List<String> segmants = new ArrayList<>();
-//        segmants.add("Subscribed Users");
         List<String> segmants = new ArrayList<>();
         segmants.add(recipientId);
         payload.put("include_player_ids", segmants);
@@ -1296,16 +1299,39 @@ public class NotificationServiceImpl implements NotificationService {
         JSONObject contents = new JSONObject();
         contents.put("en", message);
         payload.put("contents", contents);
-//        if (platform.equals(NotificationPlatformEnum.Mobile.toString())){
-//            JSONObject mobileData = new JSONObject();
-//           // mobileData.put()
-//        }
-
         logger.info("URL {}", url);
-        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
         logger.info("Payload {}", payload.toString());
         try {
           ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        } catch (Exception e){
+            logger.info("OneSignal Exception {}", e.getMessage());
+        }
+
+    }
+
+    private void sendOneSignalMobileNotification(String message, String recipientId, String screen, String entityId, String entityName, String taskId) {
+        String url = "https://onesignal.com/api/v1/notifications";
+
+        JSONObject payload = new JSONObject();
+        List<String> segmants = new ArrayList<>();
+        segmants.add(recipientId);
+        payload.put("include_player_ids", segmants);
+        payload.put("app_id", "fe6df906-c5cf-4c5e-bc1f-21003be4b2d5");
+        JSONObject contents = new JSONObject();
+        contents.put("en", message);
+        payload.put("contents", contents);
+        JSONObject data = new JSONObject();
+        data.put("screen", "TasksDetailsScreen");
+        data.put("id", entityId);
+        data.put("name", entityName);
+        data.put("taskId", taskId);
+        payload.put("data", data);
+        logger.info("URL {}", url);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+        logger.info("Payload {}", payload.toString());
+        try {
+            ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         } catch (Exception e){
             logger.info("OneSignal Exception {}", e.getMessage());
         }
