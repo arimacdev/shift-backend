@@ -230,12 +230,12 @@ public class SkillServiceImpl implements SkillService {
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
        List<User> userList = userRepository.getAllUsersWithPagination(limit, offset);
         List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
-        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
 
         Map<User, Map<String, SkillCategory>> userSkillMap = new HashMap<>();
         List<SkillMapUserResponse> skillMapUserResponseList = new ArrayList<>();
         for (User assignee: userList) {
             List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee.getUserId());
+            Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
             if (userSkillList.isEmpty()) {
                 userSkillMap.put(assignee, skillMatrix);
             } else {
@@ -254,7 +254,6 @@ public class SkillServiceImpl implements SkillService {
                     } else {
                         userSkillMap.put(assignee, skillMatrix);
                     }
-
                 }
             }
         }
