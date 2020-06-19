@@ -122,14 +122,6 @@ public class SkillRepositoryImpl implements SkillRepository {
 
     @Override
     public List<SkillUserResponseDto> getAllUserSkillMap(String userId) {
-//        String sql = "SELECT * FROM UserSkill AS US INNER JOIN Category as C " +
-//                "ON C.categoryId = US.categoryId " +
-//                "INNER JOIN Skill AS S ON S.skillId = US.skillId " +
-//                "WHERE US.userId=? AND C.isDeleted=false AND S.isDeleted=false";
-//        String sql = "SELECT * FROM Category AS C LEFT JOIN UserSkill as US " +
-//                "ON C.categoryId = US.categoryId AND US.userId=? " +
-//                "LEFT JOIN Skill AS S ON S.skillId = US.skillId " +
-//                "WHERE (C.isDeleted = false AND (S.isDeleted = false OR S.isDeleted IS NULL))";
         String sql = "SELECT * FROM Category AS C INNER JOIN UserSkill as US ON C.categoryId = US.categoryId AND US.userId=? INNER JOIN Skill AS S ON S.skillId = US.skillId " +
                 "WHERE (C.isDeleted = false AND (S.isDeleted = false OR S.isDeleted IS NULL))";
         try {

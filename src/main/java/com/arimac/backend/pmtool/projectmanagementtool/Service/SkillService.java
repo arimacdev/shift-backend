@@ -11,6 +11,7 @@ public interface SkillService {
     Object addSkillsToUser(String userId, String categoryId,  SkillUserDto skillUserDto);
     Object deleteSkillsFromUser(String userId, String categoryId,  SkillUserDto skillUserDto);
     Object getAllUserSkillMap(String userId, String assignee);
+    Object getSkillMatrixOfUsers(String userId, int limit, int offset);
     Object getAllUserMatchingSkills(String userId, String assignee);
     Object getCategorySkillMapping(String userId);
 }

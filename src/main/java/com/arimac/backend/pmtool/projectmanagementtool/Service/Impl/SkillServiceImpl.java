@@ -224,6 +224,55 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
+    public Object getSkillMatrixOfUsers(String userId, int limit, int offset) {
+        User assigner = userRepository.getUserByUserId(userId);
+        if (assigner == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+       List<User> userList = userRepository.getAllUsersWithPagination(limit, offset);
+        List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
+        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
+
+        Map<User, Map<String, SkillCategory>> userSkillMap = new HashMap<>();
+        List<SkillMapUserResponse> skillMapUserResponseList = new ArrayList<>();
+        for (User assignee: userList) {
+            List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee.getUserId());
+            if (userSkillList.isEmpty()) {
+                userSkillMap.put(assignee, skillMatrix);
+            } else {
+                for (SkillUserResponseDto userSkill : userSkillList) {
+                    if (userSkillMap.get(assignee) != null) {
+                        Map<String, SkillCategory> userSkillCategory = userSkillMap.get(assignee);
+                        if (userSkillCategory.get(userSkill.getCategoryId()) != null) {
+                            SkillCategory skillCategory = userSkillCategory.get(userSkill.getCategoryId());
+                            List<CategorySkill> skillSet = skillCategory.getSkillSet();
+                            for (CategorySkill skill : skillSet) {
+                                if (userSkill.getSkillId().equals(skill.getSkillId())) {
+                                    skill.setIsAssigned(true);
+                                }
+                            }
+                        }
+                    } else {
+                        userSkillMap.put(assignee, skillMatrix);
+                    }
+
+                }
+            }
+        }
+
+        for (Map.Entry<User, Map<String,SkillCategory>> entry: userSkillMap.entrySet()){
+            SkillMapUserResponse skillMapUserResponse = new SkillMapUserResponse();
+            skillMapUserResponse.setUserId(entry.getKey().getUserId());
+            skillMapUserResponse.setFirstName(entry.getKey().getFirstName());
+            skillMapUserResponse.setLastName(entry.getKey().getLastName());
+            skillMapUserResponse.setUserProfileImage(entry.getKey().getProfileImage());
+            List<SkillCategory> skillCategoryList1 = new ArrayList<>(entry.getValue().values());
+            skillMapUserResponse.setCategory(skillCategoryList1);
+            skillMapUserResponseList.add(skillMapUserResponse);
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, skillMapUserResponseList);
+    }
+
+    @Override
     public Object getAllUserMatchingSkills(String userId, String assignee) {
         User assigner = userRepository.getUserByUserId(userId);
         if (assigner == null)
