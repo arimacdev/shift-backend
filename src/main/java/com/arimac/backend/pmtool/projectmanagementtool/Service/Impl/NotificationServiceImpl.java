@@ -120,7 +120,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalAssigneeNotif.append(sender.getFirstName());
                     oneSignalAssigneeNotif.append(" ");
                     oneSignalAssigneeNotif.append(sender.getLastName());
-
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalAssigneeNotif.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalAssigneeNotif.toString(), device.getSubscriptionId());
                 }
             }
@@ -233,7 +235,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskAssigneeUpdateNotf.append(newAssignee.getFirstName());
                     oneSignalTaskAssigneeUpdateNotf.append(" ");
                     oneSignalTaskAssigneeUpdateNotf.append(newAssignee.getLastName());
-
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskAssigneeUpdateNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskAssigneeUpdateNotf.toString(), device.getSubscriptionId());
                 }
             }
@@ -362,7 +366,10 @@ public class NotificationServiceImpl implements NotificationService {
                         default:
                             return;
                     }
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
                     sendOneSignalMobileNotification(oneSignalTaskUpdateNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                    else
+                        sendOneSignalNotification(oneSignalTaskUpdateNotf.toString(), device.getSubscriptionId());
                 }
             }
 
@@ -469,6 +476,9 @@ public class NotificationServiceImpl implements NotificationService {
                  oneSignalFileUploadNotf.append(user.getFirstName());
                  oneSignalFileUploadNotf.append(" ");
                  oneSignalFileUploadNotf.append(user.getLastName());
+                 if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                     sendOneSignalMobileNotification(oneSignalFileUploadNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                 else
                  sendOneSignalNotification(oneSignalFileUploadNotf.toString(), device.getSubscriptionId());
              }
             }
@@ -551,6 +561,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskDeleteNotf.append(remover.getFirstName());
                     oneSignalTaskDeleteNotf.append(" ");
                     oneSignalTaskDeleteNotf.append(remover.getLastName());
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskDeleteNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskDeleteNotf.toString(), device.getSubscriptionId());
                 }
             }
@@ -613,7 +626,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskGroupTaskNtf.append(sender.getFirstName());
                     oneSignalTaskGroupTaskNtf.append(" ");
                     oneSignalTaskGroupTaskNtf.append(sender.getLastName());
-
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId(), "GroupTasksDetailsScreen", taskGroup.getTaskGroupId(), taskGroup.getTaskGroupName(), taskGroupTask.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                 }
             }
@@ -698,6 +713,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskGroupTaskNtf.append(OneSignalMessages.ASSIGNED_BY);
                     oneSignalTaskGroupTaskNtf.append(sender.getFirstName());
                     oneSignalTaskGroupTaskNtf.append(sender.getLastName());
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId(), "GroupTasksDetailsScreen", taskGroup.getTaskGroupId(), taskGroup.getTaskGroupName(), taskGroupTask.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                 }
             }
@@ -811,6 +829,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskGroupTaskNtf.append(editor.getFirstName());
                     oneSignalTaskGroupTaskNtf.append(" ");
                     oneSignalTaskGroupTaskNtf.append(editor.getLastName());
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId(), "GroupTasksDetailsScreen", taskGroup.getTaskGroupId(), taskGroup.getTaskGroupName(), taskGroupTask.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                 }
             }
@@ -916,6 +937,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskGroupTaskNtf.append(user.getLastName());
                     oneSignalTaskGroupTaskNtf.append(OneSignalMessages.UPLOADED_FILE);
                     oneSignalTaskGroupTaskNtf.append(fileName);
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId(), "GroupTasksDetailsScreen", taskGroup.getTaskGroupId(), taskGroup.getTaskGroupName(), taskGroupTask.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                 }
             }
@@ -984,6 +1008,9 @@ public class NotificationServiceImpl implements NotificationService {
                     oneSignalTaskGroupTaskNtf.append(OneSignalMessages.DELETED_BY);
                     oneSignalTaskGroupTaskNtf.append(remover.getFirstName());
                     oneSignalTaskGroupTaskNtf.append(remover.getLastName());
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId(), "GroupTasksDetailsScreen", taskGroup.getTaskGroupId(), taskGroup.getTaskGroupName(), task.getTaskId());
+                    else
                     sendOneSignalNotification(oneSignalTaskGroupTaskNtf.toString(), device.getSubscriptionId());
                 }
             }
