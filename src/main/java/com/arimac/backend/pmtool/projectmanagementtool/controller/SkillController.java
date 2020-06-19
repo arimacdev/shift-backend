@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/category")
@@ -90,6 +92,13 @@ public class SkillController extends ResponseController {
         return sendResponse(skillService.getSkillMatrixOfUsers(userId, limit, offset));
     }
 
+    @ApiOperation(value = "Add Skills a User", notes = "Add Skills a User")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/user/skills")
+    public ResponseEntity<Object> skillFilteration(@RequestHeader("userId") String userId, @RequestParam("skill") Set<String> skills){
+        logger.info("HIT - GET | skillFilteration /category/user/skills?<skill> | userId: {} | skills: {} ", userId, skills);
+        return sendResponse(skillService.skillFilteration(userId, skills));
+    }
 
     @ApiOperation(value = "Add Skills a User for User Profile", notes = "Add Skills a User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)

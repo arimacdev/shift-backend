@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillCategoryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillCategoryUserResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Skill.SkillUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
@@ -121,6 +122,20 @@ public class SkillRepositoryImpl implements SkillRepository {
     }
 
     @Override
+    public List<SkillCategoryUserResponse> getSkillFilteration(Set<String> skills) {
+        String sql = "SELECT * FROM User INNER JOIN UserSkill US on User.userId = US.userId INNER JOIN Skill S ON S.skillId = US.skillId " +
+                "    INNER JOIN Category C on US.categoryId = C.categoryId " +
+                "    WHERE  US.skillId IN (:ids) AND C.isDeleted=false AND S.isDeleted=false";
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        parameterSource.addValue("ids", skills);
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameterSource, new SkillCategoryUserResponse());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public List<SkillUserResponseDto> getAllUserSkillMap(String userId) {
         String sql = "SELECT * FROM Category AS C INNER JOIN UserSkill as US ON C.categoryId = US.categoryId AND US.userId=? INNER JOIN Skill AS S ON S.skillId = US.skillId " +
                 "WHERE (C.isDeleted = false AND (S.isDeleted = false OR S.isDeleted IS NULL))";
@@ -133,9 +148,25 @@ public class SkillRepositoryImpl implements SkillRepository {
 
     @Override
     public List<SkillCategoryDto> getSkillMatrix() {
-        String sql = "SELECT * FROM Category AS C INNER JOIN Skill AS S ON S.categoryId = C.categoryId WHERE C.isDeleted=false AND S.isDeleted=false";
+        String sql = "SELECT * FROM Category AS C " +
+                "INNER JOIN Skill AS S ON S.categoryId = C.categoryId " +
+                "WHERE C.isDeleted=false AND S.isDeleted=false";
         try {
             return jdbcTemplate.query(sql, new SkillCategoryDto());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SkillCategoryDto> getMatrixForCategories(Set<String> skills) {
+        String sql = "SELECT * FROM Category AS C " +
+                "INNER JOIN Skill AS S ON S.categoryId = C.categoryId " +
+                "WHERE S.skillId IN (:ids) AND C.isDeleted=false AND S.isDeleted=false";
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        parameterSource.addValue("ids", skills);
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameterSource, new SkillCategoryDto());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
