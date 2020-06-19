@@ -155,7 +155,7 @@ public class SkillServiceImpl implements SkillService {
         if (assigneeUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<SkillCategoryDto> categorySkillList = skillRepository.getSkillMatrix();
-        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, true);
+        Map<String,SkillCategory> skillMatrix = getSkillMatrix(categorySkillList, false);
 //        for (SkillCategoryDto categorySkill: categorySkillList){
 //            if (skillMatrix.get(categorySkill.getCategoryId())!= null){
 //                SkillCategory skillCategory = skillMatrix.get(categorySkill.getCategoryId());
@@ -187,9 +187,13 @@ public class SkillServiceImpl implements SkillService {
 
         List<SkillMapUserResponse> skillMapUserResponseList = new ArrayList<>();
         List<SkillUserResponseDto> userSkillList = skillRepository.getAllUserSkillMap(assignee);
-        //Map<String, List<SkillCategory>> userSkillMap = new HashMap<>();
+        if (userSkillList.isEmpty()){
+            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new ArrayList<>(getSkillMatrix(categorySkillList, true).values()));
+        }
+        //List<SkillCategory> skillList = new ArrayList<>(getSkillMatrix(categorySkillList, false).values());
+
         Map<String, Map<String, SkillCategory>> userSkillMap = new HashMap<>();
-        Map<String, SkillCategory> userSkillCategory1 = new HashMap<>();
+        //Map<String, SkillCategory> userSkillCategory1 = new HashMap<>();
         for (SkillUserResponseDto userSkill: userSkillList){
             if (userSkillMap.get(userSkill.getUserId()) != null){
                     Map<String, SkillCategory> userSkillCategory = userSkillMap.get(userSkill.getUserId());

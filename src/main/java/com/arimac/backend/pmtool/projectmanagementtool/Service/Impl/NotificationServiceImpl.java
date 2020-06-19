@@ -11,6 +11,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackElement;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.Notification.NotificationEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Notification.NotificationPlatformEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -1295,6 +1296,10 @@ public class NotificationServiceImpl implements NotificationService {
         JSONObject contents = new JSONObject();
         contents.put("en", message);
         payload.put("contents", contents);
+//        if (platform.equals(NotificationPlatformEnum.Mobile.toString())){
+//            JSONObject mobileData = new JSONObject();
+//           // mobileData.put()
+//        }
 
         logger.info("URL {}", url);
         HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), httpHeaders);
