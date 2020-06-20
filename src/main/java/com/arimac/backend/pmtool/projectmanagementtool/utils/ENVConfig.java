@@ -18,6 +18,8 @@ public class ENVConfig {
     public static final String SLACK_BASE_URL = System.getenv("SLACK_BASE_URL");
     public static final String SLACK_BOT_TOKEN = System.getenv("SLACK_BOT_TOKEN");
 
-
+    public static final String ONE_SIGNAL_URL = System.getenv("ONE_SIGNAL_URL");
+    public static final String ONE_SIGNAL_TOKEN = System.getenv("ONE_SIGNAL_TOKEN");
+    public static final String ONE_SIGNAL_APP_ID = System.getenv("ONE_SIGNAL_APP_ID");
 
 }

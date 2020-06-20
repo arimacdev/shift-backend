@@ -49,7 +49,14 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String NOTES = "notes";
     private static final String DUE_DATE = "dueDate";
     private static final String STATUS = "status";
-
+    private static final String PLAYER_IDS = "include_player_ids";
+    private static final String APP_ID = "app_id";
+    private static final String EN = "en";
+    private static final String CONTENTS = "contents";
+    private static final String SCREEN = "screen";
+    private static final String ID = "id";
+    private static final String TASK_ID = "taskId";
+    private static final String DATA = "data";
 
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
@@ -1325,61 +1332,54 @@ public class NotificationServiceImpl implements NotificationService {
 
     private HttpHeaders getOneSignalHeaders(){
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Authorization", "Basic " + "NGY0OWQwNTYtM2E2Ny00NmMzLWFiN2QtZjdhZjA2OWMwZTgw");
+        httpHeaders.set("Authorization", "Basic " + ENVConfig.ONE_SIGNAL_TOKEN);
         httpHeaders.set("Content-Type", "application/json; charset=utf-8");
 
         return httpHeaders;
     }
 
-
-    private void sendOneSignalNotification(String message, String recipientId) {
-        String url = "https://onesignal.com/api/v1/notifications";
-
+    private JSONObject getOneSignalPayload(String message, String recipientId){
         JSONObject payload = new JSONObject();
         List<String> segmants = new ArrayList<>();
         segmants.add(recipientId);
-        payload.put("include_player_ids", segmants);
-        payload.put("app_id", "fe6df906-c5cf-4c5e-bc1f-21003be4b2d5");
+        payload.put(PLAYER_IDS, segmants);
+        payload.put(APP_ID, ENVConfig.ONE_SIGNAL_APP_ID);
         JSONObject contents = new JSONObject();
-        contents.put("en", message);
-        payload.put("contents", contents);
+        contents.put(EN, message);
+        payload.put(CONTENTS , contents);
+        return  payload;
+    }
+
+    private void sendOneSignalNotification(String message, String recipientId) {
+      String url = ENVConfig.ONE_SIGNAL_URL;
+        JSONObject payload = getOneSignalPayload(message, recipientId);
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getOneSignalHeaders());
         logger.info("URL {}", url);
-        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
         logger.info("Payload {}", payload.toString());
         try {
           ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         } catch (Exception e){
             logger.info("OneSignal Exception {}", e.getMessage());
         }
-
     }
 
-    private void sendOneSignalMobileNotification(String message, String recipientId, String screen, String entityId, String entityName, String taskId) {
-        String url = "https://onesignal.com/api/v1/notifications";
-
-        JSONObject payload = new JSONObject();
-        List<String> segmants = new ArrayList<>();
-        segmants.add(recipientId);
-        payload.put("include_player_ids", segmants);
-        payload.put("app_id", "fe6df906-c5cf-4c5e-bc1f-21003be4b2d5");
-        JSONObject contents = new JSONObject();
-        contents.put("en", message);
-        payload.put("contents", contents);
+     private void sendOneSignalMobileNotification(String message, String recipientId, String screen, String entityId, String entityName, String taskId) {
+        String url = ENVConfig.ONE_SIGNAL_URL;
+        JSONObject payload = getOneSignalPayload(message, recipientId);
         JSONObject data = new JSONObject();
-        data.put("screen", "TasksDetailsScreen");
-        data.put("id", entityId);
-        data.put("name", entityName);
-        data.put("taskId", taskId);
-        payload.put("data", data);
+        data.put(SCREEN, screen);
+        data.put(ID, entityId);
+        data.put(NAME, entityName);
+        data.put(TASK_ID, taskId);
+        payload.put(DATA, data);
         logger.info("URL {}", url);
-        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getOneSignalHeaders());
         logger.info("Payload {}", payload.toString());
         try {
             ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         } catch (Exception e){
             logger.info("OneSignal Exception {}", e.getMessage());
         }
-
     }
 
     @Scheduled(initialDelay = 10*1000, fixedRate = 30*60*1000)
@@ -1634,13 +1634,6 @@ public class NotificationServiceImpl implements NotificationService {
     private String getDueDate(DateTime dueUtc){
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy hh:mma");
         String dueFormatted = fmt.print(dueUtc);
-
-//        int year = dueUtc.getYear();
-//        int month = dueUtc.getMonthOfYear();
-//        dueUtc.getDayOfMonth();
-//        dueUtc.getHourOfDay();
-//        dueUtc.getMinuteOfHour();
-
         return dueFormatted;
 
     }
