@@ -2,10 +2,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.Notification.NotificationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.Notification.NotificationPlatformEnum;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotEmpty;
 
-public class NotificationRegisterDto {
+public class NotificationDto {
     @NotEmpty
     private String subscriberId;
     @NotEmpty
@@ -14,6 +15,8 @@ public class NotificationRegisterDto {
     private NotificationEnum provider;
     @NotEmpty
     private NotificationPlatformEnum platform;
+    @JsonProperty
+    private Boolean notificationStatus;
 
     public String getSubscriberId() {
         return subscriberId;
@@ -45,5 +48,13 @@ public class NotificationRegisterDto {
 
     public void setPlatform(NotificationPlatformEnum platform) {
         this.platform = platform;
+    }
+
+    public Boolean getNotificationStatus() {
+        return notificationStatus;
+    }
+
+    public void setNotificationStatus(Boolean notificationStatus) {
+        this.notificationStatus = notificationStatus;
     }
 }

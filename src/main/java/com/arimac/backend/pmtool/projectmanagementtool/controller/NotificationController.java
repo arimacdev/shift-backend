@@ -3,7 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationRegisterDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -34,16 +34,16 @@ public class NotificationController extends ResponseController {
     @ApiOperation(value = "Register for Notifications", notes = "Register for Notifications")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/register")
-    public ResponseEntity<Object> registerForNotifications(@RequestBody NotificationRegisterDto notificationRegisterDto, @RequestHeader("userId") String userId){
-        logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId,notificationRegisterDto);
-        return sendResponse(notificationService.registerForNotifications(userId, notificationRegisterDto));
+    public ResponseEntity<Object> registerForNotifications(@RequestBody NotificationDto notificationDto, @RequestHeader("userId") String userId){
+        logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId, notificationDto);
+        return sendResponse(notificationService.registerForNotifications(userId, notificationDto));
     }
     @ApiOperation(value = "Unsubscribe from Notifications", notes = "Unsubscribe from Notifications")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
-    @PutMapping("/register")
-    public ResponseEntity<Object> unsubscribeFromNotifications(@RequestBody NotificationRegisterDto notificationRegisterDto, @RequestHeader("userId") String userId){
-        logger.info("HIT - POST /notification/register ---> registerForNotifications | userId: {}| dto: {}",userId,notificationRegisterDto);
-        return sendResponse(notificationService.registerForNotifications(userId, notificationRegisterDto));
+    @PutMapping("/status")
+    public ResponseEntity<Object> changeSubscriptionStatus(@RequestBody NotificationDto notificationDto, @RequestHeader("userId") String userId){
+        logger.info("HIT - POST /notification/register ---> unsubscribeFromNotifications | userId: {}| dto: {}",userId, notificationDto);
+        return sendResponse(notificationService.changeSubscriptionStatus(userId, notificationDto));
     }
 
 }

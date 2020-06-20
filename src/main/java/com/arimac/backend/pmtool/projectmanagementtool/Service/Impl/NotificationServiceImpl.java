@@ -3,7 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationRegisterDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
@@ -87,14 +87,31 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Object registerForNotifications(String userId, NotificationRegisterDto notificationRegisterDto) {
+    public Object registerForNotifications(String userId, NotificationDto notificationDto) {
         UserNotification userNotification = new UserNotification();
-        userNotification.setUserId(notificationRegisterDto.getSubscriberId());
-        userNotification.setSubscriptionId(notificationRegisterDto.getSubscriptionId());
-        userNotification.setProvider(notificationRegisterDto.getProvider().toString());
-        userNotification.setPlatform(notificationRegisterDto.getPlatform().toString());
+        userNotification.setUserId(notificationDto.getSubscriberId());
+        userNotification.setSubscriptionId(notificationDto.getSubscriptionId());
+        userNotification.setProvider(notificationDto.getProvider().toString());
+        userNotification.setPlatform(notificationDto.getPlatform().toString());
         userNotification.setNotificationStatus(true);
         userNotificationRepository.registerForNotifications(userNotification);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object changeSubscriptionStatus(String userId, NotificationDto notificationDto) {
+        if (notificationDto.getNotificationStatus() == null)
+            return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        if (userRepository.getUserByUserId(userId) == null || userRepository.getUserByUserId(notificationDto.getSubscriberId()) == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        UserNotification userNotification = userNotificationRepository.getUserNotificationByProviderStatusAndPlatform(notificationDto.getSubscriberId(), notificationDto.getSubscriptionId(), notificationDto.getProvider().toString(), notificationDto.getPlatform().toString());
+        if (userNotification == null)
+            return new ErrorMessage(ResponseMessage.NOT_REGISTERED_FOR_PROVIDER, HttpStatus.NOT_FOUND);
+        if (!userNotification.getNotificationStatus() && !notificationDto.getNotificationStatus())
+            return new ErrorMessage(ResponseMessage.ALREADY_UNSUBSCRIBED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (userNotification.getNotificationStatus() && notificationDto.getNotificationStatus())
+            return new ErrorMessage(ResponseMessage.ALREADY_SUBSCRIBED, HttpStatus.UNPROCESSABLE_ENTITY);
+        userNotificationRepository.changeSubscriptionStatus(notificationDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

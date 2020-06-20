@@ -1,18 +1,18 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationRegisterDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.SubTask;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroup;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 
 public interface NotificationService {
     Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto);
-    Object registerForNotifications(String userId, NotificationRegisterDto notificationRegisterDto);
+    Object registerForNotifications(String userId, NotificationDto notificationDto);
+    Object changeSubscriptionStatus(String userId, NotificationDto notificationDto);
 
     void sendTaskAssignNotification(Task task); //done
     void sendTaskAssigneeUpdateNotification(Task task, String sender, String newAssignee);  //done

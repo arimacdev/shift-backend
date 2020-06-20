@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.NotificationServiceImpl;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.UserNotification;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserNotificationRepository;
@@ -44,5 +45,21 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
         } catch (EmptyResultDataAccessException e) {
            return null;
         }
+    }
+
+    @Override
+    public UserNotification getUserNotificationByProviderStatusAndPlatform(String userId, String subscriptionId, String provider, String platform) {
+        String sql = "SELECT * FROM UserNotification WHERE userId=? AND subscriptionId=? AND provider=? AND platform=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new UserNotification(), userId, subscriptionId, provider, platform);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public void changeSubscriptionStatus(NotificationDto notificationDto) {
+        String sql = "Update UserNotification SET notificationStatus=? WHERE userId=? AND subscriptionId=?";
+        jdbcTemplate.update(sql, notificationDto.getNotificationStatus(), notificationDto.getSubscriberId(), notificationDto.getSubscriptionId());
     }
 }
