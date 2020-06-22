@@ -11,6 +11,7 @@ import java.util.List;
 public interface UserRepository {
     Object createUser(User user);
     List<User> getAllUsers();
+    List<User> getAllUsersWithPagination(int limit, int offset);
     User getUserByUserId(String userId);
     User getUserWithFlag(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);

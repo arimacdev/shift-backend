@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -44,6 +45,16 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM User";
         List<User> userList = jdbcTemplate.query(sql, new User());
         return userList;
+    }
+
+    @Override
+    public List<User> getAllUsersWithPagination(int limit, int offset) {
+        String sql = "SELECT * FROM User WHERE isActive=true ORDER BY firstName LIMIT ? OFFSET ?";
+        try {
+            return jdbcTemplate.query(sql, new User(), limit, offset);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     @Override

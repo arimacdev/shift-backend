@@ -29,9 +29,18 @@ public enum ResponseMessage {
     CANNOT_TRANSITION_CHILD_TASK("Cannot Transition a Child Task"),
     PARENT_TASK_NOT_FOUND("Parent Task Not Found"),
     PARENT_TASK_HAS_CHILDREN("Parent Task Has Children"),
-    PARENT_TASK_HAS_PENDING_CHILD_TASKS("Parent Task Has Open Children")
-    ;
-
+    PARENT_TASK_HAS_PENDING_CHILD_TASKS("Parent Task Has Open Children"),
+    CATEGORY_NAME_EXIST("Category Exist By Category Name"),
+    CATEGORY_NOT_FOUND("Category Not Found"),
+    SKILL_NAME_EXIST("Skill Exist By Skill Name"),
+    SKILL_NOT_FOUND("Skill Not Found"),
+    ASSIGNER_NOT_FOUND("Assigner Not Found"),
+    ASSIGNEE_NOT_FOUND("Assignee Not Found"),
+    SKILL_ALREADY_ADDED("Skill Already Added to User"),
+    SKILL_NOT_ADDED("Skill Not Added to User"),
+    NOT_REGISTERED_FOR_PROVIDER("User Not Registered for Provider"),
+    ALREADY_UNSUBSCRIBED("User Already Unsubscribed!"),
+    ALREADY_SUBSCRIBED("User Already Subscribed!");
 
 
     private String message;
