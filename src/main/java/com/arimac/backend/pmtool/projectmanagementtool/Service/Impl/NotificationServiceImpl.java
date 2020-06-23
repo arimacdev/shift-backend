@@ -98,7 +98,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.getUserByUserId(notificationDto.getSubscriberId());
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        UserNotification device = userNotificationRepository.getUserNotificationByProviderStatusAndPlatform(notificationDto.getSubscriberId(), notificationDto.getSubscriptionId(),notificationDto.getPlatform().toString(), notificationDto.getProvider().toString());
+        UserNotification device = userNotificationRepository.getUserNotificationByProviderStatusAndPlatform(notificationDto.getSubscriberId(), notificationDto.getSubscriptionId(),notificationDto.getProvider().toString(), notificationDto.getPlatform().toString());
         if (device == null) {
             UserNotification userNotification = new UserNotification();
             userNotification.setUserId(notificationDto.getSubscriberId());
@@ -108,7 +108,7 @@ public class NotificationServiceImpl implements NotificationService {
             userNotification.setNotificationStatus(true);
             userNotificationRepository.registerForNotifications(userNotification);
         } else {
-            notificationDto.setNotificationStatus(true);
+            //notificationDto.setNotificationStatus(true);
             userNotificationRepository.changeSubscriptionStatus(notificationDto);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
@@ -123,10 +123,10 @@ public class NotificationServiceImpl implements NotificationService {
         UserNotification userNotification = userNotificationRepository.getUserNotificationByProviderStatusAndPlatform(notificationDto.getSubscriberId(), notificationDto.getSubscriptionId(), notificationDto.getProvider().toString(), notificationDto.getPlatform().toString());
         if (userNotification == null)
             return new ErrorMessage(ResponseMessage.NOT_REGISTERED_FOR_PROVIDER, HttpStatus.NOT_FOUND);
-        if (!userNotification.getNotificationStatus() && !notificationDto.getNotificationStatus())
-            return new ErrorMessage(ResponseMessage.ALREADY_UNSUBSCRIBED, HttpStatus.UNPROCESSABLE_ENTITY);
-        if (userNotification.getNotificationStatus() && notificationDto.getNotificationStatus())
-            return new ErrorMessage(ResponseMessage.ALREADY_SUBSCRIBED, HttpStatus.UNPROCESSABLE_ENTITY);
+//        if (!userNotification.getNotificationStatus() && !notificationDto.getNotificationStatus())
+//            return new ErrorMessage(ResponseMessage.ALREADY_UNSUBSCRIBED, HttpStatus.UNPROCESSABLE_ENTITY);
+//        if (userNotification.getNotificationStatus() && notificationDto.getNotificationStatus())
+//            return new ErrorMessage(ResponseMessage.ALREADY_SUBSCRIBED, HttpStatus.UNPROCESSABLE_ENTITY);
         userNotificationRepository.changeSubscriptionStatus(notificationDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
