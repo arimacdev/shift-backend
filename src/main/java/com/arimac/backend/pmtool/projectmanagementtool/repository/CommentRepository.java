@@ -4,4 +4,5 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Comment;
 
 public interface CommentRepository {
     void addCommentToTask(Comment comment);
+    Comment getCommentById(String commentId);
 }

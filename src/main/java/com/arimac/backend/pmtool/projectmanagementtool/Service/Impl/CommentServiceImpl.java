@@ -50,9 +50,9 @@ public class CommentServiceImpl implements CommentService {
         comment.setIsUpdated(false);
         comment.setIsDeleted(false);
         if (commentAddDto.getParentId()!= null && !commentAddDto.getParentId().isEmpty()){
-//            Comment parentComment = taskRepository.getProjectTask(commentAddDto.getParentId());
-//            if (pare == null)
-//                return new ErrorMessage(Res)
+            Comment parentComment = commentRepository.getCommentById(commentAddDto.getParentId());
+            if (parentComment == null)
+                return new ErrorMessage(ResponseMessage.PARENT_COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
             comment.setParentId(commentAddDto.getParentId());
             comment.setIsParent(false);
         } else {
