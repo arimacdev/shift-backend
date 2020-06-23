@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.Notification.Notifi
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 public class NotificationDto {
     @NotEmpty
@@ -15,7 +16,7 @@ public class NotificationDto {
     private NotificationEnum provider;
     @NotEmpty
     private NotificationPlatformEnum platform;
-    @JsonProperty
+    @NotNull
     private Boolean notificationStatus;
 
     public String getSubscriberId() {
