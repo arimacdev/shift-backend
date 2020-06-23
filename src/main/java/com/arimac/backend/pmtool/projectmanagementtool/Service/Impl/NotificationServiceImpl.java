@@ -95,13 +95,22 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Object registerForNotifications(String userId, NotificationDto notificationDto) {
-        UserNotification userNotification = new UserNotification();
-        userNotification.setUserId(notificationDto.getSubscriberId());
-        userNotification.setSubscriptionId(notificationDto.getSubscriptionId());
-        userNotification.setProvider(notificationDto.getProvider().toString());
-        userNotification.setPlatform(notificationDto.getPlatform().toString());
-        userNotification.setNotificationStatus(true);
-        userNotificationRepository.registerForNotifications(userNotification);
+        User user = userRepository.getUserByUserId(notificationDto.getSubscriberId());
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        UserNotification device = userNotificationRepository.getUserNotificationByProviderStatusAndPlatform(notificationDto.getSubscriberId(), notificationDto.getSubscriptionId(),notificationDto.getPlatform().toString(), notificationDto.getProvider().toString());
+        if (device == null) {
+            UserNotification userNotification = new UserNotification();
+            userNotification.setUserId(notificationDto.getSubscriberId());
+            userNotification.setSubscriptionId(notificationDto.getSubscriptionId());
+            userNotification.setProvider(notificationDto.getProvider().toString());
+            userNotification.setPlatform(notificationDto.getPlatform().toString());
+            userNotification.setNotificationStatus(true);
+            userNotificationRepository.registerForNotifications(userNotification);
+        } else {
+            notificationDto.setNotificationStatus(true);
+            userNotificationRepository.changeSubscriptionStatus(notificationDto);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
