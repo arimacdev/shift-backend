@@ -7,7 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Reaction;
 public interface CommentRepository {
     void addCommentToTask(Comment comment);
     void updateComment(String commentId, UpdateCommentDto updateCommentDto);
-    void deleteComment(String commentId);
+    void flagComment(String commentId);
     Comment getCommentById(String commentId);
     void addCommentReaction(Reaction reaction);
 }

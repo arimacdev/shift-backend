@@ -42,7 +42,7 @@ public class CommentRepositoryImpl implements CommentRepository {
 
     @Override
     public void updateComment(String commentId, UpdateCommentDto updateCommentDto) {
-        String sql = "UPDATE Comment SET content=? isUpdated=? WHERE commentId=?";
+        String sql = "UPDATE Comment SET content=?, isUpdated=? WHERE commentId=?";
         try {
             jdbcTemplate.update(sql, updateCommentDto.getContent(), true, commentId);
         } catch (Exception e){
@@ -51,7 +51,7 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     @Override
-    public void deleteComment(String commentId) {
+    public void flagComment(String commentId) {
         String sql = "UPDATE Comment SET isDeleted=? WHERE commentId=?";
         try {
             jdbcTemplate.update(sql, true, commentId);

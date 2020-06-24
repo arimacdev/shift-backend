@@ -65,7 +65,7 @@ public class CommentServiceImpl implements CommentService {
         User commenter = userRepository.getUserByUserId(updateCommentDto.getCommenter());
         if (commenter == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Comment comment = commentRepository.getCommentById(updateCommentDto.getCommenter());
+        Comment comment = commentRepository.getCommentById(commentId);
         if (comment == null)
             return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!updateCommentDto.getCommenter().equals(comment.getCommenter()))
@@ -84,6 +84,8 @@ public class CommentServiceImpl implements CommentService {
             return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!comment.getCommenter().equals(userId))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        commentRepository.flagComment(commentId);
+        //TODO Flag Reactions
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
