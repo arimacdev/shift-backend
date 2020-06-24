@@ -6,4 +6,5 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.UpdateComme
 public interface CommentService {
     Object addCommentToTask(CommentAddDto commentAddDto);
     Object updateComment(String commentId, UpdateCommentDto updateCommentDto);
+    Object flagComment(String userId, String commentId);
 }

@@ -75,4 +75,17 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.updateComment(commentId, updateCommentDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
+
+    @Override
+    public Object flagComment(String userId, String commentId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!comment.getCommenter().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
 }

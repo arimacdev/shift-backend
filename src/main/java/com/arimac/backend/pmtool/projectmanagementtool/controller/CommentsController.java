@@ -37,9 +37,18 @@ public class CommentsController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PutMapping("/task/comment/{commentId}")
     public ResponseEntity<Object> updateComment(@RequestHeader("userId") String userId, @PathVariable("commentId") String commentId,  @RequestBody UpdateCommentDto updateCommentDto){
-        logger.info("HIT - GET task/comment/<commentId>---> updateComment  userId: {} | commentId: {} | Dto: {}", userId, commentId, updateCommentDto);
+        logger.info("HIT - PUT task/comment/<commentId>---> updateComment  userId: {} | commentId: {} | Dto: {}", userId, commentId, updateCommentDto);
         return sendResponse(commentService.updateComment(commentId, updateCommentDto));
     }
+
+    @ApiOperation(value = "Update a comment", notes = "Update a comment")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @DeleteMapping("/task/comment/{commentId}")
+    public ResponseEntity<Object> flagComment(@RequestHeader("userId") String userId, @PathVariable("commentId") String commentId){
+        logger.info("HIT - DELETE task/comment/<commentId>---> updateComment  userId: {} | commentId: {}", userId, commentId);
+        return sendResponse(commentService.flagComment(userId, commentId));
+    }
+
 
 //    @ApiOperation(value = "Get Parent Comments", notes = "Get Parent Comments")
 //    @ApiResponse(code = 200, message = "Success", response = List.class)

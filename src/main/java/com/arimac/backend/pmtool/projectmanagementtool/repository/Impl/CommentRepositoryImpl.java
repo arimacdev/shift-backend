@@ -50,6 +50,16 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     @Override
+    public void deleteComment(String commentId) {
+        String sql = "UPDATE Comment SET isDeleted=? WHERE commentId=?";
+        try {
+            jdbcTemplate.update(sql, true, commentId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public Comment getCommentById(String commentId) {
         String sql = "SELECT * FROM Comment WHERE commentId=? AND isDeleted=false";
         try {
