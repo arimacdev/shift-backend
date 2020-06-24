@@ -3,13 +3,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.CommentService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.CommentAddDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.ReactionAddDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.UpdateCommentDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Comment;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.CommentRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -86,6 +84,43 @@ public class CommentServiceImpl implements CommentService {
             return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!comment.getCommenter().equals(userId))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getTaskComments(String userId, String taskId, String startIndex, String endIndex) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(task.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        return null;
+    }
+
+    @Override
+    public Object addReactionToComment(String userId, String commentId, ReactionAddDto reactionAddDto) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+         Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(comment.getEntityId());
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(task.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        Reaction reaction = new Reaction();
+        reaction.setCommentId(commentId);
+        reaction.setReactionId(reactionAddDto.getReactionId());
+        reaction.setReactorId(userId);
+        reaction.setReactedAt(utilsService.getCurrentTimestamp());
+        commentRepository.addCommentReaction(reaction);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }
