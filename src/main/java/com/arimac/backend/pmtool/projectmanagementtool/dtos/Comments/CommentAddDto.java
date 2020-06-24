@@ -9,7 +9,7 @@ public class CommentAddDto {
     private String content;
     @NotEmpty
     private String commenter;
-    private String parentId;
+
 
     public String getEntityId() {
         return entityId;
@@ -35,21 +35,12 @@ public class CommentAddDto {
         this.commenter = commenter;
     }
 
-    public String getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
-    }
-
     @Override
     public String toString() {
         return "CommentAddDto{" +
                 "entityId='" + entityId + '\'' +
                 ", content='" + content + '\'' +
                 ", commenter='" + commenter + '\'' +
-                ", parentId='" + parentId + '\'' +
                 '}';
     }
 }
