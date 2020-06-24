@@ -2,9 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.CommentService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.CommentAddDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.ReactionAddDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.UpdateCommentDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -17,6 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -90,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Object getTaskComments(String userId, String taskId, String startIndex, String endIndex) {
+    public Object getTaskComments(String userId, String taskId, int startIndex, int endIndex) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -100,7 +103,42 @@ public class CommentServiceImpl implements CommentService {
         Project_User project_user = projectRepository.getProjectUser(task.getProjectId(), userId);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        return null;
+        int limit = endIndex - startIndex;
+        List<CommentReaction> commentReactionList = commentRepository.getTaskComments(taskId, limit, startIndex );
+        Map<String, CommentReactionResponse> commentReactionResponseMap = new HashMap<>();
+        for (CommentReaction commentReaction : commentReactionList){
+            UserReaction userReaction = new UserReaction();
+            if (commentReaction.getReactionId()!= null){
+                userReaction.setReactionId(commentReaction.getReactionId());
+                userReaction.setResponderId(commentReaction.getResponderId());
+                userReaction.setResponderFirstName(commentReaction.getResponderFirstName());
+                userReaction.setResponderLastName(commentReaction.getResponderLastName());
+                userReaction.setResponderProfileImage(commentReaction.getResponderProfileImage());
+            }
+            if (commentReactionResponseMap.get(commentReaction.getCommentId())!= null){
+                List<UserReaction> userReactions = commentReactionResponseMap.get(commentReaction.getCommentId()).getReactions();
+                if (commentReaction.getReactionId()!= null){
+                    userReactions.add(userReaction);
+                    commentReactionResponseMap.get(commentReaction.getCommentId()).setReactions(userReactions);
+                }
+            } else {
+                CommentReactionResponse commentReactionResponse = new CommentReactionResponse();
+                commentReactionResponse.setCommentId(commentReaction.getCommentId());
+                commentReactionResponse.setContent(commentReaction.getContent());
+                commentReactionResponse.setCommenter(commentReaction.getCommenterId());
+                commentReactionResponse.setCommenterFistName(commentReaction.getCommenterFirstName());
+                commentReactionResponse.setCommenterLatName(commentReaction.getCommenterLastName());
+                commentReactionResponse.setCommenterProfileImage(commentReaction.getCommenterProfileImage());
+                commentReactionResponse.setCommentedAt(commentReaction.getCommentedAt());
+                List<UserReaction> userReactionList = new ArrayList<>();
+                if (commentReaction.getReactionId()!= null)
+                    userReactionList.add(userReaction);
+                commentReactionResponse.setReactions(userReactionList);
+                commentReactionResponseMap.put(commentReaction.getCommenterId(), commentReactionResponse );
+            }
+        }
+        List<CommentReactionResponse> commentReactionResponseList = new ArrayList<>(commentReactionResponseMap.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, commentReactionResponseList);
     }
 
     @Override
@@ -122,8 +160,26 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.addCommentReaction(getReaction(commentId,reactionAddDto,userId));
         } else if (commentReaction.getReactionId().equals(reactionAddDto.getReactionId())){
             return new ErrorMessage(ResponseMessage.ALREADY_REACTED_WITH_REACTION, HttpStatus.UNPROCESSABLE_ENTITY);
+        } else if (!commentReaction.getReactorId().equals(userId)) {
+            return new ErrorMessage(ResponseMessage.NOT_REACTOR, HttpStatus.UNAUTHORIZED);
         } else
-           commentRepository.updateCommentReaction(getReaction(commentId,reactionAddDto,userId));
+            commentRepository.updateCommentReaction(getReaction(commentId, reactionAddDto, userId));
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object removeUserCommentReaction(String userId, String commentId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Reaction commentReaction = commentRepository.getCommentReaction(userId, commentId);
+        if (commentReaction == null)
+            return new ErrorMessage(ResponseMessage.REACTION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        commentRepository.removeUserCommentReaction(userId, commentId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

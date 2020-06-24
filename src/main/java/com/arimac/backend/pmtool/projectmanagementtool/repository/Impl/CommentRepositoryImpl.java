@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.CommentReaction;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.UpdateCommentDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Comment;
@@ -10,7 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
-import java.sql.Timestamp;
+import java.util.List;
 
 @Service
 public class CommentRepositoryImpl implements CommentRepository {
@@ -58,6 +59,20 @@ public class CommentRepositoryImpl implements CommentRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public List<CommentReaction> getTaskComments(String taskId, int limit, int offset) {
+        String sql = "SELECT * FROM (SELECT  * FROM Comment WHERE entityId=? ORDER BY commentedAt DESC LIMIT ? OFFSET ?) AS C " +
+                "LEFT JOIN Reaction R on C.commentId = R.commentId " +
+                "LEFT JOIN User AS UR ON UR.userId = R.reactorId " +
+                "LEFT JOIN User AS UC ON UC.userId = C.commenter";
+        try {
+            return jdbcTemplate.query(sql, new CommentReaction(), taskId, limit, offset);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
     @Override
     public Comment getCommentById(String commentId) {
         String sql = "SELECT * FROM Comment WHERE commentId=? AND isDeleted=false";
@@ -102,6 +117,15 @@ public class CommentRepositoryImpl implements CommentRepository {
             jdbcTemplate.update(sql, reaction.getReactionId(), reaction.getReactorId(), reaction.getCommentId());
         }
         catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+    @Override
+    public void removeUserCommentReaction(String userId, String commentId) {
+        String sql = "DELETE FROM Reaction WHERE reactorId=? AND commentId=?";
+        try {
+            jdbcTemplate.update(sql, userId, commentId);
+        } catch (Exception e){
             throw new PMException(e.getMessage());
         }
     }

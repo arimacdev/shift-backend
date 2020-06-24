@@ -53,7 +53,7 @@ public class CommentsController extends ResponseController {
     @ApiOperation(value = "Get Comments of a Task", notes = "Get Comments of a Task")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/task/{taskId}/comment")
-    public ResponseEntity<Object> getTaskComments(@RequestHeader("userId") String userId, @PathVariable("taskId") String taskId,  @RequestParam("startIndex") String startIndex, @RequestParam("endIndex") String endIndex){
+    public ResponseEntity<Object> getTaskComments(@RequestHeader("userId") String userId, @PathVariable("taskId") String taskId,  @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex){
         logger.info("HIT - GET task/<taskId>/comment---> getTaskComments | taskId: {} | userId: {} | start {} | end {}", taskId, userId, startIndex, endIndex);
         return sendResponse(commentService.getTaskComments(userId, taskId, startIndex, endIndex));
     }
@@ -64,6 +64,14 @@ public class CommentsController extends ResponseController {
     public ResponseEntity<Object> addOrUpdateReactionToComment(@RequestHeader("userId") String userId, @PathVariable("commentId") String commentId, @RequestBody ReactionAddDto reactionAddDto){
         logger.info("HIT - POST task/comment/<commentId>/reaction ---> addOrUpdateReactionToComment  userId: {} | commentId: {}| dto: {}", userId, commentId, reactionAddDto);
         return sendResponse(commentService.addOrUpdateReactionToComment(userId, commentId, reactionAddDto));
+    }
+
+    @ApiOperation(value = "Remove User Reaction from a comment", notes = "Remove User Reaction from a comment")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @DeleteMapping("/task/comment/{commentId}/reaction")
+    public ResponseEntity<Object> removeUserCommentReaction(@RequestHeader("userId") String userId, @PathVariable("commentId") String commentId){
+        logger.info("HIT - DELETE task/comment/<commentId>/reaction ---> removeUserCommentReaction  userId: {} | commentId: {}", userId, commentId);
+        return sendResponse(commentService.removeUserCommentReaction(userId, commentId));
     }
 
 

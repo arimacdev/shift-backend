@@ -8,6 +8,7 @@ public interface CommentService {
     Object addCommentToTask(CommentAddDto commentAddDto);
     Object updateComment(String commentId, UpdateCommentDto updateCommentDto);
     Object flagComment(String userId, String commentId);
-    Object getTaskComments(String userId, String taskId,  String startIndex, String endIndex);
+    Object getTaskComments(String userId, String taskId,  int startIndex, int endIndex);
     Object addOrUpdateReactionToComment(String userId, String commentId, ReactionAddDto reactionAddDto);
+    Object removeUserCommentReaction(String userId, String commentId);
 }
