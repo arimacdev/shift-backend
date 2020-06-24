@@ -58,12 +58,12 @@ public class CommentsController extends ResponseController {
         return sendResponse(commentService.getTaskComments(userId, taskId, startIndex, endIndex));
     }
 
-    @ApiOperation(value = "Add a Reaction to a Comment", notes = "Add a Reaction to a Comment")
+    @ApiOperation(value = "Add/Update a Reaction to a Comment", notes = "Add/Update a Reaction to a Comment")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PostMapping("/task/comment/{commentId}/reaction")
-    public ResponseEntity<Object> addReactionToComment(@RequestHeader("userId") String userId, @PathVariable("commentId") String commentId, @RequestBody ReactionAddDto reactionAddDto){
-        logger.info("HIT - POST task/comment/<commentId>/reaction ---> addReactionToComment  userId: {} | commentId: {}| dto: {}", userId, commentId, reactionAddDto);
-        return sendResponse(commentService.addReactionToComment(userId, commentId, reactionAddDto));
+    public ResponseEntity<Object> addOrUpdateReactionToComment(@RequestHeader("userId") String userId, @PathVariable("commentId") String commentId, @RequestBody ReactionAddDto reactionAddDto){
+        logger.info("HIT - POST task/comment/<commentId>/reaction ---> addOrUpdateReactionToComment  userId: {} | commentId: {}| dto: {}", userId, commentId, reactionAddDto);
+        return sendResponse(commentService.addOrUpdateReactionToComment(userId, commentId, reactionAddDto));
     }
 
 

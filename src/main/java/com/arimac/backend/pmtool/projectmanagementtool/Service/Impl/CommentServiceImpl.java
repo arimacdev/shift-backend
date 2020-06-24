@@ -104,7 +104,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Object addReactionToComment(String userId, String commentId, ReactionAddDto reactionAddDto) {
+    public Object addOrUpdateReactionToComment(String userId, String commentId, ReactionAddDto reactionAddDto) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -117,12 +117,23 @@ public class CommentServiceImpl implements CommentService {
         Project_User project_user = projectRepository.getProjectUser(task.getProjectId(), userId);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        Reaction commentReaction = commentRepository.getCommentReaction(userId, commentId);
+        if (commentReaction == null) {
+            commentRepository.addCommentReaction(getReaction(commentId,reactionAddDto,userId));
+        } else if (commentReaction.getReactionId().equals(reactionAddDto.getReactionId())){
+            return new ErrorMessage(ResponseMessage.ALREADY_REACTED_WITH_REACTION, HttpStatus.UNPROCESSABLE_ENTITY);
+        } else
+           commentRepository.updateCommentReaction(getReaction(commentId,reactionAddDto,userId));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    private Reaction getReaction (String commentId, ReactionAddDto reactionAddDto, String userId){
         Reaction reaction = new Reaction();
         reaction.setCommentId(commentId);
         reaction.setReactionId(reactionAddDto.getReactionId());
         reaction.setReactorId(userId);
         reaction.setReactedAt(utilsService.getCurrentTimestamp());
-        commentRepository.addCommentReaction(reaction);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+
+        return reaction;
     }
 }

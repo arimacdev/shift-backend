@@ -42,8 +42,8 @@ public enum ResponseMessage {
     ALREADY_UNSUBSCRIBED("User Already Unsubscribed!"),
     ALREADY_SUBSCRIBED("User Already Subscribed!"),
     PARENT_COMMENT_NOT_FOUND("Parent Comment Not Found"),
-    COMMENT_NOT_FOUND("Comment Not Found");
-
+    COMMENT_NOT_FOUND("Comment Not Found"),
+    ALREADY_REACTED_WITH_REACTION("User Already Reacted with the selected reaction");
 
     private String message;
     ResponseMessage(String message){

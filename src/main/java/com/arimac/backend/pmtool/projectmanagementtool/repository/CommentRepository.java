@@ -10,4 +10,6 @@ public interface CommentRepository {
     void flagComment(String commentId);
     Comment getCommentById(String commentId);
     void addCommentReaction(Reaction reaction);
+    Reaction getCommentReaction(String userId, String commentId);
+    void updateCommentReaction(Reaction reaction);
 }

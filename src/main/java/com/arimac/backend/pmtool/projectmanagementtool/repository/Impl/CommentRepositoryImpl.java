@@ -49,7 +49,6 @@ public class CommentRepositoryImpl implements CommentRepository {
             throw new PMException(e.getMessage());
         }
     }
-
     @Override
     public void flagComment(String commentId) {
         String sql = "UPDATE Comment SET isDeleted=? WHERE commentId=?";
@@ -59,7 +58,6 @@ public class CommentRepositoryImpl implements CommentRepository {
             throw new PMException(e.getMessage());
         }
     }
-
     @Override
     public Comment getCommentById(String commentId) {
         String sql = "SELECT * FROM Comment WHERE commentId=? AND isDeleted=false";
@@ -71,7 +69,6 @@ public class CommentRepositoryImpl implements CommentRepository {
             throw new PMException(e.getMessage());
         }
     }
-
     @Override
     public void addCommentReaction(Reaction reaction) {
         try {
@@ -84,6 +81,27 @@ public class CommentRepositoryImpl implements CommentRepository {
                 return preparedStatement;
             });
         } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+    @Override
+    public Reaction getCommentReaction(String userId, String commentId) {
+        String sql = "SELECT * FROM Reaction WHERE commentId=? AND reactorId=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Reaction(), commentId, userId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+    @Override
+    public void updateCommentReaction(Reaction reaction) {
+        String sql = "UPDATE Reaction SET reactionId=? WHERE reactorId=? AND commentId=?";
+        try {
+            jdbcTemplate.update(sql, reaction.getReactionId(), reaction.getReactorId(), reaction.getCommentId());
+        }
+        catch (Exception e){
             throw new PMException(e.getMessage());
         }
     }
