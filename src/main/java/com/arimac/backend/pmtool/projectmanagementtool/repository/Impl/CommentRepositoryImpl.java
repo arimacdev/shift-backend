@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.UpdateCommentDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Comment;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.CommentRepository;
@@ -37,6 +38,17 @@ public class CommentRepositoryImpl implements CommentRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public void updateComment(String commentId, UpdateCommentDto updateCommentDto) {
+        String sql = "UPDATE Comment SET content=? isUpdated=? WHERE commentId=?";
+        try {
+            jdbcTemplate.update(sql, updateCommentDto.getContent(), true, commentId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
     @Override
     public Comment getCommentById(String commentId) {
         String sql = "SELECT * FROM Comment WHERE commentId=? AND isDeleted=false";

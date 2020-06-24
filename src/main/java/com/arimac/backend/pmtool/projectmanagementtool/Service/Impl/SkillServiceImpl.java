@@ -177,7 +177,17 @@ public class SkillServiceImpl implements SkillService {
                         }
                     }
                 } else {
-                    userSkillMap.put(userSkill.getUserId(), skillMatrix);
+                    //Map<String, SkillCategory> userSkillCategory = userSkillMap.get(userSkill.getUserId());
+                    if (skillMatrix.get(userSkill.getCategoryId())!= null) {
+                        SkillCategory skillCategory = skillMatrix.get(userSkill.getCategoryId());
+                        List<CategorySkill> skillSet = skillCategory.getSkillSet();
+                        for (CategorySkill skill : skillSet) {
+                            if (userSkill.getSkillId().equals(skill.getSkillId())) {
+                                skill.setIsAssigned(true);
+                            }
+                        }
+                        userSkillMap.put(userSkill.getUserId(), skillMatrix);
+                    }
                 }
             }
         }

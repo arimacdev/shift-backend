@@ -41,7 +41,8 @@ public enum ResponseMessage {
     NOT_REGISTERED_FOR_PROVIDER("User Not Registered for Provider"),
     ALREADY_UNSUBSCRIBED("User Already Unsubscribed!"),
     ALREADY_SUBSCRIBED("User Already Subscribed!"),
-    PARENT_COMMENT_NOT_FOUND("Parent Comment Not Found");
+    PARENT_COMMENT_NOT_FOUND("Parent Comment Not Found"),
+    COMMENT_NOT_FOUND("Comment Not Found");
 
 
     private String message;
