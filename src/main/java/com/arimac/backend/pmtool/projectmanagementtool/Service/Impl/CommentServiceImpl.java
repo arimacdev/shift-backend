@@ -94,6 +94,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Object getTaskComments(String userId, String taskId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index Combination", HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
