@@ -136,7 +136,7 @@ public class CommentServiceImpl implements CommentService {
                 if (commentReaction.getReactionId()!= null)
                     userReactionList.add(userReaction);
                 commentReactionResponse.setReactions(userReactionList);
-                commentReactionResponseMap.put(commentReaction.getCommenterId(), commentReactionResponse );
+                commentReactionResponseMap.put(commentReaction.getCommentId(), commentReactionResponse );
             }
         }
         List<CommentReactionResponse> commentReactionResponseList = new ArrayList<>(commentReactionResponseMap.values());
