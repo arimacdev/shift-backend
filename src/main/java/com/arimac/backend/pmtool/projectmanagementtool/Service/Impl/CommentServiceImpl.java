@@ -122,6 +122,8 @@ public class CommentServiceImpl implements CommentService {
                 if (userReactions.get(commentReaction.getReactionId())!= null){
                     ReactionRespondants reactionRespondants = userReactions.get(commentReaction.getReactionId());
                     reactionRespondants.getRespondants().add(userReaction);
+                   // int res = reactionRespondants.getResponses();
+                    //reactionRespondants.setResponses(res + 1);
                 } else {
                     ReactionRespondants reactionRespondants = new ReactionRespondants();
                     reactionRespondants.setReactionId(commentReaction.getReactionId());
@@ -152,6 +154,7 @@ public class CommentServiceImpl implements CommentService {
                     uReaction.add(userReaction);
                     //userReactionList.add(userReaction);
                     reactionRespondants.setRespondants(uReaction);
+                   // reactionRespondants.setResponses(1);
                     userReactions.put(commentReaction.getReactionId(), reactionRespondants);
                 }
                 commentReactionResponse.setReactions(userReactions);
@@ -159,7 +162,22 @@ public class CommentServiceImpl implements CommentService {
             }
         }
         List<CommentReactionResponse> commentReactionResponseList = new ArrayList<>(commentReactionResponseMap.values());
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, commentReactionResponseList);
+        List<CommentReactionList> commentReactionLists = new ArrayList<>();
+        for (CommentReactionResponse commentReactionResponse: commentReactionResponseList){
+            CommentReactionList reactionList = new CommentReactionList();
+            reactionList.setCommentId(commentReactionResponse.getCommentId());
+            reactionList.setCommenter(commentReactionResponse.getCommenter());
+            reactionList.setCommenterFistName(commentReactionResponse.getCommenterFistName());
+            reactionList.setCommenterLatName(commentReactionResponse.getCommenterLatName());
+            reactionList.setCommenterProfileImage(commentReactionResponse.getCommenterProfileImage());
+            reactionList.setCommentedAt(commentReactionResponse.getCommentedAt());
+            reactionList.setContent(commentReactionResponse.getContent());
+            reactionList.setReactions(new ArrayList<>(commentReactionResponse.getReactions().values()));
+           // List<ReactionRespondants> reactionRespondants = new ArrayList<>(commentReactionResponse.getReactions().values());
+           commentReactionLists.add(reactionList);
+        }
+        //TODO
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, commentReactionLists);
     }
 
     @Override

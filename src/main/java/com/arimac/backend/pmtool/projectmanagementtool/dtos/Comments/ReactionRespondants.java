@@ -4,7 +4,17 @@ import java.util.List;
 
 public class ReactionRespondants {
     private String reactionId;
+   // private int responses;
     private List<UserReaction> respondants;
+
+
+//    public int getResponses() {
+//        return responses;
+//    }
+//
+//    public void setResponses(int responses) {
+//        this.responses = responses;
+//    }
 
     public String getReactionId() {
         return reactionId;
