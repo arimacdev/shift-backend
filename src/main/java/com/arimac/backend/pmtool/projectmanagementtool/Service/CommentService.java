@@ -11,4 +11,5 @@ public interface CommentService {
     Object getTaskComments(String userId, String taskId,  int startIndex, int endIndex);
     Object addOrUpdateReactionToComment(String userId, String commentId, ReactionAddDto reactionAddDto);
     Object removeUserCommentReaction(String userId, String commentId);
+    Object getCommentCountOfTask(String userId, String taskId);
 }

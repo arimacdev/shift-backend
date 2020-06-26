@@ -17,4 +17,5 @@ public interface CommentRepository {
     Reaction getCommentReaction(String userId, String commentId);
     void updateCommentReaction(Reaction reaction);
     void removeUserCommentReaction(String userId, String commentId);
+    int getCommentCountOfTask(String taskId);
 }

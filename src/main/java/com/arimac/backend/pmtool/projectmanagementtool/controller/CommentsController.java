@@ -74,7 +74,13 @@ public class CommentsController extends ResponseController {
         return sendResponse(commentService.removeUserCommentReaction(userId, commentId));
     }
 
-
+    @ApiOperation(value = "Get comment count of a Task", notes = "Get comment count of a Task")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/task/{taskId}/comment/count")
+    public ResponseEntity<Object> getCommentCountOfTask(@RequestHeader("userId") String userId, @PathVariable("taskId") String taskId){
+        logger.info("HIT - GET task/<taskId>/comment/count ---> getCommentCountOfTask  userId: {} | taskId: {}", userId, taskId);
+        return sendResponse(commentService.getCommentCountOfTask(userId, taskId));
+    }
 
 
 }

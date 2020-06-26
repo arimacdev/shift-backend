@@ -222,6 +222,19 @@ public class CommentServiceImpl implements CommentService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
+    @Override
+    public Object getCommentCountOfTask(String userId, String taskId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        int count = commentRepository.getCommentCountOfTask(taskId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, count);
+    }
+
     private Reaction getReaction (String commentId, ReactionAddDto reactionAddDto, String userId){
         Reaction reaction = new Reaction();
         reaction.setCommentId(commentId);

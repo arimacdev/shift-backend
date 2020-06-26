@@ -129,4 +129,14 @@ public class CommentRepositoryImpl implements CommentRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public int getCommentCountOfTask(String taskId) {
+        String sql = "SELECT COUNT(*) FROM Comment WHERE entityId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[] {taskId} , Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 }
