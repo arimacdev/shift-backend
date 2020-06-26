@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 public class CommentReactionResponse {
     private String commentId;
@@ -11,7 +12,8 @@ public class CommentReactionResponse {
     private String commenterLatName;
     private String commenterProfileImage;
     private Timestamp commentedAt;
-    private List<UserReaction> reactions;
+   // private List<UserReaction> reactions;
+    private Map<String, ReactionRespondants> reactions;
 
     public String getCommentId() {
         return commentId;
@@ -69,11 +71,19 @@ public class CommentReactionResponse {
         this.commentedAt = commentedAt;
     }
 
-    public List<UserReaction> getReactions() {
+//    public List<UserReaction> getReactions() {
+//        return reactions;
+//    }
+//
+//    public void setReactions(List<UserReaction> reactions) {
+//        this.reactions = reactions;
+//    }
+
+    public Map<String, ReactionRespondants> getReactions() {
         return reactions;
     }
 
-    public void setReactions(List<UserReaction> reactions) {
+    public void setReactions(Map<String, ReactionRespondants> reactions) {
         this.reactions = reactions;
     }
 }

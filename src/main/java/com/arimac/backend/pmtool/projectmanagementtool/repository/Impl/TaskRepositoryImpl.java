@@ -48,6 +48,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setString(6, task.getTaskNote());
             preparedStatement.setString(7, task.getTaskStatus().toString());
             preparedStatement.setTimestamp(8, task.getTaskCreatedAt());
+          //  preparedStatement.setDate(8, new java.sql.Date(task.getTaskCreatedAt().getTime()));
             preparedStatement.setTimestamp(9, task.getTaskDueDateAt());
             preparedStatement.setTimestamp(10, task.getTaskReminderAt());
             preparedStatement.setBoolean(11, task.getIsDeleted());

@@ -118,11 +118,22 @@ public class CommentServiceImpl implements CommentService {
                 userReaction.setResponderProfileImage(commentReaction.getResponderProfileImage());
             }
             if (commentReactionResponseMap.get(commentReaction.getCommentId())!= null){
-                List<UserReaction> userReactions = commentReactionResponseMap.get(commentReaction.getCommentId()).getReactions();
-                if (commentReaction.getReactionId()!= null){
-                    userReactions.add(userReaction);
-                    commentReactionResponseMap.get(commentReaction.getCommentId()).setReactions(userReactions);
+                Map<String, ReactionRespondants> userReactions = commentReactionResponseMap.get(commentReaction.getCommentId()).getReactions();
+                if (userReactions.get(commentReaction.getReactionId())!= null){
+                    ReactionRespondants reactionRespondants = userReactions.get(commentReaction.getReactionId());
+                    reactionRespondants.getRespondants().add(userReaction);
+                } else {
+                    ReactionRespondants reactionRespondants = new ReactionRespondants();
+                    reactionRespondants.setReactionId(commentReaction.getReactionId());
+                    List<UserReaction> uReactions = new ArrayList<>();
+                    uReactions.add(userReaction);
+                    reactionRespondants.setRespondants(uReactions);
+                    userReactions.put(commentReaction.getReactionId(), reactionRespondants);
                 }
+//                if (commentReaction.getReactionId()!= null){
+//                    userReactions.add(userReaction);
+                    commentReactionResponseMap.get(commentReaction.getCommentId()).setReactions(userReactions);
+//                }
             } else {
                 CommentReactionResponse commentReactionResponse = new CommentReactionResponse();
                 commentReactionResponse.setCommentId(commentReaction.getCommentId());
@@ -132,10 +143,18 @@ public class CommentServiceImpl implements CommentService {
                 commentReactionResponse.setCommenterLatName(commentReaction.getCommenterLastName());
                 commentReactionResponse.setCommenterProfileImage(commentReaction.getCommenterProfileImage());
                 commentReactionResponse.setCommentedAt(commentReaction.getCommentedAt());
-                List<UserReaction> userReactionList = new ArrayList<>();
-                if (commentReaction.getReactionId()!= null)
-                    userReactionList.add(userReaction);
-                commentReactionResponse.setReactions(userReactionList);
+                //List<UserReaction> userReactionList = new ArrayList<>();
+                Map<String, ReactionRespondants> userReactions = new HashMap<>();
+                if (commentReaction.getReactionId()!= null) {
+                    ReactionRespondants reactionRespondants = new ReactionRespondants();
+                    reactionRespondants.setReactionId(commentReaction.getReactionId());
+                    List<UserReaction> uReaction = new ArrayList<>();
+                    uReaction.add(userReaction);
+                    //userReactionList.add(userReaction);
+                    reactionRespondants.setRespondants(uReaction);
+                    userReactions.put(commentReaction.getReactionId(), reactionRespondants);
+                }
+                commentReactionResponse.setReactions(userReactions);
                 commentReactionResponseMap.put(commentReaction.getCommentId(), commentReactionResponse );
             }
         }
