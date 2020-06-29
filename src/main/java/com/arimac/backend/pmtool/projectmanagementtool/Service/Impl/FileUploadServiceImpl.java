@@ -54,8 +54,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final ProjectFileRepository projectFileRepository;
     private final PersonalTaskRepository personalTaskRepository;
     private final TaskGroupTaskRepository taskGroupTaskRepository;
+    private final CommentRepository commentRepository;
 
-    public FileUploadServiceImpl(ActivityLogService activityLogService, AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository) {
+    public FileUploadServiceImpl(ActivityLogService activityLogService, AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository, CommentRepository commentRepository) {
         this.activityLogService = activityLogService;
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
@@ -68,6 +69,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         this.projectFileRepository = projectFileRepository;
         this.personalTaskRepository = personalTaskRepository;
         this.taskGroupTaskRepository = taskGroupTaskRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -210,6 +212,20 @@ public class FileUploadServiceImpl implements FileUploadService {
             projectFileRepository.uploadProjectFile(projectFile);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
+    }
+
+    @Override
+    public Object uploadCommentFile(String userId, String commentId, FileUploadEnum fileType, MultipartFile multipartFile) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        if (!comment.getCommenter().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        String url = fileQueue(multipartFile, fileType);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, url);
     }
 
     @Override

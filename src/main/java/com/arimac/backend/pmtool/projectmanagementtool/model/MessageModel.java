@@ -4,6 +4,7 @@ public class MessageModel {
 
     private String message;
     private String fromLogin;
+    private String actionType;
 
     public String getMessage() {
         return message;
@@ -21,11 +22,11 @@ public class MessageModel {
         this.fromLogin = fromLogin;
     }
 
-    @Override
-    public String toString() {
-        return "MessageModel{" +
-                "message='" + message + '\'' +
-                ", fromLogin='" + fromLogin + '\'' +
-                '}';
+    public String getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(String actionType) {
+        this.actionType = actionType;
     }
 }

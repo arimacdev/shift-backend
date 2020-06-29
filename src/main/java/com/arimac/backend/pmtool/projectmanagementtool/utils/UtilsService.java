@@ -22,6 +22,10 @@ public class UtilsService {
     }
 
     public Timestamp getCurrentTimestamp(){
+//        DateTime now = DateTime.now( DateTimeZone.UTC); // Specify a time zone.
+//
+//        return new Timestamp(now.getMillis());
+
         LocalDateTime currentDateAndTime = LocalDateTime.now();
         return new Timestamp(currentDateAndTime.toDateTime().getMillis());
     }

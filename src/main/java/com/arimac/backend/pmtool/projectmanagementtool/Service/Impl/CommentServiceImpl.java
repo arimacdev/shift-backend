@@ -2,14 +2,10 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.CommentService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.CommentAddDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.UpdateCommentDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Comment;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.CommentRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -19,6 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -67,12 +68,180 @@ public class CommentServiceImpl implements CommentService {
         User commenter = userRepository.getUserByUserId(updateCommentDto.getCommenter());
         if (commenter == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Comment comment = commentRepository.getCommentById(updateCommentDto.getCommenter());
+        Comment comment = commentRepository.getCommentById(commentId);
         if (comment == null)
             return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!updateCommentDto.getCommenter().equals(comment.getCommenter()))
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         commentRepository.updateComment(commentId, updateCommentDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object flagComment(String userId, String commentId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!comment.getCommenter().equals(userId))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        commentRepository.flagComment(commentId);
+        //TODO Flag Reactions
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getTaskComments(String userId, String taskId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index Combination", HttpStatus.BAD_REQUEST);
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(task.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        int limit = endIndex - startIndex;
+        List<CommentReaction> commentReactionList = commentRepository.getTaskComments(taskId, limit, startIndex );
+        Map<String, CommentReactionResponse> commentReactionResponseMap = new HashMap<>();
+        for (CommentReaction commentReaction : commentReactionList){
+            UserReaction userReaction = new UserReaction();
+            if (commentReaction.getReactionId()!= null){
+                userReaction.setReactionId(commentReaction.getReactionId());
+                userReaction.setResponderId(commentReaction.getResponderId());
+                userReaction.setResponderFirstName(commentReaction.getResponderFirstName());
+                userReaction.setResponderLastName(commentReaction.getResponderLastName());
+                userReaction.setResponderProfileImage(commentReaction.getResponderProfileImage());
+            }
+            if (commentReactionResponseMap.get(commentReaction.getCommentId())!= null){
+                Map<String, ReactionRespondants> userReactions = commentReactionResponseMap.get(commentReaction.getCommentId()).getReactions();
+                if (userReactions.get(commentReaction.getReactionId())!= null){
+                    ReactionRespondants reactionRespondants = userReactions.get(commentReaction.getReactionId());
+                    reactionRespondants.getRespondants().add(userReaction);
+                   // int res = reactionRespondants.getResponses();
+                    //reactionRespondants.setResponses(res + 1);
+                } else {
+                    ReactionRespondants reactionRespondants = new ReactionRespondants();
+                    reactionRespondants.setReactionId(commentReaction.getReactionId());
+                    List<UserReaction> uReactions = new ArrayList<>();
+                    uReactions.add(userReaction);
+                    reactionRespondants.setRespondants(uReactions);
+                    userReactions.put(commentReaction.getReactionId(), reactionRespondants);
+                }
+//                if (commentReaction.getReactionId()!= null){
+//                    userReactions.add(userReaction);
+                    commentReactionResponseMap.get(commentReaction.getCommentId()).setReactions(userReactions);
+//                }
+            } else {
+                CommentReactionResponse commentReactionResponse = new CommentReactionResponse();
+                commentReactionResponse.setCommentId(commentReaction.getCommentId());
+                commentReactionResponse.setContent(commentReaction.getContent());
+                commentReactionResponse.setCommenter(commentReaction.getCommenterId());
+                commentReactionResponse.setCommenterFistName(commentReaction.getCommenterFirstName());
+                commentReactionResponse.setCommenterLatName(commentReaction.getCommenterLastName());
+                commentReactionResponse.setCommenterProfileImage(commentReaction.getCommenterProfileImage());
+                commentReactionResponse.setCommentedAt(commentReaction.getCommentedAt());
+                //List<UserReaction> userReactionList = new ArrayList<>();
+                Map<String, ReactionRespondants> userReactions = new HashMap<>();
+                if (commentReaction.getReactionId()!= null) {
+                    ReactionRespondants reactionRespondants = new ReactionRespondants();
+                    reactionRespondants.setReactionId(commentReaction.getReactionId());
+                    List<UserReaction> uReaction = new ArrayList<>();
+                    uReaction.add(userReaction);
+                    //userReactionList.add(userReaction);
+                    reactionRespondants.setRespondants(uReaction);
+                   // reactionRespondants.setResponses(1);
+                    userReactions.put(commentReaction.getReactionId(), reactionRespondants);
+                }
+                commentReactionResponse.setReactions(userReactions);
+                commentReactionResponseMap.put(commentReaction.getCommentId(), commentReactionResponse );
+            }
+        }
+        List<CommentReactionResponse> commentReactionResponseList = new ArrayList<>(commentReactionResponseMap.values());
+        List<CommentReactionList> commentReactionLists = new ArrayList<>();
+        for (CommentReactionResponse commentReactionResponse: commentReactionResponseList){
+            CommentReactionList reactionList = new CommentReactionList();
+            reactionList.setCommentId(commentReactionResponse.getCommentId());
+            reactionList.setCommenter(commentReactionResponse.getCommenter());
+            reactionList.setCommenterFistName(commentReactionResponse.getCommenterFistName());
+            reactionList.setCommenterLatName(commentReactionResponse.getCommenterLatName());
+            reactionList.setCommenterProfileImage(commentReactionResponse.getCommenterProfileImage());
+            reactionList.setCommentedAt(commentReactionResponse.getCommentedAt());
+            reactionList.setContent(commentReactionResponse.getContent());
+            reactionList.setReactions(new ArrayList<>(commentReactionResponse.getReactions().values()));
+           // List<ReactionRespondants> reactionRespondants = new ArrayList<>(commentReactionResponse.getReactions().values());
+           commentReactionLists.add(reactionList);
+        }
+        //TODO
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, commentReactionLists);
+    }
+
+    @Override
+    public Object addOrUpdateReactionToComment(String userId, String commentId, ReactionAddDto reactionAddDto) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+         Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(comment.getEntityId());
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(task.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        Reaction commentReaction = commentRepository.getCommentReaction(userId, commentId);
+        if (commentReaction == null) {
+            commentRepository.addCommentReaction(getReaction(commentId,reactionAddDto,userId));
+        } else if (commentReaction.getReactionId().equals(reactionAddDto.getReactionId())){
+            return new ErrorMessage(ResponseMessage.ALREADY_REACTED_WITH_REACTION, HttpStatus.UNPROCESSABLE_ENTITY);
+        } else if (!commentReaction.getReactorId().equals(userId)) {
+            return new ErrorMessage(ResponseMessage.NOT_REACTOR, HttpStatus.UNAUTHORIZED);
+        } else
+            commentRepository.updateCommentReaction(getReaction(commentId, reactionAddDto, userId));
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object removeUserCommentReaction(String userId, String commentId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Comment comment = commentRepository.getCommentById(commentId);
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Reaction commentReaction = commentRepository.getCommentReaction(userId, commentId);
+        if (commentReaction == null)
+            return new ErrorMessage(ResponseMessage.REACTION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        commentRepository.removeUserCommentReaction(userId, commentId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getCommentCountOfTask(String userId, String taskId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        int count = commentRepository.getCommentCountOfTask(taskId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, count);
+    }
+
+    private Reaction getReaction (String commentId, ReactionAddDto reactionAddDto, String userId){
+        Reaction reaction = new Reaction();
+        reaction.setCommentId(commentId);
+        reaction.setReactionId(reactionAddDto.getReactionId());
+        reaction.setReactorId(userId);
+        reaction.setReactedAt(utilsService.getCurrentTimestamp());
+
+        return reaction;
     }
 }
