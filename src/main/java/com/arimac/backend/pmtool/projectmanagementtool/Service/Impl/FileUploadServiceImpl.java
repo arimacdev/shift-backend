@@ -265,6 +265,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         private String generateFileName(MultipartFile multipartFile, FileUploadEnum fileType) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(fileType.toString());
+        
         stringBuilder.append("_");
         stringBuilder.append(new Date().getTime());
         stringBuilder.append("_");
