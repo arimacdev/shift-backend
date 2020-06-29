@@ -1393,32 +1393,33 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Scheduled(initialDelay = 10*1000, fixedRate = 30*60*1000)
     public void taskReminderOnDue() {
+        if (ENVConfig.ENABLE_SCHEDULER.equals("true")){
         List<TaskAlertDto> taskAlertList = notificationRepository.getTaskAlertList();
-        for(TaskAlertDto taskAlert : taskAlertList) {
+        for (TaskAlertDto taskAlert : taskAlertList) {
             if (taskAlert.getTaskDue() != null && taskAlert.getAssigneeSlackId() != null) {
                 logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
                 long due = taskAlert.getTaskDue().getTime();
                 DateTime duedate = new DateTime(due);
                 DateTime now = DateTime.now();
                 DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
-                logger.info("nowUTC {}",nowUTC);
+                logger.info("nowUTC {}", nowUTC);
                 DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-                logger.info("nowCol {}",nowCol);
+                logger.info("nowCol {}", nowCol);
                 DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-                logger.info("dueUtc {}",dueUtc);
+                logger.info("dueUtc {}", dueUtc);
                 DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
-                logger.info("dueCol {}",dueCol);
+                logger.info("dueCol {}", dueCol);
                 Duration duration = new Duration(nowCol, dueUtc);
                 int difference = (int) duration.getStandardMinutes();
-                logger.info("difference {}",difference);
+                logger.info("difference {}", difference);
                 int timeFixDifference = difference - 330;
-                logger.info("fix difference {}",timeFixDifference);
+                logger.info("fix difference {}", timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
-                if (timeFixDifference < 1440 && timeFixDifference > 0){
-                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
+                if (timeFixDifference < 1440 && timeFixDifference > 0) {
+                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()) {
                         notificationRepository.deleteNotification(taskAlert.getTaskId());
                         sendTaskReminder(taskAlert, dueUtc);
-                    } else if (!taskAlert.getIsDaily()){
+                    } else if (!taskAlert.getIsDaily()) {
                         //Daily Notification
                         NotificationUpdateDto updateDto = new NotificationUpdateDto();
                         updateDto.setTaskId(taskAlert.getTaskId());
@@ -1432,32 +1433,32 @@ public class NotificationServiceImpl implements NotificationService {
         }
         List<TaskGroupTaskAlertDto> taskGroupTaskAlertList = notificationRepository.getTaskGroupTaskAlertList();
 
-        for(TaskGroupTaskAlertDto taskAlert : taskGroupTaskAlertList) {
+        for (TaskGroupTaskAlertDto taskAlert : taskGroupTaskAlertList) {
             if (taskAlert.getTaskDue() != null && taskAlert.getAssigneeSlackId() != null) {
                 logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
                 long due = taskAlert.getTaskDue().getTime();
                 DateTime duedate = new DateTime(due);
                 DateTime now = DateTime.now();
                 DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
-                logger.info("nowUTC {}",nowUTC);
+                logger.info("nowUTC {}", nowUTC);
                 DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-                logger.info("nowCol {}",nowCol);
+                logger.info("nowCol {}", nowCol);
                 DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-                logger.info("dueUtc {}",dueUtc);
+                logger.info("dueUtc {}", dueUtc);
                 DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
-                logger.info("dueCol {}",dueCol);
+                logger.info("dueCol {}", dueCol);
                 Duration duration = new Duration(nowCol, dueUtc);
                 int difference = (int) duration.getStandardMinutes();
-                logger.info("difference {}",difference);
+                logger.info("difference {}", difference);
                 int timeFixDifference = difference - 330;
-                logger.info("fix difference {}",timeFixDifference);
+                logger.info("fix difference {}", timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
-                if (timeFixDifference < 1440 && timeFixDifference > 0){
-                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
+                if (timeFixDifference < 1440 && timeFixDifference > 0) {
+                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()) {
                         //Hourly Notification
                         notificationRepository.deleteNotification(taskAlert.getTaskId());
                         sendTaskGroupTaskReminder(taskAlert, dueUtc);
-                    } else if (!taskAlert.getIsDaily()){
+                    } else if (!taskAlert.getIsDaily()) {
                         //Daily Notification
                         NotificationUpdateDto updateDto = new NotificationUpdateDto();
                         updateDto.setTaskId(taskAlert.getTaskId());
@@ -1472,32 +1473,32 @@ public class NotificationServiceImpl implements NotificationService {
 
         List<PersonalTaskAlertDto> taskPersonalTaskAlertList = notificationRepository.getPersonalTaskAlertList();
 
-        for (PersonalTaskAlertDto taskAlert: taskPersonalTaskAlertList){
+        for (PersonalTaskAlertDto taskAlert : taskPersonalTaskAlertList) {
             if (taskAlert.getTaskDue() != null && taskAlert.getAssigneeSlackId() != null) {
                 logger.info("<--------------Start Time for task {}------------->", taskAlert.getTaskName());
                 long due = taskAlert.getTaskDue().getTime();
                 DateTime duedate = new DateTime(due);
                 DateTime now = DateTime.now();
                 DateTime nowUTC = new DateTime(now, DateTimeZone.forID("UTC"));
-                logger.info("nowUTC {}",nowUTC);
+                logger.info("nowUTC {}", nowUTC);
                 DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-                logger.info("nowCol {}",nowCol);
+                logger.info("nowCol {}", nowCol);
                 DateTime dueUtc = new DateTime(duedate, DateTimeZone.forID("UTC"));
-                logger.info("dueUtc {}",dueUtc);
+                logger.info("dueUtc {}", dueUtc);
                 DateTime dueCol = new DateTime(duedate, DateTimeZone.forID("Asia/Colombo"));
-                logger.info("dueCol {}",dueCol);
+                logger.info("dueCol {}", dueCol);
                 Duration duration = new Duration(nowCol, dueUtc);
                 int difference = (int) duration.getStandardMinutes();
-                logger.info("difference {}",difference);
+                logger.info("difference {}", difference);
                 int timeFixDifference = difference - 330;
-                logger.info("fix difference {}",timeFixDifference);
+                logger.info("fix difference {}", timeFixDifference);
                 logger.info("<--------------END Time for task {}------------->", taskAlert.getTaskName());
-                if (timeFixDifference < 1440 && timeFixDifference > 0){
-                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()){
+                if (timeFixDifference < 1440 && timeFixDifference > 0) {
+                    if (timeFixDifference < 60 && !taskAlert.getIsHourly()) {
                         //Hourly Notification
                         notificationRepository.deleteNotification(taskAlert.getTaskId());
                         sendPersonalTaskReminder(taskAlert, dueUtc);
-                    } else if (!taskAlert.getIsDaily()){
+                    } else if (!taskAlert.getIsDaily()) {
                         //Daily Notification
                         NotificationUpdateDto updateDto = new NotificationUpdateDto();
                         updateDto.setTaskId(taskAlert.getTaskId());
@@ -1509,7 +1510,7 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }
         }
-
+    }
     }
 
     private void sendTaskReminder(TaskAlertDto taskAlert, DateTime dueUtc){

@@ -74,6 +74,8 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadFileToTask(String userId, String projectId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
+        if (checkFileSize(multipartFiles))
+            return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
@@ -107,6 +109,8 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadFileToTaskGroupTask(String userId, String taskgroupId, String taskId, FileUploadEnum fileType, MultipartFile multipartFile) {
+        if (checkFileSize(multipartFile))
+            return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         TaskGroup_Member member = taskGroupRepository.getTaskGroupMemberByTaskGroup(userId, taskgroupId);
         if (member == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
@@ -135,6 +139,8 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadFileToPersonalTask(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
+        if (checkFileSize(multipartFiles))
+            return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         PersonalTask task = personalTaskRepository.getPersonalTaskByUserId(userId, taskId);
         if (task == null)
             return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -156,6 +162,8 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile) {
+        if (checkFileSize(multipartFile))
+            return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         String url = fileQueue(multipartFile, fileType);
         userRepository.updateProfilePicture(userId, url);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, url);
@@ -196,6 +204,8 @@ public class FileUploadServiceImpl implements FileUploadService {
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         List<ProjectFile> projectFiles = new ArrayList<>();
         for (MultipartFile multipartFile : multipartFiles) {
+            if (checkFileSize(multipartFile))
+                return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
             String projectFileUrl = fileQueue(multipartFile, fileType);
             logger.info("url {}",  multipartFile.getSize());
             ProjectFile projectFile = new ProjectFile();
@@ -216,6 +226,8 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadCommentFile(String userId, String commentId, FileUploadEnum fileType, MultipartFile multipartFile) {
+        if (checkFileSize(multipartFile))
+            return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -250,6 +262,19 @@ public class FileUploadServiceImpl implements FileUploadService {
         projectFileRepository.flagProjectFile(projectFileId);
         activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.FILE, projectFile.getProjectFileId(), null));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    private boolean checkFileSize(MultipartFile multipartFile){
+        double fileSizeInMb;
+        try {
+             fileSizeInMb = (double) multipartFile.getSize() / 1000000;
+        } catch (Exception e){
+            return true;
+        }
+        if (fileSizeInMb > Double.parseDouble(ENVConfig.MAX_FILE_SIZE))
+            return true;
+         else
+            return false;
     }
 
     private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
