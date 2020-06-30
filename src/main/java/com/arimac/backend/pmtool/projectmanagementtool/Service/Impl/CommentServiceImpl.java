@@ -198,7 +198,8 @@ public class CommentServiceImpl implements CommentService {
         if (commentReaction == null) {
             commentRepository.addCommentReaction(getReaction(commentId,reactionAddDto,userId));
         } else if (commentReaction.getReactionId().equals(reactionAddDto.getReactionId())){
-            return new ErrorMessage(ResponseMessage.ALREADY_REACTED_WITH_REACTION, HttpStatus.UNPROCESSABLE_ENTITY);
+           // return new ErrorMessage(ResponseMessage.ALREADY_REACTED_WITH_REACTION, HttpStatus.UNPROCESSABLE_ENTITY);
+            commentRepository.removeUserCommentReaction(userId, commentId);
         } else if (!commentReaction.getReactorId().equals(userId)) {
             return new ErrorMessage(ResponseMessage.NOT_REACTOR, HttpStatus.UNAUTHORIZED);
         } else

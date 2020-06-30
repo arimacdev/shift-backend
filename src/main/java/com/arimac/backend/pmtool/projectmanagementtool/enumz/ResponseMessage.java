@@ -45,7 +45,9 @@ public enum ResponseMessage {
     COMMENT_NOT_FOUND("Comment Not Found"),
     REACTION_NOT_FOUND("No User Reaction found for selected comment"),
     NOT_REACTOR("User Not Reactor"),
-    ALREADY_REACTED_WITH_REACTION("User Already Reacted with the selected reaction");
+    ALREADY_REACTED_WITH_REACTION("User Already Reacted with the selected reaction"),
+    FILE_SIZE_TOO_LARGE("File Size too Large");
+
 
     private String message;
     ResponseMessage(String message){

@@ -65,7 +65,8 @@ public class CommentRepositoryImpl implements CommentRepository {
         String sql = "SELECT * FROM (SELECT  * FROM Comment WHERE entityId=? ORDER BY commentedAt DESC LIMIT ? OFFSET ?) AS C " +
                 "LEFT JOIN Reaction R on C.commentId = R.commentId " +
                 "LEFT JOIN User AS UR ON UR.userId = R.reactorId " +
-                "LEFT JOIN User AS UC ON UC.userId = C.commenter";
+                "LEFT JOIN User AS UC ON UC.userId = C.commenter " +
+                "WHERE C.isDeleted=false";
         try {
             return jdbcTemplate.query(sql, new CommentReaction(), taskId, limit, offset);
         } catch (Exception e){
