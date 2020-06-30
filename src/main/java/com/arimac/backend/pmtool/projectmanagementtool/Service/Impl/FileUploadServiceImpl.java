@@ -225,16 +225,17 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public Object uploadCommentFile(String userId, String commentId, FileUploadEnum fileType, MultipartFile multipartFile) {
+    public Object uploadCommentFile(String userId, String taskId, FileUploadEnum fileType, MultipartFile multipartFile) {
         if (checkFileSize(multipartFile))
             return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Comment comment = commentRepository.getCommentById(commentId);
-        if (comment == null)
+        Task task = taskRepository.getProjectTask(taskId);
+        if (task == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        if (!comment.getCommenter().equals(userId))
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(task.getProjectId(), userId);
+        if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         String url = fileQueue(multipartFile, fileType);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, url);
