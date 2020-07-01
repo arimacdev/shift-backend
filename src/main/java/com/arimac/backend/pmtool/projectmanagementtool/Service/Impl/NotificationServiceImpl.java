@@ -107,8 +107,8 @@ public class NotificationServiceImpl implements NotificationService {
             userNotification.setPlatform(notificationDto.getPlatform().toString());
             userNotification.setNotificationStatus(true);
             userNotificationRepository.registerForNotifications(userNotification);
-        } else {
-            //notificationDto.setNotificationStatus(true);
+        } else if (NotificationPlatformEnum.Mobile.toString().equals(notificationDto.getPlatform().toString())){
+//            notificationDto.setNotificationStatus(true);
             userNotificationRepository.changeSubscriptionStatus(notificationDto);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
