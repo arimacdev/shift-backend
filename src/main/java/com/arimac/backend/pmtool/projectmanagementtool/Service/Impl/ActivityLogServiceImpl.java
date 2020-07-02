@@ -62,6 +62,8 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
         int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null) //////// CHECK
             return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);

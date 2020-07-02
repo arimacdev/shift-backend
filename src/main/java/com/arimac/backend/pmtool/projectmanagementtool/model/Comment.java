@@ -1,5 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -104,6 +106,14 @@ public class Comment implements RowMapper<Comment> {
     public void setIsUpdated(boolean updated) {
         isUpdated = updated;
     }
+
+//    private Timestamp formatDate(Timestamp commented){
+//        long created = commented.getTime();
+//        DateTime ce = new DateTime(created);
+//        DateTime dueUtc = new DateTime(ce, DateTimeZone.forID("UTC"));
+//
+//        DateTime dueCol = new DateTime(ce, DateTimeZone.forID("Asia/Colombo"));
+//    }
 
     @Override
     public Comment mapRow(ResultSet resultSet, int i) throws SQLException {
