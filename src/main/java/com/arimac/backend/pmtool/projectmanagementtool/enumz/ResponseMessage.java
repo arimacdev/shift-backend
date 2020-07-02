@@ -46,7 +46,8 @@ public enum ResponseMessage {
     REACTION_NOT_FOUND("No User Reaction found for selected comment"),
     NOT_REACTOR("User Not Reactor"),
     ALREADY_REACTED_WITH_REACTION("User Already Reacted with the selected reaction"),
-    FILE_SIZE_TOO_LARGE("File Size too Large");
+    FILE_SIZE_TOO_LARGE("File Size too Large"),
+    REQUEST_ITEM_LIMIT_EXCEEDED("Cannot Request Items beyond index limits");
 
 
     private String message;
