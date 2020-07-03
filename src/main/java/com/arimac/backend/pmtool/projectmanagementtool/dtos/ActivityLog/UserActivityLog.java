@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.concurrent.TimeUnit;
 
 public class UserActivityLog implements RowMapper<UserActivityLog> {
     private String logId;
@@ -138,6 +139,12 @@ public class UserActivityLog implements RowMapper<UserActivityLog> {
         this.actorProfileImage = actorProfileImage;
     }
 
+    private Timestamp formatDate(Timestamp commented) {
+        commented.setTime(commented.getTime() + TimeUnit.MINUTES.toMillis(330));
+
+        return commented;
+    }
+
     @Override
     public UserActivityLog mapRow(ResultSet resultSet, int i) throws SQLException {
         return new UserActivityLog(
@@ -145,7 +152,7 @@ public class UserActivityLog implements RowMapper<UserActivityLog> {
                 EntityEnum.valueOf(resultSet.getString("entityType")),
                 resultSet.getString("entityId"),
                 LogOperationEnum.valueOf(resultSet.getString("operation")),
-                resultSet.getTimestamp("actionTimestamp"),
+                formatDate(resultSet.getTimestamp("actionTimestamp")),
                 resultSet.getString("updateType"),
                 resultSet.getString("actor"),
                 resultSet.getString("previousValue"),
