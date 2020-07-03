@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.concurrent.TimeUnit;
 
 public class CommentReaction implements RowMapper<CommentReaction> {
     private String commentId;
@@ -158,12 +159,18 @@ public class CommentReaction implements RowMapper<CommentReaction> {
         this.responderProfileImage = responderProfileImage;
     }
 
+    private Timestamp formatDate(Timestamp commented) {
+        commented.setTime(commented.getTime() + TimeUnit.MINUTES.toMillis(330));
+
+        return commented;
+    }
+
     @Override
     public CommentReaction mapRow(ResultSet resultSet, int i) throws SQLException {
         return new CommentReaction(
                 resultSet.getString("commentId"),
                 resultSet.getString("content"),
-                resultSet.getTimestamp("commentedAt"),
+                formatDate(resultSet.getTimestamp("commentedAt")),
                 resultSet.getBoolean("isUpdated"),
                 resultSet.getString("reactionId"),
                 resultSet.getTimestamp("reactedAt"),
