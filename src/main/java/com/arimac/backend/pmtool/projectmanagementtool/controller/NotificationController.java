@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.MentionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/notification")
@@ -45,5 +48,14 @@ public class NotificationController extends ResponseController {
         logger.info("HIT - POST /notification/register ---> unsubscribeFromNotifications | userId: {}| dto: {}",userId, notificationDto);
         return sendResponse(notificationService.changeSubscriptionStatus(userId, notificationDto));
     }
+    @ApiOperation(value = "Send Notification on Mentioning", notes = "Send Notification on Mentioning")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/mention")
+    public ResponseEntity<Object> sendMentionNotification(@RequestBody @Valid MentionDto notificationDto, @RequestHeader("userId") String userId){
+        logger.info("HIT - POST /notification/register ---> sendMentionNotification | userId: {}| dto: {}",userId, notificationDto);
+        return sendResponse(notificationService.sendMentionNotification(userId, notificationDto));
+    }
+
+
 
 }

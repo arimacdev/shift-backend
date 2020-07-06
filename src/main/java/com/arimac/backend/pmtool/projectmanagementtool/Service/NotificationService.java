@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.MentionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
@@ -32,6 +33,9 @@ public interface NotificationService {
     void sendSubTaskCreateNotification(String sender, SubTask subTask, ProjectUserResponseDto projectUser, Task task);
     void sendSubTaskUpdateNotification(String sender, Task task, SubTask previous, SubTask modified, ProjectUserResponseDto projectUser, String type);
     void sendSubTaskFlagNotification(String sender, Task task, SubTask subTask, ProjectUserResponseDto projectUser);
+
+    //Mention
+    Object sendMentionNotification(String userId, MentionDto mentionDto);
 
     //OneSignal
    // void sendOneSignalNotification();

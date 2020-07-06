@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.MentionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
@@ -66,10 +67,11 @@ public class NotificationServiceImpl implements NotificationService {
     private final TaskGroupTaskRepository taskGroupTaskRepository;
     private final TaskGroupRepository taskGroupRepository;
     private final PersonalTaskRepository personalTaskRepository;
+    private final CommentRepository commentRepository;
 
     private final RestTemplate restTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, PersonalTaskRepository personalTaskRepository, RestTemplate restTemplate) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, PersonalTaskRepository personalTaskRepository, CommentRepository commentRepository, RestTemplate restTemplate) {
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userRepository = userRepository;
@@ -78,6 +80,7 @@ public class NotificationServiceImpl implements NotificationService {
         this.taskGroupTaskRepository = taskGroupTaskRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.personalTaskRepository = personalTaskRepository;
+        this.commentRepository = commentRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -643,6 +646,52 @@ public class NotificationServiceImpl implements NotificationService {
                 Object response = restTemplate.exchange(url.toString(), HttpMethod.POST, entity, String.class);
             }
         }
+    }
+
+    @Override
+    public Object sendMentionNotification(String senderId, MentionDto mentionDto) {
+        User sender = userRepository.getUserByUserId(senderId);
+        if (sender == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<User> activeUsers = userRepository.getUserListById(mentionDto.getRecipients());
+        if (activeUsers.isEmpty())
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Task task = taskRepository.getProjectTask(mentionDto.getEntityId());
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project project = projectRepository.getProjectById(task.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Comment comment = commentRepository.getCommentById(mentionDto.getCommentId());
+        if (comment == null)
+            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+//        if (!comment.getEntityId().equals(mentionDto.getEntityId()))
+//            return new ErrorMessage(ResponseMessage.COMMENT_NOT_FOUND, Ht)
+        for (User activeUser: activeUsers){
+           List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(activeUser.getUserId(), NotificationEnum.OneSignal.toString(), true);
+            if (!oneSignalDevices.isEmpty()) {
+                for (UserNotification device: oneSignalDevices){
+                    StringBuilder oneSignalMentionNotf = getTaskOneSignalMessage(activeUser, task, project, OneSignalMessages.COMMENT_MENTION);
+                    oneSignalMentionNotf.append(OneSignalMessages.COMMENT);
+                    oneSignalMentionNotf.append(comment.getContent());
+                    oneSignalMentionNotf.append(OneSignalMessages.MENTIONED_BY);
+                    oneSignalMentionNotf.append(sender.getFirstName());
+                    oneSignalMentionNotf.append(" ");
+                    oneSignalMentionNotf.append(sender.getLastName());
+
+                    if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                        sendOneSignalMobileNotification(oneSignalMentionNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                    else
+                        sendOneSignalNotification(oneSignalMentionNotf.toString(), device.getSubscriptionId());
+                }
+            }
+
+        }
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+
+            
+
     }
 
     @Override
@@ -1338,6 +1387,8 @@ public class NotificationServiceImpl implements NotificationService {
             Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
         }
     }
+
+
 
     private HttpHeaders getOneSignalHeaders(){
         HttpHeaders httpHeaders = new HttpHeaders();
