@@ -60,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setIsDeleted(false);
         comment.setIsParent(true);
         commentRepository.addCommentToTask(comment);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, comment);
     }
 
     @Override
