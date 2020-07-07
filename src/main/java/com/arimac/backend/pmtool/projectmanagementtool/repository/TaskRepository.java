@@ -19,6 +19,7 @@ public interface TaskRepository {
     List<Task> getAllUserAssignedTasks(String userId, String projectId);
     List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId);
     Task getProjectTask(String taskId); // done //remove
+    int getProjectTaskCount(String projectId);
     Task getProjectTasksWithFlag(String taskId);
     Task getTaskByProjectIdTaskId(String projectId, String taskId);
     Task getProjectTaskWithDeleted(String taskId); //remove
