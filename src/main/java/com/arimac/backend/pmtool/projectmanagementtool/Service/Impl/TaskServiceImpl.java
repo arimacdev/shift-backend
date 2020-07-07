@@ -35,6 +35,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -161,13 +162,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId) {
-//        if (type.equals(TaskTypeEnum.project)) {
-            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-            if (projectUser == null)
+    public Object getAllProjectTasksByUser(String userId, String projectId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+//        if (limit > 10)
+//            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId);
-        List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildTasksWithProfile(projectId);
+        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId, limit, startIndex);
+        List<String> parentIds = parentTaskList.stream()
+                                .map(TaskUserResponseDto::getTaskId)
+                                .collect(Collectors.toList());
+        List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildrenOfParentTaskList(parentIds);
         Map<String, TaskParentChild> parentChildMap = new HashMap<>();
         for (TaskUserResponseDto parentTask : parentTaskList){
             if (parentChildMap.get(parentTask.getTaskId()) == null){

@@ -6,8 +6,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.Workload
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -16,19 +14,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskRepositoryImpl implements TaskRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public TaskRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    public TaskRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     private static final String ALL= "all";
@@ -80,16 +81,23 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId) {
-        String sql = "SELECT * FROM Task as t " +
-                "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
-                "WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true";
-        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
+    public List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset) {
+        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true" +
+                " ORDER BY FIELD(taskStatus, 'closed') ASC, taskCreatedAt DESC LIMIT ? OFFSET ?";
+        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, limit, offset);
         return  taskList;
     }
 
     @Override
-    public List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId) {
+    public List<TaskUserResponseDto> getAllChildrenOfParentTaskList(List<String> parentIds) {
+        String sql = "SELECT * FROM Task as T INNER JOIN User AS U ON T.taskAssignee=U.userId WHERE parentId IN (:ids) AND isDeleted=false";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", parentIds);
+        List<TaskUserResponseDto> taskList = namedParameterJdbcTemplate.query(sql, parameters, new TaskUserResponseDto());
+        return taskList;
+    }
+
+    @Override public List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId) {
         String sql = "SELECT * FROM Task as t " +
                 "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
                 "WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=false";
