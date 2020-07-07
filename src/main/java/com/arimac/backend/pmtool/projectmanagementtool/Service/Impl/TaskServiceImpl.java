@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -166,8 +167,8 @@ public class TaskServiceImpl implements TaskService {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
         int limit = endIndex - startIndex;
-//        if (limit > 10)
-//            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
@@ -176,7 +177,7 @@ public class TaskServiceImpl implements TaskService {
                                 .map(TaskUserResponseDto::getTaskId)
                                 .collect(Collectors.toList());
         List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildrenOfParentTaskList(parentIds);
-        Map<String, TaskParentChild> parentChildMap = new HashMap<>();
+        Map<String, TaskParentChild> parentChildMap = new LinkedHashMap<>();
         for (TaskUserResponseDto parentTask : parentTaskList){
             if (parentChildMap.get(parentTask.getTaskId()) == null){
                 TaskParentChild taskParentChild = new TaskParentChild();
@@ -194,6 +195,38 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
+
+//        List<String> CLASSES =
+//                Collections.unmodifiableList(Arrays.asList("open"));
+//
+//        Collections.sort(parentChildList, new Comparator<TaskParentChild>() {
+//            @Override
+//            public int compare(TaskParentChild a1, TaskParentChild a2) {
+////                return a1.getParentTask().getTaskStatus().compareTo(a2.getParentTask().getTaskStatus());
+//                int i1 = CLASSES.indexOf(a1.getParentTask().getTaskStatus().toString());
+//                int i2 = CLASSES.indexOf(a2.getParentTask().getTaskStatus().toString());
+//                int x =  Integer.compare(i1, i2);
+//
+//                Timestamp x1 = a1.getParentTask().getTaskCreatedAt();
+//                Timestamp x2 = a2.getParentTask().getTaskCreatedAt();
+//                return x1.compareTo(x2);
+//            }
+//        });
+
+//        parentChildList.sort(Comparator.comparing((TaskParentChild s) -> s.getParentTask().getTaskCreatedAt()));
+//        parentChildList.sort(Comparator
+//                .comparing(TaskParentChild::getScore)
+//                .thenComparing(Player::getId));
+//        Collections.sort(parentChildList, Comparator.comparing((TaskParentChild s) -> s.getParentTask().getTaskCreatedAt())
+//        .thenComparing(Comparator.comparing((TaskParentChild s) -> s.getParentTask().getTaskCreatedAt())
+//        );
+//        Collections.sort(parentChildList, (TaskParentChild s1, TaskParentChild s2) ->{
+//            return s1.getParentTask().getTaskCreatedAt().compareTo(s2.getParentTask().getTaskCreatedAt());
+//        });
+
+//        Collections.sort(parentChildList, Comparator.comparing(TaskParentChild::getParentTask::comparing)
+//                .thenComparing(Report::getStudentNumber)
+//                .thenComparing(Report::getSchool));
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
     }
