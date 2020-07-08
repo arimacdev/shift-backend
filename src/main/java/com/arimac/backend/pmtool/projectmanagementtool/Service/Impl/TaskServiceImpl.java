@@ -203,11 +203,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllTasksCount(String userId, String projectId) {
+    public Object getAllParentTasksCount(String userId, String projectId) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getProjectTaskCount(projectId));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAllParentTasksCount(projectId));
     }
 
     @Override

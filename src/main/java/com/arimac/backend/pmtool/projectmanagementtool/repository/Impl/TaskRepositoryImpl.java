@@ -134,8 +134,8 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public int getProjectTaskCount(String projectId) {
-        String sql = "SELECT COUNT(*) FROM Task WHERE projectId=? AND isDeleted=false";
+    public int getAllParentTasksCount(String projectId) {
+        String sql = "SELECT COUNT(*) FROM Task WHERE projectId=? AND isParent=true AND isDeleted=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[] {projectId} , Integer.class);
         } catch (Exception e){
