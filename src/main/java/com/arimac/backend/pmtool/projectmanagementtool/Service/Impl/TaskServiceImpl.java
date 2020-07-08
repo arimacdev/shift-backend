@@ -173,61 +173,32 @@ public class TaskServiceImpl implements TaskService {
         if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId, limit, startIndex);
-        List<String> parentIds = parentTaskList.stream()
-                                .map(TaskUserResponseDto::getTaskId)
-                                .collect(Collectors.toList());
-        List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildrenOfParentTaskList(parentIds);
-        Map<String, TaskParentChild> parentChildMap = new LinkedHashMap<>();
-        for (TaskUserResponseDto parentTask : parentTaskList){
-            if (parentChildMap.get(parentTask.getTaskId()) == null){
-                TaskParentChild taskParentChild = new TaskParentChild();
-                taskParentChild.setParentTask(parentTask);
-                taskParentChild.setChildTasks(new ArrayList<>());
-                parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+        List<TaskParentChild> parentChildList = new ArrayList<>();
+        if (!parentTaskList.isEmpty()) {
+            List<String> parentIds = parentTaskList.stream()
+                    .map(TaskUserResponseDto::getTaskId)
+                    .collect(Collectors.toList());
+            List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildrenOfParentTaskList(parentIds);
+            Map<String, TaskParentChild> parentChildMap = new LinkedHashMap<>();
+            for (TaskUserResponseDto parentTask : parentTaskList) {
+                if (parentChildMap.get(parentTask.getTaskId()) == null) {
+                    TaskParentChild taskParentChild = new TaskParentChild();
+                    taskParentChild.setParentTask(parentTask);
+                    taskParentChild.setChildTasks(new ArrayList<>());
+                    parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+                }
             }
-        }
-        for (TaskUserResponseDto childTask: childTaskList){
-            if (parentChildMap.get(childTask.getParentId()) != null){
-                TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
-                List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
-                childTasks.add(childTask);
-                parentChild.setChildTasks(childTasks);
+            for (TaskUserResponseDto childTask : childTaskList) {
+                if (parentChildMap.get(childTask.getParentId()) != null) {
+                    TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
+                    List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
+                    childTasks.add(childTask);
+                    parentChild.setChildTasks(childTasks);
+                }
             }
+            parentChildList = new ArrayList<>(parentChildMap.values());
         }
-        List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
-
-//        List<String> CLASSES =
-//                Collections.unmodifiableList(Arrays.asList("open"));
-//
-//        Collections.sort(parentChildList, new Comparator<TaskParentChild>() {
-//            @Override
-//            public int compare(TaskParentChild a1, TaskParentChild a2) {
-////                return a1.getParentTask().getTaskStatus().compareTo(a2.getParentTask().getTaskStatus());
-//                int i1 = CLASSES.indexOf(a1.getParentTask().getTaskStatus().toString());
-//                int i2 = CLASSES.indexOf(a2.getParentTask().getTaskStatus().toString());
-//                int x =  Integer.compare(i1, i2);
-//
-//                Timestamp x1 = a1.getParentTask().getTaskCreatedAt();
-//                Timestamp x2 = a2.getParentTask().getTaskCreatedAt();
-//                return x1.compareTo(x2);
-//            }
-//        });
-
-//        parentChildList.sort(Comparator.comparing((TaskParentChild s) -> s.getParentTask().getTaskCreatedAt()));
-//        parentChildList.sort(Comparator
-//                .comparing(TaskParentChild::getScore)
-//                .thenComparing(Player::getId));
-//        Collections.sort(parentChildList, Comparator.comparing((TaskParentChild s) -> s.getParentTask().getTaskCreatedAt())
-//        .thenComparing(Comparator.comparing((TaskParentChild s) -> s.getParentTask().getTaskCreatedAt())
-//        );
-//        Collections.sort(parentChildList, (TaskParentChild s1, TaskParentChild s2) ->{
-//            return s1.getParentTask().getTaskCreatedAt().compareTo(s2.getParentTask().getTaskCreatedAt());
-//        });
-
-//        Collections.sort(parentChildList, Comparator.comparing(TaskParentChild::getParentTask::comparing)
-//                .thenComparing(Report::getStudentNumber)
-//                .thenComparing(Report::getSchool));
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
     }
 
