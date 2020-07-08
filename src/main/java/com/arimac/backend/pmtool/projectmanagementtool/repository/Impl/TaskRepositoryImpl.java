@@ -358,14 +358,18 @@ public class TaskRepositoryImpl implements TaskRepository {
         String sql;
         switch (filterType){
             case issueType:
-                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee  WHERE projectId=? AND isDeleted=false AND issueType=?";
+                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee  WHERE projectId=? AND isDeleted=false AND issueType=?" +
+                " ORDER BY FIELD(taskStatus, 'closed') ASC,  taskCreatedAt DESC";
                 return jdbcTemplate.query(sql, new TaskUserDto(),projectId, issueType);
             case dueDate:
-                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee WHERE projectId=? AND  isDeleted=false AND (taskDueDateAt BETWEEN ? AND ?)";
+                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee WHERE projectId=? AND  isDeleted=false AND (taskDueDateAt BETWEEN ? AND ?)"+
+                        " ORDER BY FIELD(taskStatus, 'closed') ASC,  taskCreatedAt DESC";
                 logger.info("sql {}", sql);
                 return jdbcTemplate.query(sql, new TaskUserDto(), projectId, from, to);
             case assignee:
-                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
+                sql = "SELECT * FROM Task AS T INNER JOIN User AS U ON U.userId=T.taskAssignee WHERE projectId=? AND taskAssignee=? AND isDeleted=false" +
+                        " ORDER BY FIELD(taskStatus, 'closed') ASC,  taskCreatedAt DESC";
+                logger.info("sql {}", sql);
                 return jdbcTemplate.query(sql, new TaskUserDto(), projectId, assignee);
         }
         return null;
