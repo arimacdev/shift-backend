@@ -84,6 +84,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     public List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset) {
         String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true" +
                 " ORDER BY FIELD(taskStatus, 'closed') ASC, taskCreatedAt DESC LIMIT ? OFFSET ?";
+        logger.info("query {}", sql);
         List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, limit, offset);
         return  taskList;
     }
