@@ -216,7 +216,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public List<Project> getAllProjects() {
-        String sql = "SELECT * FROM project";
+        String sql = "SELECT * FROM project WHERE isDeleted=false";
         return jdbcTemplate.query(sql, new Project());
     }
 

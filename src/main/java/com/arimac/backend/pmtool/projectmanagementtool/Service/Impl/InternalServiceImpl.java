@@ -4,19 +4,20 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
-import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Internal.UpdateAliasDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.PersonalTaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +37,16 @@ public class InternalServiceImpl implements InternalService {
     private final PersonalTaskRepository personalTaskRepository;
     private final IdpUserService idpUserService;
     private final UserRepository userRepository;
+    private final UtilsService utilsService;
 
-    public InternalServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, NpTaskService npTaskService, PersonalTaskRepository personalTaskRepository, IdpUserService idpUserService, UserRepository userRepository) {
+    public InternalServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, NpTaskService npTaskService, PersonalTaskRepository personalTaskRepository, IdpUserService idpUserService, UserRepository userRepository, UtilsService utilsService) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.npTaskService = npTaskService;
         this.personalTaskRepository = personalTaskRepository;
         this.idpUserService = idpUserService;
         this.userRepository = userRepository;
+        this.utilsService = utilsService;
     }
 
     @Override
@@ -129,5 +132,27 @@ public class InternalServiceImpl implements InternalService {
             }
         }
         return new Response(ResponseMessage.SUCCESS,HttpStatus.OK,userCount);
+    }
+
+    @Override
+    public Object addUserToAllProjects(String userId) {
+        List<Project> projects = projectRepository.getAllProjects();
+        int count = 0;
+        logger.info("Total Projects {}", projects.size());
+        for (Project project : projects) {
+            Project_User currentUser = projectRepository.getProjectUser(project.getProjectId(), userId);
+            if (currentUser == null) {
+                Project_User project_user = new Project_User();
+                project_user.setAssignedAt(utilsService.getCurrentTimestamp());
+                project_user.setAssigneeJobRole("Admin");
+                project_user.setAssigneeProjectRole(2);
+                project_user.setAssigneeId(userId);
+                project_user.setProjectId(project.getProjectId());
+                project_user.setIsBlocked(false);
+                projectRepository.assignUserToProject(project.getProjectId(), project_user);
+                count += 1;
+            }
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, count);
     }
 }
