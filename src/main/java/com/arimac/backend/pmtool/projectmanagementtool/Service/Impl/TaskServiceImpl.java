@@ -211,12 +211,25 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllUserAssignedTasks(String userId, String projectId) {
+    public Object getAllUserAssignedTasks(String userId, String projectId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        List<TaskUserResponseDto> taskList = taskRepository.getAllUserAssignedTasksWithProfile(userId, projectId);
+        List<TaskUserResponseDto> taskList = taskRepository.getAllUserAssignedTasksWithProfile(userId, projectId, limit, startIndex);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
+    }
+
+    @Override
+    public Object getAllUserAssignedTaskCount(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getUserAssignedTaskCount(userId, projectId));
     }
 
     @Override

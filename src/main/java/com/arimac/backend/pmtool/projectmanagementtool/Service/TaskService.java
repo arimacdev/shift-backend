@@ -13,7 +13,8 @@ public interface TaskService {
     Object addTaskToProject(String projectId, TaskDto taskDto);
     Object getAllProjectTasksByUser(String userId, String projectId, int startIndex, int endIndex);
     Object getAllParentTasksCount(String userId, String projectId);
-    Object getAllUserAssignedTasks(String userId, String projectId);
+    Object getAllUserAssignedTasks(String userId, String projectId, int startIndex, int endIndex);
+    Object getAllUserAssignedTaskCount(String userId, String projectId);
     Object getProjectTask(String userId, String projectId, String taskId);
     Object getProjectTaskFiles(String userId, String projectId, String taskId);
     Object updateProjectTask(String userId, String projectId, String taskId, TaskUpdateDto taskUpdateDto);

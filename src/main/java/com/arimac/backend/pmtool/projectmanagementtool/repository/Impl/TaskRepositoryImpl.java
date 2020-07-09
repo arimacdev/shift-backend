@@ -113,11 +113,11 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId) {
+    public List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId, int limit, int offset) {
         String sql = "SELECT * FROM Task as t " +
                 "LEFT JOIN User AS u ON t.taskAssignee=u.userId " +
-                "WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false";
-        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, userId);
+                "WHERE t.projectId=? AND t.taskAssignee=? AND t.isDeleted=false ORDER BY FIELD(taskStatus, 'closed') ASC, taskCreatedAt DESC LIMIT ? OFFSET ?";
+        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, userId, limit, offset);
         return  taskList;
     }
 
@@ -138,6 +138,16 @@ public class TaskRepositoryImpl implements TaskRepository {
         String sql = "SELECT COUNT(*) FROM Task WHERE projectId=? AND isParent=true AND isDeleted=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[] {projectId} , Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getUserAssignedTaskCount(String userId, String projectId) {
+        String sql = "SELECT COUNT(*) FROM Task WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[] {projectId, userId} , Integer.class);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
