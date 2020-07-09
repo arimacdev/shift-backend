@@ -15,13 +15,18 @@ spring:
 
 
 
-#keycloak:
-#  auth-server-url: ${KEYCLOAK_HOST}
-#  ssl-required: none
-#  realm: pm-tool
-#  resource: user-service
-#  bearer-only: true
-#  confidential-port: 0
-#  use-resource-role-mappings: false
-#  principal-attribute: preferred_username
-#  cors: true
+keycloak:
+  auth-server-url: ${KEYCLOAK_HOST}/auth
+  ssl-required: none
+  realm: pm-tool
+  resource: user-management
+  bearer-only: true
+  confidential-port: 0
+  use-resource-role-mappings: false
+  principal-attribute: preferred_username
+  cors: true
+  public-client: false
+  credentials: {
+      "secret" : "46e10880-7cb8-487c-a6cc-d1f6c8bfc6c3"
+  }
+

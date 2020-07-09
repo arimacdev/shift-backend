@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 @RestController
@@ -74,6 +75,7 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "(All Tasks) Get all Tasks in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks") //DONE
+    @RolesAllowed("USER")
     public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex, @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}| startIndex: {} | endIndex: {}", projectId, userId, startIndex, endIndex);
         return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId, startIndex, endIndex));
