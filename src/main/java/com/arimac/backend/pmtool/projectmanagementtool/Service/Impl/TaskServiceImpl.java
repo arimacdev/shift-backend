@@ -225,6 +225,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Object getAllUserAssignedTaskCount(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getUserAssignedTaskCount(userId, projectId));
+    }
+
+    @Override
     public Object getProjectTask(String userId, String projectId, String taskId) {
             ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
             if (projectUser == null)

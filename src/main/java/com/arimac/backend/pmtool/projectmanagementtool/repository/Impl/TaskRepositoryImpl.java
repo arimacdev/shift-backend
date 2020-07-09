@@ -144,6 +144,16 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public int getUserAssignedTaskCount(String userId, String projectId) {
+        String sql = "SELECT COUNT(*) FROM Task WHERE projectId=? AND taskAssignee=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[] {projectId, userId} , Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public Task getProjectTasksWithFlag(String taskId) {
         String sql = "SELECT * FROM Task WHERE taskId=?";
         Task task;

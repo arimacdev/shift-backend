@@ -95,6 +95,14 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.getAllUserAssignedTasks(userId, projectId, startIndex, endIndex));
     }
 
+    @ApiOperation(value = "Get My Task Count", notes = "(My Tasks) Count")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/user/count")
+    public ResponseEntity<Object> getAllUserAssignedTaskCount(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllUserAssignedTaskCount | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(taskService.getAllUserAssignedTaskCount(userId, projectId));
+    }
+
     @ApiOperation(value = "Get Task completion of an Entity By User", notes = "(People Tab) Get Task completion of a Project By User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{userId}/completion/details") // DONE
