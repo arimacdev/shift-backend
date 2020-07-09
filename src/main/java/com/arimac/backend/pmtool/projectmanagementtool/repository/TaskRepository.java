@@ -17,7 +17,7 @@ public interface TaskRepository {
     List<TaskUserResponseDto> getAllChildrenOfParentTaskList(List<String> parentIds);
     List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId);
     List<Task> getAllUserAssignedTasks(String userId, String projectId);
-    List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId);
+    List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId, int limit, int offset);
     Task getProjectTask(String taskId); // done //remove
     int getAllParentTasksCount(String projectId);
     Task getProjectTasksWithFlag(String taskId);
