@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Comments.MentionDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.NotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
@@ -33,6 +34,7 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -66,10 +68,11 @@ public class NotificationServiceImpl implements NotificationService {
     private final TaskGroupTaskRepository taskGroupTaskRepository;
     private final TaskGroupRepository taskGroupRepository;
     private final PersonalTaskRepository personalTaskRepository;
+    private final CommentRepository commentRepository;
 
     private final RestTemplate restTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, PersonalTaskRepository personalTaskRepository, RestTemplate restTemplate) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserRepository userRepository, TaskRepository taskRepository, ProjectRepository projectRepository, TaskGroupTaskRepository taskGroupTaskRepository, TaskGroupRepository taskGroupRepository, PersonalTaskRepository personalTaskRepository, CommentRepository commentRepository, RestTemplate restTemplate) {
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userRepository = userRepository;
@@ -78,6 +81,7 @@ public class NotificationServiceImpl implements NotificationService {
         this.taskGroupTaskRepository = taskGroupTaskRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.personalTaskRepository = personalTaskRepository;
+        this.commentRepository = commentRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -643,6 +647,100 @@ public class NotificationServiceImpl implements NotificationService {
                 Object response = restTemplate.exchange(url.toString(), HttpMethod.POST, entity, String.class);
             }
         }
+    }
+
+    @Override
+    public Object sendMentionNotification(String senderId, MentionDto mentionDto) {
+        CompletableFuture.runAsync(()-> {
+            User sender = userRepository.getUserByUserId(senderId);
+            if (sender == null)
+                return;
+            List<User> activeUsers = userRepository.getUserListById(mentionDto.getRecipients());
+            if (activeUsers.isEmpty())
+                return;
+            Task task = taskRepository.getProjectTask(mentionDto.getEntityId());
+            if (task == null)
+                return;
+            Project project = projectRepository.getProjectById(task.getProjectId());
+            if (project == null)
+                return;
+            Comment comment = commentRepository.getCommentById(mentionDto.getCommentId());
+            if (comment == null)
+                return;
+            for (User activeUser: activeUsers) {
+                if (projectRepository.getProjectUser(project.getProjectId(), activeUser.getUserId()) != null) {
+                    List<UserNotification> oneSignalDevices = userNotificationRepository.getNotificationUserByProviderAndStatus(activeUser.getUserId(), NotificationEnum.OneSignal.toString(), true);
+                    if (!oneSignalDevices.isEmpty()) {
+                        for (UserNotification device : oneSignalDevices) {
+                            StringBuilder oneSignalMentionNotf = getTaskOneSignalMessage(activeUser, task, project, OneSignalMessages.COMMENT_MENTION);
+                            oneSignalMentionNotf.append(OneSignalMessages.COMMENT);
+                            oneSignalMentionNotf.append(comment.getContent());
+                            oneSignalMentionNotf.append(OneSignalMessages.MENTIONED_BY);
+                            oneSignalMentionNotf.append(sender.getFirstName());
+                            oneSignalMentionNotf.append(" ");
+                            oneSignalMentionNotf.append(sender.getLastName());
+
+                            if (device.getPlatform().equals(NotificationPlatformEnum.Mobile.toString()))
+                                sendOneSignalMobileNotification(oneSignalMentionNotf.toString(), device.getSubscriptionId(), "TasksDetailsScreen", project.getProjectId(), project.getProjectName(), task.getTaskId());
+                            else
+                                sendOneSignalNotification(oneSignalMentionNotf.toString(), device.getSubscriptionId());
+                        }
+                    }
+                    if (activeUser.getUserSlackId() != null && activeUser.getNotification()) {
+                        JSONObject payload = new JSONObject();
+                        payload.put(CHANNEL, activeUser.getUserSlackId());
+                        payload.put(TEXT, SlackMessages.COMMENT_MENTION);
+                        List<SlackBlock> blocks = new ArrayList<>();
+                        SlackBlock headerBlock = new SlackBlock();
+                        headerBlock.setType(SECTION);
+                        headerBlock.getText().setType(MARK_DOWN);
+                        StringBuilder greeting = new StringBuilder();
+                        greeting.append(getWelcomeAddressing(activeUser.getUserSlackId()));
+                        greeting.append(SlackMessages.COMMENT_MENTION);
+                        headerBlock.getText().setText(greeting.toString());
+                        headerBlock.setAccessory(null);
+                        headerBlock.setElements(null);
+                        blocks.add(headerBlock);
+
+                        SlackBlock divider = new SlackBlock();
+                        divider.setType(DIVIDER);
+                        divider.setText(null);
+                        divider.setAccessory(null);
+                        blocks.add(divider);
+
+                        SlackBlock body = new SlackBlock();
+                        body.setType(SECTION);
+                        body.getText().setType(MARK_DOWN);
+                        StringBuilder bodyText = new StringBuilder();
+                        bodyText.append(SlackMessages.COMMENT);
+                        bodyText.append(comment.getContent());
+                        bodyText.append(SlackMessages.TASK_ICON);
+                        bodyText.append(getTaskUrl(task));
+                        bodyText.append(SlackMessages.PROJECT_ICON);
+                        bodyText.append(getProjectUrl(project));
+
+                        body.getText().setText(bodyText.toString());
+                        body.getAccessory().setType("image");
+                        body.getAccessory().setImage_url(SlackMessages.ASSIGNMENT_THUMBNAIL);
+                        body.getAccessory().setAlt_text("Comment Thumbnail");
+                        blocks.add(body);
+                        blocks.add(getFooter(task.getTaskStatus().toString()));
+                        blocks.add(divider);
+
+                        payload.put(BLOCKS, blocks);
+                        StringBuilder url = new StringBuilder();
+                        url.append(ENVConfig.SLACK_BASE_URL);
+                        url.append("/chat.postMessage");
+                        logger.info("Slack Message Url {}", url);
+                        HttpEntity<Object> entity = new HttpEntity<>(payload.toString(), getHttpHeaders());
+                        Object response = restTemplate.exchange(url.toString(), HttpMethod.POST, entity, String.class);
+                    }
+                }
+            }
+        });
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+
     }
 
     @Override
@@ -1338,6 +1436,8 @@ public class NotificationServiceImpl implements NotificationService {
             Object response = restTemplate.exchange(url.toString() , HttpMethod.POST, entity, String.class);
         }
     }
+
+
 
     private HttpHeaders getOneSignalHeaders(){
         HttpHeaders httpHeaders = new HttpHeaders();

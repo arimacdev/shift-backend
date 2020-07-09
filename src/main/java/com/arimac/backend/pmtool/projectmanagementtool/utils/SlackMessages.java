@@ -18,6 +18,9 @@ public class SlackMessages {
     public static  final String SUB_TASK_MODIFICATION_GREETING =" A Subtask assigned to you has been modified";
     public static  final String SUB_TASK_DELETION_GREETING =" A Subtask assigned to you has been deleted";
 
+    public static  final String COMMENT_MENTION =" You have been mentioned in a comment";
+
+
 
 
     public static  final String TASK_ASSIGNMENT_TRANSITION_GREETING =" The following Task Assignment has been modified and has been assigned to you";
@@ -25,6 +28,7 @@ public class SlackMessages {
     public static  final String TASK_MODIFICATION_GREETING =" A Task assigned to you has been modified";
     public static  final String TASK_DELETION_GREETING =" A Task assigned to you has been deleted";
     public static  final String TASK_ICON =":gear:   *Task:* ";
+    public static  final String COMMENT =":speech_balloon:   *Comment:* ";
     public static  final String SUB_TASK_ICON =":clipboard:   *Subtask:* ";
     public static  final String PROJECT_ICON ="\n:briefcase:   *Project:* ";
     public static  final String TRANSITION_ICON = "\n:zap:   *Transition:* ";

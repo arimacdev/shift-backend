@@ -9,6 +9,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
@@ -18,9 +20,12 @@ import java.util.List;
 public class UserRepositoryImpl implements UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public UserRepositoryImpl(JdbcTemplate jdbcTemplate) {
+
+    public UserRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
@@ -45,6 +50,18 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM User";
         List<User> userList = jdbcTemplate.query(sql, new User());
         return userList;
+    }
+
+    @Override
+    public List<User> getUserListById(List<String> userId) {
+        String sql = "SELECT * FROM User WHERE userId IN (:ids) AND isActive=true";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", userId);
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameters, new User());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     @Override

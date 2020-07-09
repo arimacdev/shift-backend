@@ -13,11 +13,13 @@ public interface TaskRepository {
     Task addTaskToProject(Task task); // done
     List<Task> getAllProjectTasksByUser(String projectId);
     List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId);
-    List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId);
+    List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset);
+    List<TaskUserResponseDto> getAllChildrenOfParentTaskList(List<String> parentIds);
     List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId);
     List<Task> getAllUserAssignedTasks(String userId, String projectId);
     List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId);
     Task getProjectTask(String taskId); // done //remove
+    int getAllParentTasksCount(String projectId);
     Task getProjectTasksWithFlag(String taskId);
     Task getTaskByProjectIdTaskId(String projectId, String taskId);
     Task getProjectTaskWithDeleted(String taskId); //remove

@@ -79,7 +79,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project_User getProjectUser(String projectId, String userId) {
-        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=?";
+        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=? AND isBlocked=false";
         Project_User project_user;
         try {
             project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);

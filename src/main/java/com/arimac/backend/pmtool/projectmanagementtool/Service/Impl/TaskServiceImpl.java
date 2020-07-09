@@ -29,12 +29,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -161,33 +163,51 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId) {
-//        if (type.equals(TaskTypeEnum.project)) {
-            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-            if (projectUser == null)
+    public Object getAllProjectTasksByUser(String userId, String projectId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId);
-        List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildTasksWithProfile(projectId);
-        Map<String, TaskParentChild> parentChildMap = new HashMap<>();
-        for (TaskUserResponseDto parentTask : parentTaskList){
-            if (parentChildMap.get(parentTask.getTaskId()) == null){
-                TaskParentChild taskParentChild = new TaskParentChild();
-                taskParentChild.setParentTask(parentTask);
-                taskParentChild.setChildTasks(new ArrayList<>());
-                parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId, limit, startIndex);
+        List<TaskParentChild> parentChildList = new ArrayList<>();
+        if (!parentTaskList.isEmpty()) {
+            List<String> parentIds = parentTaskList.stream()
+                    .map(TaskUserResponseDto::getTaskId)
+                    .collect(Collectors.toList());
+            List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildrenOfParentTaskList(parentIds);
+            Map<String, TaskParentChild> parentChildMap = new LinkedHashMap<>();
+            for (TaskUserResponseDto parentTask : parentTaskList) {
+                if (parentChildMap.get(parentTask.getTaskId()) == null) {
+                    TaskParentChild taskParentChild = new TaskParentChild();
+                    taskParentChild.setParentTask(parentTask);
+                    taskParentChild.setChildTasks(new ArrayList<>());
+                    parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+                }
             }
-        }
-        for (TaskUserResponseDto childTask: childTaskList){
-            if (parentChildMap.get(childTask.getParentId()) != null){
-                TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
-                List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
-                childTasks.add(childTask);
-                parentChild.setChildTasks(childTasks);
+            for (TaskUserResponseDto childTask : childTaskList) {
+                if (parentChildMap.get(childTask.getParentId()) != null) {
+                    TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
+                    List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
+                    childTasks.add(childTask);
+                    parentChild.setChildTasks(childTasks);
+                }
             }
+            parentChildList = new ArrayList<>(parentChildMap.values());
         }
-        List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
+    }
+
+    @Override
+    public Object getAllParentTasksCount(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAllParentTasksCount(projectId));
     }
 
     @Override
