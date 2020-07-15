@@ -12,6 +12,7 @@ public class CommentReactionList {
     private String commenterLatName;
     private String commenterProfileImage;
     private Timestamp commentedAt;
+    private boolean isEdited;
     private List<ReactionRespondants> reactions;
 
     public String getCommentId() {
@@ -76,5 +77,13 @@ public class CommentReactionList {
 
     public void setReactions(List<ReactionRespondants> reactions) {
         this.reactions = reactions;
+    }
+
+    public boolean getIsEdited() {
+        return isEdited;
+    }
+
+    public void setIsEdited(boolean edited) {
+        isEdited = edited;
     }
 }
