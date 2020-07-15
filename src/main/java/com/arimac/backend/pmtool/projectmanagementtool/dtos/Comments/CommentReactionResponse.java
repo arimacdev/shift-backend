@@ -8,6 +8,7 @@ public class CommentReactionResponse {
     private String commentId;
     private String content;
     private String commenter;
+    private boolean isEdited;
     private String commenterFistName;
     private String commenterLatName;
     private String commenterProfileImage;
@@ -85,5 +86,13 @@ public class CommentReactionResponse {
 
     public void setReactions(Map<String, ReactionRespondants> reactions) {
         this.reactions = reactions;
+    }
+
+    public boolean getIsEdited() {
+        return isEdited;
+    }
+
+    public void setIsEdited(boolean edited) {
+        isEdited = edited;
     }
 }
