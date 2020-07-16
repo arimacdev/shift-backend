@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -70,7 +71,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 " WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
         ProjectUserResponseDto project;
         try {
-            project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
+            project =  jdbcTemplate.queryForObject(sql, this.query , userId, projectId);
         } catch (EmptyResultDataAccessException e){
             logger.info("Error {}", e.getLocalizedMessage());
             return null;
@@ -196,6 +197,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
     }
 
+    private WeightTypeEnum getWeightMeasure(int weightId){
+        return WeightTypeEnum.get(weightId);
+    }
+
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("project"));
@@ -211,6 +216,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
         projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
         projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
+        projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
         return projectUserResponseDto;
     };
 
