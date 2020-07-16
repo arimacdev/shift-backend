@@ -1,7 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 
@@ -24,6 +25,7 @@ public interface ProjectRepository {
     void blockOrUnblockUserFromAllRelatedProjects(boolean status, String userId);
     void updateIssueCount(String projectId, int issueId);
     boolean checkProjectAlias(String alias);
+    void updateProjectWeight(String projectId, WeightTypeEnum weightTypeEnum);
 
     //INTERNAL
     List<Project> getAllProjects();

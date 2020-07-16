@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Project;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 

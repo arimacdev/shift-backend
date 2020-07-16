@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Project;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import org.springframework.jdbc.core.RowMapper;

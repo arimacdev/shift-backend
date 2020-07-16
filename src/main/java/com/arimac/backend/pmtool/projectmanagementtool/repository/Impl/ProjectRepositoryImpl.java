@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
@@ -192,6 +193,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         String sql = "SELECT EXISTS (SELECT * FROM project WHERE projectAlias=? LIMIT 1)";
         try {
             return jdbcTemplate.queryForObject(sql, Boolean.class, alias);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateProjectWeight(String projectId, WeightTypeEnum weightTypeEnum) {
+        String sql = "UPDATE project SET weightMeasure=? WHERE project=?";
+        try {
+            jdbcTemplate.update(sql, weightTypeEnum.getWeightId(), projectId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

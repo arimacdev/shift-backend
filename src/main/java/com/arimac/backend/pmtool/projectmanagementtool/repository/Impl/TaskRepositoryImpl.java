@@ -389,6 +389,16 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public void updateTaskWeightsToDefault(String projectId) {
+        String sql = "UPDATE Task SET estimatedWeight = DEFAULT, actualWeight= DEFAULT WHERE projectId=?";
+        try {
+            jdbcTemplate.update(sql, projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void updateProjectAlias(String taskId, String alias) {
        jdbcTemplate.update(connection -> {
            PreparedStatement preparedStatement  = connection.prepareStatement("UPDATE Task SET secondaryTaskId=? WHERE taskId=?");

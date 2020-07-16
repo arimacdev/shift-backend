@@ -5,9 +5,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogServic
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
@@ -167,7 +167,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (modifierProject == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if (!((modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You don't have Admin privileges", HttpStatus.FORBIDDEN);
         Project updatedProject = new Project();
         if (projectEditDto.getProjectName() != null && !projectEditDto.getProjectName().isEmpty()){
             updatedProject.setProjectName(projectEditDto.getProjectName());
@@ -217,13 +217,31 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Object updateProjectWeight(String projectId, String userId, ProjectWeightUpdateDto projectWeightUpdateDto) {
+        ProjectUserResponseDto member = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        if (member.getAssigneeProjectRole() != ProjectRoleEnum.owner.getRoleValue())
+            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+        if (member.getWeightMeasure().equals(projectWeightUpdateDto.getWeightType()))
+            return new ErrorMessage(ResponseMessage.PROJECT_WEIGHT_ALREADY_SET, HttpStatus.UNPROCESSABLE_ENTITY);
+        projectRepository.updateProjectWeight(projectId, projectWeightUpdateDto.getWeightType());
+        try {
+            taskRepository.updateTaskWeightsToDefault(projectId);
+        } catch (Exception e){
+            projectRepository.updateProjectWeight(projectId, member.getWeightMeasure());
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
     public Object updateAssigneeProjectRole(String projectId, String userId, ProjectUserUpdateDto updateDto) {
         ProjectUserResponseDto assignerProject = projectRepository.getProjectByIdAndUserId(projectId, updateDto.getAssignerId());
         if (assignerProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (assigneeProject == null)
-            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if ( !((assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
             return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
         if (assignerProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue() && assigneeProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()){
