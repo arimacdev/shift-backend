@@ -318,6 +318,13 @@ public class TaskServiceImpl implements TaskService {
         } else {
             updateDto.setIssueType(taskUpdateDto.getIssueType());
         }
+        if (taskUpdateDto.getActualWeight() == null)
+            updateDto.setActualWeight(task.getActualWeight());
+        else
+            updateDto.setActualWeight(taskUpdateDto.getActualWeight());
+        if (taskUpdateDto.getEstimatedWeight() == null)
+            updateDto.setEstimatedWeight(task.getEstimatedWeight());
+        else updateDto.setEstimatedWeight(taskUpdateDto.getEstimatedWeight());
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
@@ -349,6 +356,16 @@ public class TaskServiceImpl implements TaskService {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
+            });
+        }
+        if (taskUpdateDto.getEstimatedWeight()!= null){
+            CompletableFuture.runAsync(()->{
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ESTIMATED_WEIGHT, task.getEstimatedWeight().toString(), taskUpdateDto.getEstimatedWeight().toString()));
+            });
+        }
+        if (taskUpdateDto.getActualWeight()!= null){
+            CompletableFuture.runAsync(()->{
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ACTUAL_WEIGHT, task.getActualWeight().toString(), taskUpdateDto.getActualWeight().toString()));
             });
         }
         if (taskUpdateDto.getTaskDueDate() != null){

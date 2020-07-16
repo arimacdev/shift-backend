@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -29,13 +30,13 @@ public class Task implements RowMapper<Task> {
     private String parentId;
     private boolean isParent;
 
-    private double estimatedWeight;
-    private double actualWeight;
+    private BigDecimal estimatedWeight;
+    private BigDecimal actualWeight;
 
     public Task() {
     }
 
-    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, double estimatedWeight, double actualWeight) {
+    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -192,19 +193,19 @@ public class Task implements RowMapper<Task> {
         isParent = parent;
     }
 
-    public double getEstimatedWeight() {
+    public BigDecimal getEstimatedWeight() {
         return estimatedWeight;
     }
 
-    public void setEstimatedWeight(double estimatedWeight) {
+    public void setEstimatedWeight(BigDecimal estimatedWeight) {
         this.estimatedWeight = estimatedWeight;
     }
 
-    public double getActualWeight() {
+    public BigDecimal getActualWeight() {
         return actualWeight;
     }
 
-    public void setActualWeight(double actualWeight) {
+    public void setActualWeight(BigDecimal actualWeight) {
         this.actualWeight = actualWeight;
     }
 
@@ -227,8 +228,8 @@ public class Task implements RowMapper<Task> {
                 IssueTypeEnum.valueOf(resultSet.getString("issueType")),
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent"),
-                resultSet.getDouble("estimatedWeight"),
-                resultSet.getDouble("actualWeight")
+                resultSet.getBigDecimal("estimatedWeight"),
+                resultSet.getBigDecimal("actualWeight")
         );
     }
 
