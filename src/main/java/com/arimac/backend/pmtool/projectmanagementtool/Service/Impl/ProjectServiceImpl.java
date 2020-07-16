@@ -70,6 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setProjectStatus(ProjectStatusEnum.presalesPD);
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
+        project.setWeightMeasure(projectDto.getWeightType().getWeightId());
         projectRepository.createProject(project);
         activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 

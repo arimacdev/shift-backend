@@ -1,5 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
+
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 public class ProjectDto {
@@ -9,6 +12,8 @@ public class ProjectDto {
     private String projectAlias;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
+    @NotNull
+    private WeightTypeEnum weightType;
 
     public ProjectDto() {
     }
@@ -61,15 +66,25 @@ public class ProjectDto {
         this.projectEndDate = projectEndDate;
     }
 
+
+    public WeightTypeEnum getWeightType() {
+        return weightType;
+    }
+
+    public void setWeightType(WeightTypeEnum weightType) {
+        this.weightType = weightType;
+    }
+
     @Override
     public String toString() {
         return "ProjectDto{" +
                 "projectOwner='" + projectOwner + '\'' +
                 ", projectName='" + projectName + '\'' +
                 ", clientId='" + clientId + '\'' +
-                ", aliasName='" + projectAlias + '\'' +
+                ", projectAlias='" + projectAlias + '\'' +
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
+                ", weightType=" + weightType +
                 '}';
     }
 }

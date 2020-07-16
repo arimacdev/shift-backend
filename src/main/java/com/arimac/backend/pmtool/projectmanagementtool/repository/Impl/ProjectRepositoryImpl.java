@@ -28,7 +28,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project createProject(Project project) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount) values (?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount, weightMeasure) values (?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, project.getProjectId());
             preparedStatement.setString(2, project.getProjectName());
             preparedStatement.setString(3, project.getProjectAlias());
@@ -38,6 +38,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             preparedStatement.setString(7, project.getProjectStatus().toString());
             preparedStatement.setBoolean(8, project.getIsDeleted());
             preparedStatement.setInt(9, project.getIssueCount());
+            preparedStatement.setInt(10, project.getWeightMeasure());
 
             return preparedStatement;
         });

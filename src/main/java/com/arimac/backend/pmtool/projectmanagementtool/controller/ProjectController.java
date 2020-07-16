@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/projects")
@@ -29,7 +31,7 @@ public class ProjectController extends ResponseController {
     @ApiOperation(value = "Project Create", notes = "Create a project for an organization")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
-    public ResponseEntity<Object> createProject(@RequestBody ProjectDto projectDto){
+    public ResponseEntity<Object> createProject(@RequestBody @Valid ProjectDto projectDto){
         logger.info("HIT - createProject - /projects POST  dto: {}", projectDto);
         return sendResponse(projectService.createProject(projectDto));
     }
