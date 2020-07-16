@@ -43,6 +43,10 @@ public class SlackMessages {
     public static  final String DUE_DATE_ICON = "\n:hourglass_flowing_sand:   *Due Date:* ";
     public static  final String PREVIOUS_NAME_ICON = "\n:red_circle:   *Previous Name:* ";
     public static  final String MODIFIED_NAME_ICON = "\n:large_blue_circle:   *Modified Name:* ";
+    public static  final String PREVIOUS_ESTIMATION = "\n:red_circle:   *Previous Estimation:* ";
+    public static  final String MODIFIED_ESTIMATION = "\n:large_blue_circle:   *Modified Estimation:* ";
+    public static  final String PREVIOUS_ACTUAL = "\n:red_circle:   *Previous Actual Weight:* ";
+    public static  final String MODIFIED_ACTUAL = "\n:large_blue_circle:   *Modified Actual Weight:* ";
     public static  final String PREVIOUS_CONTENT_ICON = "\n:red_circle:   *Previous Content:* ";
     public static  final String MODIFIED_CONTENT_ICON = "\n:large_blue_circle:   *Modified Content:* ";
     public static  final String PREVIOUS_NOTES_ICON = "\n:red_circle:   *Previous Note Content:* ";
@@ -83,6 +87,7 @@ public class SlackMessages {
 
 
     public static  final String TASK_NAME_THUMBNAIL_TEXT ="Task Name Modification Thumbnail";
+    public static  final String TASK_WEIGHT_MODIFICATION_TEXT ="Task Name Modification Thumbnail";
     public static  final String TASK_NOTE_THUMBNAIL_TEXT ="Task Note Modification Thumbnail";
     public static  final String TASK_DUE_THUMBNAIL_TEXT ="Task Due Date Modification Thumbnail";
     public static  final String TASK_TRANSITION_THUMBNAIL_TEXT ="Task Transition Thumbnail";
@@ -99,6 +104,7 @@ public class SlackMessages {
     public static  final String UPDATE_TASK_DUE_DATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036309205_Update%20the%20due%20date.png";
     public static  final String TRANSITION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587038069361_changing%20the%20status%20of%20a%20task.png";
     public static  final String FILE_UPLOAD_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587037620456_Updates%20to%20files.png";
+    public static  final String TASK_WEIGHT_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587038069361_changing%20the%20status%20of%20a%20task.png";
 
     public static  final String SUBTASK_CREATE_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";
     public static  final String SUBTASK_MODIFICATION_THUMBNAIL = "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1587036006210_Update%20notes.png";

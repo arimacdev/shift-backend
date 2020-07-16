@@ -48,6 +48,8 @@ public class TaskServiceImpl implements TaskService {
     private static final String NAME = "name";
     private static final String STATUS = "status";
     private static final String NOTES = "notes";
+    private static final String ESTIMATED_WEIGHT = "estimated_weight";
+    private static final String ACTUAL_WEIGHT = "actual_weight";
     private static final String DUE_DATE = "dueDate";
     private static final String CLOSED = "closed";
     private static final String ORDER_BY = "ORDER BY";
@@ -359,14 +361,16 @@ public class TaskServiceImpl implements TaskService {
             });
         }
         if (taskUpdateDto.getEstimatedWeight()!= null){
-            CompletableFuture.runAsync(()->{
+//            CompletableFuture.runAsync(()->{
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, ESTIMATED_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ESTIMATED_WEIGHT, task.getEstimatedWeight().toString(), taskUpdateDto.getEstimatedWeight().toString()));
-            });
+//            });
         }
         if (taskUpdateDto.getActualWeight()!= null){
-            CompletableFuture.runAsync(()->{
+//            CompletableFuture.runAsync(()->{
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, ACTUAL_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ACTUAL_WEIGHT, task.getActualWeight().toString(), taskUpdateDto.getActualWeight().toString()));
-            });
+//            });
         }
         if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
