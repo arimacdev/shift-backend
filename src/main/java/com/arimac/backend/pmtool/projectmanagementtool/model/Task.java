@@ -29,11 +29,13 @@ public class Task implements RowMapper<Task> {
     private String parentId;
     private boolean isParent;
 
+    private double estimatedWeight;
+    private double actualWeight;
+
     public Task() {
     }
 
-
-    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent) {
+    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, double estimatedWeight, double actualWeight) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -50,6 +52,8 @@ public class Task implements RowMapper<Task> {
         this.issueType = issueType;
         this.parentId = parentId;
         this.isParent = isParent;
+        this.estimatedWeight = estimatedWeight;
+        this.actualWeight = actualWeight;
     }
 
     public boolean getIsDeleted() {
@@ -188,6 +192,22 @@ public class Task implements RowMapper<Task> {
         isParent = parent;
     }
 
+    public double getEstimatedWeight() {
+        return estimatedWeight;
+    }
+
+    public void setEstimatedWeight(double estimatedWeight) {
+        this.estimatedWeight = estimatedWeight;
+    }
+
+    public double getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(double actualWeight) {
+        this.actualWeight = actualWeight;
+    }
+
     @Override
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Task(
@@ -206,7 +226,9 @@ public class Task implements RowMapper<Task> {
                 TaskStatusEnum.valueOf(resultSet.getString("taskStatus")),
                 IssueTypeEnum.valueOf(resultSet.getString("issueType")),
                 resultSet.getString("parentId"),
-                resultSet.getBoolean("isParent")
+                resultSet.getBoolean("isParent"),
+                resultSet.getDouble("estimatedWeight"),
+                resultSet.getDouble("actualWeight")
         );
     }
 
