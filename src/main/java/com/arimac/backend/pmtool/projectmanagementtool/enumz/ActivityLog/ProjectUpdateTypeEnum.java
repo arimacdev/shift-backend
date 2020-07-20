@@ -12,5 +12,6 @@ public enum ProjectUpdateTypeEnum {
     ROLE_UPDATE,
     FILE,
     SPRINT_ADD,
-    SPRINT_UPDATE
+    SPRINT_UPDATE,
+    PROJECT_WEIGHT
 }

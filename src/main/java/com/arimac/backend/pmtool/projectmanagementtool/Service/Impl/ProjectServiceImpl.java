@@ -228,6 +228,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.updateProjectWeight(projectId, projectWeightUpdateDto.getWeightType());
         try {
             taskRepository.updateTaskWeightsToDefault(projectId);
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.PROJECT_WEIGHT, member.getWeightMeasure().toString(), projectWeightUpdateDto.getWeightType().toString()));
         } catch (Exception e){
             projectRepository.updateProjectWeight(projectId, member.getWeightMeasure());
         }
