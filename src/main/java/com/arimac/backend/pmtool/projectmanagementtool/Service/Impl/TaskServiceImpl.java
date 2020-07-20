@@ -876,10 +876,10 @@ public class TaskServiceImpl implements TaskService {
             String[] words = OrderBySubString.split("\\s+");
             List<String> orderBy = new ArrayList<String>(Arrays.asList(words));
             orderBy.removeAll(Arrays.asList(""));
-            for (String word: orderBy){
-                if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
-                    return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-            }
+//            for (String word: orderBy){
+//                if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
+//                    return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+//            }
             decodedQuery = baseSubstring;
         }
         String[] words = decodedQuery.split("\\s+");

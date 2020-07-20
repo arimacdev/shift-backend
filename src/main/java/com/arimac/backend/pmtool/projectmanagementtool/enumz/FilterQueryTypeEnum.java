@@ -10,6 +10,7 @@ public enum  FilterQueryTypeEnum {
     issueType,
     taskDueDateAt,
     taskName,
+    taskCreatedAt,
     taskStatus;
 
     private static Set<String> values = new HashSet<>();
