@@ -222,7 +222,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (member == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if (member.getAssigneeProjectRole() != ProjectRoleEnum.owner.getRoleValue())
-            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("Assigner doesn't have Admin privileges", HttpStatus.UNAUTHORIZED);
         if (member.getWeightMeasure().equals(projectWeightUpdateDto.getWeightType()))
             return new ErrorMessage(ResponseMessage.PROJECT_WEIGHT_ALREADY_SET, HttpStatus.UNPROCESSABLE_ENTITY);
         projectRepository.updateProjectWeight(projectId, projectWeightUpdateDto.getWeightType());
