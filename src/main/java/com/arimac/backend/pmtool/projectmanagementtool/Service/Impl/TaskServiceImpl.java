@@ -366,16 +366,16 @@ public class TaskServiceImpl implements TaskService {
             });
         }
         if (taskUpdateDto.getEstimatedWeight()!= null){
-//            CompletableFuture.runAsync(()->{
+            CompletableFuture.runAsync(()->{
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, ESTIMATED_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ESTIMATED_WEIGHT, task.getEstimatedWeight().toString(), taskUpdateDto.getEstimatedWeight().toString()));
-//            });
+            });
         }
         if (taskUpdateDto.getActualWeight()!= null){
-//            CompletableFuture.runAsync(()->{
+            CompletableFuture.runAsync(()->{
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, ACTUAL_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ACTUAL_WEIGHT, task.getActualWeight().toString(), taskUpdateDto.getActualWeight().toString()));
-//            });
+            });
         }
         if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
