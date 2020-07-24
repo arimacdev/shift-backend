@@ -7,6 +7,7 @@ public enum ResponseMessage {
     SPRINT_NOT_FOUND("Sprint Not Found"),
     TASK_NOT_FOUND("Task Not Found"),
     PROJECT_NOT_FOUND("Project Not Found"),
+    PROJECT_WEIGHT_ALREADY_SET("Selected Project Weight Measure Already Set"),
     NO_ACCESS("Records cannot be accessed"),
     INVALID_DATE_FORMAT("Invalid Date Format"),
     ALREADY_ASSIGNED("Already Assigned"),

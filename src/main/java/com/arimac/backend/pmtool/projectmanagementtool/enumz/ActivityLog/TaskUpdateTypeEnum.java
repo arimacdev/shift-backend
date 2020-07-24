@@ -10,6 +10,8 @@ public enum TaskUpdateTypeEnum {
     TASK_NAME,
     DUE_DATE,
     TASK_NOTES,
+    ACTUAL_WEIGHT,
+    ESTIMATED_WEIGHT,
     TASK_SPRINT,
     FILE;
 

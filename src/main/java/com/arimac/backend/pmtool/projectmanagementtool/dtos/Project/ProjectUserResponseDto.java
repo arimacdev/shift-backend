@@ -1,5 +1,6 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Project;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -20,12 +21,13 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private boolean isDeleted;
     private boolean blockedStatus;
     private String projectAlias;
+    private WeightTypeEnum weightMeasure;
 
     public ProjectUserResponseDto() {
     }
 
 
-    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias) {
+    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias, WeightTypeEnum weightMeasure) {
         this.projectId = projectId;
         this.clientId = clientId;
         this.assigneeId = assigneeId;
@@ -39,6 +41,7 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.isDeleted = isDeleted;
         this.blockedStatus = blockedStatus;
         this.projectAlias = projectAlias;
+        this.weightMeasure = weightMeasure;
     }
 
     public String getAssigneeJobRole() {
@@ -145,6 +148,18 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectAlias = projectAlias;
     }
 
+    public WeightTypeEnum getWeightMeasure() {
+        return weightMeasure;
+    }
+
+    public void setWeightMeasure(WeightTypeEnum weightMeasure) {
+        this.weightMeasure = weightMeasure;
+    }
+
+    private WeightTypeEnum getWeightMeasureOf(int weightId){
+        return WeightTypeEnum.get(weightId);
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
@@ -160,7 +175,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getTimestamp("projectEndDate"),
                 resultSet.getBoolean("isDeleted"),
                 resultSet.getBoolean("blockedStatus"),
-                resultSet.getString("projectAlias")
-        );
+                resultSet.getString("projectAlias"),
+                getWeightMeasureOf(resultSet.getInt("weightMeasure"))
+                );
     }
 }

@@ -1,17 +1,22 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Project;
 
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
-public class ProjectEditDto {
-    private String modifierId;
+public class ProjectDto {
+    private String projectOwner;
     private String projectName;
     private String clientId;
-    private String projectStatus;
     private String projectAlias;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
+    @NotNull
+    private WeightTypeEnum weightType;
+
+    public ProjectDto() {
+    }
 
     public String getProjectAlias() {
         return projectAlias;
@@ -21,12 +26,12 @@ public class ProjectEditDto {
         this.projectAlias = projectAlias;
     }
 
-    public String getModifierId() {
-        return modifierId;
+    public String getProjectOwner() {
+        return projectOwner;
     }
 
-    public void setModifierId(String modifierId) {
-        this.modifierId = modifierId;
+    public void setProjectOwner(String projectOwner) {
+        this.projectOwner = projectOwner;
     }
 
     public String getProjectName() {
@@ -45,14 +50,6 @@ public class ProjectEditDto {
         this.clientId = clientId;
     }
 
-    public String getProjectStatus() {
-        return projectStatus;
-    }
-
-    public void setProjectStatus(String projectStatus) {
-        this.projectStatus = projectStatus;
-    }
-
     public Timestamp getProjectStartDate() {
         return projectStartDate;
     }
@@ -69,16 +66,25 @@ public class ProjectEditDto {
         this.projectEndDate = projectEndDate;
     }
 
+
+    public WeightTypeEnum getWeightType() {
+        return weightType;
+    }
+
+    public void setWeightType(WeightTypeEnum weightType) {
+        this.weightType = weightType;
+    }
+
     @Override
     public String toString() {
-        return "ProjectEditDto{" +
-                "modifierId='" + modifierId + '\'' +
+        return "ProjectDto{" +
+                "projectOwner='" + projectOwner + '\'' +
                 ", projectName='" + projectName + '\'' +
                 ", clientId='" + clientId + '\'' +
-                ", projectStatus='" + projectStatus + '\'' +
                 ", projectAlias='" + projectAlias + '\'' +
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
+                ", weightType=" + weightType +
                 '}';
     }
 }

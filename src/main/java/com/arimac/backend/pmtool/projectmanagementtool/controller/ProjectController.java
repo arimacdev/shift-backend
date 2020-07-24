@@ -5,13 +5,18 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectEditDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 
 @RestController
@@ -29,7 +34,7 @@ public class ProjectController extends ResponseController {
     @ApiOperation(value = "Project Create", notes = "Create a project for an organization")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
-    public ResponseEntity<Object> createProject(@RequestBody ProjectDto projectDto){
+    public ResponseEntity<Object> createProject(@RequestBody @Valid ProjectDto projectDto){
         logger.info("HIT - createProject - /projects POST  dto: {}", projectDto);
         return sendResponse(projectService.createProject(projectDto));
     }
@@ -64,6 +69,14 @@ public class ProjectController extends ResponseController {
     public ResponseEntity<Object> updateProject(@PathVariable("projectId") String projectId, @RequestBody ProjectEditDto projectEditDto){
         logger.info("HIT - GET /project/ ---> updateProject | projectId: {} | projectUpdateDto: {}", projectId, projectEditDto);
         return sendResponse(projectService.updateProject(projectId, projectEditDto));
+    }
+
+    @ApiOperation(value = "Update Project Weight", notes = "Update Project Weight")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/weight")
+    public ResponseEntity<Object> updateProjectWeight(@PathVariable("projectId") String projectId, @RequestHeader("userId") String userId, @RequestBody @Valid ProjectWeightUpdateDto projectWeightUpdateDto){
+        logger.info("HIT - GET /project/ ---> updateProjectWeight | projectId: {} | projectUpdateDto: {}", projectId, projectWeightUpdateDto);
+        return sendResponse(projectService.updateProjectWeight(projectId, userId, projectWeightUpdateDto));
     }
 
 

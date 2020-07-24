@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -28,10 +29,13 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     private String parentId;
     private boolean isParent;
 
+    private BigDecimal estimatedWeight;
+    private BigDecimal actualWeight;
+
     public TaskUserResponseDto() {
     }
 
-    public TaskUserResponseDto(String taskId, String secondaryTaskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent) {
+    public TaskUserResponseDto(String taskId, String secondaryTaskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -49,6 +53,8 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.issueType = issueType;
         this.parentId = parentId;
         this.isParent = isParent;
+        this.estimatedWeight = estimatedWeight;
+        this.actualWeight = actualWeight;
     }
 
     public String getTaskId() {
@@ -187,6 +193,22 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.secondaryTaskId = secondaryTaskId;
     }
 
+    public BigDecimal getEstimatedWeight() {
+        return estimatedWeight;
+    }
+
+    public void setEstimatedWeight(BigDecimal estimatedWeight) {
+        this.estimatedWeight = estimatedWeight;
+    }
+
+    public BigDecimal getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(BigDecimal actualWeight) {
+        this.actualWeight = actualWeight;
+    }
+
     @Override
     public TaskUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskUserResponseDto(
@@ -206,7 +228,9 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
                 resultSet.getString("sprintId"),
                 IssueTypeEnum.valueOf(resultSet.getString("issueType")),
                 resultSet.getString("parentId"),
-                resultSet.getBoolean("isParent")
+                resultSet.getBoolean("isParent"),
+                resultSet.getBigDecimal("estimatedWeight"),
+                resultSet.getBigDecimal("actualWeight")
         );
     }
 

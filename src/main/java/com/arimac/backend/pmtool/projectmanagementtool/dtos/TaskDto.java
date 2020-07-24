@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class TaskDto {
@@ -16,8 +17,7 @@ public class TaskDto {
     private String taskNotes;
     private Timestamp taskDueDate;
     private Timestamp taskRemindOnDate;
-//    private TaskTypeEnum taskType;
-
+    private BigDecimal estimatedWeight;
     private IssueTypeEnum issueType;
     private String parentTaskId;
 
@@ -98,13 +98,14 @@ public class TaskDto {
         this.taskStatus = taskStatus;
     }
 
-//    public TaskTypeEnum getTaskType() {
-//        return taskType;
-//    }
-//
-//    public void setTaskType(TaskTypeEnum taskType) {
-//        this.taskType = taskType;
-//    }
+    public BigDecimal getEstimatedWeight() {
+        return estimatedWeight;
+    }
+
+    public void setEstimatedWeight(BigDecimal estimatedWeight) {
+        this.estimatedWeight = estimatedWeight;
+    }
+
 
     public IssueTypeEnum getIssueType() {
         return issueType;
@@ -127,15 +128,16 @@ public class TaskDto {
         return "TaskDto{" +
                 "taskName='" + taskName + '\'' +
                 ", projectId='" + projectId + '\'' +
+                ", sprintId='" + sprintId + '\'' +
                 ", taskStatus=" + taskStatus +
                 ", taskInitiator='" + taskInitiator + '\'' +
                 ", taskAssignee='" + taskAssignee + '\'' +
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskDueDate=" + taskDueDate +
                 ", taskRemindOnDate=" + taskRemindOnDate +
-//                ", taskType=" + taskType +
+                ", estimatedWeight=" + estimatedWeight +
                 ", issueType=" + issueType +
-                ", parentId='" + parentTaskId + '\'' +
+                ", parentTaskId='" + parentTaskId + '\'' +
                 '}';
     }
 }

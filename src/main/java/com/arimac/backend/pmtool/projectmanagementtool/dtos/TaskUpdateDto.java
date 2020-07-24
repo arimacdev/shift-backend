@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class TaskUpdateDto {
@@ -13,8 +14,9 @@ public class TaskUpdateDto {
     private Timestamp taskRemindOnDate;
     private String taskNotes;
     private TaskStatusEnum taskStatus;
-//    private TaskTypeEnum taskType;
     private IssueTypeEnum issueType;
+    private BigDecimal estimatedWeight;
+    private BigDecimal actualWeight;
 
 
     public String getTaskName() {
@@ -65,13 +67,21 @@ public class TaskUpdateDto {
         this.taskStatus = taskStatus;
     }
 
-//    public TaskTypeEnum getTaskType() {
-//        return taskType;
-//    }
-//
-//    public void setTaskType(TaskTypeEnum taskType) {
-//        this.taskType = taskType;
-//    }
+    public BigDecimal getEstimatedWeight() {
+        return estimatedWeight;
+    }
+
+    public void setEstimatedWeight(BigDecimal estimatedWeight) {
+        this.estimatedWeight = estimatedWeight;
+    }
+
+    public BigDecimal getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(BigDecimal actualWeight) {
+        this.actualWeight = actualWeight;
+    }
 
     public IssueTypeEnum getIssueType() {
         return issueType;
@@ -91,6 +101,8 @@ public class TaskUpdateDto {
                 ", taskNotes='" + taskNotes + '\'' +
                 ", taskStatus=" + taskStatus +
                 ", issueType=" + issueType +
+                ", estimatedWeight=" + estimatedWeight +
+                ", actualWeight=" + actualWeight +
                 '}';
     }
 }

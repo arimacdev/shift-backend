@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.Notific
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.PersonalTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Notification.TaskGroupTaskAlertDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackBlock;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Slack.SlackElement;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
@@ -50,6 +51,8 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String NAME = "name";
     private static final String NOTES = "notes";
     private static final String DUE_DATE = "dueDate";
+    private static final String ESTIMATED_WEIGHT = "estimated_weight";
+    private static final String ACTUAL_WEIGHT = "actual_weight";
     private static final String STATUS = "status";
     private static final String PLAYER_IDS = "include_player_ids";
     private static final String APP_ID = "app_id";
@@ -400,6 +403,17 @@ public class NotificationServiceImpl implements NotificationService {
                             oneSignalTaskUpdateNotf.append(OneSignalMessages.ARROW);
                             oneSignalTaskUpdateNotf.append(taskUpdateDto.getTaskStatus());
                             break;
+                        case ESTIMATED_WEIGHT:
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskUpdateNotf.append(taskUpdateDto.getEstimatedWeight());
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.PREVIOUS);
+                            oneSignalTaskUpdateNotf.append(task.getEstimatedWeight());
+                            break;
+                        case ACTUAL_WEIGHT:
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.MODIFIED);
+                            oneSignalTaskUpdateNotf.append(taskUpdateDto.getActualWeight());
+                            oneSignalTaskUpdateNotf.append(OneSignalMessages.PREVIOUS);
+                            oneSignalTaskUpdateNotf.append(task.getActualWeight());
                         default:
                             return;
                     }
@@ -464,6 +478,20 @@ public class NotificationServiceImpl implements NotificationService {
                         bodyText.append(SlackMessages.ARROW_ICON);
                         bodyText.append(taskUpdateDto.getTaskStatus());
                         setNotificationThumbnail(body, SlackMessages.TASK_TRANSITION_THUMBNAIL_TEXT, SlackMessages.TRANSITION_THUMBNAIL);
+                        break;
+                    case ESTIMATED_WEIGHT:
+                        bodyText.append(SlackMessages.MODIFIED_ESTIMATION);
+                        bodyText.append(taskUpdateDto.getEstimatedWeight());
+                        bodyText.append(SlackMessages.PREVIOUS_ESTIMATION);
+                        bodyText.append(task.getEstimatedWeight());
+                        setNotificationThumbnail(body, SlackMessages.TASK_WEIGHT_MODIFICATION_TEXT, SlackMessages.TASK_WEIGHT_THUMBNAIL);
+                        break;
+                    case ACTUAL_WEIGHT:
+                        bodyText.append(SlackMessages.MODIFIED_ACTUAL);
+                        bodyText.append(taskUpdateDto.getActualWeight());
+                        bodyText.append(SlackMessages.PREVIOUS_ACTUAL);
+                        bodyText.append(task.getActualWeight());
+                        setNotificationThumbnail(body, SlackMessages.TASK_WEIGHT_MODIFICATION_TEXT, SlackMessages.TASK_WEIGHT_THUMBNAIL);
                         break;
                     default:
                         return;

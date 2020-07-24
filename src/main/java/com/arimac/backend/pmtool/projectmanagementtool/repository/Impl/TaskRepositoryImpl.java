@@ -40,7 +40,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Task addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, sprintId, issueType, parentId, isParent, secondaryTaskId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, sprintId, issueType, parentId, isParent, secondaryTaskId, estimatedWeight) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -58,6 +58,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setString(14, task.getParentId());
             preparedStatement.setBoolean(15, task.getIsParent());
             preparedStatement.setString(16, task.getSecondaryTaskId());
+            preparedStatement.setBigDecimal(17, task.getEstimatedWeight());
 
             return preparedStatement;
         });
@@ -192,7 +193,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public Object updateProjectTask(String taskId, TaskUpdateDto taskUpdateDto) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=?, issueType=? WHERE taskId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Task SET taskName=?, taskAssignee=?, taskNote=?, taskStatus=?, taskDueDateAt=?, taskReminderAt=?, issueType=?, estimatedWeight=?, actualWeight=? WHERE taskId=?");
             preparedStatement.setString(1, taskUpdateDto.getTaskName());
             preparedStatement.setString(2, taskUpdateDto.getTaskAssignee());
             preparedStatement.setString(3, taskUpdateDto.getTaskNotes());
@@ -200,7 +201,9 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setTimestamp(5, taskUpdateDto.getTaskDueDate());
             preparedStatement.setTimestamp(6, taskUpdateDto.getTaskRemindOnDate());
             preparedStatement.setString(7, taskUpdateDto.getIssueType().toString());
-            preparedStatement.setString(8, taskId);
+            preparedStatement.setBigDecimal(8, taskUpdateDto.getEstimatedWeight());
+            preparedStatement.setBigDecimal(9, taskUpdateDto.getActualWeight());
+            preparedStatement.setString(10, taskId);
 
             return preparedStatement;
         });
@@ -383,6 +386,16 @@ public class TaskRepositoryImpl implements TaskRepository {
                 return jdbcTemplate.query(sql, new TaskUserDto(), projectId, assignee);
         }
         return null;
+    }
+
+    @Override
+    public void updateTaskWeightsToDefault(String projectId) {
+        String sql = "UPDATE Task SET estimatedWeight = DEFAULT, actualWeight= DEFAULT WHERE projectId=?";
+        try {
+            jdbcTemplate.update(sql, projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     @Override
