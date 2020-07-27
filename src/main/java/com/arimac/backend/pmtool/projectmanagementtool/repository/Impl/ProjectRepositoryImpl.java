@@ -1,6 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -28,7 +30,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project createProject(Project project) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount) values (?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount, weightMeasure) values (?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, project.getProjectId());
             preparedStatement.setString(2, project.getProjectName());
             preparedStatement.setString(3, project.getProjectAlias());
@@ -38,6 +40,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             preparedStatement.setString(7, project.getProjectStatus().toString());
             preparedStatement.setBoolean(8, project.getIsDeleted());
             preparedStatement.setInt(9, project.getIssueCount());
+            preparedStatement.setInt(10, project.getWeightMeasure());
 
             return preparedStatement;
         });
@@ -69,7 +72,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 " WHERE pu.assigneeId=? AND pu.projectId=? AND p.isDeleted=false AND pu.isBlocked=false";
         ProjectUserResponseDto project;
         try {
-            project =  jdbcTemplate.queryForObject(sql, this.query, userId, projectId);
+            project =  jdbcTemplate.queryForObject(sql, this.query , userId, projectId);
         } catch (EmptyResultDataAccessException e){
             logger.info("Error {}", e.getLocalizedMessage());
             return null;
@@ -79,7 +82,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project_User getProjectUser(String projectId, String userId) {
-        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=?";
+        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=? AND isBlocked=false";
         Project_User project_user;
         try {
             project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);
@@ -195,6 +198,20 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
     }
 
+    @Override
+    public void updateProjectWeight(String projectId, WeightTypeEnum weightTypeEnum) {
+        String sql = "UPDATE project SET weightMeasure=? WHERE project=?";
+        try {
+            jdbcTemplate.update(sql, weightTypeEnum.getWeightId(), projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    private WeightTypeEnum getWeightMeasure(int weightId){
+        return WeightTypeEnum.get(weightId);
+    }
+
     private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
         ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
         projectUserResponseDto.setProjectId(resultSet.getString("project"));
@@ -210,6 +227,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
         projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
         projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
+        projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
         return projectUserResponseDto;
     };
 

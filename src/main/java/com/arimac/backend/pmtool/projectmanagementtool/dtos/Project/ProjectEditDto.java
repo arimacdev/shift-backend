@@ -1,17 +1,17 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Project;
+
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 
 import java.sql.Timestamp;
 
-public class ProjectDto {
-    private String projectOwner;
+public class ProjectEditDto {
+    private String modifierId;
     private String projectName;
     private String clientId;
+    private String projectStatus;
     private String projectAlias;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
-
-    public ProjectDto() {
-    }
 
     public String getProjectAlias() {
         return projectAlias;
@@ -21,12 +21,12 @@ public class ProjectDto {
         this.projectAlias = projectAlias;
     }
 
-    public String getProjectOwner() {
-        return projectOwner;
+    public String getModifierId() {
+        return modifierId;
     }
 
-    public void setProjectOwner(String projectOwner) {
-        this.projectOwner = projectOwner;
+    public void setModifierId(String modifierId) {
+        this.modifierId = modifierId;
     }
 
     public String getProjectName() {
@@ -43,6 +43,14 @@ public class ProjectDto {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getProjectStatus() {
+        return projectStatus;
+    }
+
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
     }
 
     public Timestamp getProjectStartDate() {
@@ -63,11 +71,12 @@ public class ProjectDto {
 
     @Override
     public String toString() {
-        return "ProjectDto{" +
-                "projectOwner='" + projectOwner + '\'' +
+        return "ProjectEditDto{" +
+                "modifierId='" + modifierId + '\'' +
                 ", projectName='" + projectName + '\'' +
                 ", clientId='" + clientId + '\'' +
-                ", aliasName='" + projectAlias + '\'' +
+                ", projectStatus='" + projectStatus + '\'' +
+                ", projectAlias='" + projectAlias + '\'' +
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
                 '}';

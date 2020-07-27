@@ -7,11 +7,11 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.EntityEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -28,6 +28,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -35,6 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -46,6 +48,8 @@ public class TaskServiceImpl implements TaskService {
     private static final String NAME = "name";
     private static final String STATUS = "status";
     private static final String NOTES = "notes";
+    private static final String ESTIMATED_WEIGHT = "estimated_weight";
+    private static final String ACTUAL_WEIGHT = "actual_weight";
     private static final String DUE_DATE = "dueDate";
     private static final String CLOSED = "closed";
     private static final String ORDER_BY = "ORDER BY";
@@ -115,6 +119,12 @@ public class TaskServiceImpl implements TaskService {
         task.setProjectId(taskDto.getProjectId());
         task.setTaskName(taskDto.getTaskName());
         task.setTaskInitiator(taskDto.getTaskInitiator());
+        if (taskDto.getEstimatedWeight() != null){
+            task.setEstimatedWeight(taskDto.getEstimatedWeight());
+        } else {
+            task.setEstimatedWeight(new BigDecimal("0.00"));
+        }
+//        task.setEstimatedWeight(taskDto.getEstimatedWeight());
         if (taskDto.getTaskAssignee() == null || taskDto.getTaskAssignee().isEmpty()){
             task.setTaskAssignee(taskDto.getTaskInitiator());
         } else {
@@ -161,42 +171,73 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId) {
-//        if (type.equals(TaskTypeEnum.project)) {
-            ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
-            if (projectUser == null)
+    public Object getAllProjectTasksByUser(String userId, String projectId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId);
-        List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildTasksWithProfile(projectId);
-        Map<String, TaskParentChild> parentChildMap = new HashMap<>();
-        for (TaskUserResponseDto parentTask : parentTaskList){
-            if (parentChildMap.get(parentTask.getTaskId()) == null){
-                TaskParentChild taskParentChild = new TaskParentChild();
-                taskParentChild.setParentTask(parentTask);
-                taskParentChild.setChildTasks(new ArrayList<>());
-                parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId, limit, startIndex);
+        List<TaskParentChild> parentChildList = new ArrayList<>();
+        if (!parentTaskList.isEmpty()) {
+            List<String> parentIds = parentTaskList.stream()
+                    .map(TaskUserResponseDto::getTaskId)
+                    .collect(Collectors.toList());
+            List<TaskUserResponseDto> childTaskList = taskRepository.getAllChildrenOfParentTaskList(parentIds);
+            Map<String, TaskParentChild> parentChildMap = new LinkedHashMap<>();
+            for (TaskUserResponseDto parentTask : parentTaskList) {
+                if (parentChildMap.get(parentTask.getTaskId()) == null) {
+                    TaskParentChild taskParentChild = new TaskParentChild();
+                    taskParentChild.setParentTask(parentTask);
+                    taskParentChild.setChildTasks(new ArrayList<>());
+                    parentChildMap.put(parentTask.getTaskId(), taskParentChild);
+                }
             }
-        }
-        for (TaskUserResponseDto childTask: childTaskList){
-            if (parentChildMap.get(childTask.getParentId()) != null){
-                TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
-                List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
-                childTasks.add(childTask);
-                parentChild.setChildTasks(childTasks);
+            for (TaskUserResponseDto childTask : childTaskList) {
+                if (parentChildMap.get(childTask.getParentId()) != null) {
+                    TaskParentChild parentChild = parentChildMap.get(childTask.getParentId());
+                    List<TaskUserResponseDto> childTasks = parentChild.getChildTasks();
+                    childTasks.add(childTask);
+                    parentChild.setChildTasks(childTasks);
+                }
             }
+            parentChildList = new ArrayList<>(parentChildMap.values());
         }
-        List<TaskParentChild> parentChildList = new ArrayList<>(parentChildMap.values());
-            return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, parentChildList);
 
     }
 
     @Override
-    public Object getAllUserAssignedTasks(String userId, String projectId) {
+    public Object getAllParentTasksCount(String userId, String projectId) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        List<TaskUserResponseDto> taskList = taskRepository.getAllUserAssignedTasksWithProfile(userId, projectId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAllParentTasksCount(projectId));
+    }
+
+    @Override
+    public Object getAllUserAssignedTasks(String userId, String projectId, int startIndex, int endIndex) {
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        List<TaskUserResponseDto> taskList = taskRepository.getAllUserAssignedTasksWithProfile(userId, projectId, limit, startIndex);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskList);
+    }
+
+    @Override
+    public Object getAllUserAssignedTaskCount(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getUserAssignedTaskCount(userId, projectId));
     }
 
     @Override
@@ -284,6 +325,13 @@ public class TaskServiceImpl implements TaskService {
         } else {
             updateDto.setIssueType(taskUpdateDto.getIssueType());
         }
+        if (taskUpdateDto.getActualWeight() == null)
+            updateDto.setActualWeight(task.getActualWeight());
+        else
+            updateDto.setActualWeight(taskUpdateDto.getActualWeight());
+        if (taskUpdateDto.getEstimatedWeight() == null)
+            updateDto.setEstimatedWeight(task.getEstimatedWeight());
+        else updateDto.setEstimatedWeight(taskUpdateDto.getEstimatedWeight());
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
@@ -315,6 +363,18 @@ public class TaskServiceImpl implements TaskService {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
+            });
+        }
+        if (taskUpdateDto.getEstimatedWeight()!= null){
+            CompletableFuture.runAsync(()->{
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, ESTIMATED_WEIGHT, userId);
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ESTIMATED_WEIGHT, task.getEstimatedWeight().toString(), taskUpdateDto.getEstimatedWeight().toString()));
+            });
+        }
+        if (taskUpdateDto.getActualWeight()!= null){
+            CompletableFuture.runAsync(()->{
+                notificationService.sendTaskModificationNotification(task, taskUpdateDto, ACTUAL_WEIGHT, userId);
+                activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ACTUAL_WEIGHT, task.getActualWeight().toString(), taskUpdateDto.getActualWeight().toString()));
             });
         }
         if (taskUpdateDto.getTaskDueDate() != null){
@@ -822,10 +882,10 @@ public class TaskServiceImpl implements TaskService {
             String[] words = OrderBySubString.split("\\s+");
             List<String> orderBy = new ArrayList<String>(Arrays.asList(words));
             orderBy.removeAll(Arrays.asList(""));
-            for (String word: orderBy){
-                if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
-                    return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-            }
+//            for (String word: orderBy){
+//                if (!FilterQueryTypeEnum.contains(word) && !FilterOrderEnum.contains(word))
+//                    return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+//            }
             decodedQuery = baseSubstring;
         }
         String[] words = decodedQuery.split("\\s+");

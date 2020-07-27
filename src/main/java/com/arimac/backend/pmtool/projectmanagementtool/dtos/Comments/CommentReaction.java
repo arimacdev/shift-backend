@@ -70,11 +70,11 @@ public class CommentReaction implements RowMapper<CommentReaction> {
         this.commentedAt = commentedAt;
     }
 
-    public boolean isUpdated() {
+    public boolean getIsUpdated() {
         return isUpdated;
     }
 
-    public void setUpdated(boolean updated) {
+    public void setIsUpdated(boolean updated) {
         isUpdated = updated;
     }
 

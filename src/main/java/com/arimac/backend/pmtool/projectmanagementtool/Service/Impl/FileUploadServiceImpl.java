@@ -10,7 +10,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.FileUploadService
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;

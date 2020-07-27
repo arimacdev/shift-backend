@@ -60,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setIsDeleted(false);
         comment.setIsParent(true);
         commentRepository.addCommentToTask(comment);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, comment);
     }
 
     @Override
@@ -142,6 +142,7 @@ public class CommentServiceImpl implements CommentService {
                 CommentReactionResponse commentReactionResponse = new CommentReactionResponse();
                 commentReactionResponse.setCommentId(commentReaction.getCommentId());
                 commentReactionResponse.setContent(commentReaction.getContent());
+                commentReactionResponse.setIsEdited(commentReaction.getIsUpdated());
                 commentReactionResponse.setCommenter(commentReaction.getCommenterId());
                 commentReactionResponse.setCommenterFistName(commentReaction.getCommenterFirstName());
                 commentReactionResponse.setCommenterLatName(commentReaction.getCommenterLastName());
@@ -175,6 +176,7 @@ public class CommentServiceImpl implements CommentService {
             reactionList.setCommentedAt(commentReactionResponse.getCommentedAt());
             reactionList.setContent(commentReactionResponse.getContent());
             reactionList.setReactions(new ArrayList<>(commentReactionResponse.getReactions().values()));
+            reactionList.setIsEdited(commentReactionResponse.getIsEdited());
            // List<ReactionRespondants> reactionRespondants = new ArrayList<>(commentReactionResponse.getReactions().values());
            commentReactionLists.add(reactionList);
         }

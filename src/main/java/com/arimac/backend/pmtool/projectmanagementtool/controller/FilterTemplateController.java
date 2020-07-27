@@ -3,7 +3,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FilterTemplateService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Template.TemplateDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

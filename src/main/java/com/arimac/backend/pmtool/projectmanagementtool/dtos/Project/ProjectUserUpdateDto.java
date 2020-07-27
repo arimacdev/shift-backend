@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Project;
 
 public class ProjectUserUpdateDto {
     private String assignerId;

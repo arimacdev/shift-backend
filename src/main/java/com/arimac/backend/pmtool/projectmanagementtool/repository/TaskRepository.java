@@ -13,11 +13,14 @@ public interface TaskRepository {
     Task addTaskToProject(Task task); // done
     List<Task> getAllProjectTasksByUser(String projectId);
     List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId);
-    List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId);
+    List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset);
+    List<TaskUserResponseDto> getAllChildrenOfParentTaskList(List<String> parentIds);
     List<TaskUserResponseDto> getAllChildTasksWithProfile(String projectId);
     List<Task> getAllUserAssignedTasks(String userId, String projectId);
-    List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId);
+    List<TaskUserResponseDto> getAllUserAssignedTasksWithProfile(String userId, String projectId, int limit, int offset);
     Task getProjectTask(String taskId); // done //remove
+    int getAllParentTasksCount(String projectId);
+    int getUserAssignedTaskCount(String userId, String projectId);
     Task getProjectTasksWithFlag(String taskId);
     Task getTaskByProjectIdTaskId(String projectId, String taskId);
     Task getProjectTaskWithDeleted(String taskId); //remove
@@ -39,6 +42,7 @@ public interface TaskRepository {
     List<Task> getAllChildrenOfParentTask(String taskId);
     boolean checkChildTasksOfAParentTask(String taskId);
     List<TaskUserDto> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
+    void updateTaskWeightsToDefault(String projectId);
 
     //QUERIES FOR INTERNAL PURPOSES
     void updateProjectAlias(String taskId, String taskAlias);
