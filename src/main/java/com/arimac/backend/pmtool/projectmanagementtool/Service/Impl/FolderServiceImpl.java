@@ -3,15 +3,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderAddDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MainFolderFileList;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Folder;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.FolderRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,13 +22,15 @@ public class FolderServiceImpl implements FolderService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
+    private final ProjectFileRepository projectFileRepository;
     private final UtilsService utilsService;
 
-    public FolderServiceImpl(FolderRepository folderRepository, UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, UtilsService utilsService) {
+    public FolderServiceImpl(FolderRepository folderRepository, UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ProjectFileRepository projectFileRepository, UtilsService utilsService) {
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
+        this.projectFileRepository = projectFileRepository;
         this.utilsService = utilsService;
     }
 
@@ -60,7 +60,11 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public Object getMainFolders(String userId, String projectId) {
         List<Folder> mainFolders = folderRepository.getMainFolders(projectId);
+        List<ProjectFile> mainFiles = projectFileRepository.getMainProjectFiles(projectId);
+        MainFolderFileList mainFolderFileList = new MainFolderFileList();
+        mainFolderFileList.setMainFiles(mainFiles);
+        mainFolderFileList.setMainFolders(mainFolders);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, mainFolders);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, mainFolderFileList);
     }
 }

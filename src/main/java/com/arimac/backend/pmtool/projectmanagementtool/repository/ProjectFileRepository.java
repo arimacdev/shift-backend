@@ -11,4 +11,5 @@ public interface ProjectFileRepository {
     void flagProjectFile(String projectFileId);
     ProjectFile getProjectFile(String projectFile);
     ProjectFile getProjectFileWithFlag(String projectFile);
+    List<ProjectFile> getMainProjectFiles(String projectId);
 }

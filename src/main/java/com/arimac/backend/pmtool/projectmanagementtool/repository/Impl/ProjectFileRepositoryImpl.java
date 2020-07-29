@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectFileRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -68,6 +69,16 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
             return jdbcTemplate.queryForObject(sql, new ProjectFile(), projectFile);
         } catch (EmptyResultDataAccessException e){
             return null;
+        }
+    }
+
+    @Override
+    public List<ProjectFile> getMainProjectFiles(String projectId) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectId=? AND projectFolder IS NULL AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new ProjectFile(), projectId);
+        } catch (Exception e){
+            throw  new PMException(e.getMessage());
         }
     }
 }
