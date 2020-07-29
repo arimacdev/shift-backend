@@ -48,7 +48,8 @@ public enum ResponseMessage {
     NOT_REACTOR("User Not Reactor"),
     ALREADY_REACTED_WITH_REACTION("User Already Reacted with the selected reaction"),
     FILE_SIZE_TOO_LARGE("File Size too Large"),
-    REQUEST_ITEM_LIMIT_EXCEEDED("Cannot Request Items beyond index limits");
+    REQUEST_ITEM_LIMIT_EXCEEDED("Cannot Request Items beyond index limits"),
+    PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist");
 
 
     private String message;
