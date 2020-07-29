@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class FolderRepositoryImpl implements FolderRepository {
@@ -47,5 +48,16 @@ public class FolderRepositoryImpl implements FolderRepository {
         } catch (Exception e){
             throw  new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public List<Folder> getMainFolders(String projectId) {
+        String sql = "SELECT * FROM Folder WHERE projectId=? and parentFolder IS NULL";
+        try {
+            return jdbcTemplate.query(sql, new Folder(), projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+
     }
 }

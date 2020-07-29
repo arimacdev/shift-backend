@@ -16,6 +16,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FolderServiceImpl implements FolderService {
     private final FolderRepository folderRepository;
@@ -53,5 +55,12 @@ public class FolderServiceImpl implements FolderService {
         folderRepository.createFolder(folder);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getMainFolders(String userId, String projectId) {
+        List<Folder> mainFolders = folderRepository.getMainFolders(projectId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, mainFolders);
     }
 }

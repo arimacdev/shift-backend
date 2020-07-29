@@ -29,4 +29,12 @@ public class FolderController  extends ResponseController{
         return sendResponse(folderService.createFolder(projectId, userId, folderAddDto));
     }
 
+    @ApiOperation(value = "Get Main Folders of a project", notes = "Create a Folder to a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/projects/{projectId}/folder")
+    public ResponseEntity<Object> getMainFolders(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId) {
+        logger.info("HIT - POST /projects/<projectId>/folder/---> getMainFolders | userId: {} | userId: {}",userId, projectId);
+        return sendResponse(folderService.getMainFolders(userId, projectId));
+    }
+
 }
