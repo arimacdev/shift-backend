@@ -81,4 +81,14 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
             throw  new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public List<ProjectFile> getFolderProjectFiles(String folderId) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectFolder=?";
+        try {
+            return jdbcTemplate.query(sql, new ProjectFile(), folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 }

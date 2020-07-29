@@ -33,8 +33,16 @@ public class FolderController  extends ResponseController{
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/projects/{projectId}/folder")
     public ResponseEntity<Object> getMainFolders(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId) {
-        logger.info("HIT - POST /projects/<projectId>/folder/---> getMainFolders | userId: {} | userId: {}",userId, projectId);
+        logger.info("HIT - POST /projects/<projectId>/folder/---> getMainFolders | userId: {} | projectId: {}",userId, projectId);
         return sendResponse(folderService.getMainFolders(userId, projectId));
+    }
+
+    @ApiOperation(value = "Get Files & Folders of a Folder", notes = "Get Files & Folders of a Folder")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/projects/{projectId}/folder/{folderId}")
+    public ResponseEntity<Object> getFilesFoldersOfFolder(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("folderId") String folderId) {
+        logger.info("HIT - POST /projects/<projectId>/folder/<folderId>---> getFilesFoldersOfFolder | userId: {} | projectId: {} | folderId: {}",userId, projectId, folderId);
+        return sendResponse(folderService.getFilesFoldersOfFolder(userId, projectId, folderId));
     }
 
 }

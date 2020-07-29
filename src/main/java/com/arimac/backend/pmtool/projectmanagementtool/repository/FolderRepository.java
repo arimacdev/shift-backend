@@ -8,4 +8,5 @@ public interface FolderRepository {
     void createFolder(Folder folder);
     Folder getFolderById(String folderId);
     List<Folder> getMainFolders(String projectId);
+    List<Folder> getSubFoldersOfFolder(String folderId);
 }

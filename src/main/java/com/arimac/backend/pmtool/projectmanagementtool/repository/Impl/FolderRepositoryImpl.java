@@ -52,12 +52,22 @@ public class FolderRepositoryImpl implements FolderRepository {
 
     @Override
     public List<Folder> getMainFolders(String projectId) {
-        String sql = "SELECT * FROM Folder WHERE projectId=? and parentFolder IS NULL";
+        String sql = "SELECT * FROM Folder WHERE projectId=? AND parentFolder IS NULL AND isDeleted= false";
         try {
             return jdbcTemplate.query(sql, new Folder(), projectId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
 
+    }
+
+    @Override
+    public List<Folder> getSubFoldersOfFolder(String folderId) {
+        String sql = "SELECT * FROM Folder WHERE parentFolder=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new Folder(), folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 }

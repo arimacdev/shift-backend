@@ -3,7 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderAddDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MainFolderFileList;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderFileList;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Folder;
@@ -59,12 +59,27 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public Object getMainFolders(String userId, String projectId) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         List<Folder> mainFolders = folderRepository.getMainFolders(projectId);
         List<ProjectFile> mainFiles = projectFileRepository.getMainProjectFiles(projectId);
-        MainFolderFileList mainFolderFileList = new MainFolderFileList();
-        mainFolderFileList.setMainFiles(mainFiles);
-        mainFolderFileList.setMainFolders(mainFolders);
+        FolderFileList folderFileList = new FolderFileList();
+        folderFileList.setFiles(mainFiles);
+        folderFileList.setFolders(mainFolders);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, folderFileList);
+    }
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, mainFolderFileList);
+    @Override
+    public Object getFilesFoldersOfFolder(String userId, String projectId, String folderId) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<Folder> folders = folderRepository.getSubFoldersOfFolder(folderId);
+        List<ProjectFile> files = projectFileRepository.getFolderProjectFiles(folderId);
+        FolderFileList folderFileList = new FolderFileList();
+        folderFileList.setFiles(files);
+        folderFileList.setFolders(folders);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, folderFileList);
     }
 }
