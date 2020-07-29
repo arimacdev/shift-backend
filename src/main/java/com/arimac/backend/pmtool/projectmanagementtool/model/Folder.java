@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 public class Folder implements RowMapper<Folder> {
     private String folderId;
     private String projectId;
+    private String taskId;
     private String folderName;
     private String folderCreator;
     private Timestamp folderCreatedAt;
@@ -18,14 +19,23 @@ public class Folder implements RowMapper<Folder> {
     public Folder() {
     }
 
-    public Folder(String folderId, String projectId, String folderName, String folderCreator, Timestamp folderCreatedAt, String parentFolder, boolean isDeleted) {
+    public Folder(String folderId, String projectId, String taskId, String folderName, String folderCreator, Timestamp folderCreatedAt, String parentFolder, boolean isDeleted) {
         this.folderId = folderId;
         this.projectId = projectId;
+        this.taskId = taskId;
         this.folderName = folderName;
         this.folderCreator = folderCreator;
         this.folderCreatedAt = folderCreatedAt;
         this.parentFolder = parentFolder;
         this.isDeleted = isDeleted;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public String getFolderId() {
@@ -89,6 +99,7 @@ public class Folder implements RowMapper<Folder> {
         return new Folder(
                 resultSet.getString("folderId"),
                 resultSet.getString("projectId"),
+                resultSet.getString("taskId"),
                 resultSet.getString("folderName"),
                 resultSet.getString("folderCreator"),
                 resultSet.getTimestamp("folderCreatedAt"),

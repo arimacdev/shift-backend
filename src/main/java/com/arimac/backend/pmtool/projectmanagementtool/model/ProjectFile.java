@@ -15,11 +15,12 @@ public class ProjectFile implements RowMapper<ProjectFile> {
     private String projectFileAddedBy;
     private Timestamp projectFileAddedOn;
     private boolean isDeleted;
+    private String projectFolder;
 
     public ProjectFile() {
     }
 
-    public ProjectFile(String projectFileId, String projectId, String projectFileName, String projectFileUrl, int projectFileSize, String projectFileAddedBy, Timestamp projectFileAddedOn, boolean isDeleted) {
+    public ProjectFile(String projectFileId, String projectId, String projectFileName, String projectFileUrl, int projectFileSize, String projectFileAddedBy, Timestamp projectFileAddedOn, boolean isDeleted, String projectFolder) {
         this.projectFileId = projectFileId;
         this.projectId = projectId;
         this.projectFileName = projectFileName;
@@ -28,6 +29,7 @@ public class ProjectFile implements RowMapper<ProjectFile> {
         this.projectFileAddedBy = projectFileAddedBy;
         this.projectFileAddedOn = projectFileAddedOn;
         this.isDeleted = isDeleted;
+        this.projectFolder = projectFolder;
     }
 
     public String getProjectFileId() {
@@ -94,6 +96,15 @@ public class ProjectFile implements RowMapper<ProjectFile> {
         this.projectFileSize = projectFileSize;
     }
 
+
+    public String getProjectFolder() {
+        return projectFolder;
+    }
+
+    public void setProjectFolder(String projectFolder) {
+        this.projectFolder = projectFolder;
+    }
+
     @Override
     public ProjectFile mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectFile(
@@ -104,7 +115,8 @@ public class ProjectFile implements RowMapper<ProjectFile> {
                 resultSet.getInt("projectFileSize"),
                 resultSet.getString("projectFileAddedBy"),
                 resultSet.getTimestamp("projectFileAddedOn"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                resultSet.getString("projectFolder")
         );
     }
 }

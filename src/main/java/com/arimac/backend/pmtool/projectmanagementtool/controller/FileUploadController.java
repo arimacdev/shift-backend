@@ -78,9 +78,9 @@ public class FileUploadController extends ResponseController {
     @ApiOperation(value = "Upload Project Files", notes = "Upload a project related files")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/projects/{projectId}/files/upload")
-    public ResponseEntity<Object> uploadProjectFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId,  @RequestParam("files") MultipartFile[] multipartFiles, @RequestParam("type") FileUploadEnum fileType)  {
-        logger.info("HIT - POST projects/<projectId>/files/upload ---> uploadProjectFiles |userId: {} | projectId :{}",userId, projectId);
-        return sendResponse(fileUploadService.uploadProjectFiles(userId, projectId, fileType, multipartFiles));
+    public ResponseEntity<Object> uploadProjectFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId,  @RequestParam("files") MultipartFile[] multipartFiles, @RequestParam("type") FileUploadEnum fileType, @RequestParam("folderId") String folderId)  {
+        logger.info("HIT - POST projects/<projectId>/files/upload ---> uploadProjectFiles |userId: {} | projectId :{} | folderId :{}",userId, projectId, folderId);
+        return sendResponse(fileUploadService.uploadProjectFiles(userId, projectId, fileType, multipartFiles, folderId));
     }
 
     @ApiOperation(value = "Upload Comment Files", notes = "Upload a comment related files")

@@ -22,7 +22,7 @@ public class FolderRepositoryImpl implements FolderRepository {
     public void createFolder(Folder folder) {
         try {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Folder(folderId, projectId, folderName, folderCreator, folderCreatedAt, parentFolder, isDeleted) VALUES (?,?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Folder(folderId, projectId, folderName, folderCreator, folderCreatedAt, parentFolder, isDeleted, taskId) VALUES (?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, folder.getFolderId());
                 preparedStatement.setString(2, folder.getProjectId());
                 preparedStatement.setString(3, folder.getFolderName());
@@ -30,6 +30,7 @@ public class FolderRepositoryImpl implements FolderRepository {
                 preparedStatement.setTimestamp(5, folder.getFolderCreatedAt());
                 preparedStatement.setString(6, folder.getParentFolder());
                 preparedStatement.setBoolean(7, folder.getIsDeleted());
+                preparedStatement.setString(8, folder.getTaskId());
 
                 return preparedStatement;
             });
@@ -47,6 +48,18 @@ public class FolderRepositoryImpl implements FolderRepository {
             return null;
         } catch (Exception e){
             throw  new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Folder getFolderByTaskId(String taskId) {
+        String sql = "SELECT * FROM Folder WHERE taskId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Folder(), taskId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
         }
     }
 

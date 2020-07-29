@@ -23,7 +23,7 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
     @Override
     public void uploadProjectFile(ProjectFile projectFile) {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO ProjectFile(projectFileId, projectId, projectFileName, projectFileUrl, projectFileSize, projectFileAddedBy, projectFileAddedOn, isDeleted) VALUES (?,?,?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO ProjectFile(projectFileId, projectId, projectFileName, projectFileUrl, projectFileSize, projectFileAddedBy, projectFileAddedOn, isDeleted, projectFolder) VALUES (?,?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, projectFile.getProjectFileId());
                 preparedStatement.setString(2, projectFile.getProjectId());
                 preparedStatement.setString(3, projectFile.getProjectFileName());
@@ -32,6 +32,7 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
                 preparedStatement.setString(6, projectFile.getProjectFileAddedBy());
                 preparedStatement.setTimestamp(7, projectFile.getProjectFileAddedOn());
                 preparedStatement.setBoolean(8, projectFile.getIsDeleted());
+                preparedStatement.setString(9, projectFile.getProjectFolder());
 
                 return preparedStatement;
             });
