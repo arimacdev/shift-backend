@@ -2,7 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderAddDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderFileList;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
@@ -13,8 +13,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,12 +36,12 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    public Object createFolder(String projectId, String userId, FolderAddDto folderAddDto) {
+    public Object createFolder(String projectId, String userId, FolderDto folderDto) {
         Project_User project_user = projectRepository.getProjectUser(projectId, userId);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        if (folderAddDto.getParentFolder()!= null){
-            Folder folder = folderRepository.getFolderById(folderAddDto.getParentFolder());
+        if (folderDto.getParentFolder()!= null){
+            Folder folder = folderRepository.getFolderById(folderDto.getParentFolder());
             if (folder == null)
                 return new ErrorMessage(ResponseMessage.PARENT_FOLDER_NOT_EXISTS, HttpStatus.NOT_FOUND);
         }
@@ -53,10 +51,10 @@ public class FolderServiceImpl implements FolderService {
         Folder folder = new Folder();
         folder.setFolderId(utilsService.getUUId());
         folder.setProjectId(projectId);
-        folder.setFolderName(folderAddDto.getFolderName());
+        folder.setFolderName(folderDto.getFolderName());
         folder.setFolderCreator(userId);
         folder.setFolderCreatedAt(utilsService.getCurrentTimestamp());
-        folder.setParentFolder(folderAddDto.getParentFolder());
+        folder.setParentFolder(folderDto.getParentFolder());
         folder.setFolderType(FolderTypeEnum.PROJECT);
 
         folderRepository.createFolder(folder);
@@ -95,5 +93,20 @@ public class FolderServiceImpl implements FolderService {
         folderFileList.setFiles(files);
         folderFileList.setFolders(folders);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, folderFileList);
+    }
+
+    @Override
+    public Object updateFolder(String userId, String projectId, String folderId, FolderDto folderDto) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        //TODO CHECK HERE
+        Folder folder = folderRepository.getFolderById(folderId);
+        if (folder == null)
+            return new ErrorMessage(ResponseMessage.FOLDER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (folder.getFolderType().equals(FolderTypeEnum.TASK))
+            return new ErrorMessage(ResponseMessage.CANNOT_UPDATE_TASK_FOLDER, HttpStatus.UNPROCESSABLE_ENTITY);
+        folderRepository.updateFolder(folderDto, folderId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

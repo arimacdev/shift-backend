@@ -2,7 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder;
 
 import javax.validation.constraints.NotNull;
 
-public class FolderAddDto {
+public class FolderDto {
     @NotNull
     private String folderName;
     private String parentFolder;
@@ -25,7 +25,7 @@ public class FolderAddDto {
 
     @Override
     public String toString() {
-        return "FolderAddDto{" +
+        return "FolderDto{" +
                 "folderName='" + folderName + '\'' +
                 ", parentFolder='" + parentFolder + '\'' +
                 '}';

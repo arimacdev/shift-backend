@@ -50,6 +50,7 @@ public enum ResponseMessage {
     FILE_SIZE_TOO_LARGE("File Size too Large"),
     REQUEST_ITEM_LIMIT_EXCEEDED("Cannot Request Items beyond index limits"),
     FOLDER_NOT_FOUND("Folder doesn't exist"),
+    CANNOT_UPDATE_TASK_FOLDER("Cannot Update Task Folders"),
     PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist");
 
 

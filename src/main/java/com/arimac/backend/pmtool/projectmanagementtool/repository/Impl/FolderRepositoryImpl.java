@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Folder;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.FolderRepository;
@@ -80,6 +81,16 @@ public class FolderRepositoryImpl implements FolderRepository {
         String sql = "SELECT * FROM Folder WHERE parentFolder=? AND isDeleted=false";
         try {
             return jdbcTemplate.query(sql, new Folder(), folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateFolder(FolderDto folderDto, String folderId) {
+        String sql = "UPDATE Folder SET folderName=? WHERE folderId=?";
+        try {
+            jdbcTemplate.update(sql, folderDto.getFolderName(), folderId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
