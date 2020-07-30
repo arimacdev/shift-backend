@@ -22,7 +22,7 @@ public class FolderRepositoryImpl implements FolderRepository {
     public void createFolder(Folder folder) {
         try {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Folder(folderId, projectId, folderName, folderCreator, folderCreatedAt, parentFolder, isDeleted, taskId) VALUES (?,?,?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Folder(folderId, projectId, folderName, folderCreator, folderCreatedAt, parentFolder, isDeleted, taskId, folderType) VALUES (?,?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, folder.getFolderId());
                 preparedStatement.setString(2, folder.getProjectId());
                 preparedStatement.setString(3, folder.getFolderName());
@@ -31,6 +31,7 @@ public class FolderRepositoryImpl implements FolderRepository {
                 preparedStatement.setString(6, folder.getParentFolder());
                 preparedStatement.setBoolean(7, folder.getIsDeleted());
                 preparedStatement.setString(8, folder.getTaskId());
+                preparedStatement.setString(9, folder.getFolderType().toString());
 
                 return preparedStatement;
             });

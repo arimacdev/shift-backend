@@ -12,4 +12,5 @@ public interface TaskFileRepository {
     List<TaskFile> getAllTaskFiles(String taskId);
     List<TaskFileUserProfileDto> getTaskFilesWithUserProfile(String taskId);
     void flagTaskFile(String taskFileId);
+    List<TaskFile> getFolderTaskFiles(String folderId);
 }

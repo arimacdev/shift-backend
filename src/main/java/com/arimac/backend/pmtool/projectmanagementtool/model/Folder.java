@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -15,11 +16,12 @@ public class Folder implements RowMapper<Folder> {
     private Timestamp folderCreatedAt;
     private String parentFolder;
     private boolean isDeleted;
+    private FolderTypeEnum folderType;
 
     public Folder() {
     }
 
-    public Folder(String folderId, String projectId, String taskId, String folderName, String folderCreator, Timestamp folderCreatedAt, String parentFolder, boolean isDeleted) {
+    public Folder(String folderId, String projectId, String taskId, String folderName, String folderCreator, Timestamp folderCreatedAt, String parentFolder, boolean isDeleted, FolderTypeEnum folderType) {
         this.folderId = folderId;
         this.projectId = projectId;
         this.taskId = taskId;
@@ -28,6 +30,7 @@ public class Folder implements RowMapper<Folder> {
         this.folderCreatedAt = folderCreatedAt;
         this.parentFolder = parentFolder;
         this.isDeleted = isDeleted;
+        this.folderType = folderType;
     }
 
     public String getTaskId() {
@@ -94,6 +97,15 @@ public class Folder implements RowMapper<Folder> {
         isDeleted = deleted;
     }
 
+
+    public FolderTypeEnum getFolderType() {
+        return folderType;
+    }
+
+    public void setFolderType(FolderTypeEnum folderType) {
+        this.folderType = folderType;
+    }
+
     @Override
     public Folder mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Folder(
@@ -104,7 +116,8 @@ public class Folder implements RowMapper<Folder> {
                 resultSet.getString("folderCreator"),
                 resultSet.getTimestamp("folderCreatedAt"),
                 resultSet.getString("parentFolder"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                FolderTypeEnum.valueOf(resultSet.getString("folderType"))
         );
     }
 }

@@ -15,6 +15,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOper
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -86,6 +87,22 @@ public class FileUploadServiceImpl implements FileUploadService {
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
             if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) ))
                 return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+            Folder taskFolder = folderRepository.getFolderByTaskId(taskId);
+            String taskFolderId;
+            if (taskFolder == null){
+                Folder folder = new Folder();
+                folder.setFolderId(utilsService.getUUId());
+                folder.setProjectId(projectId);
+                folder.setFolderName(task.getSecondaryTaskId() + " - " + task.getTaskName());
+                folder.setFolderCreator(userId);
+                folder.setFolderCreatedAt(utilsService.getCurrentTimestamp());
+                folder.setTaskId(taskId);
+                folder.setFolderType(FolderTypeEnum.TASK);
+                folderRepository.createFolder(folder);
+                taskFolderId = folder.getFolderId();
+            } else {
+                taskFolderId = taskFolder.getFolderId();
+            }
             List<String> fileUrlList = new ArrayList<>();
 //            for (MultipartFile currentMultipartFile : multipartFiles){
                 String taskUrl = fileQueue(multipartFiles, fileType);
@@ -98,22 +115,9 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFile.setTaskFileUrl(taskUrl);
                 taskFile.setTaskFileCreator(userId);
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
+                taskFile.setTaskFolder(taskFolderId);
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
-            Folder taskFolder = folderRepository.getFolderByTaskId(taskId);
-            if (taskFolder == null){
-                Folder folder = new Folder();
-                folder.setFolderId(utilsService.getUUId());
-                folder.setProjectId(projectId);
-                folder.setFolderName(task.getSecondaryTaskId() + " - " + task.getTaskName());
-                folder.setFolderCreator(userId);
-                folder.setFolderCreatedAt(utilsService.getCurrentTimestamp());
-                folder.setTaskId(taskId);
-                folderRepository.createFolder(folder);
-            } else {
-
-            }
-
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.FILE, null, taskFile.getTaskFileId()));
@@ -241,7 +245,6 @@ public class FileUploadServiceImpl implements FileUploadService {
             projectFile.setProjectFolder(folderId);
             projectFiles.add(projectFile);
             projectFileRepository.uploadProjectFile(projectFile);
-//            folderRepository.createFolder();
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.FILE, null, projectFile.getProjectFileId()));
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);

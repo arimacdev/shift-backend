@@ -16,11 +16,12 @@ public class TaskFile implements RowMapper<TaskFile> {
     private int taskFileSize;
     private Timestamp taskFileDate;
     private boolean isDeleted;
+    private String taskFolder;
 
     public TaskFile() {
     }
 
-    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, int taskFileSize, Timestamp taskFileDate, boolean isDeleted) {
+    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, int taskFileSize, Timestamp taskFileDate, boolean isDeleted, String taskFolder) {
         this.taskFileId = taskFileId;
         this.taskId = taskId;
         this.taskFileName = taskFileName;
@@ -29,6 +30,15 @@ public class TaskFile implements RowMapper<TaskFile> {
         this.taskFileSize = taskFileSize;
         this.taskFileDate = taskFileDate;
         this.isDeleted = isDeleted;
+        this.taskFolder = taskFolder;
+    }
+
+    public String getTaskFolder() {
+        return taskFolder;
+    }
+
+    public void setTaskFolder(String taskFolder) {
+        this.taskFolder = taskFolder;
     }
 
     public String getTaskFileId() {
@@ -105,7 +115,8 @@ public class TaskFile implements RowMapper<TaskFile> {
                 resultSet.getString("taskFileCreator"),
                 resultSet.getInt("taskFileSize"),
                 resultSet.getTimestamp("taskFileDate"),
-                resultSet.getBoolean("isDeleted")
+                resultSet.getBoolean("isDeleted"),
+                resultSet.getString("taskFolder")
         );
     }
 }
