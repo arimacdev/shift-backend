@@ -7,4 +7,5 @@ public interface FolderService {
     Object getMainFolders(String userId ,String projectId);
     Object getFilesFoldersOfFolder(String userId, String projectId, String folderId);
     Object updateFolder(String userId, String projectId, String folderId, FolderDto folderDto);
+    Object deleteFolder(String userId, String projectId, String folderId);
 }

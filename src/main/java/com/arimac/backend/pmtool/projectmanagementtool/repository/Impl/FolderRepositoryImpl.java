@@ -95,4 +95,14 @@ public class FolderRepositoryImpl implements FolderRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public void deleteFolder(String folderId) {
+        String sql = "UPDATE Folder SET isDeleted=true WHERE folderId=?";
+        try {
+            jdbcTemplate.update(sql, folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 }

@@ -55,4 +55,12 @@ public class FolderController  extends ResponseController{
         return sendResponse(folderService.updateFolder(userId, projectId, folderId, folderDto));
     }
 
+    @ApiOperation(value = "Delete Folder", notes = "Delete Folder")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping("/projects/{projectId}/folder/{folderId}")
+    public ResponseEntity<Object> deleteFolder(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("folderId") String folderId) {
+        logger.info("HIT - DELETE /projects/<projectId>/folder/<folderId>---> deleteFolder | userId: {} | projectId: {} | folderId: {}",userId, projectId, folderId);
+        return sendResponse(folderService.deleteFolder(userId, projectId, folderId));
+    }
+
 }

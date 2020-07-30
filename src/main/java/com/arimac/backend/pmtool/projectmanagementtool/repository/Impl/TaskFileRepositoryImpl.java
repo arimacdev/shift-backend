@@ -87,4 +87,14 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public void flagFolderTaskFiles(String folderId) {
+        String sql = "UPDATE TaskFile SET isDeleted=true WHERE taskFolder=?";
+        try {
+            jdbcTemplate.update(sql, folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 }

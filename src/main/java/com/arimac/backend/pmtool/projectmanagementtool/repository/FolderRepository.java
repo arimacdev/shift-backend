@@ -12,4 +12,5 @@ public interface FolderRepository {
     List<Folder> getMainFolders(String projectId);
     List<Folder> getSubFoldersOfFolder(String folderId);
     void updateFolder(FolderDto folderDto, String folderId);
+    void deleteFolder(String folderId);
 }

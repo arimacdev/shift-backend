@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderFileList;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -107,6 +108,24 @@ public class FolderServiceImpl implements FolderService {
         if (folder.getFolderType().equals(FolderTypeEnum.TASK))
             return new ErrorMessage(ResponseMessage.CANNOT_UPDATE_TASK_FOLDER, HttpStatus.UNPROCESSABLE_ENTITY);
         folderRepository.updateFolder(folderDto, folderId);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object deleteFolder(String userId, String projectId, String folderId) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!(project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue() || project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()))
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        Folder folder = folderRepository.getFolderById(folderId);
+        if (folder == null)
+            return new ErrorMessage(ResponseMessage.FOLDER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (folder.getFolderType().equals(FolderTypeEnum.PROJECT))
+            projectFileRepository.flagFolderProjectFiles(folderId);
+         else
+            taskFileRepository.flagFolderTaskFiles(folderId);
+        folderRepository.deleteFolder(folderId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

@@ -85,9 +85,19 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
 
     @Override
     public List<ProjectFile> getFolderProjectFiles(String folderId) {
-        String sql = "SELECT * FROM ProjectFile WHERE projectFolder=?";
+        String sql = "SELECT * FROM ProjectFile WHERE projectFolder=? AND isDeleted=false";
         try {
             return jdbcTemplate.query(sql, new ProjectFile(), folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void flagFolderProjectFiles(String folderId) {
+        String sql = "UPDATE ProjectFile SET isDeleted=true WHERE projectFolder=?";
+        try {
+            jdbcTemplate.update(sql, folderId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
