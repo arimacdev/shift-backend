@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
@@ -93,6 +94,16 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
         String sql = "UPDATE TaskFile SET isDeleted=true WHERE taskFolder=?";
         try {
             jdbcTemplate.update(sql, folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateTaskFolder(MoveFolderDto moveFolderDto) {
+        String sql = "UPDATE TaskFile SET taskFolder=? WHERE taskFileId=?";
+        try {
+            jdbcTemplate.update(sql, moveFolderDto.getNewParentFolder(), moveFolderDto.getFileId());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

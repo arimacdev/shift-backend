@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderFileList;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
@@ -126,6 +127,31 @@ public class FolderServiceImpl implements FolderService {
          else
             taskFileRepository.flagFolderTaskFiles(folderId);
         folderRepository.deleteFolder(folderId);
+        //TODO Delete Subfolders
+//        folderRepository
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object moveFileToFolder(String userId, String projectId, MoveFolderDto moveFolderDto) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (moveFolderDto.getPreviousParentFolder()!= null) {
+            Folder previousFolder = folderRepository.getFolderById(moveFolderDto.getPreviousParentFolder());
+            if (previousFolder == null)
+                return new ErrorMessage(ResponseMessage.PREVIOUS_FOLDER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        if (moveFolderDto.getNewParentFolder()!= null) {
+            Folder newFolder = folderRepository.getFolderById(moveFolderDto.getNewParentFolder());
+            if (newFolder == null)
+                return new ErrorMessage(ResponseMessage.NEW_FOLDER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        ProjectFile projectFile = projectFileRepository.getProjectFile(moveFolderDto.getFileId());
+        if (projectFile == null)
+            return new ErrorMessage(ResponseMessage.FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        projectFileRepository.updateProjectFolder(moveFolderDto);
+
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

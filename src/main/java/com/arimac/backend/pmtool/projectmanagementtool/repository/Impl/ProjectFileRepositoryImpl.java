@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
@@ -98,6 +99,16 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
         String sql = "UPDATE ProjectFile SET isDeleted=true WHERE projectFolder=?";
         try {
             jdbcTemplate.update(sql, folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateProjectFolder(MoveFolderDto moveFolderDto) {
+        String sql = "UPDATE ProjectFile SET projectFolder=? WHERE projectFileId=?";
+        try {
+            jdbcTemplate.update(sql, moveFolderDto.getNewParentFolder(), moveFolderDto.getFileId());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

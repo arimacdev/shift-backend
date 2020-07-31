@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserProfileDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface TaskFileRepository {
     void flagTaskFile(String taskFileId);
     List<TaskFile> getFolderTaskFiles(String folderId);
     void flagFolderTaskFiles(String folderId);
+    void updateTaskFolder(MoveFolderDto moveFolderDto);
 }

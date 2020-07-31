@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -61,6 +62,14 @@ public class FolderController  extends ResponseController{
     public ResponseEntity<Object> deleteFolder(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("folderId") String folderId) {
         logger.info("HIT - DELETE /projects/<projectId>/folder/<folderId>---> deleteFolder | userId: {} | projectId: {} | folderId: {}",userId, projectId, folderId);
         return sendResponse(folderService.deleteFolder(userId, projectId, folderId));
+    }
+
+    @ApiOperation(value = "Delete Folder", notes = "Delete Folder")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/projects/{projectId}/folder/copy")
+    public ResponseEntity<Object> moveFileToFolder (@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @Valid @RequestBody  MoveFolderDto moveFolderDto) {
+        logger.info("HIT - POST /projects/<projectId>/folder/copy---> moveFileToFolder | userId: {} | projectId: {} | folderId: {}",userId, projectId, moveFolderDto);
+        return sendResponse(folderService.moveFileToFolder(userId, projectId, moveFolderDto));
     }
 
 }

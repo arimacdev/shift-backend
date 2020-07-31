@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 
@@ -14,4 +15,5 @@ public interface ProjectFileRepository {
     List<ProjectFile> getMainProjectFiles(String projectId);
     List<ProjectFile> getFolderProjectFiles(String folderId);
     void flagFolderProjectFiles(String folderId);
+    void updateProjectFolder(MoveFolderDto moveFolderDto);
 }
