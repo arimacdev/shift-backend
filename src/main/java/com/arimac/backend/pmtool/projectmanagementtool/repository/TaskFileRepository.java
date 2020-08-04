@@ -16,4 +16,6 @@ public interface TaskFileRepository {
     List<TaskFile> getFolderTaskFiles(String folderId);
     void flagFolderTaskFiles(String folderId);
     void updateTaskFolder(MoveFolderDto moveFolderDto);
+    List<TaskFile> filterFilesByName(String name, List<String> taskIds);
+
 }

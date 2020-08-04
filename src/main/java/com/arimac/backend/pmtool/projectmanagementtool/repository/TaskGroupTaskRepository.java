@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.TaskGroupWorkLoadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
@@ -20,6 +21,7 @@ public interface TaskGroupTaskRepository {
     void transitionFromParentToChild(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     List<TaskGroupTask> getAllChildrenOfParentTask(String taskId);
     List<TaskGroupTaskUserResponseDto> getAllChildrenOfParentTaskWithProfile(String taskId);
+    List<TaskGroupWorkLoadFilteration> taskGroupTaskFilteration(String incomingQuery, String orderQuery);
 
 
 }

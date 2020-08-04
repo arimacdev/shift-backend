@@ -10,4 +10,5 @@ public interface FolderService {
     Object updateFolder(String userId, String projectId, String folderId, FolderDto folderDto);
     Object deleteFolder(String userId, String projectId, String folderId);
     Object moveFileToFolder(String userId, String projectId, MoveFolderDto moveFolderDto);
+    Object searchFilesFolders(String userId, String projectId, String name);
 }

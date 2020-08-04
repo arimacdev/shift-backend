@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FileSearchResult;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderFileList;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
@@ -89,8 +90,9 @@ public class FolderServiceImpl implements FolderService {
         List<?> files;
         if (folder.getFolderType().equals(FolderTypeEnum.TASK))
             files = taskFileRepository.getFolderTaskFiles(folderId);
-        else
-        files = projectFileRepository.getFolderProjectFiles(folderId);
+        else {
+            files = projectFileRepository.getFolderProjectFiles(folderId);
+        }
         FolderFileList folderFileList = new FolderFileList();
         folderFileList.setFiles(files);
         folderFileList.setFolders(folders);
@@ -153,5 +155,22 @@ public class FolderServiceImpl implements FolderService {
         projectFileRepository.updateProjectFolder(moveFolderDto);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object searchFilesFolders(String userId, String projectId, String name) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<Folder> folderList = folderRepository.filterFoldersByName(projectId, name);
+        List<String> taskIds = folderRepository.getTaskIdsOfProjectInFile(projectId, FolderTypeEnum.TASK);
+        //List<Object> files = (List<Object>) (List)  taskFileRepository.filterFilesByName(name, taskIds);
+        List<TaskFile> taskFiles = taskFileRepository.filterFilesByName(name, taskIds);
+        List<ProjectFile> projectFiles = projectFileRepository.FilterProjectFilesByName(projectId, name);
+        FileSearchResult fileSearchResult = new FileSearchResult();
+        fileSearchResult.setFolders(folderList);
+        fileSearchResult.setProjectFiles(projectFiles);
+        fileSearchResult.setTaskFiles(taskFiles);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileSearchResult);
     }
 }

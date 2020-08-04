@@ -106,5 +106,13 @@ public class TaskGroupTaskController extends ResponseController {
         return sendResponse(taskGroupTaskService.getAllChildrenOfParentTask(userId, taskgroupId, taskId));
     }
 
+    @ApiOperation(value = "Filter TaskGroup Task", notes = "Filter TaskGroup Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/workload/filter")
+    public ResponseEntity<Object> taskGroupWorkloadQueryFilter(@RequestHeader("user") String userId, @RequestParam("query") String query){
+        logger.info("HIT - GET /taskgroup/workload/filter?query=<query> --->  query: {}" ,query);
+        return sendResponse(taskGroupTaskService.taskGroupWorkloadQueryFilter(userId, query));
+    }
+
 
 }

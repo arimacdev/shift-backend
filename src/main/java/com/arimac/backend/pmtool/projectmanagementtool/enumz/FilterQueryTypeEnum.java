@@ -6,6 +6,7 @@ import java.util.Set;
 public enum  FilterQueryTypeEnum {
     projectId,
     projectName,
+    taskGroupName,
     taskAssignee,
     issueType,
     taskDueDateAt,
