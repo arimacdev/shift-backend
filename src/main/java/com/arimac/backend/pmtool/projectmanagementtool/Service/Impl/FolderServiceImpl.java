@@ -164,6 +164,8 @@ public class FolderServiceImpl implements FolderService {
         List<Folder> folderList = folderRepository.filterFoldersByName(projectId, name);
         List<String> taskIds = folderRepository.getTaskIdsOfProjectInFile(projectId, FolderTypeEnum.TASK);
         List<Object> files = (List<Object>) (List)  taskFileRepository.filterFilesByName(name, taskIds);
+        List<ProjectFile> mainFiles = projectFileRepository.getMainProjectFiles(projectId);
+        files.add(mainFiles);
         FolderFileList folderFileList = new FolderFileList();
         folderFileList.setFolders(folderList);
         folderFileList.setFiles(files);

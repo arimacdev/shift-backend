@@ -1,12 +1,17 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.TaskServiceImpl;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.TaskGroupWorkLoadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroupTask.TaskGroupTaskUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.TaskGroupTask;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskGroupTaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,8 @@ import java.util.List;
 
 @Service
 public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
+    private static final Logger logger = LoggerFactory.getLogger(TaskGroupTaskRepositoryImpl.class);
+
     private final JdbcTemplate jdbcTemplate;
 
     public TaskGroupTaskRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -147,6 +154,24 @@ public class TaskGroupTaskRepositoryImpl implements TaskGroupTaskRepository {
         String sql = "SELECT * FROM TaskGroupTask AS TGT LEFT JOIN User AS U ON  TGT.taskAssignee = U.userId WHERE TGT.parentId=? AND TGT.isDeleted=false";
         List<TaskGroupTaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskGroupTaskUserResponseDto(), taskId);
         return taskList;
+    }
+
+    public List<TaskGroupWorkLoadFilteration> taskGroupTaskFilteration(String incomingQuery, String orderQuery) {
+        String baseQuery = "SELECT * FROM TaskGroupTask INNER JOIN TaskGroup ON TaskGroupTask.taskGroupId = TaskGroup.taskGroupId " +
+                "LEFT JOIN User on taskAssignee = userId WHERE ";
+        String conditionQuery = " AND (TaskGroupTask.isDeleted=false) AND (TaskGroup.isDeleted = false)";
+        String orderBy = "ORDER BY ";
+        String completeQuery;
+        if (orderQuery == null || orderQuery.isEmpty())
+            completeQuery = baseQuery + incomingQuery + conditionQuery;
+        else
+            completeQuery = baseQuery + incomingQuery + conditionQuery + orderBy + orderQuery;
+        logger.info("Final Query : {}", completeQuery);
+        try{
+            return jdbcTemplate.query(completeQuery, new TaskGroupWorkLoadFilteration());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
 
