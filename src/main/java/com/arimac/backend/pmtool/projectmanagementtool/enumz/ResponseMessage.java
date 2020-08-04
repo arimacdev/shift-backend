@@ -48,7 +48,13 @@ public enum ResponseMessage {
     NOT_REACTOR("User Not Reactor"),
     ALREADY_REACTED_WITH_REACTION("User Already Reacted with the selected reaction"),
     FILE_SIZE_TOO_LARGE("File Size too Large"),
-    REQUEST_ITEM_LIMIT_EXCEEDED("Cannot Request Items beyond index limits");
+    REQUEST_ITEM_LIMIT_EXCEEDED("Cannot Request Items beyond index limits"),
+    FOLDER_NOT_FOUND("Folder doesn't exist"),
+    PREVIOUS_FOLDER_NOT_FOUND("Previous Folder doesn't exist"),
+    NEW_FOLDER_NOT_FOUND("New Folder doesn't exist"),
+    FILE_NOT_FOUND("New Folder doesn't exist"),
+    CANNOT_UPDATE_TASK_FOLDER("Cannot Update Task Folders"),
+    PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist");
 
 
     private String message;

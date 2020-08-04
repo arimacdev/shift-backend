@@ -15,6 +15,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOper
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -54,9 +55,10 @@ public class FileUploadServiceImpl implements FileUploadService {
     private final ProjectFileRepository projectFileRepository;
     private final PersonalTaskRepository personalTaskRepository;
     private final TaskGroupTaskRepository taskGroupTaskRepository;
+    private final FolderRepository folderRepository;
     private final CommentRepository commentRepository;
 
-    public FileUploadServiceImpl(ActivityLogService activityLogService, AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository, CommentRepository commentRepository) {
+    public FileUploadServiceImpl(ActivityLogService activityLogService, AmazonS3 amazonS3Client, ProjectRepository projectRepository, TaskRepository taskRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, UserRepository userRepository, TaskGroupRepository taskGroupRepository, NotificationService notificationService, ProjectFileRepository projectFileRepository, PersonalTaskRepository personalTaskRepository, TaskGroupTaskRepository taskGroupTaskRepository, FolderRepository folderRepository, CommentRepository commentRepository) {
         this.activityLogService = activityLogService;
         this.amazonS3Client = amazonS3Client;
         this.projectRepository = projectRepository;
@@ -69,6 +71,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         this.projectFileRepository = projectFileRepository;
         this.personalTaskRepository = personalTaskRepository;
         this.taskGroupTaskRepository = taskGroupTaskRepository;
+        this.folderRepository = folderRepository;
         this.commentRepository = commentRepository;
     }
 
@@ -84,6 +87,22 @@ public class FileUploadServiceImpl implements FileUploadService {
                 return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST);
             if (!( (task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) ))
                 return new ErrorMessage(ResponseMessage.UNAUTHORIZED_OPERATION, HttpStatus.UNAUTHORIZED);
+            Folder taskFolder = folderRepository.getFolderByTaskId(taskId);
+            String taskFolderId;
+            if (taskFolder == null){
+                Folder folder = new Folder();
+                folder.setFolderId(utilsService.getUUId());
+                folder.setProjectId(projectId);
+                folder.setFolderName(task.getSecondaryTaskId() + " - " + task.getTaskName());
+                folder.setFolderCreator(userId);
+                folder.setFolderCreatedAt(utilsService.getCurrentTimestamp());
+                folder.setTaskId(taskId);
+                folder.setFolderType(FolderTypeEnum.TASK);
+                folderRepository.createFolder(folder);
+                taskFolderId = folder.getFolderId();
+            } else {
+                taskFolderId = taskFolder.getFolderId();
+            }
             List<String> fileUrlList = new ArrayList<>();
 //            for (MultipartFile currentMultipartFile : multipartFiles){
                 String taskUrl = fileQueue(multipartFiles, fileType);
@@ -96,12 +115,12 @@ public class FileUploadServiceImpl implements FileUploadService {
                 taskFile.setTaskFileUrl(taskUrl);
                 taskFile.setTaskFileCreator(userId);
                 taskFile.setTaskFileDate(utilsService.getCurrentTimestamp());
+                taskFile.setTaskFolder(taskFolderId);
                 taskFileRepository.uploadTaskFile(taskFile);
 //            }
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskFileUploadNotification(userId, taskId, taskUrl, multipartFiles.getOriginalFilename());
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.FILE, null, taskFile.getTaskFileId()));
-
             });
 
             return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskFile);
@@ -198,11 +217,16 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public Object uploadProjectFiles(String userId, String projectId, FileUploadEnum fileType, MultipartFile[] multipartFiles) {
+    public Object uploadProjectFiles(String userId, String projectId, FileUploadEnum fileType, MultipartFile[] multipartFiles, String folderId) {
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         List<ProjectFile> projectFiles = new ArrayList<>();
+        if (!folderId.equals("default")){
+            Folder folder = folderRepository.getFolderById(folderId);
+            if (folder == null)
+                return new ErrorMessage(ResponseMessage.PARENT_FOLDER_NOT_EXISTS, HttpStatus.NOT_FOUND);
+        }
         for (MultipartFile multipartFile : multipartFiles) {
             if (checkFileSize(multipartFile))
                 return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -217,9 +241,11 @@ public class FileUploadServiceImpl implements FileUploadService {
             projectFile.setProjectFileSize((int) multipartFile.getSize());
             projectFile.setProjectFileAddedOn(utilsService.getCurrentTimestamp());
             projectFile.setIsDeleted(false);
+            if (!folderId.equals("default"))
+            projectFile.setProjectFolder(folderId);
             projectFiles.add(projectFile);
-            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.FILE, null, projectFile.getProjectFileId()));
             projectFileRepository.uploadProjectFile(projectFile);
+            activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.FILE, null, projectFile.getProjectFileId()));
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectFiles);
     }

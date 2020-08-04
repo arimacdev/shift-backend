@@ -1,6 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ProjectFileResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ProjectFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectFileRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,7 +24,7 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
     @Override
     public void uploadProjectFile(ProjectFile projectFile) {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO ProjectFile(projectFileId, projectId, projectFileName, projectFileUrl, projectFileSize, projectFileAddedBy, projectFileAddedOn, isDeleted) VALUES (?,?,?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO ProjectFile(projectFileId, projectId, projectFileName, projectFileUrl, projectFileSize, projectFileAddedBy, projectFileAddedOn, isDeleted, projectFolder) VALUES (?,?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, projectFile.getProjectFileId());
                 preparedStatement.setString(2, projectFile.getProjectId());
                 preparedStatement.setString(3, projectFile.getProjectFileName());
@@ -31,6 +33,7 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
                 preparedStatement.setString(6, projectFile.getProjectFileAddedBy());
                 preparedStatement.setTimestamp(7, projectFile.getProjectFileAddedOn());
                 preparedStatement.setBoolean(8, projectFile.getIsDeleted());
+                preparedStatement.setString(9, projectFile.getProjectFolder());
 
                 return preparedStatement;
             });
@@ -68,6 +71,46 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
             return jdbcTemplate.queryForObject(sql, new ProjectFile(), projectFile);
         } catch (EmptyResultDataAccessException e){
             return null;
+        }
+    }
+
+    @Override
+    public List<ProjectFile> getMainProjectFiles(String projectId) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectId=? AND projectFolder IS NULL AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new ProjectFile(), projectId);
+        } catch (Exception e){
+            throw  new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<ProjectFile> getFolderProjectFiles(String folderId) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectFolder=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new ProjectFile(), folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void flagFolderProjectFiles(String folderId) {
+        String sql = "UPDATE ProjectFile SET isDeleted=true WHERE projectFolder=?";
+        try {
+            jdbcTemplate.update(sql, folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateProjectFolder(MoveFolderDto moveFolderDto) {
+        String sql = "UPDATE ProjectFile SET projectFolder=? WHERE projectFileId=?";
+        try {
+            jdbcTemplate.update(sql, moveFolderDto.getNewParentFolder(), moveFolderDto.getFileId());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
         }
     }
 }

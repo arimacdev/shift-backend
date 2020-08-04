@@ -5,4 +5,5 @@ public interface InternalService {
     Object migratePersonalTask();
     Object addUserRole();
     Object addUserNameToUsers();
+    Object addUserToAllProjects(String userId);
 }

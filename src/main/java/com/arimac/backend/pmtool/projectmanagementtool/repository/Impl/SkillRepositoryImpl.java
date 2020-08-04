@@ -72,8 +72,12 @@ public class SkillRepositoryImpl implements SkillRepository {
 
     @Override
     public void flagSkill(String skillId) {
-        String sql = "UPDATE Skill SET isDeleted=? WHERE skillId=?";
-        jdbcTemplate.update(sql, true, skillId);
+        try {
+            String sql = "UPDATE Skill SET isDeleted=? WHERE skillId=?";
+            jdbcTemplate.update(sql, true, skillId);
+        } catch ( Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     @Override
