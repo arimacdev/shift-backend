@@ -1,7 +1,5 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.File.FileTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.FileUploadEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -18,12 +16,11 @@ public class ProjectFile implements RowMapper<ProjectFile> {
     private Timestamp projectFileAddedOn;
     private boolean isDeleted;
     private String projectFolder;
-    private FileTypeEnum fileType;
 
     public ProjectFile() {
     }
 
-    public ProjectFile(String projectFileId, String projectId, String projectFileName, String projectFileUrl, int projectFileSize, String projectFileAddedBy, Timestamp projectFileAddedOn, boolean isDeleted, String projectFolder, FileTypeEnum fileType) {
+    public ProjectFile(String projectFileId, String projectId, String projectFileName, String projectFileUrl, int projectFileSize, String projectFileAddedBy, Timestamp projectFileAddedOn, boolean isDeleted, String projectFolder) {
         this.projectFileId = projectFileId;
         this.projectId = projectId;
         this.projectFileName = projectFileName;
@@ -33,7 +30,6 @@ public class ProjectFile implements RowMapper<ProjectFile> {
         this.projectFileAddedOn = projectFileAddedOn;
         this.isDeleted = isDeleted;
         this.projectFolder = projectFolder;
-        this.fileType = fileType;
     }
 
     public String getProjectFileId() {
@@ -120,8 +116,7 @@ public class ProjectFile implements RowMapper<ProjectFile> {
                 resultSet.getString("projectFileAddedBy"),
                 resultSet.getTimestamp("projectFileAddedOn"),
                 resultSet.getBoolean("isDeleted"),
-                resultSet.getString("projectFolder"),
-                FileTypeEnum.PROJECT
+                resultSet.getString("projectFolder")
         );
     }
 }
