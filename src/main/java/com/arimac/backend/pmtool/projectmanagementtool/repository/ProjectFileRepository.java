@@ -13,6 +13,7 @@ public interface ProjectFileRepository {
     ProjectFile getProjectFile(String projectFile);
     ProjectFile getProjectFileWithFlag(String projectFile);
     List<ProjectFile> getMainProjectFiles(String projectId);
+    List<ProjectFile> FilterProjectFilesByName(String projectId, String name);
     List<ProjectFile> getFolderProjectFiles(String folderId);
     void flagFolderProjectFiles(String folderId);
     void updateProjectFolder(MoveFolderDto moveFolderDto);

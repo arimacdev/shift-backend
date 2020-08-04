@@ -85,6 +85,16 @@ public class ProjectFileRepositoryImpl implements ProjectFileRepository {
     }
 
     @Override
+    public List<ProjectFile> FilterProjectFilesByName(String projectId, String name) {
+        String sql = "SELECT * FROM ProjectFile WHERE projectId=? AND projectFileName LIKE ? AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new ProjectFile(), projectId, "%" + name + "%");
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public List<ProjectFile> getFolderProjectFiles(String folderId) {
         String sql = "SELECT * FROM ProjectFile WHERE projectFolder=? AND isDeleted=false";
         try {

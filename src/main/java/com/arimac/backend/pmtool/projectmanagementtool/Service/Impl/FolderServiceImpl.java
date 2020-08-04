@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.FolderService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FileSearchResult;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderFileList;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.MoveFolderDto;
@@ -163,12 +164,13 @@ public class FolderServiceImpl implements FolderService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         List<Folder> folderList = folderRepository.filterFoldersByName(projectId, name);
         List<String> taskIds = folderRepository.getTaskIdsOfProjectInFile(projectId, FolderTypeEnum.TASK);
-        List<Object> files = (List<Object>) (List)  taskFileRepository.filterFilesByName(name, taskIds);
-        List<ProjectFile> mainFiles = projectFileRepository.getMainProjectFiles(projectId);
-        files.add(mainFiles);
-        FolderFileList folderFileList = new FolderFileList();
-        folderFileList.setFolders(folderList);
-        folderFileList.setFiles(files);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, folderFileList);
+        //List<Object> files = (List<Object>) (List)  taskFileRepository.filterFilesByName(name, taskIds);
+        List<TaskFile> taskFiles = taskFileRepository.filterFilesByName(name, taskIds);
+        List<ProjectFile> projectFiles = projectFileRepository.FilterProjectFilesByName(projectId, name);
+        FileSearchResult fileSearchResult = new FileSearchResult();
+        fileSearchResult.setFolders(folderList);
+        fileSearchResult.setProjectFiles(projectFiles);
+        fileSearchResult.setTaskFiles(taskFiles);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, fileSearchResult);
     }
 }

@@ -118,7 +118,7 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
         String sql = "SELECT * FROM TaskFile WHERE taskId IN (:taskIds) AND taskFileName LIKE :filterName AND isDeleted=false";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("taskIds", taskIds);
-        parameters.addValue("filterName", name + "%");
+        parameters.addValue("filterName", "%" + name + "%");
         try {
             return namedParameterJdbcTemplate.query(sql, parameters, new TaskFile());
         } catch (Exception e){

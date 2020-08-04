@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.File.FileTypeEnum;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -17,11 +18,12 @@ public class TaskFile implements RowMapper<TaskFile> {
     private Timestamp taskFileDate;
     private boolean isDeleted;
     private String taskFolder;
+    private FileTypeEnum fileType;
 
     public TaskFile() {
     }
 
-    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, int taskFileSize, Timestamp taskFileDate, boolean isDeleted, String taskFolder) {
+    public TaskFile(String taskFileId, String taskId, String taskFileName, String taskFileUrl, String taskFileCreator, int taskFileSize, Timestamp taskFileDate, boolean isDeleted, String taskFolder, FileTypeEnum fileType) {
         this.taskFileId = taskFileId;
         this.taskId = taskId;
         this.taskFileName = taskFileName;
@@ -31,6 +33,7 @@ public class TaskFile implements RowMapper<TaskFile> {
         this.taskFileDate = taskFileDate;
         this.isDeleted = isDeleted;
         this.taskFolder = taskFolder;
+        this.fileType = fileType;
     }
 
     public String getTaskFolder() {
@@ -116,7 +119,7 @@ public class TaskFile implements RowMapper<TaskFile> {
                 resultSet.getInt("taskFileSize"),
                 resultSet.getTimestamp("taskFileDate"),
                 resultSet.getBoolean("isDeleted"),
-                resultSet.getString("taskFolder")
-        );
+                resultSet.getString("taskFolder"),
+                FileTypeEnum.TASK);
     }
 }
