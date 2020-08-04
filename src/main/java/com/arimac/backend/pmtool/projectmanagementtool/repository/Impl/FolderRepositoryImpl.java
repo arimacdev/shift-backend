@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Folder.FolderDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Folder;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.FolderRepository;
@@ -101,6 +102,26 @@ public class FolderRepositoryImpl implements FolderRepository {
         String sql = "UPDATE Folder SET isDeleted=true WHERE folderId=?";
         try {
             jdbcTemplate.update(sql, folderId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Folder> filterFoldersByName(String projectId, String name) {
+        String sql = "SELECT * FROM Folder WHERE projectId=? AND folderName LIKE ? AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new Folder(), projectId, "%" +name + "%");
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<String> getTaskIdsOfProjectInFile(String projectId, FolderTypeEnum folderType) {
+        String sql = "SELECT taskId FROM Folder WHERE projectId=? AND folderType=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForList(sql, String.class, projectId, folderType.toString());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

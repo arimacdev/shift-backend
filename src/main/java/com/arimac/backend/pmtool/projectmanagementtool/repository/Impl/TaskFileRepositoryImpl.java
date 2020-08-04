@@ -7,6 +7,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskFileRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
@@ -15,9 +17,11 @@ import java.util.List;
 @Service
 public class TaskFileRepositoryImpl implements TaskFileRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public TaskFileRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    public TaskFileRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
@@ -108,4 +112,18 @@ public class TaskFileRepositoryImpl implements TaskFileRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public List<TaskFile> filterFilesByName(String name, List<String> taskIds) {
+        String sql = "SELECT * FROM TaskFile WHERE taskId IN (:taskIds) AND taskFileName LIKE :filterName AND isDeleted=false";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("taskIds", taskIds);
+        parameters.addValue("filterName", name + "%");
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameters, new TaskFile());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
 }

@@ -89,8 +89,9 @@ public class FolderServiceImpl implements FolderService {
         List<?> files;
         if (folder.getFolderType().equals(FolderTypeEnum.TASK))
             files = taskFileRepository.getFolderTaskFiles(folderId);
-        else
-        files = projectFileRepository.getFolderProjectFiles(folderId);
+        else {
+            files = projectFileRepository.getFolderProjectFiles(folderId);
+        }
         FolderFileList folderFileList = new FolderFileList();
         folderFileList.setFiles(files);
         folderFileList.setFolders(folders);
@@ -153,5 +154,19 @@ public class FolderServiceImpl implements FolderService {
         projectFileRepository.updateProjectFolder(moveFolderDto);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object searchFilesFolders(String userId, String projectId, String name) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        List<Folder> folderList = folderRepository.filterFoldersByName(projectId, name);
+        List<String> taskIds = folderRepository.getTaskIdsOfProjectInFile(projectId, FolderTypeEnum.TASK);
+        List<Object> files = (List<Object>) (List)  taskFileRepository.filterFilesByName(name, taskIds);
+        FolderFileList folderFileList = new FolderFileList();
+        folderFileList.setFolders(folderList);
+        folderFileList.setFiles(files);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, folderFileList);
     }
 }

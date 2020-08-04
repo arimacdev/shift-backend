@@ -72,4 +72,12 @@ public class FolderController  extends ResponseController{
         return sendResponse(folderService.moveFileToFolder(userId, projectId, moveFolderDto));
     }
 
+    @ApiOperation(value = "File & Folder Search", notes = "File & Folder Search")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/projects/{projectId}/folder/search")
+    public ResponseEntity<Object> searchFilesFolders(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @RequestParam("name") String name) {
+        logger.info("HIT - GET /projects/<projectId>/folder/search---> searchFilesFolders | userId: {} | projectId: {} | name: {}",userId, projectId, name);
+        return sendResponse(folderService.searchFilesFolders(userId, projectId, name));
+    }
+
 }
