@@ -4,6 +4,7 @@ public enum ResponseMessage {
     SUCCESS("success"),
     PROJECT_ALIAS_EXIST("Project Alias Exists"),
     NO_RECORD("No Record"),
+    EMPTY_REQUEST_PARAMETER("Empty Search Request"),
     SPRINT_NOT_FOUND("Sprint Not Found"),
     TASK_NOT_FOUND("Task Not Found"),
     PROJECT_NOT_FOUND("Project Not Found"),

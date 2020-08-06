@@ -160,6 +160,8 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public Object searchFilesFolders(String userId, String projectId, String name) {
         Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (name.isEmpty())
+            return new ErrorMessage(ResponseMessage.EMPTY_REQUEST_PARAMETER, HttpStatus.BAD_REQUEST);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         List<Folder> folderList = folderRepository.filterFoldersByName(projectId, name);
