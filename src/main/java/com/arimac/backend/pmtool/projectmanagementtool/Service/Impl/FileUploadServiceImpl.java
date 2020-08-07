@@ -298,10 +298,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         } catch (Exception e){
             return true;
         }
-        if (fileSizeInMb > Double.parseDouble(ENVConfig.MAX_FILE_SIZE))
-            return true;
-         else
-            return false;
+        logger.info("File Size -> {} || Server Limit -> {}", fileSizeInMb, Double.parseDouble(ENVConfig.MAX_FILE_SIZE));
+        return fileSizeInMb > Double.parseDouble(ENVConfig.MAX_FILE_SIZE);
     }
 
     private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
