@@ -10,12 +10,15 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEn
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 @Service
@@ -160,13 +163,21 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public Object searchFilesFolders(String userId, String projectId, String name) {
         Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (name.isEmpty())
+            return new ErrorMessage(ResponseMessage.EMPTY_REQUEST_PARAMETER, HttpStatus.BAD_REQUEST);
+        String searchQuery;
+        try {
+            searchQuery = URLDecoder.decode(name.replaceAll("%", "%25"), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new PMException(e.getMessage());
+        }
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        List<Folder> folderList = folderRepository.filterFoldersByName(projectId, name);
+        List<Folder> folderList = folderRepository.filterFoldersByName(projectId, searchQuery);
         List<String> taskIds = folderRepository.getTaskIdsOfProjectInFile(projectId, FolderTypeEnum.TASK);
         //List<Object> files = (List<Object>) (List)  taskFileRepository.filterFilesByName(name, taskIds);
-        List<TaskFile> taskFiles = taskFileRepository.filterFilesByName(name, taskIds);
-        List<ProjectFile> projectFiles = projectFileRepository.FilterProjectFilesByName(projectId, name);
+        List<TaskFile> taskFiles = taskFileRepository.filterFilesByName(searchQuery, taskIds);
+        List<ProjectFile> projectFiles = projectFileRepository.FilterProjectFilesByName(projectId, searchQuery);
         FileSearchResult fileSearchResult = new FileSearchResult();
         fileSearchResult.setFolders(folderList);
         fileSearchResult.setProjectFiles(projectFiles);
