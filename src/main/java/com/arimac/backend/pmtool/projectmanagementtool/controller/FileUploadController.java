@@ -32,6 +32,14 @@ public class FileUploadController extends ResponseController {
     @PostMapping("/projects/{projectId}/tasks/{taskId}/upload")
     public ResponseEntity<Object> uploadFileToTask(@RequestHeader("user") String userId, @RequestParam("files") MultipartFile multipartFile, @RequestParam("type") FileUploadEnum fileType, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId) {
         logger.info("HIT - POST /projects/<projectId>/tasks/<taskId>/upload ---> uploadFileToTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
+        logger.info("File {}", multipartFile);
+        double fileSizeInMb = 0;
+        try {
+            fileSizeInMb = (double) multipartFile.getSize() / 1000000;
+            logger.info("SIZE {}",fileSizeInMb);
+        } catch (Exception e){
+            logger.info("EXCEPTION{}", e.getMessage());
+        }
         return sendResponse(fileUploadService.uploadFileToTask(userId, projectId, taskId, fileType, multipartFile));
     }
 
