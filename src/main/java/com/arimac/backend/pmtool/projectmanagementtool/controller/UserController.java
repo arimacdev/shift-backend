@@ -31,6 +31,7 @@ public class UserController extends ResponseController {
         this.userService = userService;
     }
 
+
     @ApiOperation(value = "Create User", notes = "Creates a user")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
