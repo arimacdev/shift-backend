@@ -22,15 +22,28 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
 
+    private static final String USER = "USER";
+    private static final String ADMIN = "ADMIN";
+    private static final String SUPER_ADMIN = "SUPER_ADMIN";
+    private static final String ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN";
+    private static final String ANALYST = "ANALYST";
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
         http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/users").hasRole("USER")
-                .antMatchers(HttpMethod.POST, "/users").hasAnyRole("ADMIN", "SUPER_ADMIN", "ORGANIZATION_ADMIN")
+                //User Endpoins
+                .antMatchers(HttpMethod.GET, "/users").hasRole(USER)
+                .antMatchers(HttpMethod.POST, "/users").hasAnyRole(ADMIN, SUPER_ADMIN, ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.PUT, "/users/{userId}").hasRole(USER)
+                .antMatchers(HttpMethod.GET, "/users/{userId}").hasRole(USER)
+                .antMatchers( "/users/{userId}/slack/**").hasRole(USER)
+                .antMatchers(HttpMethod.GET, "/users/project/{projectId}/**").hasRole(USER)
+
                 .anyRequest()
-                .permitAll();
-        http.csrf().disable();
+                .authenticated();
+                //.permitAll();
+                 http.csrf().disable();
     }
 
     @Autowired
