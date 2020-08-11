@@ -26,20 +26,40 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
     private static final String ADMIN = "ADMIN";
     private static final String SUPER_ADMIN = "SUPER_ADMIN";
     private static final String ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN";
-    private static final String ANALYST = "ANALYST";
+    private static final String WORKLOAD  = "WORKLOAD";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
         http.authorizeRequests()
-                //User Endpoins
+                //User Endpoints
                 .antMatchers(HttpMethod.GET, "/users").hasRole(USER)
                 .antMatchers(HttpMethod.POST, "/users").hasAnyRole(ADMIN, SUPER_ADMIN, ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.PUT, "/users/{userId}").hasRole(USER)
                 .antMatchers(HttpMethod.GET, "/users/{userId}").hasRole(USER)
                 .antMatchers( "/users/{userId}/slack/**").hasRole(USER)
                 .antMatchers(HttpMethod.GET, "/users/project/{projectId}/**").hasRole(USER)
-
+                .antMatchers(HttpMethod.POST, "/projects").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.DELETE, "/projects/{projectId}").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.PUT, "/projects/{projectId}").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.PUT, "/projects/{projectId}/weight").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.POST, "/projects/{projectId}/users/{userId}/block").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                //workload
+                .antMatchers(HttpMethod.GET, "/projects/tasks/users/workload").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.GET, "/projects/tasks/users/{userId}/workload").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                //filter
+                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                //template
+                .antMatchers("/template/**").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                //Admin
+                .antMatchers("/users/activate").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers("/users/deactivate").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers("/admin/**").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                //Skill Matrix
+                .antMatchers(HttpMethod.GET, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.POST, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers("/category/{categoryId}").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers("/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .anyRequest()
                 .authenticated();
                 //.permitAll();

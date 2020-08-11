@@ -185,6 +185,7 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.addChildToParentTask(userId, projectId, taskId, taskParentChildUpdateDto));
     }
 
+    //CHECK ROLE FOR THIS ENDPOINT
     @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/filter")
@@ -193,7 +194,7 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.filterTasks(userId, projectId, filterType, issueType, from, to, assignee));
     }
 
-    @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
+    @ApiOperation(value = "Queried Filter Tasks", notes = "Queried Filter Tasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/workload/filter")
     public ResponseEntity<Object> workloadQueryFilter(@RequestHeader("user") String userId, @RequestParam("query") String query){
