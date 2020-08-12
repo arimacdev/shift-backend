@@ -46,7 +46,7 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/projects/{projectId}/users/{userId}/block").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //workload
                 .antMatchers(HttpMethod.GET, "/projects/tasks/users/workload").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers(HttpMethod.GET, "/projects/tasks/users/{userId}/workload").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.GET, "/projects/tasks/users/{userId}/workload").hasRole(USER)
                 //filter
                 .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //template
@@ -58,7 +58,6 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 //Skill Matrix
                 .antMatchers(HttpMethod.GET, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.POST, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers("/category/{categoryId}").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers("/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .anyRequest()
                 //.authenticated()
