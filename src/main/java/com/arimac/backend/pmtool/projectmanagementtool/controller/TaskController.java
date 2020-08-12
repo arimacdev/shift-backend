@@ -74,9 +74,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "(All Tasks) Get all Tasks in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks") //DONE
-    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex, @PathVariable("projectId") String projectId){
-        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}| startIndex: {} | endIndex: {}", projectId, userId, startIndex, endIndex);
-        return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId, startIndex, endIndex));
+    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex, @RequestParam("allTasks") boolean allTasks, @PathVariable("projectId") String projectId){
+        logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}| startIndex: {} | endIndex: {} | allTasks {}", projectId, userId, startIndex, endIndex, allTasks);
+        return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId, startIndex, endIndex, allTasks));
     }
 
     @ApiOperation(value = "Get all Tasks count of a project", notes = "(All Tasks) Get all Tasks count of a project")

@@ -61,8 +61,8 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers("/category/{categoryId}").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers("/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .anyRequest()
-                .authenticated();
-                //.permitAll();
+                //.authenticated()
+                .permitAll();
                  http.csrf().disable();
     }
 
