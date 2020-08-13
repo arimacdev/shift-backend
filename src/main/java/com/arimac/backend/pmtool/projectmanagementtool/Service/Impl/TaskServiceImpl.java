@@ -171,16 +171,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Object getAllProjectTasksByUser(String userId, String projectId, int startIndex, int endIndex) {
-        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
-            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
-        int limit = endIndex - startIndex;
-        if (limit > 10)
-            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+    public Object getAllProjectTasksByUser(String userId, String projectId, int startIndex, int endIndex, boolean allTasks) {
+        int limit = 0;
+        if (!allTasks) {
+            if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+                return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+            limit = endIndex - startIndex;
+            if (limit > 10)
+                return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
         if (projectUser == null)
                 return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId, limit, startIndex);
+        List<TaskUserResponseDto> parentTaskList = taskRepository.getAllParentTasksWithProfile(projectId, limit, startIndex, allTasks);
         List<TaskParentChild> parentChildList = new ArrayList<>();
         if (!parentTaskList.isEmpty()) {
             List<String> parentIds = parentTaskList.stream()

@@ -31,6 +31,7 @@ public class UserController extends ResponseController {
         this.userService = userService;
     }
 
+
     @ApiOperation(value = "Create User", notes = "Creates a user")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping
@@ -39,6 +40,7 @@ public class UserController extends ResponseController {
         return sendResponse(userService.createUser(userRegistrationDto));
     }
 
+    @Deprecated
     @ApiOperation(value = "Create first User", notes = "Creates the initial user")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/first")
@@ -63,7 +65,7 @@ public class UserController extends ResponseController {
         return sendResponse(userService.getUserByUserId(userId));
     }
 
-    @ApiOperation(value = "Get user by userId", notes = "Retrieve a single user")
+    @ApiOperation(value = "Update user by userId", notes = "Update a single user")
     @ApiResponse(code = 200, message = "Success", response = User.class)
     @PutMapping("/{userId}")
     public ResponseEntity<Object> updateUserByUserId(@PathVariable("userId") String userId, @RequestBody UserUpdateDto userUpdateDto){

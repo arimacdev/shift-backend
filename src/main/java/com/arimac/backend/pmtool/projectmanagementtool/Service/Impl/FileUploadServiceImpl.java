@@ -77,6 +77,15 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public Object uploadFileToTask(String userId, String projectId, String taskId, FileUploadEnum fileType, MultipartFile multipartFiles) {
+        logger.info("Upload Task File------------------");
+        logger.info("File {}", multipartFiles);
+        double fileSizeInMb = 0;
+        try {
+            fileSizeInMb = (double) multipartFiles.getSize() / 1000000;
+        } catch (Exception e){
+//            return false;
+        }
+        logger.info("TASK File Size -> {} || Server Limit -> {}", fileSizeInMb, Double.parseDouble(ENVConfig.MAX_FILE_SIZE));
         if (checkFileSize(multipartFiles))
             return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
         Task task = taskRepository.getProjectTask(taskId);
@@ -296,12 +305,10 @@ public class FileUploadServiceImpl implements FileUploadService {
         try {
              fileSizeInMb = (double) multipartFile.getSize() / 1000000;
         } catch (Exception e){
-            return true;
-        }
-        if (fileSizeInMb > Double.parseDouble(ENVConfig.MAX_FILE_SIZE))
-            return true;
-         else
             return false;
+        }
+        logger.info("File Size -> {} || Server Limit -> {}", fileSizeInMb, Double.parseDouble(ENVConfig.MAX_FILE_SIZE));
+        return fileSizeInMb > Double.parseDouble(ENVConfig.MAX_FILE_SIZE);
     }
 
     private String fileQueue(MultipartFile multipartFile, FileUploadEnum fileType){
