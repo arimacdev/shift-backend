@@ -83,11 +83,17 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset) {
-        String sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true" +
-                " ORDER BY FIELD(taskStatus, 'closed') ASC, taskCreatedAt DESC LIMIT ? OFFSET ?";
-        List<TaskUserResponseDto> taskList = jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, limit, offset);
-        return  taskList;
+    public List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset, boolean allTasks) {
+        String sql;
+        if (allTasks) {
+            sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true" +
+                    " ORDER BY FIELD(taskStatus, 'closed') ASC, taskCreatedAt DESC";
+            return jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId);
+        } else {
+            sql = "SELECT * FROM Task as t LEFT JOIN User AS u ON t.taskAssignee=u.userId WHERE t.projectId=? AND t.isDeleted=false AND t.isParent=true" +
+                    " ORDER BY FIELD(taskStatus, 'closed') ASC, taskCreatedAt DESC LIMIT ? OFFSET ?";
+            return jdbcTemplate.query(sql, new TaskUserResponseDto(), projectId, limit, offset);
+        }
     }
 
     @Override
