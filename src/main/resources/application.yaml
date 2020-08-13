@@ -15,10 +15,12 @@ spring:
 
 
 keycloak:
-  auth-server-url: http://keycloak-server:8080/auth/realms/pm-tool/auth
+  #auth-server-url: ${KEYCLOAK_HOST}/auth
+  #auth-server-url: http://keycloak-server:8080/auth/realms/pm-tool/auth
+  auth-server-url: https://pmtool.devops.arimac.xyz/auth
   ssl-required: external
   realm: pm-tool
-  resource: user-service
+  resource: user-management
   credentials.secret: 46e10880-7cb8-487c-a6cc-d1f6c8bfc6c3
   bearer-only: true
   confidential-port: 0
