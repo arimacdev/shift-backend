@@ -17,11 +17,11 @@ spring:
 keycloak:
   #auth-server-url: ${KEYCLOAK_HOST}/auth
   #auth-server-url: http://keycloak-server:8080/auth/realms/pm-tool/auth
-  auth-server-url: https://pmtool.devops.arimac.xyz/auth
+  auth-server-url: ${BASE_URL}/auth
   ssl-required: external
-  realm: pm-tool
-  resource: user-management
-  credentials.secret: 46e10880-7cb8-487c-a6cc-d1f6c8bfc6c3
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_ROLE_CLIENT_NAME}
+  credentials.secret: ${KEYCLOAK_ROLE_CLIENT_SECRET}
   bearer-only: true
   confidential-port: 0
   use-resource-role-mappings: false
