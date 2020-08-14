@@ -87,14 +87,14 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Object getAllProjects(String userId) {
+    public Object getAllUserAssignedProjects(String userId) {
         //TODO check role of a user
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<ProjectUserResponseDto> projectList;
 
-        projectList = projectRepository.getAllProjectsByUser(userId);
+        projectList = projectRepository.getAllUserAssignedProjects(userId);
 //        projectList = transactionRepository.getAllProjects();
 
 //        if (projectList.isEmpty())
@@ -102,6 +102,14 @@ public class ProjectServiceImpl implements ProjectService {
 //      return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST, projectList);
         return new Response(ResponseMessage.SUCCESS, projectList);
 
+    }
+
+    @Override
+    public Object getAllProjects(String userId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectRepository.getAllProjects());
     }
 
     @Override

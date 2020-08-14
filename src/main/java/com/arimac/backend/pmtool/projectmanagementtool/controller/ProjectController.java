@@ -39,13 +39,22 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.createProject(projectDto));
     }
 
-    @ApiOperation(value = "Get all Projects by user", notes = "Get all projects of an organization")
+    @ApiOperation(value = "Get all user assigned projects", notes = "Get all user assigned projects")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping
-    public ResponseEntity<Object> getAllProjectsByUser(@RequestParam("userId")String user){
+    public ResponseEntity<Object> getAllUserAssignedProjects(@RequestParam("userId")String user){
+        logger.info("HIT - GET /projects?userId=<user> ---> getAllProjects | userId: {}",user);
+        return sendResponse(projectService.getAllUserAssignedProjects(user));
+    }
+
+    @ApiOperation(value = "Get all Projects", notes = "Get all projects of an organization")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/all")
+    public ResponseEntity<Object> getAllProjects(@RequestHeader("user") String user){
         logger.info("HIT - GET /projects?userId=<user> ---> getAllProjects | userId: {}",user);
         return sendResponse(projectService.getAllProjects(user));
     }
+
 
     @ApiOperation(value = "Get a single project", notes = "Get a single project specified by a projectId")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
