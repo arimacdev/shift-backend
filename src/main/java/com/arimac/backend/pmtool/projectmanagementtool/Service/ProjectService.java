@@ -9,6 +9,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeigh
 
 public interface ProjectService {
     Object createProject(ProjectDto projectDto);
+    Object getAllUserAssignedProjects(String userId);
     Object getAllProjects(String userId);
     Object getProjectByUser(String projectId, String userId);
     Object assignUserToProject(String projectId, UserAssignDto userAssignDto);

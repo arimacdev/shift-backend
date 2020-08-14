@@ -14,7 +14,7 @@ public interface ProjectRepository {
     List<String> getProjectTaskIds(String projectId);
     ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId);
     Project_User getProjectUser(String projectId, String userId);
-    List<ProjectUserResponseDto> getAllProjectsByUser(String userId);
+    List<ProjectUserResponseDto> getAllUserAssignedProjects(String userId);
     void updateProject(Project project, String projectId);
     void assignUserToProject(String projectId, Project_User project_user);
     void updateAssigneeProjectRole(Project_User project_user);
@@ -27,7 +27,6 @@ public interface ProjectRepository {
     boolean checkProjectAlias(String alias);
     void updateProjectWeight(String projectId, WeightTypeEnum weightTypeEnum);
 
-    //INTERNAL
     List<Project> getAllProjects();
 
 }
