@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith(BEARER)) {
+//        if (token != null && token.startsWith(BEARER)) {
             token = token.substring(7);
             logger.info("token {}", token);
             try {
@@ -56,13 +57,16 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                 User user = userRepository.getUserByIdpUserId(jwt.getSubject());
                 logger.info("INTERCWEPTOR USER {}", user );
                 if (user == null){
+                    JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
                     User newUser = new User();
                     newUser.setUserId(utilsService.getUUId());
                     newUser.setIdpUserId(jwt.getSubject());
-//                    newUser.setUsername(jwt.getp);
-//                    user.setFirstName(userRegistrationDto.getFirstName());
-//                    user.setLastName(userRegistrationDto.getLastName());
-//                    user.setEmail(userRegistrationDto.getEmail());
+                    newUser.setUsername(idpUser.getString("username"));
+                    newUser.setFirstName(idpUser.getString("firstName"));
+                    newUser.setLastName(idpUser.getString("lastName"));
+                    newUser.setEmail(idpUser.getString("email"));
+                    userRepository.createUser(newUser);
+                    idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
                     return true;
                 } else if (!user.getIsActive()){
                     response.sendError(401);
@@ -74,10 +78,10 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                 response.sendError(400);
                 return false;
             }
-        } else {
-            response.sendError(400);
-            return false;
-        }
+//        } else {
+//            response.sendError(400);
+//            return false;
+//        }
     }
 
 
