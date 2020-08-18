@@ -14,6 +14,7 @@ public interface UserRepository {
     List<User> getUserListById(List<String> userId);
     List<User> getAllUsersWithPagination(int limit, int offset);
     User getUserByUserId(String userId);
+    User getUserByIdpUserId(String idpUserId);
     User getUserWithFlag(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
     void updateProfilePicture(String userId, String profilePictureUrl);

@@ -22,6 +22,8 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     private Timestamp taskDueDateAt;
     private Timestamp taskReminderAt;
     private boolean isDeleted;
+    private String  firstName;
+    private String lastName;
     private String taskAssigneeProfileImage;
     private String sprintId;
 
@@ -35,7 +37,7 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
     public TaskUserResponseDto() {
     }
 
-    public TaskUserResponseDto(String taskId, String secondaryTaskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight) {
+    public TaskUserResponseDto(String taskId, String secondaryTaskId, String taskName, String projectId, String taskAssignee, String taskInitiator, String taskNote, TaskStatusEnum taskStatus, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, String firstName, String lastName, String taskAssigneeProfileImage, String sprintId, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -48,6 +50,8 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.taskDueDateAt = taskDueDateAt;
         this.taskReminderAt = taskReminderAt;
         this.isDeleted = isDeleted;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.taskAssigneeProfileImage = taskAssigneeProfileImage;
         this.sprintId = sprintId;
         this.issueType = issueType;
@@ -209,6 +213,22 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
         this.actualWeight = actualWeight;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     @Override
     public TaskUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new TaskUserResponseDto(
@@ -224,6 +244,8 @@ public class TaskUserResponseDto implements RowMapper<TaskUserResponseDto> {
                 resultSet.getTimestamp("taskDueDateAt"),
                 resultSet.getTimestamp("taskReminderAt"),
                 resultSet.getBoolean("isDeleted"),
+                resultSet.getString("firstName"),
+                resultSet.getString("lastName"),
                 resultSet.getString("profileImage"),
                 resultSet.getString("sprintId"),
                 IssueTypeEnum.valueOf(resultSet.getString("issueType")),
