@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class RequestInterceptor extends ResponseController implements HandlerInterceptor {
+public class RequestInterceptor implements HandlerInterceptor {
     private static final Logger logger = LoggerFactory.getLogger(RequestInterceptor.class);
 
     private static final String BEARER = "Bearer ";
