@@ -66,6 +66,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                     newUser.setLastName(idpUser.getString("lastName"));
                     newUser.setEmail(idpUser.getString("email"));
                     userRepository.createUser(newUser);
+                    idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
                     idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
                     return true;
                 } else if (!user.getIsActive()){
