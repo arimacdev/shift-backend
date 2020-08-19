@@ -26,22 +26,15 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 
     private static final String BEARER = "Bearer ";
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private IdpUserService idpUserService;
-    @Autowired
-    private UtilsService utilsService;
+    private final UserRepository userRepository;
+    private final IdpUserService idpUserService;
+    private final UtilsService utilsService;
 
-    public RequestInterceptor() {
+    public RequestInterceptor(UserRepository userRepository, IdpUserService idpUserService, UtilsService utilsService) {
+        this.userRepository = userRepository;
+        this.idpUserService = idpUserService;
+        this.utilsService = utilsService;
     }
-
-
-//    public RequestInterceptor(UserRepository userRepository, IdpUserService idpUserService, UtilsService utilsService) {
-//        this.userRepository = userRepository;
-//        this.idpUserService = idpUserService;
-//        this.utilsService = utilsService;
-//    }
 
 
     @Override
