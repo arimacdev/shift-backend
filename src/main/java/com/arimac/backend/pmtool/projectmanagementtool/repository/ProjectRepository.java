@@ -28,5 +28,7 @@ public interface ProjectRepository {
     void updateProjectWeight(String projectId, WeightTypeEnum weightTypeEnum);
 
     List<Project> getAllProjects();
+    //Analytics
+    int getActiveProjectCount();
 
 }

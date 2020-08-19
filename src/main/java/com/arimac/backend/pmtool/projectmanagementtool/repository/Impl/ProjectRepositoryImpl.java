@@ -242,6 +242,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
     }
 
+    @Override
+    public int getActiveProjectCount() {
+        String sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 
 
 }

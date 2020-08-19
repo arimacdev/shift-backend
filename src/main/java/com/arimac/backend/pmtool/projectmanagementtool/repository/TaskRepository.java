@@ -43,6 +43,10 @@ public interface TaskRepository {
     boolean checkChildTasksOfAParentTask(String taskId);
     List<TaskUserDto> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
     void updateTaskWeightsToDefault(String projectId);
+    //Analytics
+    int getActiveTaskCount();
+    int getClosedTaskCount();
+
 
     //QUERIES FOR INTERNAL PURPOSES
     void updateProjectAlias(String taskId, String taskAlias);

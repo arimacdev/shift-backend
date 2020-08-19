@@ -194,6 +194,16 @@ public class UserRepositoryImpl implements UserRepository {
         });
     }
 
+    @Override
+    public int getActiveUserCount() {
+        String sql = "SELECT COUNT(*) FROM User WHERE isActive=true";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
 
     //REMOVE
 

@@ -406,6 +406,26 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public int getActiveTaskCount() {
+        String sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getClosedTaskCount() {
+        String sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void updateProjectAlias(String taskId, String alias) {
        jdbcTemplate.update(connection -> {
            PreparedStatement preparedStatement  = connection.prepareStatement("UPDATE Task SET secondaryTaskId=? WHERE taskId=?");
