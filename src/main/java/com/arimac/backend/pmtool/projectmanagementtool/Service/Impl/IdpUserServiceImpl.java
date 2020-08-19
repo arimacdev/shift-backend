@@ -217,6 +217,35 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
+    public void addUserAttributes(String idpUserId, String UUID, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject updatePayload = new JSONObject();
+            Map<String,String> attributes = new HashMap<>();
+            attributes.put("userId", UUID);
+            updatePayload.put("attributes",attributes);
+            HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
+            StringBuilder userUpdateUrl = new StringBuilder();
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userUpdateUrl.append("/auth/admin/realms/");
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userUpdateUrl.append("/users/");
+            userUpdateUrl.append(idpUserId);
+            logger.info("User update URL {}", userUpdateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userUpdateUrl.toString(), HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                addUserAttributes(idpUserId, UUID, false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+
+    }
+
+    @Override
     public void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest) {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
@@ -366,7 +395,6 @@ public class IdpUserServiceImpl implements IdpUserService {
     public void removeAllAssociatedUserSessions(String idpUserId, boolean firstRequest) {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
-            JSONObject removeSessionPayload = new JSONObject();
             HttpEntity<Object> entity = new HttpEntity<>(null, httpHeaders);
             StringBuilder sessionRemoveUrl = new StringBuilder();
             sessionRemoveUrl.append(ENVConfig.KEYCLOAK_HOST);
