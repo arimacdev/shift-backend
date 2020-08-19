@@ -27,11 +27,11 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
     private static final String BEARER = "Bearer ";
 
     @Autowired
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    private  IdpUserService idpUserService;
+    private IdpUserService idpUserService;
     @Autowired
-    private  UtilsService utilsService;
+    private UtilsService utilsService;
 
     public RequestInterceptor() {
     }
@@ -44,46 +44,46 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 //    }
 
 
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         String token = request.getHeader("Authorization");
-//        if (token != null && token.startsWith(BEARER)) {
-            token = token.substring(7);
-            logger.info("token {}", token);
-            try {
-                DecodedJWT jwt = JWT.decode(token);
-                logger.info("jwt subject {}", jwt.getSubject());
-                User user = userRepository.getUserByIdpUserId(jwt.getSubject());
-                logger.info("INTERCWEPTOR USER {}", user );
-                if (user == null){
-                    JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
-                    User newUser = new User();
-                    newUser.setUserId(utilsService.getUUId());
-                    newUser.setIdpUserId(jwt.getSubject());
-                    newUser.setUsername(idpUser.getString("username"));
-                    newUser.setFirstName(idpUser.getString("firstName"));
-                    newUser.setLastName(idpUser.getString("lastName"));
-                    newUser.setEmail(idpUser.getString("email"));
-                    userRepository.createUser(newUser);
-                    idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
-                    idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
-                    return true;
-                } else if (!user.getIsActive()){
-                    response.sendError(401);
-                    return false;
-                } else
-                return  true;
-            } catch (Exception e){
-                logger.info("JWT Exception", e);
-                response.sendError(400);
+        if (token != null && token.startsWith(BEARER)) {
+        token = token.substring(7);
+        logger.info("token {}", token);
+        DecodedJWT jwt = null;
+        try {
+            jwt = JWT.decode(token);
+            logger.info("jwt subject {}", jwt.getSubject());
+            User user = userRepository.getUserByIdpUserId(jwt.getSubject());
+            logger.info("INTERCWEPTOR USER {}", user);
+            if (user == null) {
+                JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
+                User newUser = new User();
+                newUser.setUserId(utilsService.getUUId());
+                newUser.setIdpUserId(jwt.getSubject());
+                newUser.setUsername(idpUser.getString("username"));
+                newUser.setFirstName(idpUser.getString("firstName"));
+                newUser.setLastName(idpUser.getString("lastName"));
+                newUser.setEmail(idpUser.getString("email"));
+                userRepository.createUser(newUser);
+                idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
+                idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
+                return true;
+            } else if (!user.getIsActive()) {
+                response.sendError(401);
                 return false;
-            }
-//        } else {
-//            response.sendError(400);
-//            return false;
-//        }
-    }
+            } else
+                return true;
+        } catch (Exception e) {
+            logger.info("JWT Exception", e);
+            if (jwt !=null)
+                idpUserService.deleteUserFromIdp(jwt.getSubject(), true);
+            response.sendError(400);
+            return false;
+        }
+    } else
+        return false;
+}
 
 
 }
