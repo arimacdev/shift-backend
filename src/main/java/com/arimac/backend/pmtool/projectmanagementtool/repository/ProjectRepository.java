@@ -29,6 +29,6 @@ public interface ProjectRepository {
 
     List<Project> getAllProjects();
     //Analytics
-    int getActiveProjectCount();
+    int getActiveProjectCount(String from, String to);
 
 }

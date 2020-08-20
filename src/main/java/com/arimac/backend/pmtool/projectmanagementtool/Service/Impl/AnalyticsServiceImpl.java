@@ -14,9 +14,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
+
+    private static final String ALL = "all";
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
@@ -29,14 +36,27 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public Object getOrgOverview(String userId) {
+    public Object getOrgOverview(String userId, String from, String to) {
+        Date fromDate;
+        Date toDate;
+        if (!from.equals(ALL) || !to.equals(ALL)) {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                fromDate = dateFormat.parse(from);
+                toDate = dateFormat.parse(to);
+            } catch (ParseException e) {
+                return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
+            }
+            if (fromDate.after(toDate) || toDate.before(fromDate))
+                return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
+        }
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        int userCount = userRepository.getActiveUserCount();
-        int projectCount = projectRepository.getActiveProjectCount();
-        int ActiveTaskCount = taskRepository.getActiveTaskCount();
-        int closedTaskCount = taskRepository.getClosedTaskCount();
+        int userCount = userRepository.getActiveUserCount(from, to);
+        int projectCount = projectRepository.getActiveProjectCount(from, to);
+        int ActiveTaskCount = taskRepository.getActiveTaskCount(from, to);
+        int closedTaskCount = taskRepository.getClosedTaskCount(from, to);
 
         AnlyticsOverviewDto anlyticsOverviewDto = new AnlyticsOverviewDto();
         anlyticsOverviewDto.setActiveUsers(userCount);

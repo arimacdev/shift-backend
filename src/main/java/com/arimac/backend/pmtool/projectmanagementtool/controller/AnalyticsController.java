@@ -25,9 +25,10 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Get Overview of Organization", notes = "Get Overview of Organization")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/overview")
-    public ResponseEntity<Object> getOrgOverview(@RequestHeader("user") String userId){
-        logger.info("HIT - GET analytics/overview ---> getOrgOverview | User: {} |", userId);
-        return sendResponse(analyticsService.getOrgOverview(userId));
+    public ResponseEntity<Object> getOrgOverview(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to){
+        logger.info("HIT - GET analytics/overview ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
+        return sendResponse(analyticsService.getOrgOverview(userId,from,to));
     }
+
 
 }

@@ -243,10 +243,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public int getActiveProjectCount() {
-        String sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false";
+    public int getActiveProjectCount(String from, String to) {
+        String sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
         try {
-            return jdbcTemplate.queryForObject(sql, Integer.class);
+            return jdbcTemplate.queryForObject(sql, new Object[]{from,to}, Integer.class);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

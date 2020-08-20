@@ -406,20 +406,20 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
-    public int getActiveTaskCount() {
-        String sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false";
+    public int getActiveTaskCount(String from, String to) {
+        String sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
         try {
-            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
     }
 
     @Override
-    public int getClosedTaskCount() {
-        String sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false";
+    public int getClosedTaskCount(String from, String to) {
+        String sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
         try {
-            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
