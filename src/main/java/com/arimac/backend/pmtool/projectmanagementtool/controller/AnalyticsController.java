@@ -30,5 +30,15 @@ public class AnalyticsController extends ResponseController {
         return sendResponse(analyticsService.getOrgOverview(userId,from,to));
     }
 
+    @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/overview/projects")
+    public ResponseEntity<Object> getProjectOverview(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to){
+        logger.info("HIT - GET analytics/overview/projects ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
+        return sendResponse(analyticsService.getProjectOverview(userId,from,to));
+    }
+
+
+
 
 }

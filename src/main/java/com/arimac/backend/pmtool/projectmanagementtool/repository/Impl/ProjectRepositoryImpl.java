@@ -1,7 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
@@ -255,6 +257,23 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{from,to}, Integer.class);
         }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+     @Override
+    public List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to) {
+        String sql;
+        try {
+            if (from.equals(ALL) && to.equals(ALL)) {
+                sql = "SELECT projectStatus, COUNT(*) as projectCount FROM project WHERE isDeleted=false GROUP BY projectStatus ORDER BY projectCount DESC";
+                return jdbcTemplate.query(sql, new ProjectStatusCountDto());
+            }
+            else {
+                sql = "SELECT projectStatus, COUNT(*) as projectCount FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ? GROUP BY projectStatus ORDER BY projectCount DESC";
+                return jdbcTemplate.query(sql, new ProjectStatusCountDto(), from, to);
+            }
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
