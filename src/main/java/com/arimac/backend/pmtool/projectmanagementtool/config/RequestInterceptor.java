@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -22,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-//@Order(value = 3)
 public class RequestInterceptor extends HandlerInterceptorAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RequestInterceptor.class);
 
@@ -50,7 +50,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
             jwt = JWT.decode(token);
             logger.info("jwt subject {}", jwt.getSubject());
             User user = userRepository.getUserByIdpUserId(jwt.getSubject());
-            logger.info("INTERCWEPTOR USER {}", user);
+            logger.info("INTERCEPTOR USER {}", user);
             if (user == null) {
                 JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
                 User newUser = new User();
@@ -63,7 +63,15 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                 userRepository.createUser(newUser);
                 idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
                 idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
-                return true;
+
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("token", token);
+                response.getWriter().write(String.valueOf(jsonObject));
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.setStatus(422);
+
+                return false;
             } else if (!user.getIsActive()) {
                 response.sendError(401);
                 return false;

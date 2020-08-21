@@ -20,6 +20,7 @@ import java.util.List;
 
 @Service
 public class ProjectRepositoryImpl implements ProjectRepository {
+    private static final String ALL = "all";
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
@@ -244,9 +245,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public int getActiveProjectCount(String from, String to) {
-        String sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
+        String sql;
         try {
+        if (from.equals(ALL) && to.equals(ALL)) {
+            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false";
+            return jdbcTemplate.queryForObject(sql, Integer.class);
+        }
+        else {
+            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{from,to}, Integer.class);
+        }
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

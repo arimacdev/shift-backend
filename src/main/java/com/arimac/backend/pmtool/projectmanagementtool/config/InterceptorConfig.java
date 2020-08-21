@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@Order(value = 2)
+//@Order(value = 2)
 public class InterceptorConfig implements WebMvcConfigurer {
 
     private final RequestInterceptor requestInterceptor;
