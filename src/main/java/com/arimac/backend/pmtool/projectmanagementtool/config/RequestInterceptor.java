@@ -62,7 +62,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                 newUser.setEmail(idpUser.getString("email"));
                 userRepository.createUser(newUser);
                 idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
-                idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
+                //idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("token", token);
