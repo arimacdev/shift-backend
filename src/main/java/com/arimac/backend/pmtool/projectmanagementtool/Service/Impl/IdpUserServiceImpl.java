@@ -416,6 +416,29 @@ public class IdpUserServiceImpl implements IdpUserService {
         }
     }
 
+    @Override
+    public void deleteUserFromIdp(String idpUserId, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userDeleteEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder userDeleteUrl = new StringBuilder();
+            userDeleteUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userDeleteUrl.append("/auth/admin/realms/");
+            userDeleteUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userDeleteUrl.append("/users/");
+            userDeleteUrl.append(idpUserId);
+            logger.info("User Delete URL {}", userDeleteUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userDeleteUrl.toString(), HttpMethod.DELETE, userDeleteEntity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+            getClientAccessToken();
+            deleteUserFromIdp(idpUserId, false);
+        }
+        throw new PMException(e.getLocalizedMessage());
+    } catch (Exception e) {
+        throw new PMException(e.getMessage());
+    }
+    }
+
 
     private JSONObject getIdpUserId(HttpHeaders httpHeaders, UserRegistrationDto userRegistrationDto, boolean firstRequest) {
         try {

@@ -1,7 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -28,5 +30,9 @@ public interface ProjectRepository {
     void updateProjectWeight(String projectId, WeightTypeEnum weightTypeEnum);
 
     List<Project> getAllProjects();
+    //Analytics
+    int getActiveProjectCount(String from, String to);
+    List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to);
+
 
 }

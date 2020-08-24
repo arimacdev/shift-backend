@@ -406,6 +406,38 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public int getActiveTaskCount(String from, String to) {
+        String sql;
+        try {
+        if (from.equals(ALL) && to.equals(ALL)){
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+        }else {
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
+        }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getClosedTaskCount(String from, String to) {
+        String sql;
+        try {
+            if (from.equals(ALL) && to.equals(ALL)) {
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+        } else {
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
+        }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void updateProjectAlias(String taskId, String alias) {
        jdbcTemplate.update(connection -> {
            PreparedStatement preparedStatement  = connection.prepareStatement("UPDATE Task SET secondaryTaskId=? WHERE taskId=?");

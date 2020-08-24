@@ -17,4 +17,5 @@ public interface IdpUserService {
     void removerUserRole(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
     JSONArray getAllUserRoleMappings(String idpUserId, boolean firstRequest);
     void removeAllAssociatedUserSessions(String idpUserId, boolean firstRequest);
+    void deleteUserFromIdp(String idpUserId, boolean firstRequest);
 }
