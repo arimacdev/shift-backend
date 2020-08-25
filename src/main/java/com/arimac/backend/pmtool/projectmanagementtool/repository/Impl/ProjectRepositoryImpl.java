@@ -1,7 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
@@ -117,17 +116,21 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void assignUserToProject(String projectId, Project_User project_user) {
-       jdbcTemplate.update(connection -> {
-           PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_User(projectId, assigneeId, assignedAt, assigneeJobRole, assigneeProjectRole, isBlocked) values (?,?,?,?,?,?)");
-           preparedStatement.setString(1, project_user.getProjectId());
-           preparedStatement.setString(2, project_user.getAssigneeId());
-           preparedStatement.setTimestamp(3, project_user.getAssignedAt());
-           preparedStatement.setString(4, project_user.getAssigneeJobRole());
-           preparedStatement.setInt(5, project_user.getAssigneeProjectRole());
-           preparedStatement.setBoolean(6, project_user.getIsBlocked());
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_User(projectId, assigneeId, assignedAt, assigneeJobRole, assigneeProjectRole, isBlocked) values (?,?,?,?,?,?)");
+                preparedStatement.setString(1, project_user.getProjectId());
+                preparedStatement.setString(2, project_user.getAssigneeId());
+                preparedStatement.setTimestamp(3, project_user.getAssignedAt());
+                preparedStatement.setString(4, project_user.getAssigneeJobRole());
+                preparedStatement.setInt(5, project_user.getAssigneeProjectRole());
+                preparedStatement.setBoolean(6, project_user.getIsBlocked());
 
-           return preparedStatement;
-       });
+                return preparedStatement;
+            });
+        } catch (Exception e){
+            logger.info("Assign Error {} {}", projectId, e.getMessage());
+        }
 
     }
 
