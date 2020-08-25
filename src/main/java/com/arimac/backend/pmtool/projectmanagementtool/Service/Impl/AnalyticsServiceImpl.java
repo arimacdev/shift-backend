@@ -76,9 +76,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         if (error instanceof ErrorMessage)
             return error;
         int projectCountGiven = projectRepository.getActiveProjectCount(from, to);
-        int projectCountTotal = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);
-//        List<ProjectStatusCountDto> projectStatusCountGiven = projectRepository.getActiveProjectCountByStatus(from, to);
-//        List<ProjectStatusCountDto> projectStatusCountTotal = projectRepository.getActiveProjectCountByStatus(ALL, ALL);
+        int projectCountTotal = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
 
         ProjectStatusCountDto presalesStageGiven = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(from, to));
         ProjectStatusCountDto presalesStageTotal = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(previousFromDate, previousToDate));
@@ -93,20 +91,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             projectOverView.setLeadsPending(null);
             projectOverView.setLeadsOngoing(new AspectSummary<Integer>(projectCountGiven, this.dateCount, PerformanceEnum.neutral, new BigDecimal("0.00")));
         }
-//        projectOverView.setLeadsOngoing(getAspectSummary(projectCountGiven));
-//        projectOverView.setLeadsOngoing(getAspectSummary(presalesStageGiven.setProjectCount(projectOverView.getTotalProjects().getValue() - presalesStageGiven.getProjectCount()), presalesStageTotal));
-//
-//        projectOverView.setTotalProjects(projectCount);
-//        if (presalesStage != null) {
-//            projectOverView.setLeadsPending(presalesStage.getProjectCount());
-//            projectOverView.setLeadsOngoing(projectCount - presalesStage.getProjectCount());
-//            MathContext mc = new MathContext(2);
-//            BigDecimal rate = BigDecimal.valueOf(projectOverView.getLeadsOngoing()).divide(BigDecimal.valueOf(projectCount), mc).multiply(new BigDecimal(100));
-//            projectOverView.setLeadConversion(rate);
-//        } else {
-//            projectOverView.setLeadsOngoing(projectCount);
-//            projectOverView.setLeadConversion(new BigDecimal("100.00"));
-//        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectOverView);
     }
