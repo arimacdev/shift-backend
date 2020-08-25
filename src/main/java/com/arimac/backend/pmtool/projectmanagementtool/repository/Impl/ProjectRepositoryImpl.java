@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -92,7 +93,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public List<ProjectUserResponseDto> getAllProjectsByUser(String userId) {
+    public List<ProjectUserResponseDto> getAllUserAssignedProjects(String userId) {
         String sql = "SELECT * FROM Project_User AS pu INNER JOIN project AS p ON pu.projectId=p.project WHERE pu.assigneeId=? AND p.isDeleted=false AND pu.isBlocked=false";
         List<ProjectUserResponseDto> projects =  jdbcTemplate.query(sql, this.query, userId);
         return projects;
@@ -237,7 +238,11 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public List<Project> getAllProjects() {
         String sql = "SELECT * FROM project WHERE isDeleted=false";
-        return jdbcTemplate.query(sql, new Project());
+        try {
+            return jdbcTemplate.query(sql, new Project());
+        } catch (Exception e){
+            throw  new PMException(e.getMessage());
+        }
     }
 
 
