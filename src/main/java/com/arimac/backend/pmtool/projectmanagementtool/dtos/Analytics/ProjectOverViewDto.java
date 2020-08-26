@@ -1,40 +1,40 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics;
 
-public class ProjectOverViewDto<T> {
-    private AspectSummary<T> totalProjects;
-    private AspectSummary<T> leadsPending;
-    private AspectSummary<T> leadsOngoing;
-    private AspectSummary<T> leadConversion;
+public class ProjectOverViewDto {
+    private AspectSummary totalProjects;
+    private AspectSummary leadsPending;
+    private AspectSummary leadsOngoing;
+    private AspectSummary leadConversion;
 
-    public AspectSummary<T> getTotalProjects() {
+    public AspectSummary getTotalProjects() {
         return totalProjects;
     }
 
-    public void setTotalProjects(AspectSummary<T> totalProjects) {
+    public void setTotalProjects(AspectSummary totalProjects) {
         this.totalProjects = totalProjects;
     }
 
-    public AspectSummary<T> getLeadsPending() {
+    public AspectSummary getLeadsPending() {
         return leadsPending;
     }
 
-    public void setLeadsPending(AspectSummary<T> leadsPending) {
+    public void setLeadsPending(AspectSummary leadsPending) {
         this.leadsPending = leadsPending;
     }
 
-    public AspectSummary<T> getLeadsOngoing() {
+    public AspectSummary getLeadsOngoing() {
         return leadsOngoing;
     }
 
-    public void setLeadsOngoing(AspectSummary<T> leadsOngoing) {
+    public void setLeadsOngoing(AspectSummary leadsOngoing) {
         this.leadsOngoing = leadsOngoing;
     }
 
-    public AspectSummary<T> getLeadConversion() {
+    public AspectSummary getLeadConversion() {
         return leadConversion;
     }
 
-    public void setLeadConversion(AspectSummary<T> leadConversion) {
+    public void setLeadConversion(AspectSummary leadConversion) {
         this.leadConversion = leadConversion;
     }
 }

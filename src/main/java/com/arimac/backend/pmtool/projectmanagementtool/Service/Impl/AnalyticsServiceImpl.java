@@ -75,33 +75,43 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         Object error = this.dateCheck(from,to);
         if (error instanceof ErrorMessage)
             return error;
-        int projectCountGiven = projectRepository.getActiveProjectCount(from, to);
-        int projectCountTotal = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
+        int projectCountCurrent = projectRepository.getActiveProjectCount(from, to);
+        int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
 
-        ProjectStatusCountDto presalesStageGiven = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(from, to));
-        ProjectStatusCountDto presalesStageTotal = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(previousFromDate, previousToDate));
+        ProjectStatusCountDto pendingCurrent = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(from, to));
+        ProjectStatusCountDto pendingPrevious = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(previousFromDate, previousToDate));
+        if (pendingCurrent == null)
+            pendingCurrent = new ProjectStatusCountDto();
+        if (pendingPrevious == null)
+            pendingPrevious = new ProjectStatusCountDto();
 
         ProjectOverViewDto projectOverView = new ProjectOverViewDto();
-        projectOverView.setTotalProjects(getAspectSummary(projectCountGiven, projectCountTotal));
-        if (presalesStageGiven!= null && presalesStageTotal != null){
-            projectOverView.setLeadsPending(getAspectSummary(presalesStageGiven.getProjectCount(), presalesStageTotal.getProjectCount()));
-            projectOverView.setLeadsOngoing(getAspectSummary((projectCountGiven - presalesStageGiven.getProjectCount()), (projectCountTotal - presalesStageTotal.getProjectCount())));
-            projectOverView.setLeadConversion(getConversionPercentage((projectCountGiven - presalesStageGiven.getProjectCount()), projectCountGiven, (projectCountTotal - presalesStageTotal.getProjectCount()), projectCountTotal ));
-        } else {
-            projectOverView.setLeadsPending(null);
-            projectOverView.setLeadsOngoing(new AspectSummary<Integer>(projectCountGiven, this.dateCount, PerformanceEnum.neutral, new BigDecimal("0.00")));
-        }
+        projectOverView.setTotalProjects(getAspectSummary(projectCountCurrent, projectCountPrevious));
+//        if (pendingCurrent!= null && pendingPrevious != null){
+//            projectOverView.setLeadsPending(getAspectSummary(pendingCurrent.getProjectCount(), pendingPrevious.getProjectCount()));
+//            projectOverView.setLeadsOngoing(getAspectSummary((projectCountCurrent - pendingCurrent.getProjectCount()), (projectCountPrevious - pendingPrevious.getProjectCount())));
+//            projectOverView.setLeadConversion(getConversionPercentage((projectCountCurrent - pendingCurrent.getProjectCount()), projectCountCurrent, (projectCountPrevious - pendingPrevious.getProjectCount()), projectCountPrevious ));
+//        }
+//         if (pendingCurrent == null && pendingPrevious == null){
+//            projectOverView.setLeadsPending(new AspectSummary<>(this.dateCount));// check this case
+//            projectOverView.setLeadsOngoing(new AspectSummary<>(this.dateCount));
+//            projectOverView.setLeadConversion(new AspectSummary<>(this.dateCount));
+//        } else {
+             projectOverView.setLeadsPending(getAspectSummary(pendingCurrent.getProjectCount(), pendingPrevious.getProjectCount()));
+             projectOverView.setLeadsOngoing(getAspectSummary((projectCountCurrent - pendingCurrent.getProjectCount()), (projectCountPrevious - pendingPrevious.getProjectCount())));
+             projectOverView.setLeadConversion(getConversionPercentage((projectCountCurrent - pendingCurrent.getProjectCount()), projectCountCurrent, (projectCountPrevious - pendingPrevious.getProjectCount()), projectCountPrevious ));
 
+//         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectOverView);
     }
 
 
-    private AspectSummary<Integer> getAspectSummary(int given, int total){
-        AspectSummary<Integer> aspectSummary = new AspectSummary<>(given);
+    private AspectSummary<Integer> getAspectSummary(int current, int previous){
+        AspectSummary<Integer> aspectSummary = new AspectSummary<>(current);
         aspectSummary.setDays(this.dateCount);
-//        if (given != null &&  preSalesCountTotal != null){
-            aspectSummary.setValue(given);
-            aspectSummary.setPercentage(getPercentage(given,total));
+//        if (current != null &&  preSalesCountTotal != null){
+            aspectSummary.setValue(current);
+            aspectSummary.setPercentage(getPercentage(current,previous));
             if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) > 0){
                 aspectSummary.setPerformance(PerformanceEnum.increase);
             } else if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) < 0){ // not invoked
@@ -149,11 +159,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .findAny().orElse(null);
     }
 
-    private BigDecimal getPercentage(int value, int total){
-        if (total == 0)
+    private BigDecimal getPercentage(int current, int previous){
+        if (previous == 0 && current == 0)
             return new BigDecimal("0.00");
+        else if (previous == 0 && current > 0)
+            return new BigDecimal("100.00");
         MathContext mc = new MathContext(2);
-         return BigDecimal.valueOf(value - total).divide(BigDecimal.valueOf(total), mc).multiply(new BigDecimal(100));
+         return BigDecimal.valueOf(current - previous).divide(BigDecimal.valueOf(previous), mc).multiply(new BigDecimal(100));
     }
 
     private Object dateCheck(String from, String to){

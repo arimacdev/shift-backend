@@ -13,6 +13,12 @@ public class AspectSummary<T> {
     public AspectSummary() {
     }
 
+    public AspectSummary(int days) {
+        this.days = days;
+        this.performance = PerformanceEnum.neutral;
+        this.percentage = new BigDecimal("0.00");
+    }
+
     public AspectSummary(T value, int days, PerformanceEnum performance, BigDecimal percentage) {
         this.value = value;
         this.days = days;
