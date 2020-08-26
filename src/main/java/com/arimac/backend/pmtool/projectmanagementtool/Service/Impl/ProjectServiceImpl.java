@@ -175,7 +175,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (modifierProject == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if (!((modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("You don't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You don't have Admin privileges", HttpStatus.UNAUTHORIZED);
         Project updatedProject = new Project();
         if (projectEditDto.getProjectName() != null && !projectEditDto.getProjectName().isEmpty()){
             updatedProject.setProjectName(projectEditDto.getProjectName());

@@ -40,7 +40,7 @@ public class SprintServiceImpl implements SprintService {
         if (creator == null)
             return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         if ( !((creator.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (creator.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("User doesn't have Admin privileges", HttpStatus.UNAUTHORIZED);
         Sprint sprint = new Sprint();
         sprint.setSprintId(utilsService.getUUId());
         sprint.setProjectId(sprintDto.getProjectId());

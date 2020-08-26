@@ -40,17 +40,17 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers( "/users/{userId}/slack/**").hasRole(USER)
                 .antMatchers(HttpMethod.GET, "/users/project/{projectId}/**").hasRole(USER)
                 .antMatchers(HttpMethod.POST, "/projects").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers(HttpMethod.DELETE, "/projects/{projectId}").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers(HttpMethod.PUT, "/projects/{projectId}").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.DELETE, "/projects/{projectId}").hasAnyRole(ADMIN,USER,SUPER_ADMIN,ORGANIZATION_ADMIN) // check here
+                .antMatchers(HttpMethod.PUT, "/projects/{projectId}").hasAnyRole(USER,SUPER_ADMIN,ORGANIZATION_ADMIN) //check here
                 .antMatchers(HttpMethod.PUT, "/projects/{projectId}/weight").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers(HttpMethod.POST, "/projects/{projectId}/users/{userId}/block").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.POST,"/projects/{projectId}/users/{userId}/block").hasAnyRole(USER,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN) // check here
                 //workload
                 .antMatchers(HttpMethod.GET, "/projects/tasks/users/workload").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.GET, "/projects/tasks/users/{userId}/workload").hasRole(USER)
                 //projects
                 .antMatchers(HttpMethod.GET, "/projects/all").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN,WORKLOAD)
                 //filter
-                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasRole(USER) // check
                 //template
                 .antMatchers("/template/**").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //Admin
