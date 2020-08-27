@@ -2,8 +2,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -16,6 +14,7 @@ public interface ProjectRepository {
     List<String> getProjectTaskIds(String projectId);
     ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId);
     Project_User getProjectUser(String projectId, String userId);
+    Project_User getProjectUserWithBlockedStatus(String projectId, String userId);
     List<ProjectUserResponseDto> getAllUserAssignedProjects(String userId);
     void updateProject(Project project, String projectId);
     void assignUserToProject(String projectId, Project_User project_user);

@@ -2,10 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -86,6 +83,19 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project_User getProjectUser(String projectId, String userId) {
         String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=? AND isBlocked=false";
+        Project_User project_user;
+        try {
+            project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            logger.info("Error {}", e.getLocalizedMessage());
+            return null;
+        }
+        return project_user;
+    }
+
+    @Override
+    public Project_User getProjectUserWithBlockedStatus(String projectId, String userId) {
+        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=?";
         Project_User project_user;
         try {
             project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);
