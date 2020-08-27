@@ -2,7 +2,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
@@ -101,6 +100,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void updateProject(Project project, String projectId) {
+        logger.info("step 03 {}", project);
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=? WHERE project=?");
             preparedStatement.setString(1, project.getProjectName());
