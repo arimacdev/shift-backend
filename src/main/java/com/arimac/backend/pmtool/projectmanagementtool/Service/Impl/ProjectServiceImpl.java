@@ -171,9 +171,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object updateProject(String projectId, ProjectEditDto projectEditDto) {
-        logger.info("step 00 {}", projectEditDto.toString());
         ProjectUserResponseDto modifierProject = projectRepository.getProjectByIdAndUserId(projectId, projectEditDto.getModifierId());
-        logger.info("step 01 {}", modifierProject);
         if (modifierProject == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if (!((modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
@@ -199,7 +197,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         if (projectEditDto.getProjectStartDate() != null){
             String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(modifierProject.getProjectStartDate());
-            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectEndDate());
+            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectStartDate());
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.START_DATE, previousDate, updatedDate));
             updatedProject.setProjectStartDate(projectEditDto.getProjectStartDate());
         } else {
