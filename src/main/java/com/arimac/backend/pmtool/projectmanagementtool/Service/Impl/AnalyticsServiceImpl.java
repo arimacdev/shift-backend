@@ -131,9 +131,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         MathContext mc = new MathContext(2);
         BigDecimal givenRate = getPercentage(givenOngoing, givenTotalProjects);
         BigDecimal previousRate = getPercentage(previousOngoing, previousTotalProjects);
-        BigDecimal performanceRate = givenRate.divide(previousRate, mc).multiply( new BigDecimal(100));
         aspectSummary.setValue(givenRate);
-        aspectSummary.setPercentage(performanceRate);
+        if (previousRate.compareTo(BigDecimal.ZERO) == 0)
+            aspectSummary.setPercentage(givenRate.add(new BigDecimal("100")));
+        else {
+            BigDecimal performanceRate = givenRate.divide(previousRate, mc).multiply(new BigDecimal(100));
+            aspectSummary.setPercentage(performanceRate);
+        }
         if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) > 0){
             aspectSummary.setPerformance(PerformanceEnum.increase);
         } else if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) < 0){ // not invoked
@@ -165,7 +169,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         else if (previous == 0 && current > 0)
             return new BigDecimal("100.00");
         MathContext mc = new MathContext(2);
-         return BigDecimal.valueOf(current - previous).divide(BigDecimal.valueOf(previous), mc).multiply(new BigDecimal(100));
+         return BigDecimal.valueOf(current).divide(BigDecimal.valueOf(previous), mc).multiply(new BigDecimal(100)); //check here
     }
 
     private Object dateCheck(String from, String to){
@@ -179,8 +183,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 if (fromDate.after(toDate) || toDate.before(fromDate))
                     return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
                 this.dateCount = (int)( (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-                this.previousFromDate = (new Date(fromDate.getTime() - this.dateCount*(1000*60*60*24))).toString();
-                this.previousToDate = (new Date(toDate.getTime() - this.dateCount*(1000*60*60*24))).toString();
+                this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() + this.dateCount*(1000*60*60*24L)));
+                this.previousToDate = dateFormat.format(new Date(toDate.getTime() - this.dateCount*(1000*60*60*24L)));
             return null;
             } catch (ParseException e) {
                 return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
