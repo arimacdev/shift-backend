@@ -3,7 +3,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
@@ -144,6 +143,8 @@ public class IdpUserServiceImpl implements IdpUserService {
         catch(HttpClientErrorException | HttpServerErrorException e) {
             String response = e.getResponseBodyAsString();
             logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND)
+                return null;
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();
                 return getUserByIdpUserId(idpUserId, false);

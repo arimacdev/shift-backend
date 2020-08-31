@@ -9,13 +9,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +35,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith(BEARER)) {
         token = token.substring(7);
@@ -48,20 +43,31 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
         DecodedJWT jwt = null;
         try {
             jwt = JWT.decode(token);
+            logger.info("request URI {}", request.getRequestURI());
             logger.info("jwt subject {}", jwt.getSubject());
             User user = userRepository.getUserByIdpUserId(jwt.getSubject());
             logger.info("INTERCEPTOR USER {}", user);
+            JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
+            if (idpUser == null) {
+                response.sendError(400);
+                return false;
+            }
             if (user == null) {
-                JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
-                User newUser = new User();
-                newUser.setUserId(utilsService.getUUId());
-                newUser.setIdpUserId(jwt.getSubject());
-                newUser.setUsername(idpUser.getString("username"));
-                newUser.setFirstName(idpUser.getString("firstName"));
-                newUser.setLastName(idpUser.getString("lastName"));
-                newUser.setEmail(idpUser.getString("email"));
-                userRepository.createUser(newUser);
-                idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
+                try {
+                    User newUser = new User();
+                    newUser.setUserId(utilsService.getUUId());
+                    newUser.setIdpUserId(jwt.getSubject());
+                    newUser.setUsername(idpUser.getString("username"));
+                    newUser.setFirstName(idpUser.getString("firstName"));
+                    newUser.setLastName(idpUser.getString("lastName"));
+                    newUser.setEmail(idpUser.getString("email"));
+                    userRepository.createUser(newUser);
+                    idpUserService.addUserAttributes(jwt.getSubject(), newUser.getUserId(), true);
+                } catch (Exception e){
+                    logger.info("Exception {}", e.getMessage());
+                  //  idpUserService.deleteUserFromIdp(jwt.getSubject(), true);
+                }
+
                 //idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
 
                 JSONObject jsonObject = new JSONObject();
@@ -75,12 +81,13 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
             } else if (!user.getIsActive()) {
                 response.sendError(401);
                 return false;
-            } else
-                return true;
+            } else {
+                return  true;
+            }
         } catch (Exception e) {
-            logger.info("JWT Exception", e);
-            if (jwt !=null)
-                idpUserService.deleteUserFromIdp(jwt.getSubject(), true);
+            logger.info("Exception", e);
+//            if (jwt !=null)
+//                idpUserService.deleteUserFromIdp(jwt.getSubject(), true);
             response.sendError(400);
             return false;
         }

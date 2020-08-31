@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
@@ -129,10 +130,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> getAllProjectUsers(String projectId) {
-        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=false";
-        List<User> userList = jdbcTemplate.query(sql, new User(), projectId);
-        return userList;
+    public List<Project_UserDto> getAllProjectUsers(String projectId) {
+        String sql = "SELECT u.*, pu.isBlocked FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=false";
+        return jdbcTemplate.query(sql, new Project_UserDto(), projectId);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM Project_User as pu " +
                 "LEFT JOIN User as u ON pu.assigneeId = u.userId " +
                 "LEFT JOIN ProjectRole as pr ON pu.assigneeProjectRole = pr.projectRoleId " +
-                "WHERE pu.projectId = ? AND pu.isBlocked=false";
+                "WHERE pu.projectId = ? AND u.isActive=true";
         List<UserProjectDto> userProjectDtoList = jdbcTemplate.query(sql ,new UserProjectDto(), projectId);
         return userProjectDtoList;
     }

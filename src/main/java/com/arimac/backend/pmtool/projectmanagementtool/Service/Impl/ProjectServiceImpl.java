@@ -309,10 +309,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object blockOrUnBlockProjectUser(String userId, String projectId, ProjectUserBlockDto projectUserBlockDto) {
-        ProjectUserResponseDto executor = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        Project_User executor = projectRepository.getProjectUser(projectId, projectUserBlockDto.getExecutorId());
         if (executor == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-         ProjectUserResponseDto userTobeBlocked = projectRepository.getProjectByIdAndUserId(projectId, projectUserBlockDto.getBlockedUserId());
+        Project_User userTobeBlocked = projectRepository.getProjectUserWithBlockedStatus(projectId, projectUserBlockDto.getBlockedUserId());
         if (userTobeBlocked == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if (userTobeBlocked.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())
