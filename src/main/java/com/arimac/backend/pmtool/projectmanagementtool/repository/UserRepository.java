@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
@@ -18,7 +19,7 @@ public interface UserRepository {
     User getUserWithFlag(String userId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
     void updateProfilePicture(String userId, String profilePictureUrl);
-    List<User> getAllProjectUsers(String projectId);
+    List<Project_UserDto> getAllProjectUsers(String projectId);
     List<UserProjectDto> getUsersProjectDetails(String projectId);
     List<UserTaskGroupDto> getUsersTaskGroupDetails(String taskGroupId);
     Object getAllBlockedProjectUsers(String projectId);
