@@ -58,12 +58,15 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     }
 
     @Override
-    public Object getTaskActivity(String userId, String taskId, int startIndex, int endIndex) {
-        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
-            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+    public Object getTaskActivity(String userId, String taskId, int startIndex, int endIndex, boolean allLogs) {
         int limit = endIndex - startIndex;
-        if (limit > 10)
-            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!allLogs) {
+            if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+                return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+            if (limit > 10)
+                return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        /////////////////////////USER ID //////////////////////////////////////////////////
         Task task = taskRepository.getProjectTask(taskId);
         if (task == null) //////// CHECK
             return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -79,6 +82,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
         int limit = endIndex - startIndex;
+        /////////////////////////USER ID //////////////////////////////////////////////////
         Project project = projectRepository.getProjectById(projectId);
         if (project == null)
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);

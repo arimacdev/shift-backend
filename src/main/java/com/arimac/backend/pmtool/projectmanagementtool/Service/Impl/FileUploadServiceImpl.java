@@ -301,7 +301,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     private boolean checkFileSize(MultipartFile multipartFile){
-        double fileSizeInMb;
+        double fileSizeInMb; ///////////// check here
         try {
              fileSizeInMb = (double) multipartFile.getSize() / 1000000;
         } catch (Exception e){

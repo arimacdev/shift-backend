@@ -12,6 +12,7 @@ public class ProjectStatusCountDto implements RowMapper<ProjectStatusCountDto> {
 
 
     public ProjectStatusCountDto() {
+        this.projectCount = 0; ///////////////check here
     }
 
     public ProjectStatusCountDto(ProjectStatusEnum projectStatus, int projectCount) {

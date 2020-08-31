@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("internal/")
+@RequestMapping("/internal/")
 public class InternalController extends ResponseController {
 
     private final InternalService internalService;
