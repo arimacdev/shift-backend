@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
@@ -7,10 +8,12 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ProjectRepository {
     Project createProject(Project project);
     Project getProjectById(String projectId);
+    Project findProjectByName(String name);
     List<String> getProjectTaskIds(String projectId);
     ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId);
     Project_User getProjectUser(String projectId, String userId);
@@ -32,6 +35,7 @@ public interface ProjectRepository {
     //Analytics
     int getActiveProjectCount(String from, String to);
     List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to);
+    List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key);
 
 
 }

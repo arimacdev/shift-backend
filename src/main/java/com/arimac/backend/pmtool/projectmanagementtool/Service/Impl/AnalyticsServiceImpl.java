@@ -2,13 +2,16 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.AnlyticsOverviewDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.AspectSummary;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectOverViewDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.AnlyticsOverviewDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.AspectSummary;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectOverViewDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.PerformanceEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -23,9 +26,7 @@ import java.math.MathContext;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
@@ -48,7 +49,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public Object getOrgOverview(String userId, String from, String to) {
-        Object error = this.dateCheck(from,to);
+        Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
         User user = userRepository.getUserByUserId(userId);
@@ -72,9 +73,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public Object getProjectOverview(String userId, String from, String to) {
-        Object error = this.dateCheck(from,to);
+        Object error = this.dateCheck(from,to,true);
         if (error instanceof ErrorMessage)
             return error;
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         int projectCountCurrent = projectRepository.getActiveProjectCount(from, to);
         int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
 
@@ -103,6 +107,26 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
 //         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectOverView);
+    }
+
+    @Override
+    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key) {
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
+        if ((key == null || key.isEmpty()) )
+            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        if (status.size() > 1 && status.contains(ALL))
+            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        for (String projectStatus: status ){
+            if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
+                return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        }
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
     }
 
 
@@ -172,7 +196,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
          return BigDecimal.valueOf(current).divide(BigDecimal.valueOf(previous), mc).multiply(new BigDecimal(100)); //check here
     }
 
-    private Object dateCheck(String from, String to){
+    private Object dateCheck(String from, String to, boolean setDate){
         Date fromDate;
         Date toDate;
         if (!from.equals(ALL) || !to.equals(ALL)) {
@@ -182,9 +206,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 toDate = dateFormat.parse(to);
                 if (fromDate.after(toDate) || toDate.before(fromDate))
                     return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
-                this.dateCount = (int)( (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-                this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() + this.dateCount*(1000*60*60*24L)));
-                this.previousToDate = dateFormat.format(new Date(toDate.getTime() - this.dateCount*(1000*60*60*24L)));
+                if (setDate) {
+                    this.dateCount = (int) ((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
+                    this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() + this.dateCount * (1000 * 60 * 60 * 24L)));
+                    this.previousToDate = dateFormat.format(new Date(toDate.getTime() - this.dateCount * (1000 * 60 * 60 * 24L)));
+                }
             return null;
             } catch (ParseException e) {
                 return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
