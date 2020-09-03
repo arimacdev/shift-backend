@@ -18,7 +18,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -334,7 +337,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 keyQuery +
                 "GROUP BY projectName " +
                 "ORDER BY taskCount DESC";
+       // List<Map<String, Object>> mapList =  namedParameterJdbcTemplate.queryForList(sql, parameters);
+        HashMap<String,String> results = new HashMap<>();
+
         return namedParameterJdbcTemplate.query(sql, parameters, new ProjectSummaryDto());
+
+
     }
 
 

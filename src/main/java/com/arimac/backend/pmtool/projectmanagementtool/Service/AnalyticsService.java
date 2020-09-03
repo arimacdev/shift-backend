@@ -6,4 +6,6 @@ public interface AnalyticsService {
     Object getOrgOverview(String userId, String from, String to);
     Object getProjectOverview(String userId, String from, String to);
     Object getProjectSummary(String userId, String from, String to, Set<String> status, String key);
+
+    Object getTaskRate(String userId, String from, String to);
 }

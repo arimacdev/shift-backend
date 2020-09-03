@@ -11,7 +11,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.Perfo
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
@@ -26,7 +25,11 @@ import java.math.MathContext;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
@@ -122,11 +125,40 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         }
-        User user = userRepository.getUserByUserId(userId);
-        if (user == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key);
+//        User user = userRepository.getUserByUserId(userId);
+//        if (user == null)
+//            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
+    }
+
+    @Override
+    public Object getTaskRate(String userId, String from, String to) {
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        String text = from.format(formatters);
+//
+//        try {
+//            Date fromDate = dateFormat.parse(from);
+//            Date toDate = dateFormat.parse(to);
+//            List<String> allDatesString = new ArrayList<String>();
+//            while (fromDate.before(toDate)) {
+//
+//            }
+//
+//            long numOfDaysBetween = ChronoUnit.DAYS.between(fromDate, toDate);
+//            return IntStream.iterate(0, i -> i + 1)
+//                    .limit(numOfDaysBetween)
+//                    .mapToObj(i -> fromDate.plusDays(i))
+//                    .collect(Collectors.toList());
+//
+//
+//
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//
+        return null;
     }
 
 

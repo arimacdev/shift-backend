@@ -200,22 +200,16 @@ public class UserServiceImpl implements UserService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userList);
     }
 
-//            "userId": "138bbb3d-02ed-4d72-9a03-7e8cdfe89eff",
-//            "idpUserId": "2f0bc921-2f90-4828-b078-d48f4300b1bb",
-//            "username": "naveen",
-//            "firstName": "Naveen",
-//            "lastName": "Perera",
-//            "email": "naveenperera@gmail.com",
-//            "profileImage": "https://arimac-pmtool.s3-ap-southeast-1.amazonaws.com/profileImage_1595328952869_image-653cb615-35fd-4997-b6b2-58f9fba8f276.jpg",
-//            "userSlackId": "UT2HT4ZPU",
-//            "notification": true,
-//            "isActive": true
-
     @Override
     public Object getAllBlockedProjectUsers(String projectId) {
-        userRepository.getAllBlockedProjectUsers(projectId);
         return null;
     }
+
+//    @Override
+//    public Object getAllBlockedProjectUsers(String projectId) {
+//        userRepository.getAllBlockedProjectUsers(projectId);
+//        return null;
+//    }
 
     @Override
     public Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto) {
