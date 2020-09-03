@@ -22,7 +22,6 @@ public interface UserRepository {
     List<Project_UserDto> getAllProjectUsers(String projectId);
     List<UserProjectDto> getUsersProjectDetails(String projectId);
     List<UserTaskGroupDto> getUsersTaskGroupDetails(String taskGroupId);
-    Object getAllBlockedProjectUsers(String projectId);
     void addSlackIdToUser(String userId, String slackId);
     void updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto);
     void changeUserUpdateStatus(String userId, boolean status);

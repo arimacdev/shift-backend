@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project;
 
 public class AnlyticsOverviewDto {
     private int activeUsers;

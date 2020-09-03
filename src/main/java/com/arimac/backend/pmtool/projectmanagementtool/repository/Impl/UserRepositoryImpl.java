@@ -48,7 +48,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAllUsers() {
-        String sql = "SELECT * FROM User";
+        String sql = "SELECT * FROM User WHERE isActive=true";
         List<User> userList = jdbcTemplate.query(sql, new User());
         return userList;
     }
@@ -100,7 +100,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User getUserWithFlag(String userId) {
-        return null;
+        String sql = "SELECT * FROM User WHERE userId=? AND isActive=false";
+        User user = null;
+        try {
+            user = jdbcTemplate.queryForObject(sql,new User(), userId);
+        } catch (EmptyResultDataAccessException e){
+        }
+        return user;
     }
 
     @Override
@@ -152,13 +158,13 @@ public class UserRepositoryImpl implements UserRepository {
         return taskGroupDtoList;
     }
 
-    @Override
-    public Object getAllBlockedProjectUsers(String projectId) {
-        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User" +
-                " as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?" +
-                " AND isBlocked=true";
-        return null;
-    }
+//    @Override
+//    public Object getAllBlockedProjectUsers(String projectId) {
+//        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User" +
+//                " as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?" +
+//                " AND isBlocked=true";
+//        return null;
+//    }
 
     @Override
     public void addSlackIdToUser(String userId, String slackId) {

@@ -2,11 +2,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.AnlyticsOverviewDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.AspectSummary;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectOverViewDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.AnlyticsOverviewDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.AspectSummary;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectOverViewDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.PerformanceEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
@@ -23,9 +25,11 @@ import java.math.MathContext;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
@@ -48,7 +52,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public Object getOrgOverview(String userId, String from, String to) {
-        Object error = this.dateCheck(from,to);
+        Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
         User user = userRepository.getUserByUserId(userId);
@@ -72,9 +76,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public Object getProjectOverview(String userId, String from, String to) {
-        Object error = this.dateCheck(from,to);
+        Object error = this.dateCheck(from,to,true);
         if (error instanceof ErrorMessage)
             return error;
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         int projectCountCurrent = projectRepository.getActiveProjectCount(from, to);
         int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
 
@@ -105,6 +112,55 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectOverView);
     }
 
+    @Override
+    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key) {
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
+        if ((key == null || key.isEmpty()) )
+            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        if (status.size() > 1 && status.contains(ALL))
+            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        for (String projectStatus: status ){
+            if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
+                return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        }
+//        User user = userRepository.getUserByUserId(userId);
+//        if (user == null)
+//            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
+    }
+
+    @Override
+    public Object getTaskRate(String userId, String from, String to) {
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        String text = from.format(formatters);
+//
+//        try {
+//            Date fromDate = dateFormat.parse(from);
+//            Date toDate = dateFormat.parse(to);
+//            List<String> allDatesString = new ArrayList<String>();
+//            while (fromDate.before(toDate)) {
+//
+//            }
+//
+//            long numOfDaysBetween = ChronoUnit.DAYS.between(fromDate, toDate);
+//            return IntStream.iterate(0, i -> i + 1)
+//                    .limit(numOfDaysBetween)
+//                    .mapToObj(i -> fromDate.plusDays(i))
+//                    .collect(Collectors.toList());
+//
+//
+//
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//
+        return null;
+    }
+
 
     private AspectSummary<Integer> getAspectSummary(int current, int previous){
         AspectSummary<Integer> aspectSummary = new AspectSummary<>(current);
@@ -131,9 +187,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         MathContext mc = new MathContext(2);
         BigDecimal givenRate = getPercentage(givenOngoing, givenTotalProjects);
         BigDecimal previousRate = getPercentage(previousOngoing, previousTotalProjects);
-        BigDecimal performanceRate = givenRate.divide(previousRate, mc).multiply( new BigDecimal(100));
         aspectSummary.setValue(givenRate);
-        aspectSummary.setPercentage(performanceRate);
+        if (previousRate.compareTo(BigDecimal.ZERO) == 0)
+            aspectSummary.setPercentage(givenRate.add(new BigDecimal("100")));
+        else {
+            BigDecimal performanceRate = givenRate.divide(previousRate, mc).multiply(new BigDecimal(100));
+            aspectSummary.setPercentage(performanceRate);
+        }
         if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) > 0){
             aspectSummary.setPerformance(PerformanceEnum.increase);
         } else if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) < 0){ // not invoked
@@ -165,10 +225,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         else if (previous == 0 && current > 0)
             return new BigDecimal("100.00");
         MathContext mc = new MathContext(2);
-         return BigDecimal.valueOf(current - previous).divide(BigDecimal.valueOf(previous), mc).multiply(new BigDecimal(100));
+         return BigDecimal.valueOf(current).divide(BigDecimal.valueOf(previous), mc).multiply(new BigDecimal(100)); //check here
     }
 
-    private Object dateCheck(String from, String to){
+    private Object dateCheck(String from, String to, boolean setDate){
         Date fromDate;
         Date toDate;
         if (!from.equals(ALL) || !to.equals(ALL)) {
@@ -178,9 +238,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 toDate = dateFormat.parse(to);
                 if (fromDate.after(toDate) || toDate.before(fromDate))
                     return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
-                this.dateCount = (int)( (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-                this.previousFromDate = (new Date(fromDate.getTime() - this.dateCount*(1000*60*60*24))).toString();
-                this.previousToDate = (new Date(toDate.getTime() - this.dateCount*(1000*60*60*24))).toString();
+                if (setDate) {
+                    this.dateCount = (int) ((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
+                    this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() + this.dateCount * (1000 * 60 * 60 * 24L)));
+                    this.previousToDate = dateFormat.format(new Date(toDate.getTime() - this.dateCount * (1000 * 60 * 60 * 24L)));
+                }
             return null;
             } catch (ParseException e) {
                 return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
