@@ -117,7 +117,8 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
                         dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
                 }, from, to);
-                return dateCountMap;            }
+                return dateCountMap;
+            }
 
         } catch (Exception e){
             throw new PMException(e.getMessage());
