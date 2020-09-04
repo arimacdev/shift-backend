@@ -1,22 +1,25 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ActivityLog.UserActivityLog;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ActivityLog;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
-import io.swagger.models.auth.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class ActivityLogRepositoryImpl implements ActivityLogRepository {
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private static final String ALL = "all";
 
 
     public ActivityLogRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -81,5 +84,43 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
     public void flagEntityActivityLogs(String entityId) {
         String sql = "UPDATE ActivityLog SET isDeleted=true WHERE entityId=? AND operation!=?";
         jdbcTemplate.update(sql, entityId, "FLAG");
+    }
+
+    @Override
+    public HashMap<String, Integer> getClosedTaskCount(String from, String to, ChartCriteriaEnum criteria) {
+        String sql;
+        String dateFormat;
+        if (criteria.equals(ChartCriteriaEnum.DAY))
+            dateFormat = "DATE_FORMAT(actionTimestamp,'%Y-%m-%d') ";
+        else if (criteria.equals(ChartCriteriaEnum.MONTH))
+            dateFormat = "DATE_FORMAT(actionTimestamp,'%Y-%m') ";
+        else
+            dateFormat = "DATE_FORMAT(actionTimestamp,'%Y') ";
+        HashMap<String,Integer> dateCountMap = new HashMap<>();
+        try {
+            if (from.equals(ALL) && to.equals(ALL)){
+                sql = "SELECT " + dateFormat +  "as Date, COUNT(entityId) as taskCount " +
+                        "FROM ActivityLog WHERE entityType = 'Task' AND operation = 'UPDATE' AND updatedvalue = 'closed' AND isDeleted=false" +
+                        "GROUP BY " + dateFormat;
+                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    while (rs.next()) {
+                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+                    }
+                });
+                return dateCountMap;
+            } else {
+                sql = "SELECT " + dateFormat +  "as Date, COUNT(entityId) as taskCount " +
+                        "FROM ActivityLog WHERE entityType = 'Task' AND operation = 'UPDATE' AND updatedvalue = 'closed' AND isDeleted=false AND actionTimestamp BETWEEN ? AND ?" +
+                        "GROUP BY " + dateFormat;
+                 jdbcTemplate.query(sql,  (ResultSet rs) -> {
+                    while (rs.next()) {
+                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+                    }
+                }, from, to);
+                return dateCountMap;            }
+
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 }
