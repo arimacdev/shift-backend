@@ -53,9 +53,12 @@ public class CommentsController extends ResponseController {
     @ApiOperation(value = "Get Comments of a Task", notes = "Get Comments of a Task")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/task/{taskId}/comment")
-    public ResponseEntity<Object> getTaskComments(@RequestHeader("userId") String userId, @PathVariable("taskId") String taskId,  @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex){
-        logger.info("HIT - GET task/<taskId>/comment---> getTaskComments | taskId: {} | userId: {} | start {} | end {}", taskId, userId, startIndex, endIndex);
-        return sendResponse(commentService.getTaskComments(userId, taskId, startIndex, endIndex));
+    public ResponseEntity<Object> getTaskComments(@RequestHeader("userId") String userId, @PathVariable("taskId") String taskId,  @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex,
+                                                  //To be Removed
+                                                  @RequestParam("allComments") boolean allComments
+                                                  ){
+        logger.info("HIT - GET task/<taskId>/comment---> getTaskComments | taskId: {} | userId: {} | start {} | end {} true {}", taskId, userId, startIndex, endIndex, allComments);
+        return sendResponse(commentService.getTaskComments(userId, taskId, startIndex, endIndex, allComments));
     }
 
     @ApiOperation(value = "Add/Update a Reaction to a Comment", notes = "Add/Update a Reaction to a Comment")

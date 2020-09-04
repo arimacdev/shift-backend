@@ -93,12 +93,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Object getTaskComments(String userId, String taskId, int startIndex, int endIndex) {
-        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
-            return new ErrorMessage("Invalid Start/End Index Combination", HttpStatus.BAD_REQUEST);
+    public Object getTaskComments(String userId, String taskId, int startIndex, int endIndex, boolean allComments) {
         int limit = endIndex - startIndex;
-        if (limit > 11)
-            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!allComments) {
+            if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+                return new ErrorMessage("Invalid Start/End Index Combination", HttpStatus.BAD_REQUEST);
+            if (limit > 11)
+                return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);

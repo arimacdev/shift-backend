@@ -10,10 +10,12 @@ public interface IdpUserService {
     JSONObject getUserByIdpUserId(String idpUserId, boolean firstRequest);
     void updateUserPassword(String idpUserId, boolean firstRequest, String password);
     void updateUserEmail(String idpUserId, String email, boolean firstRequest);
+    void addUserAttributes(String idpUserId, String UUID, boolean firstRequest);
     void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest);
     JSONArray getAllRealmRoles(boolean firstRequest);
     void addRoleToUser(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
     void removerUserRole(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
     JSONArray getAllUserRoleMappings(String idpUserId, boolean firstRequest);
     void removeAllAssociatedUserSessions(String idpUserId, boolean firstRequest);
+    void deleteUserFromIdp(String idpUserId, boolean firstRequest);
 }

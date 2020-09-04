@@ -196,15 +196,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object getAllProjectUsers(String projectId) {
-        List<User> userList = userRepository.getAllProjectUsers(projectId);
+        List<Project_UserDto> userList = userRepository.getAllProjectUsers(projectId);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userList);
     }
 
     @Override
     public Object getAllBlockedProjectUsers(String projectId) {
-        userRepository.getAllBlockedProjectUsers(projectId);
         return null;
     }
+
+//    @Override
+//    public Object getAllBlockedProjectUsers(String projectId) {
+//        userRepository.getAllBlockedProjectUsers(projectId);
+//        return null;
+//    }
 
     @Override
     public Object addSlackIdToUser(String userId, SlackNotificationDto slackNotificationDto) {

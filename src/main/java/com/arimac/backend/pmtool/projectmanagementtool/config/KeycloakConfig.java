@@ -56,7 +56,8 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 //Admin
                 .antMatchers("/users/activate").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers("/users/deactivate").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers("/admin/**").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers("/admin/user/roles").hasAnyRole(USER,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers("/admin/**").hasAnyRole(USER,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //Skill Matrix  CHeck LAter
                 .antMatchers(HttpMethod.GET, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.POST, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)

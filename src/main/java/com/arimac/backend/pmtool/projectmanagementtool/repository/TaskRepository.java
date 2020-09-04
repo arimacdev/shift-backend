@@ -1,12 +1,14 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface TaskRepository {
@@ -43,6 +45,11 @@ public interface TaskRepository {
     boolean checkChildTasksOfAParentTask(String taskId);
     List<TaskUserDto> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
     void updateTaskWeightsToDefault(String projectId);
+    //Analytics
+    int getActiveTaskCount(String from, String to);
+    int getClosedTaskCount(String from, String to);
+    HashMap<String, Integer> getTaskCreationByDate(String from, String to, ChartCriteriaEnum criteria);
+
 
     //QUERIES FOR INTERNAL PURPOSES
     void updateProjectAlias(String taskId, String taskAlias);

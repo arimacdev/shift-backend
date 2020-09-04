@@ -1,5 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
@@ -11,19 +13,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class ProjectRepositoryImpl implements ProjectRepository {
+    private static final String ALL = "all";
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public ProjectRepositoryImpl(JdbcTemplate jdbcTemplate) {
+
+    public ProjectRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Override
@@ -58,6 +70,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
+    public Project findProjectByName(String name) {
+        String sql = "SELECT * FROM project WHERE projectName=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project(), name);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
     public List<String> getProjectTaskIds(String projectId) {
         String sql = "SELECT taskId from Task where projectId=?";
         return jdbcTemplate.queryForList(sql, new Object[] {projectId}, String.class);
@@ -81,6 +103,19 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project_User getProjectUser(String projectId, String userId) {
         String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=? AND isBlocked=false";
+        Project_User project_user;
+        try {
+            project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            logger.info("Error {}", e.getLocalizedMessage());
+            return null;
+        }
+        return project_user;
+    }
+
+    @Override
+    public Project_User getProjectUserWithBlockedStatus(String projectId, String userId) {
+        String sql = "SELECT * FROM Project_User WHERE assigneeId=? AND projectId=?";
         Project_User project_user;
         try {
             project_user =  jdbcTemplate.queryForObject(sql, new Project_User(), userId, projectId);
@@ -245,6 +280,73 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
     }
 
+    @Override
+    public int getActiveProjectCount(String from, String to) {
+        String sql;
+        try {
+        if (from.equals(ALL) && to.equals(ALL)) {
+            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false";
+            return jdbcTemplate.queryForObject(sql, Integer.class);
+        }
+        else {
+            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{from,to}, Integer.class);
+        }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+     @Override
+    public List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to) {
+        String sql;
+        try {
+            if (from.equals(ALL) && to.equals(ALL)) {
+                sql = "SELECT projectStatus, COUNT(*) as projectCount FROM project WHERE isDeleted=false GROUP BY projectStatus ORDER BY projectCount DESC";
+                return jdbcTemplate.query(sql, new ProjectStatusCountDto());
+            }
+            else {
+                sql = "SELECT projectStatus, COUNT(*) as projectCount FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ? GROUP BY projectStatus ORDER BY projectCount DESC";
+                return jdbcTemplate.query(sql, new ProjectStatusCountDto(), from, to);
+            }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key) {
+        String sql;
+        String betweenQuery = "";
+        String statusQuery = "";
+        String keyQuery = "";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        if (!from.equals(ALL) && !to.equals(ALL)) {
+            betweenQuery = "AND projectStartDate BETWEEN :fromDate AND :toDate ";
+            parameters.addValue("fromDate", from);
+            parameters.addValue("toDate", to);
+        }
+        if (!status.contains(ALL)){
+            statusQuery = "AND projectStatus IN (:statusList) ";
+            parameters.addValue("statusList", status);
+        }
+        if (!key.equals(ALL) || this.findProjectByName(ALL) != null){
+            keyQuery = "AND projectName LIKE :projectName ";
+            parameters.addValue("projectName", "%" + key + "%");
+        }
+        sql = "SELECT COUNT(taskId) AS taskCount, projectName, COUNT(case when taskStatus = 'closed' then 1 end) AS closed " +
+                "FROM project AS P LEFT JOIN Task T on P.project = T.projectId " +
+                "WHERE (T.isDeleted = false OR P.isDeleted = false) " +
+                betweenQuery +
+                statusQuery +
+                keyQuery +
+                "GROUP BY projectName " +
+                "ORDER BY taskCount DESC";
+
+        return namedParameterJdbcTemplate.query(sql, parameters, new ProjectSummaryDto());
+
+
+    }
 
 
 }

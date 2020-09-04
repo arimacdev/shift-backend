@@ -141,10 +141,9 @@ public class ProjectServiceImpl implements ProjectService {
 //        ProjectUserResponseDto assigneeProject = projectRepository.getProjectByIdAndUserId(projectId, userAssignDto.getAssigneeId()); // Check project assignee is vacant
 //        if (assigneeProject != null)
 //            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNAUTHORIZED);
-        Project_User project_user = projectRepository.getProjectUser(projectId, userAssignDto.getAssigneeId());
+        Project_User project_user = projectRepository.getProjectUserWithBlockedStatus(projectId, userAssignDto.getAssigneeId());
 //        if (project_user != null && !project_user.getIsBlocked())
 //            return new ErrorMessage(ResponseMessage.ALREADY_ASSIGNED, HttpStatus.UNPROCESSABLE_ENTITY);
-
         if (project_user == null) {
             Project_User assignment = new Project_User();
             assignment.setProjectId(projectId);
@@ -310,10 +309,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object blockOrUnBlockProjectUser(String userId, String projectId, ProjectUserBlockDto projectUserBlockDto) {
-        ProjectUserResponseDto executor = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        Project_User executor = projectRepository.getProjectUser(projectId, projectUserBlockDto.getExecutorId());
         if (executor == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-         ProjectUserResponseDto userTobeBlocked = projectRepository.getProjectByIdAndUserId(projectId, projectUserBlockDto.getBlockedUserId());
+        Project_User userTobeBlocked = projectRepository.getProjectUserWithBlockedStatus(projectId, projectUserBlockDto.getBlockedUserId());
         if (userTobeBlocked == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if (userTobeBlocked.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())

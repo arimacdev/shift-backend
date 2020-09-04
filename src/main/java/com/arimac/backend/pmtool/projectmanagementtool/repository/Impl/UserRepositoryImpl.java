@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
@@ -47,7 +48,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAllUsers() {
-        String sql = "SELECT * FROM User";
+        String sql = "SELECT * FROM User WHERE isActive=true";
         List<User> userList = jdbcTemplate.query(sql, new User());
         return userList;
     }
@@ -86,8 +87,26 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public User getUserByIdpUserId(String idpUserId) {
+        String sql = "SELECT * FROM User WHERE idpUserId=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new User(), idpUserId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public User getUserWithFlag(String userId) {
-        return null;
+        String sql = "SELECT * FROM User WHERE userId=? AND isActive=false";
+        User user = null;
+        try {
+            user = jdbcTemplate.queryForObject(sql,new User(), userId);
+        } catch (EmptyResultDataAccessException e){
+        }
+        return user;
     }
 
     @Override
@@ -117,10 +136,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> getAllProjectUsers(String projectId) {
-        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=false";
-        List<User> userList = jdbcTemplate.query(sql, new User(), projectId);
-        return userList;
+    public List<Project_UserDto> getAllProjectUsers(String projectId) {
+        String sql = "SELECT u.*, pu.isBlocked FROM User AS u LEFT JOIN Project_User as pu ON pu.assigneeId = u.userId WHERE pu.projectId=? AND isBlocked=false";
+        return jdbcTemplate.query(sql, new Project_UserDto(), projectId);
     }
 
     @Override
@@ -128,7 +146,7 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "SELECT * FROM Project_User as pu " +
                 "LEFT JOIN User as u ON pu.assigneeId = u.userId " +
                 "LEFT JOIN ProjectRole as pr ON pu.assigneeProjectRole = pr.projectRoleId " +
-                "WHERE pu.projectId = ? AND pu.isBlocked=false";
+                "WHERE pu.projectId = ? AND u.isActive=true";
         List<UserProjectDto> userProjectDtoList = jdbcTemplate.query(sql ,new UserProjectDto(), projectId);
         return userProjectDtoList;
     }
@@ -140,13 +158,13 @@ public class UserRepositoryImpl implements UserRepository {
         return taskGroupDtoList;
     }
 
-    @Override
-    public Object getAllBlockedProjectUsers(String projectId) {
-        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User" +
-                " as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?" +
-                " AND isBlocked=true";
-        return null;
-    }
+//    @Override
+//    public Object getAllBlockedProjectUsers(String projectId) {
+//        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User" +
+//                " as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?" +
+//                " AND isBlocked=true";
+//        return null;
+//    }
 
     @Override
     public void addSlackIdToUser(String userId, String slackId) {
@@ -180,6 +198,16 @@ public class UserRepositoryImpl implements UserRepository {
 
             return preparedStatement;
         });
+    }
+
+    @Override
+    public int getActiveUserCount(String from, String to) {
+        String sql = "SELECT COUNT(*) FROM User WHERE isActive=true";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
 

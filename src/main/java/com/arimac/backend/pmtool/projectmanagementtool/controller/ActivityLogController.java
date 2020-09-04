@@ -26,9 +26,15 @@ public class ActivityLogController extends ResponseController {
     @ApiOperation(value = "Get Logs of a Task", notes = "Get all task logs")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<Object> getAllTaskLogs(@PathVariable("taskId") String taskId, @RequestHeader("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex){
-        logger.info("HIT - GET activity/task/<taskId> ---> getAllLogs of a Task  Task: {} | User: {} | Start: {}| End: {}", taskId, userId,startIndex,endIndex);
-        return sendResponse(activityLogService.getTaskActivity(userId, taskId,startIndex,endIndex));
+    public ResponseEntity<Object> getAllTaskLogs(@PathVariable("taskId") String taskId, @RequestHeader("userId") String userId, @RequestParam("startIndex") int startIndex,
+                                                 @RequestParam("endIndex") int endIndex,
+                                                 //TO be removed
+                                                 @RequestParam("allLogs") boolean allLogs
+    )
+
+    {
+        logger.info("HIT - GET activity/task/<taskId> ---> getAllLogs of a Task  Task: {} | User: {} | Start: {}| End: {}: allLogs: {}", taskId, userId,startIndex,endIndex,allLogs);
+        return sendResponse(activityLogService.getTaskActivity(userId, taskId,startIndex,endIndex,allLogs));
     }
 
     @ApiOperation(value = "Get Logs of a Project With Task Logs", notes = "Get all project logs")

@@ -3,7 +3,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.UserRoleDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserRegistrationDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
@@ -144,6 +143,8 @@ public class IdpUserServiceImpl implements IdpUserService {
         catch(HttpClientErrorException | HttpServerErrorException e) {
             String response = e.getResponseBodyAsString();
             logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND)
+                return null;
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();
                 return getUserByIdpUserId(idpUserId, false);
@@ -214,6 +215,35 @@ public class IdpUserServiceImpl implements IdpUserService {
         } catch (Exception e) {
             throw new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public void addUserAttributes(String idpUserId, String UUID, boolean firstRequest) {
+        try {
+            HttpHeaders httpHeaders = getIdpTokenHeader();
+            JSONObject updatePayload = new JSONObject();
+            Map<String,String> attributes = new HashMap<>();
+            attributes.put("userId", UUID);
+            updatePayload.put("attributes",attributes);
+            HttpEntity<Object> entity = new HttpEntity<>(updatePayload.toString(), httpHeaders);
+            StringBuilder userUpdateUrl = new StringBuilder();
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userUpdateUrl.append("/auth/admin/realms/");
+            userUpdateUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userUpdateUrl.append("/users/");
+            userUpdateUrl.append(idpUserId);
+            logger.info("User update URL {}", userUpdateUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userUpdateUrl.toString(), HttpMethod.PUT, entity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                addUserAttributes(idpUserId, UUID, false);
+            }
+            throw new PMException(e.getLocalizedMessage());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+
     }
 
     @Override
@@ -366,7 +396,6 @@ public class IdpUserServiceImpl implements IdpUserService {
     public void removeAllAssociatedUserSessions(String idpUserId, boolean firstRequest) {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
-            JSONObject removeSessionPayload = new JSONObject();
             HttpEntity<Object> entity = new HttpEntity<>(null, httpHeaders);
             StringBuilder sessionRemoveUrl = new StringBuilder();
             sessionRemoveUrl.append(ENVConfig.KEYCLOAK_HOST);
@@ -386,6 +415,29 @@ public class IdpUserServiceImpl implements IdpUserService {
         } catch (Exception e) {
             throw new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public void deleteUserFromIdp(String idpUserId, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userDeleteEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder userDeleteUrl = new StringBuilder();
+            userDeleteUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userDeleteUrl.append("/auth/admin/realms/");
+            userDeleteUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userDeleteUrl.append("/users/");
+            userDeleteUrl.append(idpUserId);
+            logger.info("User Delete URL {}", userDeleteUrl);
+            ResponseEntity<String> exchange = restTemplate.exchange(userDeleteUrl.toString(), HttpMethod.DELETE, userDeleteEntity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+            getClientAccessToken();
+            deleteUserFromIdp(idpUserId, false);
+        }
+        throw new PMException(e.getLocalizedMessage());
+    } catch (Exception e) {
+        throw new PMException(e.getMessage());
+    }
     }
 
 

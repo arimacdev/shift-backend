@@ -1,11 +1,11 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.Impl.TaskServiceImpl;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.TaskGroupWorkLoadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
@@ -20,6 +20,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -403,6 +405,76 @@ public class TaskRepositoryImpl implements TaskRepository {
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public int getActiveTaskCount(String from, String to) {
+        String sql;
+        try {
+        if (from.equals(ALL) && to.equals(ALL)){
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+        }else {
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
+        }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getClosedTaskCount(String from, String to) {
+        String sql;
+        try {
+            if (from.equals(ALL) && to.equals(ALL)) {
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
+        } else {
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
+        }
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public HashMap<String, Integer> getTaskCreationByDate(String from, String to, ChartCriteriaEnum criteria) {
+        String sql;
+        String dateFormat;
+        if (criteria.equals(ChartCriteriaEnum.DAY))
+        dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y-%m-%d') ";
+        else if (criteria.equals(ChartCriteriaEnum.MONTH))
+        dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y-%m') ";
+        else
+        dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y') ";
+        HashMap<String,Integer> dateCountMap = new HashMap<>();
+        try {
+            if (from.equals(ALL) && to.equals(ALL)){
+                sql = "SELECT " + dateFormat + "as date"+ ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt GROUP BY " + dateFormat;
+                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    while (rs.next()) {
+                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+                    }
+                });
+                return dateCountMap;
+            } else {
+                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + "? AND ? " +  "GROUP BY " + dateFormat;
+                //return jdbcTemplate.query(sql, new DateCountDto(), from, to);
+                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    while (rs.next()) {
+                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+                    }
+                }, from, to);
+                return dateCountMap;
+            }
+
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+
+
     }
 
     @Override
