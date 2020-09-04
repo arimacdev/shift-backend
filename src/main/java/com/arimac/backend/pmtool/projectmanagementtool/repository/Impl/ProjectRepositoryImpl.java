@@ -329,7 +329,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             keyQuery = "AND projectName LIKE :projectName ";
             parameters.addValue("projectName", "%" + key + "%");
         }
-        sql = "SELECT COUNT(taskId) AS taskCount, projectName, COUNT(case when taskStatus = 'closed' then 1 end ) AS closed " +
+        sql = "SELECT COUNT(taskId) AS taskCount, projectName, COUNT(case when taskStatus = 'closed' then 1 end) AS closed " +
                 "FROM project AS P LEFT JOIN Task T on P.project = T.projectId " +
                 "WHERE (T.isDeleted = false OR P.isDeleted = false) " +
                 betweenQuery +
@@ -337,8 +337,6 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 keyQuery +
                 "GROUP BY projectName " +
                 "ORDER BY taskCount DESC";
-       // List<Map<String, Object>> mapList =  namedParameterJdbcTemplate.queryForList(sql, parameters);
-        HashMap<String,String> results = new HashMap<>();
 
         return namedParameterJdbcTemplate.query(sql, parameters, new ProjectSummaryDto());
 

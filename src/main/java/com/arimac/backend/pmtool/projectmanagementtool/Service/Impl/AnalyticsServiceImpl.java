@@ -2,16 +2,16 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.AnlyticsOverviewDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.AspectSummary;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectOverViewDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.PerformanceEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
@@ -25,11 +25,9 @@ import java.math.MathContext;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
@@ -40,14 +38,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
+    private final ActivityLogRepository activityLogRepository;
     private int dateCount = 0;
     private String previousFromDate = null;
     private String previousToDate = null;
 
-    public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository) {
+    public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ActivityLogRepository activityLogRepository) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
+        this.activityLogRepository = activityLogRepository;
     }
 
     @Override
@@ -133,32 +133,36 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public Object getTaskRate(String userId, String from, String to) {
+    public Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria) {
+
 //        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        String text = from.format(formatters);
-//
-//        try {
-//            Date fromDate = dateFormat.parse(from);
-//            Date toDate = dateFormat.parse(to);
-//            List<String> allDatesString = new ArrayList<String>();
-//            while (fromDate.before(toDate)) {
-//
-//            }
-//
-//            long numOfDaysBetween = ChronoUnit.DAYS.between(fromDate, toDate);
-//            return IntStream.iterate(0, i -> i + 1)
-//                    .limit(numOfDaysBetween)
-//                    .mapToObj(i -> fromDate.plusDays(i))
-//                    .collect(Collectors.toList());
-//
-//
-//
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-        return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(from, formatter);
+        LocalDate endDate = LocalDate.parse(to, formatter);
+
+        HashMap<String, Integer> taskCreationMap = taskRepository.getTaskCreationByDate(from, to, criteria);
+        HashMap<String, Integer> taskCompletionMap = activityLogRepository.getClosedTaskCount(from, to, criteria);
+
+        List<String> dates = new ArrayList<>();
+        List<TaskRateResponse> rateResponses = new ArrayList<>();
+        endDate = endDate.plusDays(1);
+        while (!startDate.equals(endDate)) {
+//            if ()
+            TaskRateResponse taskRateResponse = new TaskRateResponse();
+            taskRateResponse.setDate(startDate.toString());
+            if (taskCreationMap.containsKey(startDate.toString())){
+                taskRateResponse.setTaskCreationCount(taskCreationMap.get(startDate.toString()));
+            }
+            if (taskCompletionMap.containsKey(startDate.toString())){
+                taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(startDate.toString()));
+            }
+            taskRateResponse.setOverDueCount(taskRateResponse.getTaskCreationCount() - taskRateResponse.getTaskCompletionCount());
+            rateResponses.add(taskRateResponse);
+            dates.add(startDate.toString());
+            startDate = startDate.plusDays(1);
+        }
+
+       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, rateResponses);
     }
 
 

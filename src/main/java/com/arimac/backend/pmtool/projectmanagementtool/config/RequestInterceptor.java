@@ -39,14 +39,14 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith(BEARER)) {
         token = token.substring(7);
-        logger.info("token {}", token);
+        //logger.info("token {}", token);
         DecodedJWT jwt = null;
         try {
             jwt = JWT.decode(token);
             logger.info("request URI {}", request.getRequestURI());
             logger.info("jwt subject {}", jwt.getSubject());
             User user = userRepository.getUserByIdpUserId(jwt.getSubject());
-            logger.info("INTERCEPTOR USER {}", user);
+            //logger.info("INTERCEPTOR USER {}", user);
             JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
             if (idpUser == null) {
                 response.sendError(400);
