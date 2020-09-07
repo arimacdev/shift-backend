@@ -460,8 +460,10 @@ public class TaskRepositoryImpl implements TaskRepository {
                 });
                 return dateCountMap;
             } else {
-                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + "? AND ? " +  "GROUP BY " + dateFormat;
-                //return jdbcTemplate.query(sql, new DateCountDto(), from, to);
+                sql = "SELECT DATE_FORMAT(taskCreatedAt,'%Y-%m') as date,COUNT(taskId) as taskCount FROM Task " +
+                        "WHERE taskCreatedAt BETWEEN ? AND ? AND isDeleted=false " +
+                        "GROUP BY DATE_FORMAT(taskCreatedAt,'%Y-%m')";
+//                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + " ? AND ? AND isDeleted=false " +  "GROUP BY " + dateFormat;
                 jdbcTemplate.query(sql, (ResultSet rs) -> {
                     while (rs.next()) {
                         dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));

@@ -42,6 +42,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private int dateCount = 0;
     private String previousFromDate = null;
     private String previousToDate = null;
+    private int year;
 
     public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ActivityLogRepository activityLogRepository) {
         this.userRepository = userRepository;
@@ -143,26 +144,59 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         HashMap<String, Integer> taskCreationMap = taskRepository.getTaskCreationByDate(from, to, criteria);
         HashMap<String, Integer> taskCompletionMap = activityLogRepository.getClosedTaskCount(from, to, criteria);
 
-        List<String> dates = new ArrayList<>();
+        //List<String> dates = new ArrayList<>();
         List<TaskRateResponse> rateResponses = new ArrayList<>();
-        endDate = endDate.plusDays(1);
-        while (!startDate.equals(endDate)) {
-//            if ()
-            TaskRateResponse taskRateResponse = new TaskRateResponse();
-            taskRateResponse.setDate(startDate.toString());
-            if (taskCreationMap.containsKey(startDate.toString())){
-                taskRateResponse.setTaskCreationCount(taskCreationMap.get(startDate.toString()));
-            }
-            if (taskCompletionMap.containsKey(startDate.toString())){
-                taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(startDate.toString()));
-            }
-            taskRateResponse.setOverDueCount(taskRateResponse.getTaskCreationCount() - taskRateResponse.getTaskCompletionCount());
-            rateResponses.add(taskRateResponse);
-            dates.add(startDate.toString());
-            startDate = startDate.plusDays(1);
-        }
 
+        switch (criteria){
+            case DAY:
+                endDate = endDate.plusDays(1);
+                while (!startDate.equals(endDate)) {
+                    TaskRateResponse taskRateResponse = new TaskRateResponse();
+                    taskRateResponse.setDate(startDate.toString());
+                    this.getTaskRateResponse(taskCreationMap, taskCompletionMap, startDate.toString(), taskRateResponse);
+//                    if (taskCreationMap.containsKey(startDate.toString())){
+//                        taskRateResponse.setTaskCreationCount(taskCreationMap.get(startDate.toString()));
+//                    }
+//                    if (taskCompletionMap.containsKey(startDate.toString())){
+//                        taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(startDate.toString()));
+//                    }
+                    rateResponses.add(taskRateResponse);
+                   // dates.add(startDate.toString());
+                    startDate = startDate.plusDays(1);
+                }
+                break;
+            case MONTH:
+                while (startDate.getMonthValue() <= endDate.getMonthValue()){
+                    TaskRateResponse taskRateResponse = new TaskRateResponse();
+                    String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
+                    taskRateResponse.setDate(yearMonth);
+                    this.getTaskRateResponse(taskCreationMap, taskCompletionMap, yearMonth, taskRateResponse);
+                    rateResponses.add(taskRateResponse);
+                 //   dates.add(yearMonth);
+                    startDate = startDate.plusMonths(1);
+                }
+                break;
+            case YEAR:
+                while (startDate.getYear() <= endDate.getYear()){
+                    TaskRateResponse taskRateResponse = new TaskRateResponse();
+                    taskRateResponse.setDate(String.valueOf(startDate.getYear()));
+                    this.getTaskRateResponse(taskCreationMap, taskCompletionMap, String.valueOf(startDate.getYear()), taskRateResponse);
+                    rateResponses.add(taskRateResponse);
+                //    dates.add(String.valueOf(startDate.getYear()));
+                    startDate = startDate.plusYears(1);
+                }
+
+        }
        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, rateResponses);
+    }
+
+    private void getTaskRateResponse(HashMap<String, Integer> taskCreationMap, HashMap<String, Integer> taskCompletionMap , String filteredDate, TaskRateResponse taskRateResponse){
+        if (taskCreationMap.containsKey(filteredDate)){
+            taskRateResponse.setTaskCreationCount(taskCreationMap.get(filteredDate));
+        }
+        if (taskCompletionMap.containsKey(filteredDate)){
+            taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(filteredDate));
+        }
     }
 
 
@@ -179,7 +213,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             } else if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) == 0){
                 aspectSummary.setPerformance(PerformanceEnum.neutral);
             }
-//        } else {
+//        } else {;
 //            aspectSummary.setPerformance(PerformanceEnum.neutral);
 //        }
         return aspectSummary;

@@ -78,7 +78,15 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                 response.setStatus(422);
 
                 return false;
-            } else if (!user.getIsActive()) {
+            } else if (jwt.getClaims().get("userId") == null){
+                JSONObject jsonObject = new JSONObject();
+                response.getWriter().write(String.valueOf(jsonObject));
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.setStatus(422);
+                return false;
+            }
+            else if (!user.getIsActive()) {
                 response.sendError(401);
                 return false;
             } else {
