@@ -449,27 +449,26 @@ public class TaskRepositoryImpl implements TaskRepository {
         dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y-%m') ";
         else
         dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y') ";
-        HashMap<String,Integer> dateCountMap = new HashMap<>();
         try {
             if (from.equals(ALL) && to.equals(ALL)){
                 sql = "SELECT " + dateFormat + "as date"+ ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt GROUP BY " + dateFormat;
-                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                return jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    HashMap<String,Integer> dateCountMap = new HashMap<>();
                     while (rs.next()) {
                         dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
+                    return dateCountMap;
                 });
-                return dateCountMap;
             } else {
-                sql = "SELECT DATE_FORMAT(taskCreatedAt,'%Y-%m') as date,COUNT(taskId) as taskCount FROM Task " +
-                        "WHERE taskCreatedAt BETWEEN ? AND ? AND isDeleted=false " +
-                        "GROUP BY DATE_FORMAT(taskCreatedAt,'%Y-%m')";
-//                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + " ? AND ? AND isDeleted=false " +  "GROUP BY " + dateFormat;
-                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + " ? AND ? AND isDeleted=false " +  "GROUP BY " + dateFormat;
+                return jdbcTemplate.query(sql,new Object[] { from, to }, (ResultSet rs) -> {
+                    HashMap<String,Integer> results = new HashMap<>();
                     while (rs.next()) {
-                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+                        results.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
-                }, from, to);
-                return dateCountMap;
+                    return results;
+                });
+
             }
 
         } catch (Exception e){
@@ -478,6 +477,22 @@ public class TaskRepositoryImpl implements TaskRepository {
 
 
     }
+
+//    @Override
+//    public HashMap<String, Integer> getTest(String from, String to, ChartCriteriaEnum criteria) {
+//        String sql = "SELECT DATE_FORMAT(taskCreatedAt,'%Y-%m') as date,COUNT(taskId) as taskCount FROM Task " +
+//                        "WHERE taskCreatedAt BETWEEN ? AND ? AND isDeleted=false " +
+//                        "GROUP BY DATE_FORMAT(taskCreatedAt,'%Y-%m')";
+//        HashMap<String,Integer> dateCountMap = new HashMap<>();
+//        return jdbcTemplate.query(sql,new Object[] { from, to }, (ResultSet rs) -> {
+//            HashMap<String,Integer> results = new HashMap<>();
+//            while (rs.next()) {
+//                results.put(rs.getString("date"), rs.getInt("taskCount"));
+//            }
+//            return results;
+//        });
+//
+//    }
 
     @Override
     public void updateProjectAlias(String taskId, String alias) {
