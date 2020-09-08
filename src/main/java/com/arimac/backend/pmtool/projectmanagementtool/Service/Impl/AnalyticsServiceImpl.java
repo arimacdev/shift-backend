@@ -135,8 +135,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria) {
-
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate startDate = LocalDate.parse(from, formatter);
         LocalDate endDate = LocalDate.parse(to, formatter);
@@ -144,7 +145,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         HashMap<String, Integer> taskCreationMap = taskRepository.getTaskCreationByDate(from, to, criteria);
         HashMap<String, Integer> taskCompletionMap = activityLogRepository.getClosedTaskCount(from, to, criteria);
 
-        //List<String> dates = new ArrayList<>();
         List<TaskRateResponse> rateResponses = new ArrayList<>();
 
         switch (criteria){
@@ -154,14 +154,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     TaskRateResponse taskRateResponse = new TaskRateResponse();
                     taskRateResponse.setDate(startDate.toString());
                     this.getTaskRateResponse(taskCreationMap, taskCompletionMap, startDate.toString(), taskRateResponse);
-//                    if (taskCreationMap.containsKey(startDate.toString())){
-//                        taskRateResponse.setTaskCreationCount(taskCreationMap.get(startDate.toString()));
-//                    }
-//                    if (taskCompletionMap.containsKey(startDate.toString())){
-//                        taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(startDate.toString()));
-//                    }
                     rateResponses.add(taskRateResponse);
-                   // dates.add(startDate.toString());
                     startDate = startDate.plusDays(1);
                 }
                 break;
@@ -172,7 +165,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     taskRateResponse.setDate(yearMonth);
                     this.getTaskRateResponse(taskCreationMap, taskCompletionMap, yearMonth, taskRateResponse);
                     rateResponses.add(taskRateResponse);
-                 //   dates.add(yearMonth);
                     startDate = startDate.plusMonths(1);
                 }
                 break;
@@ -182,7 +174,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     taskRateResponse.setDate(String.valueOf(startDate.getYear()));
                     this.getTaskRateResponse(taskCreationMap, taskCompletionMap, String.valueOf(startDate.getYear()), taskRateResponse);
                     rateResponses.add(taskRateResponse);
-                //    dates.add(String.valueOf(startDate.getYear()));
                     startDate = startDate.plusYears(1);
                 }
 
