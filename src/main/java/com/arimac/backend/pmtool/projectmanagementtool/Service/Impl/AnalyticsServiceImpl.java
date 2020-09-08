@@ -7,6 +7,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectSta
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.PerformanceEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -114,7 +116,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key) {
+    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
@@ -126,10 +128,15 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         }
-//        User user = userRepository.getUserByUserId(userId);
-//        if (user == null)
-//            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key);
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key, orderBy, orderType,startIndex, limit);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
     }
 

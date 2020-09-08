@@ -3,6 +3,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
@@ -310,11 +312,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key) {
+    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType,int startIndex, int limit) {
         String sql;
         String betweenQuery = "";
         String statusQuery = "";
         String keyQuery = "";
+        String orderByQuery = "";
+        if (orderBy.equals(ProjectSummaryTypeEnum.completed))
+            orderByQuery = "closed";
+        else if (orderBy.equals(ProjectSummaryTypeEnum.total))
+            orderByQuery = "taskCount";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         if (!from.equals(ALL) && !to.equals(ALL)) {
             betweenQuery = "AND projectStartDate BETWEEN :fromDate AND :toDate ";
@@ -336,7 +343,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 statusQuery +
                 keyQuery +
                 "GROUP BY projectName " +
-                "ORDER BY taskCount DESC";
+                "ORDER BY " + orderByQuery + " " + orderType.toString() +
+                " LIMIT :limit OFFSET :offset";
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", startIndex);
 
         return namedParameterJdbcTemplate.query(sql, parameters, new ProjectSummaryDto());
 
