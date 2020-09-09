@@ -12,6 +12,7 @@ public class ProjectDetailAnalysis {
     private Date projectStartDate;
     private ProjectStatusEnum projectStatus;
     private int taskCount;
+    private int closedCount;
     private int memberCount;
     private List<User> owners;
     private int engagement;
@@ -91,5 +92,13 @@ public class ProjectDetailAnalysis {
 
     public void setTimeTaken(long timeTaken) {
         this.timeTaken = timeTaken;
+    }
+
+    public int getClosedCount() {
+        return closedCount;
+    }
+
+    public void setClosedCount(int closedCount) {
+        this.closedCount = closedCount;
     }
 }

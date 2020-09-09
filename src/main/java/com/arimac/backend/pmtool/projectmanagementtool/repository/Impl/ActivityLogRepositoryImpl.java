@@ -131,4 +131,25 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
             throw new PMException(e.getMessage());
         }
     }
+
+    @Override
+    public int getStatusChangeTaskCountOfTasks(List<String> taskIds, String from, String to) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", taskIds);
+        parameters.addValue("fromDate",from );
+        parameters.addValue("toDate",to );
+        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId IN (:ids) AND operation = 'UPDATE' AND  updateType = 'TASK_STATUS' AND isDeleted = false AND actionTimestamp BETWEEN :fromDate AND :toDate";
+        return namedParameterJdbcTemplate.queryForObject(sql, parameters, Integer.class);
+    }
+
+    @Override
+    public int getReOpenCountOfTasks(List<String> taskIds, String from, String to) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", taskIds);
+        parameters.addValue("fromDate",from );
+        parameters.addValue("toDate",to );
+        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId IN (:ids) AND operation = 'UPDATE' AND  updateType = 'TASK_STATUS' AND previousValue = 'closed' AND isDeleted = false " +
+                "AND actionTimestamp BETWEEN :fromDate AND :toDate";
+        return namedParameterJdbcTemplate.queryForObject(sql, parameters, Integer.class);
+    }
 }

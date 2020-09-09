@@ -16,4 +16,6 @@ public interface ActivityLogRepository {
     void flagEntityActivityLogs(String entityId);
     //Analytics
     HashMap<String, Integer> getClosedTaskCount(String from, String to, ChartCriteriaEnum criteria);
+    int getStatusChangeTaskCountOfTasks(List<String> taskIds, String from, String to);
+    int getReOpenCountOfTasks(List<String> taskIds, String from, String to);
 }

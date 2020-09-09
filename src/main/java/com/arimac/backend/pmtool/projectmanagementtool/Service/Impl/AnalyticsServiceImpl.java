@@ -146,14 +146,19 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
-//        User user = userRepository.getUserByUserId(userId);
-//        if (user == null)
-//            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        LinkedHashMap<String, ProjectDetailAnalysis> detailedList =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, endIndex);
-        for (Map.Entry<String, ProjectDetailAnalysis> entry : detailedList.entrySet()){
-
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        LinkedHashMap<String, ProjectDetailAnalysis> projectDetailsMap =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, endIndex);
+        for (Map.Entry<String, ProjectDetailAnalysis> projectMap : projectDetailsMap.entrySet()){
+        List<String> projectTaskIds = projectRepository.getProjectTaskIds(projectMap.getKey());
+        if (!projectTaskIds.isEmpty()) {
+            int changeStatusCount = activityLogRepository.getStatusChangeTaskCountOfTasks(projectTaskIds, from, to);
+            int reOpenCount = activityLogRepository.getReOpenCountOfTasks(projectTaskIds, from, to);
+            projectMap.getValue().setEngagement(projectMap.getValue().getTaskCount() + projectMap.getValue().getClosedCount() * 5 + changeStatusCount * 4 - reOpenCount * 5);
         }
-        List<ProjectDetailAnalysis> list = new ArrayList<>(detailedList.values());
+        }
+        List<ProjectDetailAnalysis> list = new ArrayList<>(projectDetailsMap.values());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
     }
 

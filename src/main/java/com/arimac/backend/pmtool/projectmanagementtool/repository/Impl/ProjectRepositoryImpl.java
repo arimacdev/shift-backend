@@ -84,7 +84,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public List<String> getProjectTaskIds(String projectId) {
-        String sql = "SELECT taskId from Task where projectId=?";
+        String sql = "SELECT taskId from Task where projectId=? AND isDeleted=false";
         return jdbcTemplate.queryForList(sql, new Object[] {projectId}, String.class);
     }
 
@@ -357,6 +357,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit) {
         String baseQuery ="SELECT project, projectName, projectStartDate, projectStatus, userId, firstName, lastName, profileImage," +
+                " (SELECT COUNT(case when taskStatus = 'closed' then 1 end ) FROM Task WHERE Task.projectId = project.project AND taskCreatedAt BETWEEN ? AND ?) as closedCount," +
                 "(SELECT COUNT(*) FROM Task WHERE Task.projectId = project.project";
         String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
         String latterQuery = ") as taskcount," +
@@ -366,7 +367,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
                 "WHERE PU.assigneeProjectRole = 1 ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";
         if (!from.equals(ALL) && !to.equals(ALL)) {
-            return jdbcTemplate.query(baseQuery + timeFilter + latterQuery, new Object[] { from, to, limit, startIndex }, (ResultSet rs) -> {
+            return jdbcTemplate.query(baseQuery + timeFilter + latterQuery, new Object[] { from, to, from, to, limit, startIndex }, (ResultSet rs) -> {
                 LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
                 while (rs.next()) {
                     ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
@@ -377,6 +378,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                         projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
                         projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
                         projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
+                        projectDetailAnalysis.setClosedCount(rs.getInt("closedCount"));
                         projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
                         List<User> owner = new ArrayList<>();
                         owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
@@ -390,7 +392,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             });
         }
 
-        return jdbcTemplate.query(baseQuery + latterQuery , new Object[] {limit, startIndex},(ResultSet rs) -> {
+        return jdbcTemplate.query(baseQuery + latterQuery , new Object[] {from, to, limit, startIndex},(ResultSet rs) -> {
             LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
             while (rs.next()) {
                 ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
