@@ -356,16 +356,17 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit) {
-        String sql ="SELECT project, projectName, projectStartDate, projectStatus, userId, firstName, lastName, profileImage," +
-                "(SELECT COUNT(*) FROM Task WHERE Task.projectId = project.project) as taskcount," +
+        String baseQuery ="SELECT project, projectName, projectStartDate, projectStatus, userId, firstName, lastName, profileImage," +
+                "(SELECT COUNT(*) FROM Task WHERE Task.projectId = project.project";
+        String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
+        String latterQuery = ") as taskcount," +
                 "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = project.project AND Project_User.isBlocked = false) as memberCount," +
                 "(NOW() - projectStartDate) as timeTaken " +
                 "FROM project LEFT JOIN Project_User AS PU ON PU.projectId=project.project " +
                 "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
-                "WHERE PU.assigneeProjectRole = 1";
+                "WHERE PU.assigneeProjectRole = 1 ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";
         if (!from.equals(ALL) && !to.equals(ALL)) {
-            sql = sql +  " AND projectStartDate BETWEEN ? AND ? ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";
-            return jdbcTemplate.query(sql, new Object[] { from, to, limit, startIndex }, (ResultSet rs) -> {
+            return jdbcTemplate.query(baseQuery + timeFilter + latterQuery, new Object[] { from, to, limit, startIndex }, (ResultSet rs) -> {
                 LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
                 while (rs.next()) {
                     ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
@@ -389,7 +390,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             });
         }
 
-        return jdbcTemplate.query(sql + " ORDER BY "+ orderBy.toString() + " " + orderType.toString() + " LIMIT ? OFFSET ?", new Object[] {limit, startIndex},(ResultSet rs) -> {
+        return jdbcTemplate.query(baseQuery + latterQuery , new Object[] {limit, startIndex},(ResultSet rs) -> {
             LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
             while (rs.next()) {
                 ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
