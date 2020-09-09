@@ -1,14 +1,18 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ProjectRepositoryImpl implements ProjectRepository {
@@ -352,6 +353,86 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
 
     }
+
+    @Override
+    public LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit) {
+        String sql ="SELECT project, projectName, projectStartDate, projectStatus, userId, firstName, lastName, profileImage," +
+                "(SELECT COUNT(*) FROM Task WHERE Task.projectId = project.project) as taskcount," +
+                "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = project.project AND Project_User.isBlocked = false) as memberCount," +
+                "(NOW() - projectStartDate) as timeTaken " +
+                "FROM project LEFT JOIN Project_User AS PU ON PU.projectId=project.project " +
+                "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
+                "WHERE PU.assigneeProjectRole = 1";
+        if (!from.equals(ALL) && !to.equals(ALL)) {
+            sql = sql +  " AND projectStartDate BETWEEN ? AND ? ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";
+            return jdbcTemplate.query(sql, new Object[] { from, to, limit, startIndex }, (ResultSet rs) -> {
+                LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
+                while (rs.next()) {
+                    ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
+                    if (!dateCountMap.containsKey(rs.getString("project"))) {
+                        projectDetailAnalysis.setProjectId(rs.getString("project"));
+                        projectDetailAnalysis.setProjectName(rs.getString("projectName"));
+                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectStartDate"));
+                        projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
+                        projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
+                        projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
+                        projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
+                        List<User> owner = new ArrayList<>();
+                        owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
+                        projectDetailAnalysis.setOwners(owner);
+                        dateCountMap.put(rs.getString("project"), projectDetailAnalysis);
+                    } else {
+                        dateCountMap.get(rs.getString("project")).getOwners().add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
+                    }
+                }
+                return dateCountMap;
+            });
+        }
+
+        return jdbcTemplate.query(sql + " ORDER BY "+ orderBy.toString() + " " + orderType.toString() + " LIMIT ? OFFSET ?", new Object[] {limit, startIndex},(ResultSet rs) -> {
+            LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
+                if (!dateCountMap.containsKey(rs.getString("project"))) {
+                    projectDetailAnalysis.setProjectId(rs.getString("project"));
+                    projectDetailAnalysis.setProjectName(rs.getString("projectName"));
+                    projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectStartDate"));
+                    projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
+                    projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
+                    projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
+                    projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
+                    List<User> owner = new ArrayList<>();
+                    owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
+                    projectDetailAnalysis.setOwners(owner);
+                    dateCountMap.put(rs.getString("project"), projectDetailAnalysis);
+                } else {
+                    dateCountMap.get(rs.getString("project")).getOwners().add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
+                }
+            }
+            return dateCountMap;
+        });
+    }
+
+
+//
+//    private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
+//        ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
+//        projectUserResponseDto.setProjectId(resultSet.getString("project"));
+//        projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
+//        projectUserResponseDto.setClientId(resultSet.getString("clientId"));
+//        projectUserResponseDto.setProjectStartDate(resultSet.getTimestamp("projectStartDate"));
+//        projectUserResponseDto.setProjectEndDate(resultSet.getTimestamp("projectEndDate"));
+//        projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
+//        projectUserResponseDto.setIsDeleted(resultSet.getBoolean("isDeleted"));
+//        projectUserResponseDto.setAssignedAt(resultSet.getTimestamp("assignedAt"));
+//        projectUserResponseDto.setAssigneeId(resultSet.getString("assigneeId"));
+//        projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
+//        projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
+//        projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
+//        projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
+//        projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
+//        return projectUserResponseDto;
+//    };
 
 
 }

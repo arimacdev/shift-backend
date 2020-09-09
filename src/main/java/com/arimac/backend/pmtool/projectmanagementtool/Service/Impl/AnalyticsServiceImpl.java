@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectSta
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.PerformanceEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
@@ -138,6 +139,19 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
        List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key, orderBy, orderType,startIndex, limit);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
+    }
+
+    @Override
+    public Object getDetailedProjectDetails(String userId, String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
+//        Object error = this.dateCheck(from,to,false);
+//        if (error instanceof ErrorMessage)
+//            return error;
+//        User user = userRepository.getUserByUserId(userId);
+//        if (user == null)
+//            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        LinkedHashMap<String, ProjectDetailAnalysis> detailedList =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, endIndex);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, detailedList);
     }
 
     @Override

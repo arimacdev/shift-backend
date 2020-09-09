@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import io.swagger.annotations.ApiOperation;
@@ -57,6 +58,22 @@ public class AnalyticsController extends ResponseController {
         logger.info("HIT - GET analytics/summary/projects ---> getProjectSummary | User: {} | from: {} | to: {} | status {} | key {} | orderType{} | orderBy{}| startIndex {}| endIndex {}", userId, from, to, status, key, orderType, orderBy,startIndex,endIndex);
         return sendResponse(analyticsService.getProjectSummary(userId,from,to,status,key,orderBy,orderType,startIndex,endIndex));
     }
+
+    @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/details/projects")
+    public ResponseEntity<Object> getDetailedProjectDetails(@RequestHeader("user") String userId,
+                                                            @RequestParam("from") String from,
+                                                            @RequestParam("to") String to,
+                                                            @RequestParam("orderBy")ProjectDetailsEnum orderBy,
+                                                            @RequestParam("orderType") FilterOrderEnum orderType,
+                                                            @RequestParam("startIndex")int startIndex,
+                                                            @RequestParam("endIndex")int endIndex
+                                                            ){
+        logger.info("HIT - GET analytics/details/projects ---> getDetailedProjectDetails | User: {} | from: {} | to: {} | orderBy {} | orderType{} | startIndex {} | endIndex{}", userId, from, to, orderBy, orderType,startIndex,endIndex);
+        return sendResponse(analyticsService.getDetailedProjectDetails(userId,from,to, orderBy, orderType, startIndex, endIndex));
+    }
+
 
     @ApiOperation(value = "Task Rate Graph", notes = "Task Rate Graph")
     @ApiResponse(code = 200, message = "Success", response = List.class)
