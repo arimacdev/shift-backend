@@ -143,15 +143,18 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public Object getDetailedProjectDetails(String userId, String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
-//        Object error = this.dateCheck(from,to,false);
-//        if (error instanceof ErrorMessage)
-//            return error;
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
 //        User user = userRepository.getUserByUserId(userId);
 //        if (user == null)
 //            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         LinkedHashMap<String, ProjectDetailAnalysis> detailedList =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, endIndex);
+        for (Map.Entry<String, ProjectDetailAnalysis> entry : detailedList.entrySet()){
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, detailedList);
+        }
+        List<ProjectDetailAnalysis> list = new ArrayList<>(detailedList.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
     }
 
     @Override
