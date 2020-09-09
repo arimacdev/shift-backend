@@ -337,13 +337,13 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             keyQuery = "AND projectName LIKE :projectName ";
             parameters.addValue("projectName", "%" + key + "%");
         }
-        sql = "SELECT COUNT(taskId) AS taskCount, projectName, COUNT(case when taskStatus = 'closed' then 1 end) AS closed " +
+        sql = "SELECT COUNT(taskId) AS taskCount, projectName, projectStatus, COUNT(case when taskStatus = 'closed' then 1 end) AS closed " +
                 "FROM project AS P LEFT JOIN Task T on P.project = T.projectId " +
                 "WHERE (T.isDeleted = false OR P.isDeleted = false) " +
                 betweenQuery +
                 statusQuery +
                 keyQuery +
-                "GROUP BY projectName " +
+                "GROUP BY projectName, projectStatus " +
                 "ORDER BY " + orderByQuery + " " + orderType.toString() +
                 " LIMIT :limit OFFSET :offset";
         parameters.addValue("limit", limit);
