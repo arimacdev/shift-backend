@@ -2,10 +2,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.RealmRole;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
@@ -16,6 +17,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRep
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,16 +43,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final IdpUserService idpUserService;
     private int dateCount = 0;
     private String previousFromDate = null;
     private String previousToDate = null;
-    private int year;
 
-    public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ActivityLogRepository activityLogRepository) {
+    public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ActivityLogRepository activityLogRepository, IdpUserService idpUserService, IdpUserService idpUserService1) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.activityLogRepository = activityLogRepository;
+        this.idpUserService = idpUserService1;
     }
 
     @Override
@@ -217,13 +221,32 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         if (limit > 10)
             return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         User user = userRepository.getUserByUserId(userId);
-        if (user == null)
-            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (userList.size() > 1 && userList.contains(ALL))
             return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<UserDetailedAnalysis> detailedUserList = userRepository.getDetailedUserDetails(orderBy, orderType, startIndex, limit, userList);
+        for (UserDetailedAnalysis userDetail : detailedUserList){
+            try {
+                JSONArray roleList = idpUserService.getAllUserRoleMappings(userDetail.getIdpUserId(), true);
+            } catch (Exception e){
+                userDetail.setUserRole("USER");
+            }
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, detailedUserList);
     }
+
+    private void setUserRole(JSONArray roleList, UserDetailedAnalysis userDetail){
+        List<RealmRole> userRoleList = new ArrayList<>();
+        for (int i = 0; i < roleList.length(); i++) {
+            JSONObject userRole = roleList.getJSONObject(i);
+            RealmRole realmRole = new RealmRole();
+//                realmRole.setId(userRole.getString(ID));
+//                realmRole.setName(userRole.getString(NAME));
+            userRoleList.add(realmRole);
+        }
+    }
+
 
     private void getTaskRateResponse(HashMap<String, Integer> taskCreationMap, HashMap<String, Integer> taskCompletionMap , String filteredDate, TaskRateResponse taskRateResponse){
         if (taskCreationMap.containsKey(filteredDate)){

@@ -10,6 +10,7 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
     private String firstName;
     private String lastName;
     private String profileImage;
+    private String idpUserId;
     private String userRole;
     private int projectCount;
     private int activeProjectCount;
@@ -18,10 +19,12 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
     private int taskGroupTaskCount;
     private int personalTaskCount;
 
+    private static final String USER = "USER";
+
     public UserDetailedAnalysis() {
     }
 
-    public UserDetailedAnalysis(String userId, String firstName, String lastName, String profileImage, int projectCount, int activeProjectCount, int taskGroupCount, int assignedTasks, int taskGroupTaskCount, int personalTaskCount) {
+    public UserDetailedAnalysis(String userId, String firstName, String lastName, String profileImage, int projectCount, int activeProjectCount, int taskGroupCount, int assignedTasks, int taskGroupTaskCount, int personalTaskCount, String idpUserId) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -32,7 +35,8 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
         this.assignedTasks = assignedTasks;
         this.taskGroupTaskCount = taskGroupTaskCount;
         this.personalTaskCount = personalTaskCount;
-        this.userRole  = "USER";
+        this.userRole  =  USER;
+        this.idpUserId = idpUserId;
     }
 
     public String getUserId() {
@@ -123,6 +127,14 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
         this.userRole = userRole;
     }
 
+    public String getIdpUserId() {
+        return idpUserId;
+    }
+
+    public void setIdpUserId(String idpUserId) {
+        this.idpUserId = idpUserId;
+    }
+
     @Override
     public UserDetailedAnalysis mapRow(ResultSet resultSet, int i) throws SQLException {
         return new UserDetailedAnalysis(
@@ -135,7 +147,8 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
                 resultSet.getInt("taskGroupCount"),
                 resultSet.getInt("assignedTasks"),
                 resultSet.getInt("taskGroupTaskCount"),
-                resultSet.getInt("personalTaskCount")
+                resultSet.getInt("personalTaskCount"),
+                resultSet.getString("idpUserId")
         );
     }
 }

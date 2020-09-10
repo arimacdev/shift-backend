@@ -6,7 +6,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
@@ -27,6 +26,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    private static final String ALL = "all";
 
 
     public UserRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -217,7 +218,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<UserDetailedAnalysis> getDetailedUserDetails(UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit, Set<String> userList) {
-        String baseQuery = "SELECT userId, firstName , lastName, profileImage," +
+        String baseQuery = "SELECT userId, firstName , lastName, profileImage,idpUserId," +
                 "(SELECT COUNT(Project_User.projectId) FROM Project_User WHERE Project_User.assigneeId = User.userId AND Project_User.isBlocked = false) AS projectCount," +
                 "(SELECT COUNT(DISTINCT(Task.projectId)) FROM Task WHERE Task.taskAssignee = User.userId AND Task.isDeleted =false) as activeProjectCount," +
                 "(SELECT COUNT(taskGroupId) FROM TaskGroup_Member WHERE TaskGroup_Member.taskGroupMemberId =  User.userId AND TaskGroup_Member.isDeleted = false) as taskGroupCount," +
@@ -228,7 +229,7 @@ public class UserRepositoryImpl implements UserRepository {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("limit", limit);
         parameters.addValue("offset", startIndex);
-        if (userList.contains("ALL")){
+        if (userList.contains(ALL)){
             return namedParameterJdbcTemplate.query(baseQuery + " ORDER BY " + orderBy.toString() + " " + orderType.toString() + " LIMIT :limit OFFSET :offset", parameters, new UserDetailedAnalysis());
         } else {
             parameters.addValue("userIds", userList);
