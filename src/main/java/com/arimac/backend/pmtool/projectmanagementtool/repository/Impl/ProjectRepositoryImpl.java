@@ -2,7 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
@@ -417,25 +417,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
 
-//
-//    private RowMapper<ProjectUserResponseDto> query = (resultSet, i) -> {
-//        ProjectUserResponseDto projectUserResponseDto = new ProjectUserResponseDto();
-//        projectUserResponseDto.setProjectId(resultSet.getString("project"));
-//        projectUserResponseDto.setProjectName(resultSet.getString("projectName"));
-//        projectUserResponseDto.setClientId(resultSet.getString("clientId"));
-//        projectUserResponseDto.setProjectStartDate(resultSet.getTimestamp("projectStartDate"));
-//        projectUserResponseDto.setProjectEndDate(resultSet.getTimestamp("projectEndDate"));
-//        projectUserResponseDto.setProjectStatus(resultSet.getString("projectStatus"));
-//        projectUserResponseDto.setIsDeleted(resultSet.getBoolean("isDeleted"));
-//        projectUserResponseDto.setAssignedAt(resultSet.getTimestamp("assignedAt"));
-//        projectUserResponseDto.setAssigneeId(resultSet.getString("assigneeId"));
-//        projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
-//        projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
-//        projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
-//        projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
-//        projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
-//        return projectUserResponseDto;
-//    };
+
 
 
 }

@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -82,6 +83,23 @@ public class AnalyticsController extends ResponseController {
         logger.info("HIT - GET analytics/rate/task ---> getTaskRate | User: {} | from: {} | to: {} | criteria: {} ", userId, from, to, criteria);
         return sendResponse(analyticsService.getTaskRate(userId, from, to, criteria));
     }
+
+    //USER ANALYTICS
+    @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/details/users")
+    public ResponseEntity<Object> getDetailedUserDetails(@RequestHeader("user") String userId,
+                                                            @RequestParam("orderBy") UserDetailsEnum orderBy,
+                                                            @RequestParam("orderType") FilterOrderEnum orderType,
+                                                            @RequestParam("startIndex")int startIndex,
+                                                            @RequestParam("endIndex")int endIndex,
+                                                            @RequestParam("userId") Set<String> userList){
+        logger.info("HIT - GET analytics/details/users ---> getDetailedUserDetails | User: {} |orderBy {} | orderType{} | startIndex {} | endIndex{} | userList {}", userId, orderBy, orderType,startIndex,endIndex,userList);
+        return sendResponse(analyticsService.getDetailedUserDetails(userId,orderBy, orderType, startIndex, endIndex,userList));
+    }
+
+
+
 
 
 

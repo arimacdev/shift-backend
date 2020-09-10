@@ -1,4 +1,4 @@
-package com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import org.springframework.jdbc.core.RowMapper;

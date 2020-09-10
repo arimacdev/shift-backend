@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 
 import java.util.Set;
@@ -16,5 +17,6 @@ public interface AnalyticsService {
     //Task Analytics
     Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria);
     //User Analytics
+    Object getDetailedUserDetails(String userId, UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex, Set<String> userList);
 
 }
