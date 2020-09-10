@@ -10,6 +10,7 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
     private String firstName;
     private String lastName;
     private String profileImage;
+    private String userRole;
     private int projectCount;
     private int activeProjectCount;
     private int taskGroupCount;
@@ -31,6 +32,7 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
         this.assignedTasks = assignedTasks;
         this.taskGroupTaskCount = taskGroupTaskCount;
         this.personalTaskCount = personalTaskCount;
+        this.userRole  = "USER";
     }
 
     public String getUserId() {
@@ -111,6 +113,14 @@ public class UserDetailedAnalysis implements RowMapper<UserDetailedAnalysis> {
 
     public void setPersonalTaskCount(int personalTaskCount) {
         this.personalTaskCount = personalTaskCount;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 
     @Override
