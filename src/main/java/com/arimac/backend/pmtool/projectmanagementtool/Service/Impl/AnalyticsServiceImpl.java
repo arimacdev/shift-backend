@@ -146,10 +146,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        LinkedHashMap<String, ProjectDetailAnalysis> projectDetailsMap =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, endIndex);
+        LinkedHashMap<String, ProjectDetailAnalysis> projectDetailsMap =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, limit);
         for (Map.Entry<String, ProjectDetailAnalysis> projectMap : projectDetailsMap.entrySet()){
         List<String> projectTaskIds = projectRepository.getProjectTaskIds(projectMap.getKey());
         if (!projectTaskIds.isEmpty()) {

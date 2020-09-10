@@ -15,4 +15,6 @@ public interface AnalyticsService {
     Object getDetailedProjectDetails(String userId, String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex);
     //Task Analytics
     Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria);
+    //User Analytics
+
 }
