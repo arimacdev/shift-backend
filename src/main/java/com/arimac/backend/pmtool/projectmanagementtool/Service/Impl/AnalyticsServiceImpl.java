@@ -6,7 +6,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Role.RealmRole;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
@@ -38,6 +37,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
 
     private static final String ALL = "all";
+    private final String NAME = "name";
+    private final String ID = "id";
+    private final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
+    private final String SUPER_ADMIN = "SUPER_ADMIN";
+    private final String ADMIN = "ADMIN";
+    private final String WORKLOAD = "WORKLOAD";
+    private final String USER	 = "USER";
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
@@ -228,7 +234,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<UserDetailedAnalysis> detailedUserList = userRepository.getDetailedUserDetails(orderBy, orderType, startIndex, limit, userList);
         for (UserDetailedAnalysis userDetail : detailedUserList){
             try {
-                JSONArray roleList = idpUserService.getAllUserRoleMappings(userDetail.getIdpUserId(), true);
+                setUserRole(idpUserService.getAllUserRoleMappings(userDetail.getIdpUserId(), true), userDetail);
             } catch (Exception e){
                 userDetail.setUserRole("USER");
             }
@@ -237,14 +243,20 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     private void setUserRole(JSONArray roleList, UserDetailedAnalysis userDetail){
-        List<RealmRole> userRoleList = new ArrayList<>();
+        List<String> userRoleList = new ArrayList<>();
         for (int i = 0; i < roleList.length(); i++) {
             JSONObject userRole = roleList.getJSONObject(i);
-            RealmRole realmRole = new RealmRole();
-//                realmRole.setId(userRole.getString(ID));
-//                realmRole.setName(userRole.getString(NAME));
-            userRoleList.add(realmRole);
+            userRoleList.add(userRole.getString(ID));
         }
+        if (userRoleList.contains(ORGANIZATION_ADMIN))
+            userDetail.setUserRole(ORGANIZATION_ADMIN);
+        else if (userRoleList.contains(SUPER_ADMIN))
+            userDetail.setUserRole(SUPER_ADMIN);
+        else if (userRoleList.contains(ADMIN))
+            userDetail.setUserRole(ADMIN);
+        else if (userRoleList.contains(WORKLOAD))
+            userDetail.setUserRole(WORKLOAD);
+        else userDetail.setUserRole(USER);
     }
 
 
