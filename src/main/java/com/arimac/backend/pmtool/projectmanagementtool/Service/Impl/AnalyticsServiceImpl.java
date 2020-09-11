@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
@@ -222,6 +223,22 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
+    public Object getMemberActivity(String userId, String from, String to, ChartCriteriaEnum criteria) {
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(from, formatter);
+        LocalDate endDate = LocalDate.parse(to, formatter);
+
+        List<UserActivityDto> userActivityList = userRepository.getUserActivity(from,to,criteria);
+
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userActivityList);
+    }
+
+
+    @Override
     public Object getDetailedUserDetails(String userId, UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex, Set<String> userList) {
         int limit = endIndex - startIndex;
         if (limit > 10)
@@ -236,7 +253,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             try {
                 setUserRole(idpUserService.getAllUserRoleMappings(userDetail.getIdpUserId(), true), userDetail);
             } catch (Exception e){
-                userDetail.setUserRole("USER");
+                userDetail.setUserRole(USER);
             }
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, detailedUserList);

@@ -18,5 +18,6 @@ public interface AnalyticsService {
     Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria);
     //User Analytics
     Object getDetailedUserDetails(String userId, UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex, Set<String> userList);
+    Object getMemberActivity(String userId, String from, String to, ChartCriteriaEnum criteria);
 
 }

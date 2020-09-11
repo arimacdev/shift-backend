@@ -1,11 +1,13 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
@@ -237,6 +239,37 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
     }
+
+    @Override
+    public List<UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria) {
+        String sql;
+        String dateFormat;
+        if (criteria.equals(ChartCriteriaEnum.DAY))
+            dateFormat = "DATE_FORMAT(actionTimestamp,'%Y-%m-%d') ";
+        else if (criteria.equals(ChartCriteriaEnum.MONTH))
+            dateFormat = "DATE_FORMAT(actionTimestamp,'%Y-%m') ";
+        else
+            dateFormat = "DATE_FORMAT(actionTimestamp,'%Y') ";
+        if (from.equals(ALL) && to.equals(ALL)) {
+            sql= "SELECT " + dateFormat +  "AS date," +
+                    "COUNT(DISTINCT(actor)) as totalActiveMemberCount," +
+                    "COUNT(DISTINCT(actor) AND case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
+                    " FROM ActivityLog WHERE isDeleted=false " +
+                    "GROUP BY " + dateFormat;
+            return jdbcTemplate.query(sql, new UserActivityDto());
+        } else {
+            sql= "SELECT " + dateFormat +  "AS date," +
+                    "COUNT(DISTINCT(actor)) as totalActiveMemberCount," +
+                    "COUNT(DISTINCT(actor) AND case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
+                    " FROM ActivityLog WHERE isDeleted=false AND" + " actionTimestamp BETWEEN ? AND ? " +
+                    "GROUP BY " + dateFormat;
+
+            return jdbcTemplate.query(sql, new UserActivityDto(), from, to);
+        }
+
+    }
+
+
 
 
     //REMOVE

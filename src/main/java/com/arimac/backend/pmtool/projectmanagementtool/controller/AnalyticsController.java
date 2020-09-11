@@ -98,6 +98,19 @@ public class AnalyticsController extends ResponseController {
         return sendResponse(analyticsService.getDetailedUserDetails(userId,orderBy, orderType, startIndex, endIndex,userList));
     }
 
+    @ApiOperation(value = "Member Activity Graph", notes = "Member Activity Graph")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/activity/users")
+    public ResponseEntity<Object> getMemberActivity(@RequestHeader("user") String userId,
+                                                    @RequestParam("from") String from,
+                                                    @RequestParam("to") String to,
+                                                    @RequestParam("criteria")ChartCriteriaEnum criteria){
+        logger.info("HIT - GET analytics//activity/users ---> getMemberActivity | User: {} | from: {} | to: {} | criteria: {} ", userId, from, to, criteria);
+        return sendResponse(analyticsService.getMemberActivity(userId, from, to, criteria));
+    }
+
+
+
 
 
 

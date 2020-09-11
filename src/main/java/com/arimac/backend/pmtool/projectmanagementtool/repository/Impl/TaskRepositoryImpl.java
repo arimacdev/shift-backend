@@ -468,9 +468,7 @@ public class TaskRepositoryImpl implements TaskRepository {
                     }
                     return results;
                 });
-
             }
-
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
