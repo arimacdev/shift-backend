@@ -356,7 +356,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit) {
-        String baseQuery ="SELECT project, projectName, projectStartDate, projectStatus, userId, firstName, lastName, profileImage," +
+        String baseQuery ="SELECT project, projectName, projectStartDate AS projectCreatedDate, projectStatus, userId, firstName, lastName, profileImage," +
                 " (SELECT COUNT(case when taskStatus = 'closed' then 1 end ) FROM Task WHERE Task.projectId = project.project AND taskCreatedAt BETWEEN ? AND ?) as closedCount," +
                 "(SELECT COUNT(*) FROM Task WHERE Task.projectId = project.project";
         String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
@@ -374,7 +374,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     if (!dateCountMap.containsKey(rs.getString("project"))) {
                         projectDetailAnalysis.setProjectId(rs.getString("project"));
                         projectDetailAnalysis.setProjectName(rs.getString("projectName"));
-                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectStartDate"));
+                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectCreatedDate"));
                         projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
                         projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
                         projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));

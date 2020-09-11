@@ -50,7 +50,7 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 //projects
                 .antMatchers(HttpMethod.GET, "/projects/all").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN,WORKLOAD)
                 //filter
-                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //template
                 .antMatchers("/template/**").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //Admin

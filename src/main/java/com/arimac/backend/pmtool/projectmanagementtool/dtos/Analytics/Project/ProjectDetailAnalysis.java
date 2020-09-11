@@ -9,7 +9,7 @@ import java.util.List;
 public class ProjectDetailAnalysis {
     private String projectId;
     private String projectName;
-    private Date projectStartDate;
+    private Date projectCreatedDate;
     private ProjectStatusEnum projectStatus;
     private int taskCount;
     private int closedCount;
@@ -39,11 +39,11 @@ public class ProjectDetailAnalysis {
     }
 
     public Date getProjectStartDate() {
-        return projectStartDate;
+        return projectCreatedDate;
     }
 
     public void setProjectStartDate(Date projectStartDate) {
-        this.projectStartDate = projectStartDate;
+        this.projectCreatedDate = projectStartDate;
     }
 
     public ProjectStatusEnum getProjectStatus() {
