@@ -229,7 +229,7 @@ public class UserRepositoryImpl implements UserRepository {
             return namedParameterJdbcTemplate.query(baseQuery + " ORDER BY " + orderBy.toString() + " " + orderType.toString() + " LIMIT :limit OFFSET :offset", parameters, new UserDetailedAnalysis());
         } else {
             parameters.addValue("userIds", userList);
-            return namedParameterJdbcTemplate.query(baseQuery + " AND userId IN (userIds)" + orderBy.toString() + " " + orderType.toString() + " LIMIT :limit OFFSET :offset", parameters, new UserDetailedAnalysis());
+            return namedParameterJdbcTemplate.query(baseQuery + " AND userId IN (:userIds)" + " ORDER BY " + orderBy.toString() + " " + orderType.toString() + " LIMIT :limit OFFSET :offset", parameters, new UserDetailedAnalysis());
         }
 
     }

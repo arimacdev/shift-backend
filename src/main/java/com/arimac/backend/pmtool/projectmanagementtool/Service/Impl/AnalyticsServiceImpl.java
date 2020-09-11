@@ -38,13 +38,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
 
     private static final String ALL = "all";
-    private final String NAME = "name";
-    private final String ID = "id";
-    private final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
-    private final String SUPER_ADMIN = "SUPER_ADMIN";
-    private final String ADMIN = "ADMIN";
-    private final String WORKLOAD = "WORKLOAD";
-    private final String USER	 = "USER";
+    private  static final String ID = "id";
+    private static final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
+    private static final String SUPER_ADMIN = "SUPER_ADMIN";
+    private static final String ADMIN = "ADMIN";
+    private static final String WORKLOAD = "WORKLOAD";
+    private static final String USER	 = "USER";
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
@@ -96,7 +95,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         int projectCountCurrent = projectRepository.getActiveProjectCount(from, to);
-        int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
+        int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);
 
         ProjectStatusCountDto pendingCurrent = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(from, to));
         ProjectStatusCountDto pendingPrevious = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(previousFromDate, previousToDate));
@@ -227,6 +226,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
+        if (userRepository.getUserByUserId(userId) == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate startDate = LocalDate.parse(from, formatter);
         LocalDate endDate = LocalDate.parse(to, formatter);
@@ -274,7 +275,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 }
 
         }
-
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userActivityDtos);
     }
