@@ -20,6 +20,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -166,14 +168,6 @@ public class UserRepositoryImpl implements UserRepository {
         return taskGroupDtoList;
     }
 
-//    @Override
-//    public Object getAllBlockedProjectUsers(String projectId) {
-//        String sql = "SELECT u.* FROM User AS u LEFT JOIN Project_User" +
-//                " as pu ON pu.assigneeId = u.userId WHERE pu.projectId=?" +
-//                " AND isBlocked=true";
-//        return null;
-//    }
-
     @Override
     public void addSlackIdToUser(String userId, String slackId) {
         jdbcTemplate.update(connection -> {
@@ -241,7 +235,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria) {
+    public HashMap<String,UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria) {
         String sql;
         String dateFormat;
         if (criteria.equals(ChartCriteriaEnum.DAY))
@@ -256,21 +250,31 @@ public class UserRepositoryImpl implements UserRepository {
                     "COUNT(DISTINCT(actor) AND case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
                     " FROM ActivityLog WHERE isDeleted=false " +
                     "GROUP BY " + dateFormat;
-            return jdbcTemplate.query(sql, new UserActivityDto());
+            //return jdbcTemplate.query(sql, new UserActivityDto());
+            return jdbcTemplate.query(sql, (ResultSet rs) -> {
+                HashMap<String,UserActivityDto> dateCountMap = new HashMap<>();
+                while (rs.next()) {
+                    dateCountMap.put(rs.getString("date"), new UserActivityDto( rs.getString("date"), rs.getInt("totalActiveMemberCount"), rs.getInt("totalTaskCompletionMemberCount")));
+                }
+                return dateCountMap;
+            });
         } else {
             sql= "SELECT " + dateFormat +  "AS date," +
                     "COUNT(DISTINCT(actor)) as totalActiveMemberCount," +
                     "COUNT(DISTINCT(actor) AND case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
                     " FROM ActivityLog WHERE isDeleted=false AND" + " actionTimestamp BETWEEN ? AND ? " +
                     "GROUP BY " + dateFormat;
-
-            return jdbcTemplate.query(sql, new UserActivityDto(), from, to);
+//            return jdbcTemplate.query(sql, new UserActivityDto(), from, to);
+            return jdbcTemplate.query(sql, new Object[] { from, to }, (ResultSet rs) -> {
+                HashMap<String,UserActivityDto> dateCountMap = new HashMap<>();
+                while (rs.next()) {
+                    dateCountMap.put(rs.getString("date"), new UserActivityDto( rs.getString("date"), rs.getInt("totalActiveMemberCount"), rs.getInt("totalTaskCompletionMemberCount")));
+                }
+                return dateCountMap;
+            });
         }
 
     }
-
-
-
 
     //REMOVE
 

@@ -12,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserD
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public interface UserRepository {
     //Analytics
     int getActiveUserCount(String from ,String to);
     List<UserDetailedAnalysis> getDetailedUserDetails(UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit, Set<String> userList);
-    List<UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria);
+    HashMap<String,UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria);
     //REMOVE
     void updateUserName(String userId, String username);
 

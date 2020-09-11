@@ -231,10 +231,52 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LocalDate startDate = LocalDate.parse(from, formatter);
         LocalDate endDate = LocalDate.parse(to, formatter);
 
-        List<UserActivityDto> userActivityList = userRepository.getUserActivity(from,to,criteria);
+        HashMap<String,UserActivityDto> userActivityMap = userRepository.getUserActivity(from,to,criteria);
+        List<UserActivityDto> userActivityDtos = new ArrayList<>();
+
+        switch (criteria){
+            case DAY:
+                endDate = endDate.plusDays(1);
+                while (!startDate.equals(endDate)) {
+                    if (userActivityMap.containsKey(startDate.toString()))
+                        userActivityDtos.add(userActivityMap.get(startDate.toString()));
+                    else {
+                        UserActivityDto userActivity = new UserActivityDto();
+                        userActivity.setDate(startDate.toString());
+                        userActivityDtos.add(userActivity);
+                    }
+                    startDate = startDate.plusDays(1);
+                }
+                break;
+            case MONTH:
+                while (startDate.getMonthValue() <= endDate.getMonthValue()){
+                    String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
+                    if (userActivityMap.containsKey(yearMonth))
+                        userActivityDtos.add(userActivityMap.get(yearMonth));
+                    else {
+                        UserActivityDto userActivity = new UserActivityDto();
+                        userActivity.setDate(yearMonth);
+                        userActivityDtos.add(userActivity);
+                    }
+                    startDate = startDate.plusMonths(1);
+                }
+                break;
+            case YEAR:
+                while (startDate.getYear() <= endDate.getYear()){
+                    if (userActivityMap.containsKey(String.valueOf(startDate.getYear())))
+                        userActivityDtos.add(userActivityMap.get(String.valueOf(startDate.getYear())));
+                    else {
+                        UserActivityDto userActivity = new UserActivityDto();
+                        userActivity.setDate(String.valueOf(startDate.getYear()));
+                        userActivityDtos.add(userActivity);
+                    }
+                    startDate = startDate.plusYears(1);
+                }
+
+        }
 
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userActivityList);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userActivityDtos);
     }
 
 
