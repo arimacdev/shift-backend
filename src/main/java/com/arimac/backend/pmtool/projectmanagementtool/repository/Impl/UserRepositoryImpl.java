@@ -247,7 +247,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (from.equals(ALL) && to.equals(ALL)) {
             sql= "SELECT " + dateFormat +  "AS date," +
                     "COUNT(DISTINCT(actor)) as totalActiveMemberCount," +
-                    "COUNT(DISTINCT(actor) AND case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
+                    "COUNT(DISTINCT actor, case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
                     " FROM ActivityLog WHERE isDeleted=false " +
                     "GROUP BY " + dateFormat;
             //return jdbcTemplate.query(sql, new UserActivityDto());
@@ -261,7 +261,7 @@ public class UserRepositoryImpl implements UserRepository {
         } else {
             sql= "SELECT " + dateFormat +  "AS date," +
                     "COUNT(DISTINCT(actor)) as totalActiveMemberCount," +
-                    "COUNT(DISTINCT(actor) AND case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
+                    "COUNT(DISTINCT actor, case when updatedvalue = 'closed' then 1 end) as totalTaskCompletionMemberCount" +
                     " FROM ActivityLog WHERE isDeleted=false AND" + " actionTimestamp BETWEEN ? AND ? " +
                     "GROUP BY " + dateFormat;
 //            return jdbcTemplate.query(sql, new UserActivityDto(), from, to);
