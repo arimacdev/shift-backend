@@ -23,6 +23,13 @@ public class User implements RowMapper<User> {
     public User() {
     }
 
+    public User(String userId, String firstName, String lastName, String profileImage) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.profileImage = profileImage;
+    }
+
     public User(String userId, String idpUserId, String username, String firstName, String lastName, String email, String profileImage, String userSlackId, boolean notification, boolean isActive) {
         this.userId = userId;
         this.idpUserId = idpUserId;

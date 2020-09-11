@@ -50,7 +50,7 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 //projects
                 .antMatchers(HttpMethod.GET, "/projects/all").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN,WORKLOAD)
                 //filter
-                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.GET, "/projects/workload/filter").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //template
                 .antMatchers("/template/**").hasAnyRole(WORKLOAD,ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //Admin
@@ -62,6 +62,8 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.POST, "/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers("/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
+                //Analytics Endpoint
+                .antMatchers("/analytics/**").hasAnyRole(ORGANIZATION_ADMIN,SUPER_ADMIN,ADMIN,WORKLOAD)
                 .anyRequest()
                 //.authenticated()
                 .permitAll();

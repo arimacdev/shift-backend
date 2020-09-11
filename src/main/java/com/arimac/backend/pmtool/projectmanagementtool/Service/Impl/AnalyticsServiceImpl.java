@@ -2,11 +2,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.PerformanceEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -15,6 +17,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.repository.ActivityLogRep
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,20 +38,28 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
 
     private static final String ALL = "all";
+    private  static final String ID = "id";
+    private static final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
+    private static final String SUPER_ADMIN = "SUPER_ADMIN";
+    private static final String ADMIN = "ADMIN";
+    private static final String WORKLOAD = "WORKLOAD";
+    private static final String USER	 = "USER";
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final IdpUserService idpUserService;
     private int dateCount = 0;
     private String previousFromDate = null;
     private String previousToDate = null;
 
-    public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ActivityLogRepository activityLogRepository) {
+    public AnalyticsServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, ActivityLogRepository activityLogRepository, IdpUserService idpUserService, IdpUserService idpUserService1) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.activityLogRepository = activityLogRepository;
+        this.idpUserService = idpUserService1;
     }
 
     @Override
@@ -83,7 +95,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         int projectCountCurrent = projectRepository.getActiveProjectCount(from, to);
-        int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);//
+        int projectCountPrevious = projectRepository.getActiveProjectCount(previousFromDate,previousToDate);
 
         ProjectStatusCountDto pendingCurrent = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(from, to));
         ProjectStatusCountDto pendingPrevious = this.getPreSalesProjectStatusCount(projectRepository.getActiveProjectCountByStatus(previousFromDate, previousToDate));
@@ -113,7 +125,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key) {
+    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
@@ -125,17 +137,47 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
                 return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         }
-//        User user = userRepository.getUserByUserId(userId);
-//        if (user == null)
-//            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key);
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key, orderBy, orderType,startIndex, limit);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
     }
 
     @Override
-    public Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria) {
+    public Object getDetailedProjectDetails(String userId, String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        LinkedHashMap<String, ProjectDetailAnalysis> projectDetailsMap =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, limit);
+        for (Map.Entry<String, ProjectDetailAnalysis> projectMap : projectDetailsMap.entrySet()){
+        List<String> projectTaskIds = projectRepository.getProjectTaskIds(projectMap.getKey());
+        if (!projectTaskIds.isEmpty()) {
+            int changeStatusCount = activityLogRepository.getStatusChangeTaskCountOfTasks(projectTaskIds, from, to);
+            int reOpenCount = activityLogRepository.getReOpenCountOfTasks(projectTaskIds, from, to);
+            projectMap.getValue().setEngagement(projectMap.getValue().getTaskCount() + projectMap.getValue().getClosedCount() * 5 + changeStatusCount * 4 - reOpenCount * 5);
+        }
+        }
+        List<ProjectDetailAnalysis> list = new ArrayList<>(projectDetailsMap.values());
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
+    }
 
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    @Override
+    public Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria) {
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate startDate = LocalDate.parse(from, formatter);
         LocalDate endDate = LocalDate.parse(to, formatter);
@@ -143,26 +185,147 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         HashMap<String, Integer> taskCreationMap = taskRepository.getTaskCreationByDate(from, to, criteria);
         HashMap<String, Integer> taskCompletionMap = activityLogRepository.getClosedTaskCount(from, to, criteria);
 
-        List<String> dates = new ArrayList<>();
         List<TaskRateResponse> rateResponses = new ArrayList<>();
-        endDate = endDate.plusDays(1);
-        while (!startDate.equals(endDate)) {
-//            if ()
-            TaskRateResponse taskRateResponse = new TaskRateResponse();
-            taskRateResponse.setDate(startDate.toString());
-            if (taskCreationMap.containsKey(startDate.toString())){
-                taskRateResponse.setTaskCreationCount(taskCreationMap.get(startDate.toString()));
-            }
-            if (taskCompletionMap.containsKey(startDate.toString())){
-                taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(startDate.toString()));
-            }
-            taskRateResponse.setOverDueCount(taskRateResponse.getTaskCreationCount() - taskRateResponse.getTaskCompletionCount());
-            rateResponses.add(taskRateResponse);
-            dates.add(startDate.toString());
-            startDate = startDate.plusDays(1);
+
+        switch (criteria){
+            case DAY:
+                endDate = endDate.plusDays(1);
+                while (!startDate.equals(endDate)) {
+                    TaskRateResponse taskRateResponse = new TaskRateResponse();
+                    taskRateResponse.setDate(startDate.toString());
+                    this.getTaskRateResponse(taskCreationMap, taskCompletionMap, startDate.toString(), taskRateResponse);
+                    rateResponses.add(taskRateResponse);
+                    startDate = startDate.plusDays(1);
+                }
+                break;
+            case MONTH:
+                while (startDate.getMonthValue() <= endDate.getMonthValue()){
+                    TaskRateResponse taskRateResponse = new TaskRateResponse();
+                    String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
+                    taskRateResponse.setDate(yearMonth);
+                    this.getTaskRateResponse(taskCreationMap, taskCompletionMap, yearMonth, taskRateResponse);
+                    rateResponses.add(taskRateResponse);
+                    startDate = startDate.plusMonths(1);
+                }
+                break;
+            case YEAR:
+                while (startDate.getYear() <= endDate.getYear()){
+                    TaskRateResponse taskRateResponse = new TaskRateResponse();
+                    taskRateResponse.setDate(String.valueOf(startDate.getYear()));
+                    this.getTaskRateResponse(taskCreationMap, taskCompletionMap, String.valueOf(startDate.getYear()), taskRateResponse);
+                    rateResponses.add(taskRateResponse);
+                    startDate = startDate.plusYears(1);
+                }
+
+        }
+       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, rateResponses);
+    }
+
+    @Override
+    public Object getMemberActivity(String userId, String from, String to, ChartCriteriaEnum criteria) {
+        Object error = this.dateCheck(from,to,false);
+        if (error instanceof ErrorMessage)
+            return error;
+        if (userRepository.getUserByUserId(userId) == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(from, formatter);
+        LocalDate endDate = LocalDate.parse(to, formatter);
+
+        HashMap<String,UserActivityDto> userActivityMap = userRepository.getUserActivity(from,to,criteria);
+        List<UserActivityDto> userActivityDtos = new ArrayList<>();
+
+        switch (criteria){
+            case DAY:
+                endDate = endDate.plusDays(1);
+                while (!startDate.equals(endDate)) {
+                    if (userActivityMap.containsKey(startDate.toString()))
+                        userActivityDtos.add(userActivityMap.get(startDate.toString()));
+                    else {
+                        UserActivityDto userActivity = new UserActivityDto();
+                        userActivity.setDate(startDate.toString());
+                        userActivityDtos.add(userActivity);
+                    }
+                    startDate = startDate.plusDays(1);
+                }
+                break;
+            case MONTH:
+                while (startDate.getMonthValue() <= endDate.getMonthValue()){
+                    String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
+                    if (userActivityMap.containsKey(yearMonth))
+                        userActivityDtos.add(userActivityMap.get(yearMonth));
+                    else {
+                        UserActivityDto userActivity = new UserActivityDto();
+                        userActivity.setDate(yearMonth);
+                        userActivityDtos.add(userActivity);
+                    }
+                    startDate = startDate.plusMonths(1);
+                }
+                break;
+            case YEAR:
+                while (startDate.getYear() <= endDate.getYear()){
+                    if (userActivityMap.containsKey(String.valueOf(startDate.getYear())))
+                        userActivityDtos.add(userActivityMap.get(String.valueOf(startDate.getYear())));
+                    else {
+                        UserActivityDto userActivity = new UserActivityDto();
+                        userActivity.setDate(String.valueOf(startDate.getYear()));
+                        userActivityDtos.add(userActivity);
+                    }
+                    startDate = startDate.plusYears(1);
+                }
+
         }
 
-       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, rateResponses);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, userActivityDtos);
+    }
+
+
+    @Override
+    public Object getDetailedUserDetails(String userId, UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex, Set<String> userList) {
+        int limit = endIndex - startIndex;
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        User user = userRepository.getUserByUserId(userId);
+        if (userList.size() > 1 && userList.contains(ALL))
+            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        List<UserDetailedAnalysis> detailedUserList = userRepository.getDetailedUserDetails(orderBy, orderType, startIndex, limit, userList);
+        for (UserDetailedAnalysis userDetail : detailedUserList){
+            try {
+                setUserRole(idpUserService.getAllUserRoleMappings(userDetail.getIdpUserId(), true), userDetail);
+            } catch (Exception e){
+                userDetail.setUserRole(USER);
+            }
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, detailedUserList);
+    }
+
+    private void setUserRole(JSONArray roleList, UserDetailedAnalysis userDetail){
+        List<String> userRoleList = new ArrayList<>();
+        for (int i = 0; i < roleList.length(); i++) {
+            JSONObject userRole = roleList.getJSONObject(i);
+            userRoleList.add(userRole.getString(ID));
+        }
+        if (userRoleList.contains(ORGANIZATION_ADMIN))
+            userDetail.setUserRole(ORGANIZATION_ADMIN);
+        else if (userRoleList.contains(SUPER_ADMIN))
+            userDetail.setUserRole(SUPER_ADMIN);
+        else if (userRoleList.contains(ADMIN))
+            userDetail.setUserRole(ADMIN);
+        else if (userRoleList.contains(WORKLOAD))
+            userDetail.setUserRole(WORKLOAD);
+        else userDetail.setUserRole(USER);
+    }
+
+
+    private void getTaskRateResponse(HashMap<String, Integer> taskCreationMap, HashMap<String, Integer> taskCompletionMap , String filteredDate, TaskRateResponse taskRateResponse){
+        if (taskCreationMap.containsKey(filteredDate)){
+            taskRateResponse.setTaskCreationCount(taskCreationMap.get(filteredDate));
+        }
+        if (taskCompletionMap.containsKey(filteredDate)){
+            taskRateResponse.setTaskCompletionCount(taskCompletionMap.get(filteredDate));
+        }
     }
 
 
@@ -179,7 +342,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             } else if (aspectSummary.getPercentage().compareTo(BigDecimal.ZERO) == 0){
                 aspectSummary.setPerformance(PerformanceEnum.neutral);
             }
-//        } else {
+//        } else {;
 //            aspectSummary.setPerformance(PerformanceEnum.neutral);
 //        }
         return aspectSummary;
