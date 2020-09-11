@@ -399,7 +399,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 if (!dateCountMap.containsKey(rs.getString("project"))) {
                     projectDetailAnalysis.setProjectId(rs.getString("project"));
                     projectDetailAnalysis.setProjectName(rs.getString("projectName"));
-                    projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectStartDate"));
+                    projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectCreatedDate"));
                     projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
                     projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
                     projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
