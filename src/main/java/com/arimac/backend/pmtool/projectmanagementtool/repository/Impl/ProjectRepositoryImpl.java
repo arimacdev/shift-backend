@@ -385,7 +385,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
         String latterQuery = ") as taskcount," +
                 "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = project.project AND Project_User.isBlocked = false) as memberCount," +
-                "(DATEDIFF(CURDATE() - projectStartDate)) as timeTaken " +
+                "DATEDIFF(CURDATE(), projectStartDate) as timeTaken " +
                 "FROM project LEFT JOIN Project_User AS PU ON PU.projectId=project.project " +
                 "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
                 "WHERE PU.assigneeProjectRole = 1 ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";

@@ -39,7 +39,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
 
     private static final String ALL = "all";
-    private  static final String ID = "id";
+    private static final String ID = "id";
     private static final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
     private static final String SUPER_ADMIN = "SUPER_ADMIN";
     private static final String ADMIN = "ADMIN";
