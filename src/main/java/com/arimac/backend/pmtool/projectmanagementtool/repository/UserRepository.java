@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
@@ -33,7 +34,7 @@ public interface UserRepository {
     void updateNotificationStatus(String userId, SlackNotificationDto slackNotificationDto);
     void changeUserUpdateStatus(String userId, boolean status);
     //Analytics
-    int getActiveUserCount(String from ,String to);
+    UserNumberDto getActiveUserCount(String from , String to);
     List<UserDetailedAnalysis> getDetailedUserDetails(UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit, Set<String> userList);
     HashMap<String,UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria);
     //REMOVE

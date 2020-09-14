@@ -31,7 +31,9 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Get Overview of Organization", notes = "Get Overview of Organization")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/overview")
-    public ResponseEntity<Object> getOrgOverview(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to){
+    public ResponseEntity<Object> getOrgOverview(@RequestHeader("user") String userId,
+                                                 @RequestParam("from") String from,
+                                                 @RequestParam("to") String to){
         logger.info("HIT - GET analytics/overview ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
         return sendResponse(analyticsService.getOrgOverview(userId,from,to));
     }
@@ -39,7 +41,9 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/overview/projects")
-    public ResponseEntity<Object> getProjectOverview(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to){
+    public ResponseEntity<Object> getProjectOverview(@RequestHeader("user") String userId,
+                                                     @RequestHeader("from") String from,
+                                                     @RequestHeader("to") String to){
         logger.info("HIT - GET analytics/overview/projects ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
         return sendResponse(analyticsService.getProjectOverview(userId,from,to));
     }
@@ -79,7 +83,10 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Task Rate Graph", notes = "Task Rate Graph")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/rate/task")
-    public ResponseEntity<Object> getTaskRate(@RequestHeader("user") String userId, @RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("criteria")ChartCriteriaEnum criteria){
+    public ResponseEntity<Object> getTaskRate(@RequestHeader("user") String userId,
+                                              @RequestParam("from") String from,
+                                              @RequestParam("to") String to,
+                                              @RequestParam("criteria")ChartCriteriaEnum criteria){
         logger.info("HIT - GET analytics/rate/task ---> getTaskRate | User: {} | from: {} | to: {} | criteria: {} ", userId, from, to, criteria);
         return sendResponse(analyticsService.getTaskRate(userId, from, to, criteria));
     }

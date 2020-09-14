@@ -415,7 +415,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
         }else {
-            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskCreatedAt BETWEEN ? AND ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
         }
         } catch (Exception e){
@@ -431,7 +431,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
         } else {
-            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskCreatedAt BETWEEN ? AND ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
         }
         } catch (Exception e){

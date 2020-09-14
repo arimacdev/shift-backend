@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
@@ -70,14 +71,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        int userCount = userRepository.getActiveUserCount(from, to);
-        int projectCount = projectRepository.getActiveProjectCount(from, to);
+        UserNumberDto userCount = userRepository.getActiveUserCount(from, to);
+        ProjectNumberDto projectNumber = projectRepository.getProjectNumbers(from, to);
         int ActiveTaskCount = taskRepository.getActiveTaskCount(from, to);
         int closedTaskCount = taskRepository.getClosedTaskCount(from, to);
 
         AnlyticsOverviewDto anlyticsOverviewDto = new AnlyticsOverviewDto();
-        anlyticsOverviewDto.setActiveUsers(userCount);
-        anlyticsOverviewDto.setActiveProjects(projectCount);
+        anlyticsOverviewDto.setActiveUsers(userCount.getTotalUsers());
+        anlyticsOverviewDto.setSlackActivatedUsers(userCount.getSlackActivated());
+        anlyticsOverviewDto.setActiveProjects(projectNumber.getActiveProjects());
+        anlyticsOverviewDto.setTotalProjects(projectNumber.getTotalProjects());
         anlyticsOverviewDto.setActiveTasks(ActiveTaskCount);
         anlyticsOverviewDto.setClosedTasks(closedTaskCount);
         anlyticsOverviewDto.setTotalTasks(ActiveTaskCount+closedTaskCount);

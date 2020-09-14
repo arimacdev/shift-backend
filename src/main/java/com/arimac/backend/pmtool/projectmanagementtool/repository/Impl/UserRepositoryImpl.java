@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
@@ -203,10 +204,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public int getActiveUserCount(String from, String to) {
-        String sql = "SELECT COUNT(*) FROM User WHERE isActive=true";
+    public UserNumberDto getActiveUserCount(String from, String to) {
+        String sql = "SELECT COUNT(*) AS totalUsers, COUNT(case when userSlackId IS NOT NULL then 1 end) AS slackActivated FROM User WHERE isActive=true";
         try {
-            return jdbcTemplate.queryForObject(sql, Integer.class);
+            return jdbcTemplate.queryForObject(sql, new UserNumberDto());
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

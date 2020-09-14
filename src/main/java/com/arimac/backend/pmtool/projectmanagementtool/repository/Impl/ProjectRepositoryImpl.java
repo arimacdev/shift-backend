@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
@@ -281,14 +282,36 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public int getActiveProjectCount(String from, String to) {
         String sql;
-        try {
         if (from.equals(ALL) && to.equals(ALL)) {
             sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false";
             return jdbcTemplate.queryForObject(sql, Integer.class);
+        } else {
+            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{from, to}, Integer.class);
+
+        }
+    }
+
+
+    @Override
+    public ProjectNumberDto getProjectNumbers(String from, String to) {
+         String sql = "SELECT COUNT(*) as totalProjects," +
+                "COUNT(case when projectStatus  in (:statusList) then 1 end) as activeProjects" +
+                " FROM project WHERE isDeleted=false";
+        try {
+            MapSqlParameterSource parameters = new MapSqlParameterSource();
+            Set<String> statusL = new HashSet<>();
+            statusL.add(ProjectStatusEnum.ongoing.toString());
+            statusL.add(ProjectStatusEnum.support.toString());
+            statusL.add(ProjectStatusEnum.finished.toString());
+            parameters.addValue("statusList", statusL);
+            if (from.equals(ALL) && to.equals(ALL)) {
+            return namedParameterJdbcTemplate.queryForObject(sql, parameters, new ProjectNumberDto());
         }
         else {
-            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
-            return jdbcTemplate.queryForObject(sql, new Object[]{from,to}, Integer.class);
+            parameters.addValue("fromDate", from);
+            parameters.addValue("toDate", to);
+            return namedParameterJdbcTemplate.queryForObject(sql + " AND projectStartDate BETWEEN :fromDate AND :toDate", parameters, new ProjectNumberDto());
         }
         } catch (Exception e){
             throw new PMException(e.getMessage());
