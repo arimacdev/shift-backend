@@ -166,11 +166,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LinkedHashMap<String, ProjectDetailAnalysis> projectDetailsMap =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, limit);
         for (Map.Entry<String, ProjectDetailAnalysis> projectMap : projectDetailsMap.entrySet()){
         List<String> projectTaskIds = projectRepository.getProjectTaskIds(projectMap.getKey());
-        if (!projectTaskIds.isEmpty()) {
-            int changeStatusCount = activityLogRepository.getStatusChangeTaskCountOfTasks(projectTaskIds, from, to);
-            int reOpenCount = activityLogRepository.getReOpenCountOfTasks(projectTaskIds, from, to);
-            projectMap.getValue().setEngagement(projectMap.getValue().getTaskCount() + projectMap.getValue().getClosedCount() * 5 + changeStatusCount * 4 - reOpenCount * 5);
-        }
+            if (!projectTaskIds.isEmpty()) {
+                int changeStatusCount = activityLogRepository.getStatusChangeTaskCountOfTasks(projectTaskIds, from, to);
+                int reOpenCount = activityLogRepository.getReOpenCountOfTasks(projectTaskIds, from, to);
+                projectMap.getValue().setEngagement(projectMap.getValue().getTaskCount() + projectMap.getValue().getClosedCount() * 5 + changeStatusCount * 4 - reOpenCount * 5);
+            }
         }
         List<ProjectDetailAnalysis> list = new ArrayList<>(projectDetailsMap.values());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);

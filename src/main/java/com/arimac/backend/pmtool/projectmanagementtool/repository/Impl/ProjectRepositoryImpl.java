@@ -2,8 +2,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
@@ -385,7 +385,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
         String latterQuery = ") as taskcount," +
                 "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = project.project AND Project_User.isBlocked = false) as memberCount," +
-                "(NOW() - projectStartDate) as timeTaken " +
+                "(DATEDIFF(CURDATE() - projectStartDate)) as timeTaken " +
                 "FROM project LEFT JOIN Project_User AS PU ON PU.projectId=project.project " +
                 "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
                 "WHERE PU.assigneeProjectRole = 1 ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";
@@ -403,6 +403,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                         projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
                         projectDetailAnalysis.setClosedCount(rs.getInt("closedCount"));
                         projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
+                        //projectDetailAnalysis.setTimeTaken(setTimeTaken(projectDetailAnalysis.getProjectStartDate()));
+                      //  projectDetailAnalysis.setTimeTaken(setTimeTaken(rs.getLong("timeTaken")));
                         List<User> owner = new ArrayList<>();
                         owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
                         projectDetailAnalysis.setOwners(owner);
@@ -427,6 +429,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
                     projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
                     projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
+                   // projectDetailAnalysis.setTimeTaken(setTimeTaken(projectDetailAnalysis.getProjectStartDate()));
+                   // projectDetailAnalysis.setTimeTaken(setTimeTaken(rs.getLong("timeTaken")));
                     List<User> owner = new ArrayList<>();
                     owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
                     projectDetailAnalysis.setOwners(owner);
