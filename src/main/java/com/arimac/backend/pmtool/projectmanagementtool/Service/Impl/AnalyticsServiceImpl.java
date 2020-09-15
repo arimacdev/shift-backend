@@ -128,13 +128,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
+    public Object getProjectSummary(String userId, String from, String to, Set<String> status, Set<String> project, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
-        if ((key == null || key.isEmpty()) )
-            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-        if (status.size() > 1 && status.contains(ALL))
+//        if ((key == null || key.isEmpty()) )
+//            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
+        if ((status.size() > 1 && status.contains(ALL)) || (project.size() > 1 && status.contains(ALL)))
             return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         for (String projectStatus: status ){
             if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
@@ -148,7 +148,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key, orderBy, orderType,startIndex, limit);
+       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, project, orderBy, orderType,startIndex, limit);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
     }
 

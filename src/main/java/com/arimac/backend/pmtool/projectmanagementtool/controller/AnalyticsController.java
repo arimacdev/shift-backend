@@ -55,13 +55,13 @@ public class AnalyticsController extends ResponseController {
                                                     @RequestParam("from") String from,
                                                     @RequestParam("to") String to,
                                                     @RequestParam("status") Set<String> status,
-                                                    @RequestParam("key") String key,
+                                                    @RequestParam("project") Set<String> project,
                                                     @RequestParam("orderType") FilterOrderEnum orderType,
                                                     @RequestParam("orderBy")ProjectSummaryTypeEnum orderBy,
                                                     @RequestParam("startIndex")int startIndex,
                                                     @RequestParam("endIndex")int endIndex){
-        logger.info("HIT - GET analytics/summary/projects ---> getProjectSummary | User: {} | from: {} | to: {} | status {} | key {} | orderType{} | orderBy{}| startIndex {}| endIndex {}", userId, from, to, status, key, orderType, orderBy,startIndex,endIndex);
-        return sendResponse(analyticsService.getProjectSummary(userId,from,to,status,key,orderBy,orderType,startIndex,endIndex));
+        logger.info("HIT - GET analytics/summary/projects ---> getProjectSummary | User: {} | from: {} | to: {} | status {} | project {} | orderType{} | orderBy{}| startIndex {}| endIndex {}", userId, from, to, status, project, orderType, orderBy,startIndex,endIndex);
+        return sendResponse(analyticsService.getProjectSummary(userId,from,to,status,project,orderBy,orderType,startIndex,endIndex));
     }
 
     @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")

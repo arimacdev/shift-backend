@@ -336,7 +336,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType,int startIndex, int limit) {
+    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, Set<String> projectList, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType,int startIndex, int limit) {
         String sql;
         String betweenQuery = "";
         String statusQuery = "";
@@ -356,9 +356,9 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             statusQuery = "AND projectStatus IN (:statusList) ";
             parameters.addValue("statusList", status);
         }
-        if (!key.equals(ALL) || this.findProjectByName(ALL) != null){
-            keyQuery = "AND projectName LIKE :projectName ";
-            parameters.addValue("projectName", "%" + key + "%");
+        if (!projectList.contains(ALL)){
+            keyQuery = "AND project IN (:projectList)";
+            parameters.addValue("projectList", projectList);
         }
         sql = "SELECT COUNT(taskId) AS taskCount, projectName, projectStatus, COUNT(case when taskStatus = 'closed' then 1 end) AS closed " +
                 "FROM project AS P LEFT JOIN Task T on P.project = T.projectId " +

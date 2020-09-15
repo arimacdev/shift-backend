@@ -12,7 +12,7 @@ public interface AnalyticsService {
     //Project Analytics
     Object getOrgOverview(String userId, String from, String to);
     Object getProjectOverview(String userId, String from, String to);
-    Object getProjectSummary(String userId, String from, String to, Set<String> status, String key,ProjectSummaryTypeEnum orderBy,FilterOrderEnum orderType,int startIndex, int endIndex);
+    Object getProjectSummary(String userId, String from, String to, Set<String> status, Set<String> project,ProjectSummaryTypeEnum orderBy,FilterOrderEnum orderType,int startIndex, int endIndex);
     Object getDetailedProjectDetails(String userId, String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex);
     //Task Analytics
     Object getTaskRate(String userId, String from, String to, ChartCriteriaEnum criteria);
