@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Task.TaskRateResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserActivityDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserDetailedAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
@@ -38,7 +39,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
 
     private static final String ALL = "all";
-    private  static final String ID = "id";
+    private static final String ID = "id";
     private static final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
     private static final String SUPER_ADMIN = "SUPER_ADMIN";
     private static final String ADMIN = "ADMIN";
@@ -70,14 +71,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        int userCount = userRepository.getActiveUserCount(from, to);
-        int projectCount = projectRepository.getActiveProjectCount(from, to);
+        UserNumberDto userCount = userRepository.getActiveUserCount(from, to);
+        ProjectNumberDto projectNumber = projectRepository.getProjectNumbers(from, to);
         int ActiveTaskCount = taskRepository.getActiveTaskCount(from, to);
         int closedTaskCount = taskRepository.getClosedTaskCount(from, to);
 
         AnlyticsOverviewDto anlyticsOverviewDto = new AnlyticsOverviewDto();
-        anlyticsOverviewDto.setActiveUsers(userCount);
-        anlyticsOverviewDto.setActiveProjects(projectCount);
+        anlyticsOverviewDto.setActiveUsers(userCount.getTotalUsers());
+        anlyticsOverviewDto.setSlackActivatedUsers(userCount.getSlackActivated());
+        anlyticsOverviewDto.setActiveProjects(projectNumber.getActiveProjects());
+        anlyticsOverviewDto.setTotalProjects(projectNumber.getTotalProjects());
         anlyticsOverviewDto.setActiveTasks(ActiveTaskCount);
         anlyticsOverviewDto.setClosedTasks(closedTaskCount);
         anlyticsOverviewDto.setTotalTasks(ActiveTaskCount+closedTaskCount);
@@ -106,32 +109,19 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         ProjectOverViewDto projectOverView = new ProjectOverViewDto();
         projectOverView.setTotalProjects(getAspectSummary(projectCountCurrent, projectCountPrevious));
-//        if (pendingCurrent!= null && pendingPrevious != null){
-//            projectOverView.setLeadsPending(getAspectSummary(pendingCurrent.getProjectCount(), pendingPrevious.getProjectCount()));
-//            projectOverView.setLeadsOngoing(getAspectSummary((projectCountCurrent - pendingCurrent.getProjectCount()), (projectCountPrevious - pendingPrevious.getProjectCount())));
-//            projectOverView.setLeadConversion(getConversionPercentage((projectCountCurrent - pendingCurrent.getProjectCount()), projectCountCurrent, (projectCountPrevious - pendingPrevious.getProjectCount()), projectCountPrevious ));
-//        }
-//         if (pendingCurrent == null && pendingPrevious == null){
-//            projectOverView.setLeadsPending(new AspectSummary<>(this.dateCount));// check this case
-//            projectOverView.setLeadsOngoing(new AspectSummary<>(this.dateCount));
-//            projectOverView.setLeadConversion(new AspectSummary<>(this.dateCount));
-//        } else {
              projectOverView.setLeadsPending(getAspectSummary(pendingCurrent.getProjectCount(), pendingPrevious.getProjectCount()));
              projectOverView.setLeadsOngoing(getAspectSummary((projectCountCurrent - pendingCurrent.getProjectCount()), (projectCountPrevious - pendingPrevious.getProjectCount())));
              projectOverView.setLeadConversion(getConversionPercentage((projectCountCurrent - pendingCurrent.getProjectCount()), projectCountCurrent, (projectCountPrevious - pendingPrevious.getProjectCount()), projectCountPrevious ));
 
-//         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectOverView);
     }
 
     @Override
-    public Object getProjectSummary(String userId, String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
+    public Object getProjectSummary(String userId, String from, String to, Set<String> status, Set<String> project, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex) {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
-        if ((key == null || key.isEmpty()) )
-            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-        if (status.size() > 1 && status.contains(ALL))
+        if ((status.size() > 1 && status.contains(ALL)) || (project.size() > 1 && project.contains(ALL)))
             return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         for (String projectStatus: status ){
             if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
@@ -145,7 +135,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, key, orderBy, orderType,startIndex, limit);
+       List<ProjectSummaryDto> summaryList = projectRepository.getProjectSummary(from, to, status, project, orderBy, orderType,startIndex, limit);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, summaryList);
     }
 
@@ -163,11 +153,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LinkedHashMap<String, ProjectDetailAnalysis> projectDetailsMap =  projectRepository.getDetailedProjectDetails(from, to, orderBy, orderType, startIndex, limit);
         for (Map.Entry<String, ProjectDetailAnalysis> projectMap : projectDetailsMap.entrySet()){
         List<String> projectTaskIds = projectRepository.getProjectTaskIds(projectMap.getKey());
-        if (!projectTaskIds.isEmpty()) {
-            int changeStatusCount = activityLogRepository.getStatusChangeTaskCountOfTasks(projectTaskIds, from, to);
-            int reOpenCount = activityLogRepository.getReOpenCountOfTasks(projectTaskIds, from, to);
-            projectMap.getValue().setEngagement(projectMap.getValue().getTaskCount() + projectMap.getValue().getClosedCount() * 5 + changeStatusCount * 4 - reOpenCount * 5);
-        }
+            if (!projectTaskIds.isEmpty()) {
+                int changeStatusCount = activityLogRepository.getStatusChangeTaskCountOfTasks(projectTaskIds, from, to);
+                int reOpenCount = activityLogRepository.getReOpenCountOfTasks(projectTaskIds, from, to);
+                projectMap.getValue().setEngagement(projectMap.getValue().getTaskCount() + projectMap.getValue().getClosedCount() * 5 + changeStatusCount * 4 - reOpenCount * 5);
+            }
         }
         List<ProjectDetailAnalysis> list = new ArrayList<>(projectDetailsMap.values());
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
@@ -356,7 +346,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         BigDecimal previousRate = getPercentage(previousOngoing, previousTotalProjects);
         aspectSummary.setValue(givenRate);
         if (previousRate.compareTo(BigDecimal.ZERO) == 0)
-            aspectSummary.setPercentage(givenRate.add(new BigDecimal("100")));
+            aspectSummary.setPercentage(givenRate.add(new BigDecimal("100"))); //Fix here
+        else if (givenRate.compareTo(BigDecimal.ZERO) == 0)
+            aspectSummary.setPercentage(previousRate.negate().add(new BigDecimal("-100")));
         else {
             BigDecimal performanceRate = givenRate.divide(previousRate, mc).multiply(new BigDecimal(100));
             aspectSummary.setPercentage(performanceRate);
@@ -407,7 +399,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
                 if (setDate) {
                     this.dateCount = (int) ((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-                    this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() + this.dateCount * (1000 * 60 * 60 * 24L)));
+                    this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() - this.dateCount * (1000 * 60 * 60 * 24L)));
                     this.previousToDate = dateFormat.format(new Date(toDate.getTime() - this.dateCount * (1000 * 60 * 60 * 24L)));
                 }
             return null;

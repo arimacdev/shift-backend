@@ -1,8 +1,9 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
@@ -281,14 +282,36 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public int getActiveProjectCount(String from, String to) {
         String sql;
-        try {
         if (from.equals(ALL) && to.equals(ALL)) {
             sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false";
             return jdbcTemplate.queryForObject(sql, Integer.class);
+        } else {
+            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{from, to}, Integer.class);
+
+        }
+    }
+
+
+    @Override
+    public ProjectNumberDto getProjectNumbers(String from, String to) {
+         String sql = "SELECT COUNT(*) as totalProjects," +
+                "COUNT(case when projectStatus  in (:statusList) then 1 end) as activeProjects" +
+                " FROM project WHERE isDeleted=false";
+        try {
+            MapSqlParameterSource parameters = new MapSqlParameterSource();
+            Set<String> statusL = new HashSet<>();
+            statusL.add(ProjectStatusEnum.ongoing.toString());
+            statusL.add(ProjectStatusEnum.support.toString());
+            statusL.add(ProjectStatusEnum.finished.toString());
+            parameters.addValue("statusList", statusL);
+            if (from.equals(ALL) && to.equals(ALL)) {
+            return namedParameterJdbcTemplate.queryForObject(sql, parameters, new ProjectNumberDto());
         }
         else {
-            sql = "SELECT COUNT(*) FROM project WHERE isDeleted=false AND projectStartDate BETWEEN ? AND ?";
-            return jdbcTemplate.queryForObject(sql, new Object[]{from,to}, Integer.class);
+            parameters.addValue("fromDate", from);
+            parameters.addValue("toDate", to);
+            return namedParameterJdbcTemplate.queryForObject(sql + " AND projectStartDate BETWEEN :fromDate AND :toDate", parameters, new ProjectNumberDto());
         }
         } catch (Exception e){
             throw new PMException(e.getMessage());
@@ -313,7 +336,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType,int startIndex, int limit) {
+    public List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, Set<String> projectList, ProjectSummaryTypeEnum orderBy, FilterOrderEnum orderType,int startIndex, int limit) {
         String sql;
         String betweenQuery = "";
         String statusQuery = "";
@@ -333,9 +356,9 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             statusQuery = "AND projectStatus IN (:statusList) ";
             parameters.addValue("statusList", status);
         }
-        if (!key.equals(ALL) || this.findProjectByName(ALL) != null){
-            keyQuery = "AND projectName LIKE :projectName ";
-            parameters.addValue("projectName", "%" + key + "%");
+        if (!projectList.contains(ALL)){
+            keyQuery = "AND project IN (:projectList)";
+            parameters.addValue("projectList", projectList);
         }
         sql = "SELECT COUNT(taskId) AS taskCount, projectName, projectStatus, COUNT(case when taskStatus = 'closed' then 1 end) AS closed " +
                 "FROM project AS P LEFT JOIN Task T on P.project = T.projectId " +
@@ -357,15 +380,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit) {
         String baseQuery ="SELECT project, projectName, projectStartDate AS projectCreatedDate, projectStatus, userId, firstName, lastName, profileImage," +
-                " (SELECT COUNT(case when taskStatus = 'closed' then 1 end ) FROM Task WHERE Task.projectId = project.project AND taskCreatedAt BETWEEN ? AND ?) as closedCount," +
-                "(SELECT COUNT(*) FROM Task WHERE Task.projectId = project.project";
+                " (SELECT COUNT(case when taskStatus = 'closed' then 1 end ) FROM Task WHERE Task.projectId = limitProject.project AND taskCreatedAt BETWEEN ? AND ?) as closedCount," +
+                "(SELECT COUNT(*) FROM Task WHERE Task.projectId = limitProject.project";
         String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
         String latterQuery = ") as taskcount," +
-                "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = project.project AND Project_User.isBlocked = false) as memberCount," +
-                "(NOW() - projectStartDate) as timeTaken " +
-                "FROM project LEFT JOIN Project_User AS PU ON PU.projectId=project.project " +
+                "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = limitProject.project AND Project_User.isBlocked = false) as memberCount," +
+                "DATEDIFF(CURDATE(), projectStartDate) as timeTaken " +
+                "FROM (SELECT * FROM project WHERE isDeleted = false LIMIT ? OFFSET ?) as limitProject LEFT JOIN Project_User AS PU ON PU.projectId=limitProject.project " +
                 "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
-                "WHERE PU.assigneeProjectRole = 1 ORDER BY " + orderBy.toString() + " " +orderType.toString() + " LIMIT ? OFFSET ?";
+                "WHERE PU.assigneeProjectRole = 1 AND U.isActive = true ORDER BY " + orderBy.toString() + " " +orderType.toString();
         if (!from.equals(ALL) && !to.equals(ALL)) {
             return jdbcTemplate.query(baseQuery + timeFilter + latterQuery, new Object[] { from, to, from, to, limit, startIndex }, (ResultSet rs) -> {
                 LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
@@ -380,6 +403,34 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                         projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
                         projectDetailAnalysis.setClosedCount(rs.getInt("closedCount"));
                         projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
+                        //projectDetailAnalysis.setTimeTaken(setTimeTaken(projectDetailAnalysis.getProjectStartDate()));
+                      //  projectDetailAnalysis.setTimeTaken(setTimeTaken(rs.getLong("timeTaken")));
+                        List<User> owner = new ArrayList<>();
+                        owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
+                        projectDetailAnalysis.setOwners(owner);
+                        dateCountMap.put(rs.getString("project"), projectDetailAnalysis);
+                    } else {
+                        dateCountMap.get(rs.getString("project")).getOwners().add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
+                    }
+                }
+                return dateCountMap;
+            });
+        } else {
+
+            return jdbcTemplate.query(baseQuery + latterQuery, new Object[]{from, to, limit, startIndex}, (ResultSet rs) -> {
+                LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
+                while (rs.next()) {
+                    ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
+                    if (!dateCountMap.containsKey(rs.getString("project"))) {
+                        projectDetailAnalysis.setProjectId(rs.getString("project"));
+                        projectDetailAnalysis.setProjectName(rs.getString("projectName"));
+                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectCreatedDate"));
+                        projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
+                        projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
+                        projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
+                        projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
+                        // projectDetailAnalysis.setTimeTaken(setTimeTaken(projectDetailAnalysis.getProjectStartDate()));
+                        // projectDetailAnalysis.setTimeTaken(setTimeTaken(rs.getLong("timeTaken")));
                         List<User> owner = new ArrayList<>();
                         owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
                         projectDetailAnalysis.setOwners(owner);
@@ -391,29 +442,6 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 return dateCountMap;
             });
         }
-
-        return jdbcTemplate.query(baseQuery + latterQuery , new Object[] {from, to, limit, startIndex},(ResultSet rs) -> {
-            LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
-            while (rs.next()) {
-                ProjectDetailAnalysis projectDetailAnalysis = new ProjectDetailAnalysis();
-                if (!dateCountMap.containsKey(rs.getString("project"))) {
-                    projectDetailAnalysis.setProjectId(rs.getString("project"));
-                    projectDetailAnalysis.setProjectName(rs.getString("projectName"));
-                    projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectCreatedDate"));
-                    projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
-                    projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
-                    projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
-                    projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
-                    List<User> owner = new ArrayList<>();
-                    owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
-                    projectDetailAnalysis.setOwners(owner);
-                    dateCountMap.put(rs.getString("project"), projectDetailAnalysis);
-                } else {
-                    dateCountMap.get(rs.getString("project")).getOwners().add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
-                }
-            }
-            return dateCountMap;
-        });
     }
 
 

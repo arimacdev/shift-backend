@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
@@ -39,8 +40,9 @@ public interface ProjectRepository {
     List<Project> getAllProjects();
     //Analytics
     int getActiveProjectCount(String from, String to);
+    ProjectNumberDto getProjectNumbers(String from, String to);
     List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to);
-    List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key, ProjectSummaryTypeEnum orderBy,FilterOrderEnum orderType,int startIndex, int limit);
+    List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, Set<String> project, ProjectSummaryTypeEnum orderBy,FilterOrderEnum orderType,int startIndex, int limit);
     LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex);
 
 
