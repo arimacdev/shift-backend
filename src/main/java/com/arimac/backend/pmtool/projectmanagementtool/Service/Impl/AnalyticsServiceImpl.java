@@ -359,7 +359,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         BigDecimal previousRate = getPercentage(previousOngoing, previousTotalProjects);
         aspectSummary.setValue(givenRate);
         if (previousRate.compareTo(BigDecimal.ZERO) == 0)
-            aspectSummary.setPercentage(givenRate.add(new BigDecimal("100")));
+            aspectSummary.setPercentage(givenRate.add(new BigDecimal("100"))); //Fix here
+        else if (givenRate.compareTo(BigDecimal.ZERO) == 0)
+            aspectSummary.setPercentage(previousRate.negate().add(new BigDecimal("-100")));
         else {
             BigDecimal performanceRate = givenRate.divide(previousRate, mc).multiply(new BigDecimal(100));
             aspectSummary.setPercentage(performanceRate);
@@ -410,7 +412,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
                 if (setDate) {
                     this.dateCount = (int) ((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-                    this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() + this.dateCount * (1000 * 60 * 60 * 24L)));
+                    this.previousFromDate = dateFormat.format(new Date(fromDate.getTime() - this.dateCount * (1000 * 60 * 60 * 24L)));
                     this.previousToDate = dateFormat.format(new Date(toDate.getTime() - this.dateCount * (1000 * 60 * 60 * 24L)));
                 }
             return null;
