@@ -109,21 +109,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         ProjectOverViewDto projectOverView = new ProjectOverViewDto();
         projectOverView.setTotalProjects(getAspectSummary(projectCountCurrent, projectCountPrevious));
-//        if (pendingCurrent!= null && pendingPrevious != null){
-//            projectOverView.setLeadsPending(getAspectSummary(pendingCurrent.getProjectCount(), pendingPrevious.getProjectCount()));
-//            projectOverView.setLeadsOngoing(getAspectSummary((projectCountCurrent - pendingCurrent.getProjectCount()), (projectCountPrevious - pendingPrevious.getProjectCount())));
-//            projectOverView.setLeadConversion(getConversionPercentage((projectCountCurrent - pendingCurrent.getProjectCount()), projectCountCurrent, (projectCountPrevious - pendingPrevious.getProjectCount()), projectCountPrevious ));
-//        }
-//         if (pendingCurrent == null && pendingPrevious == null){
-//            projectOverView.setLeadsPending(new AspectSummary<>(this.dateCount));// check this case
-//            projectOverView.setLeadsOngoing(new AspectSummary<>(this.dateCount));
-//            projectOverView.setLeadConversion(new AspectSummary<>(this.dateCount));
-//        } else {
              projectOverView.setLeadsPending(getAspectSummary(pendingCurrent.getProjectCount(), pendingPrevious.getProjectCount()));
              projectOverView.setLeadsOngoing(getAspectSummary((projectCountCurrent - pendingCurrent.getProjectCount()), (projectCountPrevious - pendingPrevious.getProjectCount())));
              projectOverView.setLeadConversion(getConversionPercentage((projectCountCurrent - pendingCurrent.getProjectCount()), projectCountCurrent, (projectCountPrevious - pendingPrevious.getProjectCount()), projectCountPrevious ));
 
-//         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectOverView);
     }
 
@@ -132,9 +121,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         Object error = this.dateCheck(from,to,false);
         if (error instanceof ErrorMessage)
             return error;
-//        if ((key == null || key.isEmpty()) )
-//            return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
-        if ((status.size() > 1 && status.contains(ALL)) || (project.size() > 1 && status.contains(ALL)))
+        if ((status.size() > 1 && status.contains(ALL)) || (project.size() > 1 && project.contains(ALL)))
             return new ErrorMessage(ResponseMessage.INVALID_FILTER_QUERY, HttpStatus.BAD_REQUEST);
         for (String projectStatus: status ){
             if (!ProjectStatusEnum.contains(projectStatus) && !projectStatus.equals(ALL))
