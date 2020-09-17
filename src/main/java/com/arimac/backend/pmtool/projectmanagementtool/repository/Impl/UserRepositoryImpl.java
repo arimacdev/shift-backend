@@ -216,8 +216,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<UserDetailedAnalysis> getDetailedUserDetails(UserDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit, Set<String> userList) {
         String baseQuery = "SELECT userId, firstName , lastName, profileImage,idpUserId," +
-                "(SELECT COUNT(Project_User.projectId) FROM Project_User WHERE Project_User.assigneeId = User.userId AND Project_User.isBlocked = false) AS projectCount," +
-                "(SELECT COUNT(DISTINCT(Task.projectId)) FROM Task WHERE Task.taskAssignee = User.userId AND Task.isDeleted =false) as activeProjectCount," +
+                "(SELECT COUNT(Project_User.projectId) FROM Project_User INNER JOIN project ON project.project = Project_User.projectId  WHERE project.isDeleted = false AND Project_User.assigneeId = User.userId AND Project_User.isBlocked = false) AS projectCount," +
+                "(SELECT COUNT(DISTINCT(Task.projectId)) FROM Task INNER JOIN project ON project.project = Task.projectId WHERE project.isDeleted=false AND Task.taskAssignee = User.userId AND Task.isDeleted =false) as activeProjectCount," +
                 "(SELECT COUNT(taskGroupId) FROM TaskGroup_Member WHERE TaskGroup_Member.taskGroupMemberId =  User.userId AND TaskGroup_Member.isDeleted = false) as taskGroupCount," +
                 "(SELECT COUNT(taskId) FROM Task WHERE Task.taskAssignee = User.userId AND Task.isDeleted = false) as assignedTasks," +
                 "(SELECT COUNT(taskId) FROM TaskGroupTask WHERE TaskGroupTask.taskAssignee = User.userId AND TaskGroupTask.isDeleted = false) as taskGroupTaskCount," +
