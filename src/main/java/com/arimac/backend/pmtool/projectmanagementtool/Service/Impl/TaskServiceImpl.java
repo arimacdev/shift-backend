@@ -222,6 +222,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Object getAllParentTasksOfProject(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAllParentTasksOfProject(projectId));
+    }
+
+    @Override
     public Object getAllUserAssignedTasks(String userId, String projectId, int startIndex, int endIndex) {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);

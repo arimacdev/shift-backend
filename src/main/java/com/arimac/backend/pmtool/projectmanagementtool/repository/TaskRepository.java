@@ -42,6 +42,7 @@ public interface TaskRepository {
     void addParentToParentTask(String taskId, TaskParentChildUpdateDto taskParentChildUpdateDto);
     List<TaskUserResponseDto> getAllChildrenOfParentTaskWithProfile(String taskId);
     List<Task> getAllChildrenOfParentTask(String taskId);
+    List<Task> getAllParentTasksOfProject(String projectId);
     boolean checkChildTasksOfAParentTask(String taskId);
     List<TaskUserDto> filterTasks(String projectId, FilterTypeEnum filterType, String from, String to, String assignee, String issueType);
     void updateTaskWeightsToDefault(String projectId);
