@@ -174,7 +174,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (modifierProject == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if (!((modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (modifierProject.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("You don't have Admin privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("You don't have Admin privileges", HttpStatus.UNAUTHORIZED);
         Project updatedProject = new Project();
         if (projectEditDto.getProjectName() != null && !projectEditDto.getProjectName().isEmpty()){
             updatedProject.setProjectName(projectEditDto.getProjectName());
@@ -196,7 +196,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         if (projectEditDto.getProjectStartDate() != null){
             String previousDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(modifierProject.getProjectStartDate());
-            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectEndDate());
+            String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(projectEditDto.getProjectStartDate());
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, projectEditDto.getModifierId(), projectId, ProjectUpdateTypeEnum.START_DATE, previousDate, updatedDate));
             updatedProject.setProjectStartDate(projectEditDto.getProjectStartDate());
         } else {

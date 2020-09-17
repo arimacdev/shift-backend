@@ -3,10 +3,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.model;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class Project implements RowMapper<Project> {
@@ -141,5 +139,21 @@ public class Project implements RowMapper<Project> {
                 resultSet.getInt("issueCount"),
                 resultSet.getInt("weightMeasure")
         );
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "project='" + project + '\'' +
+                ", projectName='" + projectName + '\'' +
+                ", projectAlias='" + projectAlias + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", projectStartDate=" + projectStartDate +
+                ", projectEndDate=" + projectEndDate +
+                ", projectStatus=" + projectStatus +
+                ", isDeleted=" + isDeleted +
+                ", issueCount=" + issueCount +
+                ", weightMeasure=" + weightMeasure +
+                '}';
     }
 }

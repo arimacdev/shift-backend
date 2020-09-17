@@ -179,4 +179,24 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 getWeightMeasureOf(resultSet.getInt("weightMeasure"))
                 );
     }
+
+    @Override
+    public String toString() {
+        return "ProjectUserResponseDto{" +
+                "projectId='" + projectId + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", assigneeId='" + assigneeId + '\'' +
+                ", assignedAt=" + assignedAt +
+                ", assigneeJobRole='" + assigneeJobRole + '\'' +
+                ", assigneeProjectRole=" + assigneeProjectRole +
+                ", projectName='" + projectName + '\'' +
+                ", projectStatus='" + projectStatus + '\'' +
+                ", projectStartDate=" + projectStartDate +
+                ", projectEndDate=" + projectEndDate +
+                ", isDeleted=" + isDeleted +
+                ", blockedStatus=" + blockedStatus +
+                ", projectAlias='" + projectAlias + '\'' +
+                ", weightMeasure=" + weightMeasure +
+                '}';
+    }
 }
