@@ -96,32 +96,60 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
             dateFormat = "DATE_FORMAT(actionTimestamp,'%Y-%m') ";
         else
             dateFormat = "DATE_FORMAT(actionTimestamp,'%Y') ";
-        HashMap<String,Integer> dateCountMap = new HashMap<>();
         try {
             if (from.equals(ALL) && to.equals(ALL)){
                 sql = "SELECT " + dateFormat +  "as Date, COUNT(entityId) as taskCount " +
                         "FROM ActivityLog WHERE entityType = 'Task' AND operation = 'UPDATE' AND updatedvalue = 'closed' AND isDeleted=false" +
                         "GROUP BY " + dateFormat;
-                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                return jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    HashMap<String,Integer> dateCountMap = new HashMap<>();
                     while (rs.next()) {
                         dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
+                    return dateCountMap;
                 });
-                return dateCountMap;
             } else {
                 sql = "SELECT " + dateFormat +  "as Date, COUNT(entityId) as taskCount " +
                         "FROM ActivityLog WHERE entityType = 'Task' AND operation = 'UPDATE' AND updatedvalue = 'closed' AND isDeleted=false AND actionTimestamp BETWEEN ? AND ?" +
                         "GROUP BY " + dateFormat;
-                 jdbcTemplate.query(sql,  (ResultSet rs) -> {
+//                 jdbcTemplate.query(sql,  (ResultSet rs) -> {
+//                    while (rs.next()) {
+//                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+//                    }
+//                }, from, to);
+//                return dateCountMap;
+                return jdbcTemplate.query(sql,new Object[] { from, to }, (ResultSet rs) -> {
+                    HashMap<String,Integer> dateCountMap = new HashMap<>();
                     while (rs.next()) {
                         dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
-                }, from, to);
-                return dateCountMap;
+                    return dateCountMap;
+                });
             }
 
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public int getStatusChangeTaskCountOfTasks(List<String> taskIds, String from, String to) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", taskIds);
+        parameters.addValue("fromDate",from );
+        parameters.addValue("toDate",to );
+        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId IN (:ids) AND operation = 'UPDATE' AND  updateType = 'TASK_STATUS' AND isDeleted = false AND actionTimestamp BETWEEN :fromDate AND :toDate";
+        return namedParameterJdbcTemplate.queryForObject(sql, parameters, Integer.class);
+    }
+
+    @Override
+    public int getReOpenCountOfTasks(List<String> taskIds, String from, String to) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("ids", taskIds);
+        parameters.addValue("fromDate",from );
+        parameters.addValue("toDate",to );
+        String sql = "SELECT COUNT(*) FROM ActivityLog WHERE entityId IN (:ids) AND operation = 'UPDATE' AND  updateType = 'TASK_STATUS' AND previousValue = 'closed' AND isDeleted = false " +
+                "AND actionTimestamp BETWEEN :fromDate AND :toDate";
+        return namedParameterJdbcTemplate.queryForObject(sql, parameters, Integer.class);
     }
 }

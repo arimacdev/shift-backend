@@ -805,7 +805,7 @@ public class TaskServiceImpl implements TaskService {
         if (task == null)
             return new ErrorMessage(ResponseMessage.TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!((task.getTaskAssignee().equals(userId)) || (task.getTaskInitiator().equals(userId)) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()) || (projectUser.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue())))
-            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.FORBIDDEN);
+            return new ErrorMessage("User doesn't have Sufficient privileges", HttpStatus.UNAUTHORIZED);
         if (!task.getIsParent())
             return new Response(ResponseMessage.CANNOT_TRANSITION_CHILD_TASK, HttpStatus.UNPROCESSABLE_ENTITY);
         if (taskRepository.checkChildTasksOfAParentTask(taskId))

@@ -1,15 +1,19 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectDetailAnalysis;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface ProjectRepository {
@@ -36,8 +40,10 @@ public interface ProjectRepository {
     List<Project> getAllProjects();
     //Analytics
     int getActiveProjectCount(String from, String to);
+    ProjectNumberDto getProjectNumbers(String from, String to);
     List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to);
-    List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, String key);
+    List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, Set<String> project, ProjectSummaryTypeEnum orderBy,FilterOrderEnum orderType,int startIndex, int limit);
+    LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex);
 
 
 }

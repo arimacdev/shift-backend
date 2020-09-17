@@ -3,6 +3,10 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.AnalyticsService;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -27,7 +31,9 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Get Overview of Organization", notes = "Get Overview of Organization")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/overview")
-    public ResponseEntity<Object> getOrgOverview(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to){
+    public ResponseEntity<Object> getOrgOverview(@RequestHeader("user") String userId,
+                                                 @RequestParam("from") String from,
+                                                 @RequestParam("to") String to){
         logger.info("HIT - GET analytics/overview ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
         return sendResponse(analyticsService.getOrgOverview(userId,from,to));
     }
@@ -35,7 +41,9 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/overview/projects")
-    public ResponseEntity<Object> getProjectOverview(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to){
+    public ResponseEntity<Object> getProjectOverview(@RequestHeader("user") String userId,
+                                                     @RequestHeader("from") String from,
+                                                     @RequestHeader("to") String to){
         logger.info("HIT - GET analytics/overview/projects ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
         return sendResponse(analyticsService.getProjectOverview(userId,from,to));
     }
@@ -43,18 +51,75 @@ public class AnalyticsController extends ResponseController {
     @ApiOperation(value = "Get Project Summary", notes = "Get Project Summary")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/summary/projects")
-    public ResponseEntity<Object> getProjectSummary(@RequestHeader("user") String userId, @RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("status") Set<String> status, @RequestParam("key") String key){
-        logger.info("HIT - GET analytics/summary/projects ---> getProjectSummary | User: {} | from: {} | to: {} | status {} | key {}", userId, from, to, status, key);
-        return sendResponse(analyticsService.getProjectSummary(userId,from,to,status,key));
+    public ResponseEntity<Object> getProjectSummary(@RequestHeader("user") String userId,
+                                                    @RequestParam("from") String from,
+                                                    @RequestParam("to") String to,
+                                                    @RequestParam("status") Set<String> status,
+                                                    @RequestParam("project") Set<String> project,
+                                                    @RequestParam("orderType") FilterOrderEnum orderType,
+                                                    @RequestParam("orderBy")ProjectSummaryTypeEnum orderBy,
+                                                    @RequestParam("startIndex")int startIndex,
+                                                    @RequestParam("endIndex")int endIndex){
+        logger.info("HIT - GET analytics/summary/projects ---> getProjectSummary | User: {} | from: {} | to: {} | status {} | project {} | orderType{} | orderBy{}| startIndex {}| endIndex {}", userId, from, to, status, project, orderType, orderBy,startIndex,endIndex);
+        return sendResponse(analyticsService.getProjectSummary(userId,from,to,status,project,orderBy,orderType,startIndex,endIndex));
     }
+
+    @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/details/projects")
+    public ResponseEntity<Object> getDetailedProjectDetails(@RequestHeader("user") String userId,
+                                                            @RequestParam("from") String from,
+                                                            @RequestParam("to") String to,
+                                                            @RequestParam("orderBy")ProjectDetailsEnum orderBy,
+                                                            @RequestParam("orderType") FilterOrderEnum orderType,
+                                                            @RequestParam("startIndex")int startIndex,
+                                                            @RequestParam("endIndex")int endIndex
+                                                            ){
+        logger.info("HIT - GET analytics/details/projects ---> getDetailedProjectDetails | User: {} | from: {} | to: {} | orderBy {} | orderType{} | startIndex {} | endIndex{}", userId, from, to, orderBy, orderType,startIndex,endIndex);
+        return sendResponse(analyticsService.getDetailedProjectDetails(userId,from,to, orderBy, orderType, startIndex, endIndex));
+    }
+
 
     @ApiOperation(value = "Task Rate Graph", notes = "Task Rate Graph")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/rate/task")
-    public ResponseEntity<Object> getTaskRate(@RequestHeader("user") String userId, @RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("criteria")ChartCriteriaEnum criteria){
+    public ResponseEntity<Object> getTaskRate(@RequestHeader("user") String userId,
+                                              @RequestParam("from") String from,
+                                              @RequestParam("to") String to,
+                                              @RequestParam("criteria")ChartCriteriaEnum criteria){
         logger.info("HIT - GET analytics/rate/task ---> getTaskRate | User: {} | from: {} | to: {} | criteria: {} ", userId, from, to, criteria);
         return sendResponse(analyticsService.getTaskRate(userId, from, to, criteria));
     }
+
+    //USER ANALYTICS
+    @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/details/users")
+    public ResponseEntity<Object> getDetailedUserDetails(@RequestHeader("user") String userId,
+                                                            @RequestParam("orderBy") UserDetailsEnum orderBy,
+                                                            @RequestParam("orderType") FilterOrderEnum orderType,
+                                                            @RequestParam("startIndex")int startIndex,
+                                                            @RequestParam("endIndex")int endIndex,
+                                                            @RequestParam("userId") Set<String> userList){
+        logger.info("HIT - GET analytics/details/users ---> getDetailedUserDetails | User: {} |orderBy {} | orderType{} | startIndex {} | endIndex{} | userList {}", userId, orderBy, orderType,startIndex,endIndex,userList);
+        return sendResponse(analyticsService.getDetailedUserDetails(userId,orderBy, orderType, startIndex, endIndex,userList));
+    }
+
+    @ApiOperation(value = "Member Activity Graph", notes = "Member Activity Graph")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/activity/users")
+    public ResponseEntity<Object> getMemberActivity(@RequestHeader("user") String userId,
+                                                    @RequestParam("from") String from,
+                                                    @RequestParam("to") String to,
+                                                    @RequestParam("criteria")ChartCriteriaEnum criteria){
+        logger.info("HIT - GET analytics//activity/users ---> getMemberActivity | User: {} | from: {} | to: {} | criteria: {} ", userId, from, to, criteria);
+        return sendResponse(analyticsService.getMemberActivity(userId, from, to, criteria));
+    }
+
+
+
+
+
 
 
 

@@ -4,12 +4,10 @@ public class TaskRateResponse {
     private String date;
     private int taskCreationCount;
     private int taskCompletionCount;
-    private int overDueCount;
 
     public TaskRateResponse() {
         this.taskCompletionCount = 0;
         this.taskCreationCount = 0;
-        this.overDueCount = 0;
     }
 
     public String getDate() {
@@ -36,11 +34,5 @@ public class TaskRateResponse {
         this.taskCompletionCount = taskCompletionCount;
     }
 
-    public int getOverDueCount() {
-        return overDueCount;
-    }
 
-    public void setOverDueCount(int overDueCount) {
-        this.overDueCount = overDueCount;
-    }
 }

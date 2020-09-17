@@ -415,7 +415,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
         }else {
-            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus <> ? AND isDeleted=false AND taskCreatedAt BETWEEN ? AND ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
         }
         } catch (Exception e){
@@ -431,7 +431,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed"}, Integer.class);
         } else {
-            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskDueDateAt BETWEEN ? AND ?";
+            sql = "SELECT COUNT(*) FROM Task WHERE taskStatus=? AND isDeleted=false AND taskCreatedAt BETWEEN ? AND ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{"closed", from, to}, Integer.class);
         }
         } catch (Exception e){
@@ -449,27 +449,26 @@ public class TaskRepositoryImpl implements TaskRepository {
         dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y-%m') ";
         else
         dateFormat = "DATE_FORMAT(taskCreatedAt,'%Y') ";
-        HashMap<String,Integer> dateCountMap = new HashMap<>();
         try {
             if (from.equals(ALL) && to.equals(ALL)){
                 sql = "SELECT " + dateFormat + "as date"+ ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt GROUP BY " + dateFormat;
-                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                return jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    HashMap<String,Integer> dateCountMap = new HashMap<>();
                     while (rs.next()) {
                         dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
+                    return dateCountMap;
                 });
-                return dateCountMap;
             } else {
-                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + "? AND ? " +  "GROUP BY " + dateFormat;
-                //return jdbcTemplate.query(sql, new DateCountDto(), from, to);
-                jdbcTemplate.query(sql, (ResultSet rs) -> {
+                sql = "SELECT " + dateFormat + "as date" + ",COUNT(taskId) as taskCount FROM Task WHERE taskCreatedAt BETWEEN" + " ? AND ? AND isDeleted=false " +  "GROUP BY " + dateFormat;
+                return jdbcTemplate.query(sql,new Object[] { from, to }, (ResultSet rs) -> {
+                    HashMap<String,Integer> results = new HashMap<>();
                     while (rs.next()) {
-                        dateCountMap.put(rs.getString("date"), rs.getInt("taskCount"));
+                        results.put(rs.getString("date"), rs.getInt("taskCount"));
                     }
-                }, from, to);
-                return dateCountMap;
+                    return results;
+                });
             }
-
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
