@@ -40,7 +40,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsServiceImpl.class);
 
     private static final String ALL = "all";
-    private static final String ID = "id";
+    private static final String NAME = "name";
     private static final String ORGANIZATION_ADMIN	 = "ORGANIZATION_ADMIN";
     private static final String SUPER_ADMIN = "SUPER_ADMIN";
     private static final String ADMIN = "ADMIN";
@@ -297,7 +297,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<String> userRoleList = new ArrayList<>();
         for (int i = 0; i < roleList.length(); i++) {
             JSONObject userRole = roleList.getJSONObject(i);
-            userRoleList.add(userRole.getString(ID));
+            userRoleList.add(userRole.getString(NAME));
         }
         if (userRoleList.contains(ORGANIZATION_ADMIN))
             userDetail.setUserRole(ORGANIZATION_ADMIN);
