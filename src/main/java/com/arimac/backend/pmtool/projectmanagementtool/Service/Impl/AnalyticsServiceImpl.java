@@ -190,7 +190,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 }
                 break;
             case MONTH:
-                while (startDate.getMonthValue() <= endDate.getMonthValue() && (startDate.getYear() <= endDate.getYear())){
+                //while ((startDate.getMonthValue() <= endDate.getMonthValue()) && (startDate.getYear() <= endDate.getYear())){
+                while (startDate.isBefore(endDate) || startDate.isEqual(endDate)){
                     TaskRateResponse taskRateResponse = new TaskRateResponse();
                     String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
                     taskRateResponse.setDate(yearMonth);
@@ -241,7 +242,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 }
                 break;
             case MONTH:
-                while (startDate.getMonthValue() <= endDate.getMonthValue()){
+                while (startDate.isBefore(endDate) || startDate.isEqual(endDate)){
                     String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
                     if (userActivityMap.containsKey(yearMonth))
                         userActivityDtos.add(userActivityMap.get(yearMonth));
