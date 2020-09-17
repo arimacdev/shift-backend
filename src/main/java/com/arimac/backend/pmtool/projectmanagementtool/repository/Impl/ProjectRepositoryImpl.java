@@ -376,24 +376,38 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                 " LIMIT :limit OFFSET :offset";
         parameters.addValue("limit", limit);
         parameters.addValue("offset", startIndex);
-
         return namedParameterJdbcTemplate.query(sql, parameters, new ProjectSummaryDto());
-
-
     }
 
     @Override
     public LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int limit) {
-        String baseQuery ="SELECT project, projectName, projectStartDate AS projectCreatedDate, projectStatus, userId, firstName, lastName, profileImage," +
+        String resultsOrderingQuery  = "";
+        switch (orderBy){
+            case taskcount:
+                resultsOrderingQuery = "(SELECT * FROM project WHERE isDeleted = false) as limitProject INNER JOIN (SELECT projectId FROM Task WHERE isDeleted=false GROUP BY projectId ORDER BY COUNT(*) DESC LIMIT ? OFFSET ?) as P ON P.projectId = limitProject.project";
+                break;
+            case timeTaken:
+                resultsOrderingQuery = "(SELECT * FROM project WHERE isDeleted=false) as limitProject INNER JOIN (SELECT project FROM project WHERE isDeleted=false GROUP BY project ORDER BY DATEDIFF(CURDATE(), projectStartDate) DESC LIMIT ? OFFSET ?) as P ON P.project = limitProject.project";
+                break;
+            case memberCount:
+                resultsOrderingQuery = "(SELECT * FROM project WHERE isDeleted=false) as limitProject INNER JOIN (SELECT projectId FROM Project_User WHERE isBlocked = false GROUP BY projectId ORDER BY COUNT(*) DESC LIMIT ? OFFSET ?) as P ON P.projectId = limitProject.project";
+                break;
+            default:
+                resultsOrderingQuery = "(SELECT * FROM project WHERE isDeleted = false) as limitProject INNER JOIN (SELECT project FROM project WHERE isDeleted=false ORDER BY " + orderBy.toString() + " " + orderType.toString() + " LIMIT ? OFFSET ?) as P ON P.project = limitProject.project";
+
+        }
+        String baseQuery ="SELECT limitProject.project, limitProject.projectName, limitProject.projectStartDate, limitProject.projectStatus, userId, firstName, lastName, profileImage," +
                 " (SELECT COUNT(case when taskStatus = 'closed' then 1 end ) FROM Task WHERE Task.projectId = limitProject.project AND taskCreatedAt BETWEEN ? AND ?) as closedCount," +
                 "(SELECT COUNT(*) FROM Task WHERE Task.projectId = limitProject.project";
         String timeFilter = " AND taskCreatedAt BETWEEN ? AND ?";
         String latterQuery = ") as taskcount," +
                 "(SELECT COUNT(*) FROM Project_User WHERE Project_User.projectId = limitProject.project AND Project_User.isBlocked = false) as memberCount," +
                 "DATEDIFF(CURDATE(), projectStartDate) as timeTaken " +
-                "FROM (SELECT * FROM project WHERE isDeleted = false LIMIT ? OFFSET ?) as limitProject LEFT JOIN Project_User AS PU ON PU.projectId=limitProject.project " +
-                "LEFT JOIN User AS U ON U.userId = PU.assigneeId " +
-                "WHERE PU.assigneeProjectRole = 1 AND U.isActive = true ORDER BY " + orderBy.toString() + " " +orderType.toString();
+                "FROM " +
+                resultsOrderingQuery +
+                " LEFT JOIN Project_User AS PU ON PU.projectId=limitProject.project " +
+                "LEFT JOIN User AS U ON U.userId = PU.assigneeId" +
+                " WHERE PU.assigneeProjectRole = 1 AND U.isActive = true";
         if (!from.equals(ALL) && !to.equals(ALL)) {
             return jdbcTemplate.query(baseQuery + timeFilter + latterQuery, new Object[] { from, to, from, to, limit, startIndex }, (ResultSet rs) -> {
                 LinkedHashMap<String, ProjectDetailAnalysis> dateCountMap = new LinkedHashMap<>();
@@ -402,14 +416,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     if (!dateCountMap.containsKey(rs.getString("project"))) {
                         projectDetailAnalysis.setProjectId(rs.getString("project"));
                         projectDetailAnalysis.setProjectName(rs.getString("projectName"));
-                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectCreatedDate"));
+                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectStartDate"));
                         projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
                         projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
                         projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
                         projectDetailAnalysis.setClosedCount(rs.getInt("closedCount"));
                         projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
-                        //projectDetailAnalysis.setTimeTaken(setTimeTaken(projectDetailAnalysis.getProjectStartDate()));
-                      //  projectDetailAnalysis.setTimeTaken(setTimeTaken(rs.getLong("timeTaken")));
                         List<User> owner = new ArrayList<>();
                         owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
                         projectDetailAnalysis.setOwners(owner);
@@ -429,13 +441,11 @@ public class ProjectRepositoryImpl implements ProjectRepository {
                     if (!dateCountMap.containsKey(rs.getString("project"))) {
                         projectDetailAnalysis.setProjectId(rs.getString("project"));
                         projectDetailAnalysis.setProjectName(rs.getString("projectName"));
-                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectCreatedDate"));
+                        projectDetailAnalysis.setProjectStartDate(rs.getTimestamp("projectStartDate"));
                         projectDetailAnalysis.setProjectStatus(ProjectStatusEnum.valueOf(rs.getString("projectStatus")));
                         projectDetailAnalysis.setTaskCount(rs.getInt("taskCount"));
                         projectDetailAnalysis.setMemberCount(rs.getInt("memberCount"));
                         projectDetailAnalysis.setTimeTaken(rs.getInt("timeTaken"));
-                        // projectDetailAnalysis.setTimeTaken(setTimeTaken(projectDetailAnalysis.getProjectStartDate()));
-                        // projectDetailAnalysis.setTimeTaken(setTimeTaken(rs.getLong("timeTaken")));
                         List<User> owner = new ArrayList<>();
                         owner.add(new User(rs.getString("userId"), rs.getString("firstName"), rs.getString("lastName"), rs.getString("profileImage")));
                         projectDetailAnalysis.setOwners(owner);

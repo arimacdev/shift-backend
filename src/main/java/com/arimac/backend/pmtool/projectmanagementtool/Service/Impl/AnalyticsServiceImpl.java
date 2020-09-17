@@ -31,6 +31,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -189,7 +190,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 }
                 break;
             case MONTH:
-                while (startDate.getMonthValue() <= endDate.getMonthValue()){
+                while (startDate.getMonthValue() <= endDate.getMonthValue() && (startDate.getYear() <= endDate.getYear())){
                     TaskRateResponse taskRateResponse = new TaskRateResponse();
                     String yearMonth = startDate.getYear() + "-" + startDate.toString().split("-")[1];
                     taskRateResponse.setDate(yearMonth);
