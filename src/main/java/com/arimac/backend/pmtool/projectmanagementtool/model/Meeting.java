@@ -16,12 +16,13 @@ public class Meeting implements RowMapper<Meeting> {
     private long expectedDuration;
     private long actualDuration;
     private Timestamp createdAt;
+    private String meetingCreatedBy;
 
 
     public Meeting() {
     }
 
-    public Meeting(String meetingId, String projectId, String meetingTopic, String meetingVenue, Timestamp meetingExpectedTime, Timestamp meetingActualTime, long expectedDuration, long actualDuration, Timestamp createdAt) {
+    public Meeting(String meetingId, String projectId, String meetingTopic, String meetingVenue, Timestamp meetingExpectedTime, Timestamp meetingActualTime, long expectedDuration, long actualDuration, Timestamp createdAt, String meetingCreatedBy) {
         this.meetingId = meetingId;
         this.projectId = projectId;
         this.meetingTopic = meetingTopic;
@@ -31,6 +32,7 @@ public class Meeting implements RowMapper<Meeting> {
         this.expectedDuration = expectedDuration;
         this.actualDuration = actualDuration;
         this.createdAt = createdAt;
+        this.meetingCreatedBy = meetingCreatedBy;
     }
 
     public String getMeetingId() {
@@ -105,6 +107,14 @@ public class Meeting implements RowMapper<Meeting> {
         this.createdAt = createdAt;
     }
 
+    public String getMeetingCreatedBy() {
+        return meetingCreatedBy;
+    }
+
+    public void setMeetingCreatedBy(String meetingCreatedBy) {
+        this.meetingCreatedBy = meetingCreatedBy;
+    }
+
     @Override
     public Meeting mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Meeting(
@@ -116,8 +126,8 @@ public class Meeting implements RowMapper<Meeting> {
                 resultSet.getTimestamp("meetingActualTime"),
                 resultSet.getLong("expectedDuration"),
                 resultSet.getLong("actualDuration"),
-                resultSet.getTimestamp("createdAt")
-                );
+                resultSet.getTimestamp("createdAt"),
+                resultSet.getString("meetingCreatedBy"));
     }
 
 }
