@@ -6,8 +6,8 @@ public enum  LogEntityEnum {
     SubTask("SubTask",3);
 
 
-    private String entity;
-    private int entityId;
+    private final String entity;
+    private final int entityId;
 
     LogEntityEnum(String entity, int entityId){
         this.entity = entity;
