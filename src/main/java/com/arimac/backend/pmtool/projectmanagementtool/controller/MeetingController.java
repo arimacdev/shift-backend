@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -31,5 +32,14 @@ public class MeetingController extends ResponseController {
                                              @Valid @RequestBody AddMeeting addMeeting){
         logger.info("HIT - POST meeting ---> addMeeting | User: {} | addMeeting : {}", userId, addMeeting);
         return sendResponse(meetingService.addMeeting(userId,addMeeting));
+    }
+
+    @ApiOperation(value = "Add discusstion points", notes = "Add discusstion points")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/discussion")
+    public ResponseEntity<Object> addDiscussionPoint(@RequestHeader("user") String userId,
+                                             @Valid @RequestBody AddMinute addMinute){
+        logger.info("HIT - POST meeting ---> addDiscussionPoint | User: {} | addMinute : {}", userId, addMinute);
+        return sendResponse(meetingService.addDiscussionPoint(userId,addMinute));
     }
 }

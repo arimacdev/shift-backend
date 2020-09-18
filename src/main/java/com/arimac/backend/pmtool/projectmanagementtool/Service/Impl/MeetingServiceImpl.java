@@ -3,9 +3,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Minute;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.MeetingRepository;
@@ -52,5 +54,29 @@ public class MeetingServiceImpl implements MeetingService {
         meetingRepository.addMeeting(meeting);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object addDiscussionPoint(String userId, AddMinute addMinute) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Meeting meeting = meetingRepository.getMeetingById(addMinute.getMeetingId(), addMinute.getProjectId());
+        if (meeting == null)
+            return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(addMinute.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Minute minute = new Minute();
+        minute.setMeetingId(addMinute.getMeetingId());
+        minute.setMinuteId(utilsService.getUUId());
+        minute.setAddedBy(userId);
+        minute.setActionByGuest(addMinute.isActionByGuest());
+        minute.setActionBy(addMinute.getActionBy());
+        minute.setDescription(addMinute.getDescription());
+        minute.setDiscussionPoint(addMinute.getDiscussionPoint());
+
+        meetingRepository.addDiscussionPoint(addMinute);
+        return null;
     }
 }

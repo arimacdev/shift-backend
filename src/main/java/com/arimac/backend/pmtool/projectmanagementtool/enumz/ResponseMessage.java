@@ -55,7 +55,8 @@ public enum ResponseMessage {
     NEW_FOLDER_NOT_FOUND("New Folder doesn't exist"),
     FILE_NOT_FOUND("New Folder doesn't exist"),
     CANNOT_UPDATE_TASK_FOLDER("Cannot Update Task Folders"),
-    PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist");
+    PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist"),
+    MEETING_NOT_FOUND("Meeting Not Found");
 
 
     private String message;

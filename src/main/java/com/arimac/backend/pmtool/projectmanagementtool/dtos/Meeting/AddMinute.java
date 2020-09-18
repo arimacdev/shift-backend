@@ -1,43 +1,33 @@
-package com.arimac.backend.pmtool.projectmanagementtool.model;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting;
 
-public class Minute{
-    private String minuteId;
+import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
+
+public class AddMinute {
+    @NotNull
     private String meetingId;
+    @NotNull
     private int discussionPoint;
+    @NotNull
+    private String projectId;
+    @NotNull
     private String description;
+    @NotNull
     private String remarks;
+    @NotNull
     private String actionBy;
+    @NotNull
     private boolean actionByGuest;
+    @NotNull
     private String addedBy;
 
-    public Minute() {
+    public String getProjectId() {
+        return projectId;
     }
 
-    public Minute(String minuteId, String meetingId, int discussionPoint, String description, String remarks, String actionBy, boolean actionByGuest, String addedBy) {
-        this.minuteId = minuteId;
-        this.meetingId = meetingId;
-        this.discussionPoint = discussionPoint;
-        this.description = description;
-        this.remarks = remarks;
-        this.actionBy = actionBy;
-        this.actionByGuest = actionByGuest;
-        this.addedBy = addedBy;
-    }
-
-    public String getMinuteId() {
-        return minuteId;
-    }
-
-    public void setMinuteId(String minuteId) {
-        this.minuteId = minuteId;
-    }
-
-    public String getMeetingId() {
-        return meetingId;
-    }
-
-    public void setMeetingId(String meetingId) {
-        this.meetingId = meetingId;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public int getDiscussionPoint() {
@@ -46,6 +36,14 @@ public class Minute{
 
     public void setDiscussionPoint(int discussionPoint) {
         this.discussionPoint = discussionPoint;
+    }
+
+    public String getMeetingId() {
+        return meetingId;
+    }
+
+    public void setMeetingId(String meetingId) {
+        this.meetingId = meetingId;
     }
 
     public String getDescription() {
@@ -86,5 +84,17 @@ public class Minute{
 
     public void setAddedBy(String addedBy) {
         this.addedBy = addedBy;
+    }
+
+    @Override
+    public String toString() {
+        return "AddMinute{" +
+                "meetingId='" + meetingId + '\'' +
+                ", description='" + description + '\'' +
+                ", remarks='" + remarks + '\'' +
+                ", actionBy='" + actionBy + '\'' +
+                ", actionByGuest=" + actionByGuest +
+                ", addedBy='" + addedBy + '\'' +
+                '}';
     }
 }

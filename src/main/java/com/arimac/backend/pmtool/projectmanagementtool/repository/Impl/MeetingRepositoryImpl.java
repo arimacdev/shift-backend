@@ -1,7 +1,10 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.MeetingRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +35,22 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
             return preparedStatement;
         });
+    }
+
+    @Override
+    public Meeting getMeetingById(String meetingId, String projectId) {
+        String sql = "SELECT * FROM Meeting WHERE meetingId=? AND projectId?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Meeting(), meetingId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void addDiscussionPoint(AddMinute addMinute) {
+//        jdbcTemplate.
     }
 }
