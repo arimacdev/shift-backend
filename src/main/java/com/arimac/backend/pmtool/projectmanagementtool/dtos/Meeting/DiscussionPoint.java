@@ -1,6 +1,6 @@
-package com.arimac.backend.pmtool.projectmanagementtool.model;
+package com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting;
 
-public class Minute{
+public class DiscussionPoint {
     private String minuteId;
     private String meetingId;
     private int discussionPoint;
@@ -8,23 +8,7 @@ public class Minute{
     private String remarks;
     private String actionBy;
     private boolean actionByGuest;
-    private String addedBy;
-    private boolean isDeleted;
-
-    public Minute() {
-    }
-
-    public Minute(String minuteId, String meetingId, int discussionPoint, String description, String remarks, String actionBy, boolean actionByGuest, String addedBy, boolean isDeleted) {
-        this.minuteId = minuteId;
-        this.meetingId = meetingId;
-        this.discussionPoint = discussionPoint;
-        this.description = description;
-        this.remarks = remarks;
-        this.actionBy = actionBy;
-        this.actionByGuest = actionByGuest;
-        this.addedBy = addedBy;
-        this.isDeleted = isDeleted;
-    }
+    private MeetingUser meetingUser;
 
     public String getMinuteId() {
         return minuteId;
@@ -82,19 +66,11 @@ public class Minute{
         this.actionByGuest = actionByGuest;
     }
 
-    public String getAddedBy() {
-        return addedBy;
+    public MeetingUser getMeetingUser() {
+        return meetingUser;
     }
 
-    public void setAddedBy(String addedBy) {
-        this.addedBy = addedBy;
-    }
-
-    public boolean getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setMeetingUser(MeetingUser meetingUser) {
+        this.meetingUser = meetingUser;
     }
 }

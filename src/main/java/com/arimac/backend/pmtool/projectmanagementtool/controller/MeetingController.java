@@ -45,10 +45,11 @@ public class MeetingController extends ResponseController {
 
     @ApiOperation(value = "Add discussion points", notes = "Get Discussion Points of a meeting")
     @ApiResponse(code = 200, message = "Success", response = List.class)
-    @GetMapping("/{{meetingId}}")
+    @GetMapping("/{meetingId}")
     public ResponseEntity<Object> getDiscussionPointOfMeeting(@RequestHeader("user") String userId,
-                                                              @PathVariable("meetingId") String meetingId){
-        logger.info("HIT - GET meeting/{{meetingId}} ---> getDiscussionPointOfMeeting | User: {} | meetingId : {}", userId, meetingId);
-        return sendResponse(meetingService.getDiscussionPointOfMeeting(userId,meetingId));
+                                                              @PathVariable("meetingId") String meetingId,
+                                                              @RequestParam("projectId") String projectId){
+        logger.info("HIT - GET meeting/{{meetingId}} ---> getDiscussionPointOfMeeting | User: {} | meetingId : {} | projectId{}", userId, meetingId, projectId);
+        return sendResponse(meetingService.getDiscussionPointOfMeeting(userId,meetingId,projectId));
     }
 }

@@ -17,6 +17,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MeetingServiceImpl implements MeetingService {
 
@@ -76,8 +78,23 @@ public class MeetingServiceImpl implements MeetingService {
         minute.setDescription(addMinute.getDescription());
         minute.setDiscussionPoint(addMinute.getDiscussionPoint());
         minute.setActionByGuest(addMinute.isActionByGuest());
+        minute.setIsDeleted(false);
         meetingRepository.addDiscussionPoint(minute);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getDiscussionPointOfMeeting(String userId, String meetingId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Meeting meeting = meetingRepository.getMeetingById(meetingId, projectId);
+        if (meeting == null)
+            return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meetingRepository.getDiscussionPointOfMeeting(meetingId));
     }
 }

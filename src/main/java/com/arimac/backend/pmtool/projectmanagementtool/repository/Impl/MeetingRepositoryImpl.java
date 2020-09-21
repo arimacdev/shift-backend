@@ -1,6 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.DiscussionPoint;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.MeetingUser;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Minute;
@@ -10,6 +12,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class MeetingRepositoryImpl implements MeetingRepository {
@@ -53,7 +59,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     @Override
     public void addDiscussionPoint(Minute minute) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Minute (minuteId, meetingId, discussionPoint, description, remarks, actionBy, actionByGuest, addedBy ) VALUES(?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Minute (minuteId, meetingId, discussionPoint, description, remarks, actionBy, actionByGuest, addedBy, isDeleted ) VALUES(?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, minute.getMinuteId());
             preparedStatement.setString(2, minute.getMeetingId());
             preparedStatement.setInt(3, minute.getDiscussionPoint());
@@ -62,7 +68,36 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             preparedStatement.setString(6, minute.getActionBy());
             preparedStatement.setBoolean(7, minute.isActionByGuest());
             preparedStatement.setString(8, minute.getAddedBy());
+            preparedStatement.setBoolean(9, minute.getIsDeleted());
             return preparedStatement;
+        });
+    }
+
+    @Override
+    public List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId) {
+        String sql = "SELECT * FROM Minute AS M LEFT JOIN User AS U ON U.userId = M.actionBy WHERE M.meetingId=? AND M.isDeleted=false";
+        List<DiscussionPoint> discussionPoints = new ArrayList<>();
+        return jdbcTemplate.query(sql, new Object[] {meetingId}, (ResultSet rs) -> {
+            while (rs.next()){
+                DiscussionPoint discussionPoint = new DiscussionPoint();
+                discussionPoint.setMeetingId(rs.getString("meetingId"));
+                discussionPoint.setMinuteId(rs.getString("minuteId"));
+                discussionPoint.setDiscussionPoint(rs.getInt("discussionPoint"));
+                discussionPoint.setDescription(rs.getString("description"));
+                discussionPoint.setRemarks(rs.getString("remarks"));
+                discussionPoint.setActionBy(rs.getString("actionBy"));
+                discussionPoint.setActionByGuest(rs.getBoolean("actionByGuest"));
+                if (!discussionPoint.isActionByGuest()){
+                    discussionPoint.setMeetingUser(new MeetingUser(
+                            rs.getString("userId"),
+                            rs.getString("firstName"),
+                            rs.getString("lastName"),
+                            rs.getString("profileImage")
+                    ));
+                }
+                discussionPoints.add(discussionPoint);
+            }
+            return discussionPoints;
         });
     }
 }
