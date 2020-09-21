@@ -71,12 +71,13 @@ public class MeetingServiceImpl implements MeetingService {
         minute.setMeetingId(addMinute.getMeetingId());
         minute.setMinuteId(utilsService.getUUId());
         minute.setAddedBy(userId);
-        minute.setActionByGuest(addMinute.isActionByGuest());
+        minute.setRemarks(addMinute.getRemarks());
         minute.setActionBy(addMinute.getActionBy());
         minute.setDescription(addMinute.getDescription());
         minute.setDiscussionPoint(addMinute.getDiscussionPoint());
+        minute.setActionByGuest(addMinute.isActionByGuest());
+        meetingRepository.addDiscussionPoint(minute);
 
-        meetingRepository.addDiscussionPoint(addMinute);
-        return null;
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

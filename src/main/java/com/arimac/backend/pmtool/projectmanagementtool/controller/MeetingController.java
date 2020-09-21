@@ -42,4 +42,13 @@ public class MeetingController extends ResponseController {
         logger.info("HIT - POST meeting ---> addDiscussionPoint | User: {} | addMinute : {}", userId, addMinute);
         return sendResponse(meetingService.addDiscussionPoint(userId,addMinute));
     }
+
+    @ApiOperation(value = "Add discussion points", notes = "Get Discussion Points of a meeting")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/{{meetingId}}")
+    public ResponseEntity<Object> getDiscussionPointOfMeeting(@RequestHeader("user") String userId,
+                                                              @PathVariable("meetingId") String meetingId){
+        logger.info("HIT - GET meeting/{{meetingId}} ---> getDiscussionPointOfMeeting | User: {} | meetingId : {}", userId, meetingId);
+        return sendResponse(meetingService.getDiscussionPointOfMeeting(userId,meetingId));
+    }
 }

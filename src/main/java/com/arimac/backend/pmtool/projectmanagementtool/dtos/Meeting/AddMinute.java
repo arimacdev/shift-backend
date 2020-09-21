@@ -1,8 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting;
 
-import javax.validation.constraints.AssertFalse;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Required;
+
+import javax.validation.constraints.*;
 
 public class AddMinute {
     @NotNull
@@ -13,14 +13,11 @@ public class AddMinute {
     private String projectId;
     @NotNull
     private String description;
-    @NotNull
     private String remarks;
     @NotNull
     private String actionBy;
     @NotNull
     private boolean actionByGuest;
-    @NotNull
-    private String addedBy;
 
     public String getProjectId() {
         return projectId;
@@ -78,13 +75,7 @@ public class AddMinute {
         this.actionByGuest = actionByGuest;
     }
 
-    public String getAddedBy() {
-        return addedBy;
-    }
 
-    public void setAddedBy(String addedBy) {
-        this.addedBy = addedBy;
-    }
 
     @Override
     public String toString() {
@@ -94,7 +85,6 @@ public class AddMinute {
                 ", remarks='" + remarks + '\'' +
                 ", actionBy='" + actionBy + '\'' +
                 ", actionByGuest=" + actionByGuest +
-                ", addedBy='" + addedBy + '\'' +
                 '}';
     }
 }
