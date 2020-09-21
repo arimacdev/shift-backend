@@ -17,7 +17,7 @@ public class Meeting implements RowMapper<Meeting> {
     private long actualDuration;
     private Timestamp createdAt;
     private String meetingCreatedBy;
-
+    private boolean isDeleted;
 
     public Meeting() {
     }
@@ -113,6 +113,14 @@ public class Meeting implements RowMapper<Meeting> {
 
     public void setMeetingCreatedBy(String meetingCreatedBy) {
         this.meetingCreatedBy = meetingCreatedBy;
+    }
+
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     @Override

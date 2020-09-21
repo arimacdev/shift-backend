@@ -28,7 +28,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     @Override
     public void addMeeting(Meeting meeting) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Meeting (meetingId,projectId,meetingTopic,meetingVenue,meetingExpectedTime,meetingActualTime,expectedDuration,actualDuration,createdAt,meetingCreatedBy) VALUES (?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Meeting (meetingId,projectId,meetingTopic,meetingVenue,meetingExpectedTime,meetingActualTime,expectedDuration,actualDuration,createdAt,meetingCreatedBy,isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, meeting.getMeetingId());
             preparedStatement.setString(2, meeting.getProjectId());
             preparedStatement.setString(3, meeting.getMeetingTopic());
@@ -39,6 +39,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             preparedStatement.setLong(8, meeting.getActualDuration());
             preparedStatement.setTimestamp(9, meeting.getCreatedAt());
             preparedStatement.setString(10, meeting.getMeetingCreatedBy());
+            preparedStatement.setBoolean(11, meeting.getIsDeleted());
 
             return preparedStatement;
         });

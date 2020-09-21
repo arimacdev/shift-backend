@@ -53,6 +53,7 @@ public class MeetingServiceImpl implements MeetingService {
         meeting.setMeetingVenue(addMeeting.getMeetingVenue());
         meeting.setMeetingCreatedBy(userId);
         meeting.setCreatedAt(utilsService.getCurrentTimestamp());
+        meeting.setIsDeleted(false);
         meetingRepository.addMeeting(meeting);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
