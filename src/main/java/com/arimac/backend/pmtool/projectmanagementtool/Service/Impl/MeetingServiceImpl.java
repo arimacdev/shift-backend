@@ -2,10 +2,12 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
@@ -19,20 +21,20 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class MeetingServiceImpl implements MeetingService {
 
     private final MeetingRepository meetingRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final TaskService taskService;
     private final UtilsService utilsService;
 
-    public MeetingServiceImpl(MeetingRepository meetingRepository, UserRepository userRepository, ProjectRepository projectRepository, UtilsService utilsService) {
+    public MeetingServiceImpl(MeetingRepository meetingRepository, UserRepository userRepository, ProjectRepository projectRepository, TaskService taskService, UtilsService utilsService) {
         this.meetingRepository = meetingRepository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
+        this.taskService = taskService;
         this.utilsService = utilsService;
     }
 
@@ -181,6 +183,25 @@ public class MeetingServiceImpl implements MeetingService {
         meetingRepository.flagDiscussionPoint(discussionId);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object transitionToTask(String userId, String meetingId, String discussionId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Meeting meeting = meetingRepository.getMeetingById(meetingId,projectId);
+        if (meeting == null)
+            return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Minute minute = meetingRepository.getDiscussionPoint(discussionId);
+        if (minute == null)
+            return new ErrorMessage(ResponseMessage.DISCUSSION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        TaskDto taskDto = new TaskDto();
+//        taskService.addTaskToProject(projectId, )
+        return null;
     }
 
     @Override

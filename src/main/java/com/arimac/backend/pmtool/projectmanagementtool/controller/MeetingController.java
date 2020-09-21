@@ -88,6 +88,18 @@ public class MeetingController extends ResponseController {
         return sendResponse(meetingService.deleteDiscussionPoint(userId,meetingId,discussionId,projectId));
     }
 
+    @ApiOperation(value = "Transition of a discussion point to Task", notes = "Transition of a discussion point to Task")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/{meetingId}/discussion/{discussionId}/transition")
+    public ResponseEntity<Object> transitionToTask(@RequestHeader("user") String userId,
+                                                        @PathVariable("meetingId") String meetingId,
+                                                        @PathVariable("discussionId") String discussionId,
+                                                        @RequestParam("projectId") String projectId){
+        logger.info("HIT - POST meeting/<meetingId>/discussion/<discussionId>/transition ---> transitionToTask | User: {} | meetingId: {} | discussionId: {} | projectId : {}", userId, meetingId, discussionId, projectId);
+        return sendResponse(meetingService.transitionToTask(userId,meetingId,discussionId,projectId));
+    }
+
+
 
     @ApiOperation(value = "Get discussion points", notes = "Get Discussion Points of a meeting")
     @ApiResponse(code = 200, message = "Success", response = List.class)

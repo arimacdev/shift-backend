@@ -12,5 +12,6 @@ public interface MeetingService {
     Object addDiscussionPoint(String userId, AddMinute addMinute);
     Object updateDiscussionPoint(String userId, String meetingId, String discussionId, UpdateMinute updateMinute);
     Object deleteDiscussionPoint(String userId, String meetingId, String discussionId, String projectId);
+    Object transitionToTask(String userId, String meetingId, String discussionId, String projectId);
     Object getDiscussionPointOfMeeting(String userId, String meetingId, String projectId);
 }
