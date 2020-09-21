@@ -58,6 +58,20 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
+    public void updateMeeting(Meeting meeting) {
+      jdbcTemplate.update(connection -> {
+          PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Meeting SET meetingTopic=?, meetingVenue=?, meetingExpectedTime=?, meetingActualTime=?, expectedDuration=?, actualDuration=?");
+          preparedStatement.setString(1, meeting.getMeetingTopic());
+          preparedStatement.setString(2, meeting.getMeetingVenue());
+          preparedStatement.setTimestamp(3, meeting.getMeetingExpectedTime());
+          preparedStatement.setTimestamp(4, meeting.getMeetingActualTime());
+          preparedStatement.setLong(5, meeting.getExpectedDuration());
+          preparedStatement.setLong(6, meeting.getActualDuration());
+          return preparedStatement;
+      });
+    }
+
+    @Override
     public Minute getDiscussionPoint(String discussionId) {
         String sql = "SELECT * FROM Minute WHERE minuteId=? AND isDeleted=false";
         try {

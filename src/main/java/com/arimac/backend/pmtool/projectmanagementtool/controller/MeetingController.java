@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -33,6 +34,16 @@ public class MeetingController extends ResponseController {
                                              @Valid @RequestBody AddMeeting addMeeting){
         logger.info("HIT - POST meeting ---> addMeeting | User: {} | addMeeting : {}", userId, addMeeting);
         return sendResponse(meetingService.addMeeting(userId,addMeeting));
+    }
+
+    @ApiOperation(value = "Update a meeting", notes = "Update a meeting")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PutMapping("/{meetingId}")
+    public ResponseEntity<Object> updateMeeting(@RequestHeader("user") String userId,
+                                                @PathVariable("meetingId") String meetingId,
+                                                @Valid @RequestBody UpdateMeeting updateMeeting){
+        logger.info("HIT -/<meetingId> PUT meeting ---> updateMeeting | User: {} | updateMeeting : {}", userId, updateMeeting);
+        return sendResponse(meetingService.updateMeeting(userId,meetingId,updateMeeting));
     }
 
     @ApiOperation(value = "Add discusstion points", notes = "Add discusstion points")

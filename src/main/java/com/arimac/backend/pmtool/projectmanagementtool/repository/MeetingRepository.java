@@ -10,6 +10,7 @@ import java.util.List;
 public interface MeetingRepository {
     void addMeeting(Meeting meeting);
     Meeting getMeetingById(String meetingId, String projectId);
+    void updateMeeting(Meeting meeting);
     void addDiscussionPoint(Minute minute);
     Minute getDiscussionPoint(String discussionId);
     void updateDiscussionPoint(Minute minute);

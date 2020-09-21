@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -56,6 +57,35 @@ public class MeetingServiceImpl implements MeetingService {
         meeting.setCreatedAt(utilsService.getCurrentTimestamp());
         meeting.setIsDeleted(false);
         meetingRepository.addMeeting(meeting);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object updateMeeting(String userId, String meetingId, UpdateMeeting updateMeeting) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(updateMeeting.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Meeting meeting = meetingRepository.getMeetingById(meetingId, updateMeeting.getProjectId());
+        if (meeting == null)
+            return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (updateMeeting.getMeetingTopic() != null)
+            meeting.setMeetingTopic(updateMeeting.getMeetingTopic());
+        if (updateMeeting.getMeetingVenue() != null)
+            meeting.setMeetingVenue(updateMeeting.getMeetingVenue());
+        if (updateMeeting.getMeetingExpectedTime() != null)
+            meeting.setMeetingExpectedTime(updateMeeting.getMeetingExpectedTime());
+        if (updateMeeting.getMeetingActualTime() != null)
+            meeting.setMeetingActualTime(updateMeeting.getMeetingActualTime());
+        if (updateMeeting.getActualDuration() != null)
+            meeting.setActualDuration(updateMeeting.getActualDuration());
+        if (updateMeeting.getExpectedDuration() != null)
+            meeting.setExpectedDuration(updateMeeting.getExpectedDuration());
+
+        meetingRepository.updateMeeting(meeting);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
