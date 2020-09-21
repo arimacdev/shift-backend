@@ -1,5 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting;
 
+import java.sql.Timestamp;
+
 public class DiscussionPoint {
     private String minuteId;
     private String meetingId;
@@ -8,6 +10,7 @@ public class DiscussionPoint {
     private String remarks;
     private String actionBy;
     private boolean actionByGuest;
+    private Timestamp dueDate;
     private MeetingUser meetingUser;
 
     public String getMinuteId() {
@@ -72,5 +75,13 @@ public class DiscussionPoint {
 
     public void setMeetingUser(MeetingUser meetingUser) {
         this.meetingUser = meetingUser;
+    }
+
+    public Timestamp getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Timestamp dueDate) {
+        this.dueDate = dueDate;
     }
 }

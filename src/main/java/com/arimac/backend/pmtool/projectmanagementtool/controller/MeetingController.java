@@ -43,7 +43,18 @@ public class MeetingController extends ResponseController {
         return sendResponse(meetingService.addDiscussionPoint(userId,addMinute));
     }
 
-    @ApiOperation(value = "Add discussion points", notes = "Get Discussion Points of a meeting")
+    @ApiOperation(value = "Update Discussion Point of a Meeting", notes = "Update Discussion Point of a Meeting")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PutMapping("/{meetingId}/discussion/{discussionId}")
+    public ResponseEntity<Object> updateDiscussionPoint(@RequestHeader("user") String userId,
+                                                        @PathVariable("meetingId") String meetingId,
+                                                        @PathVariable("discussionId") String discussionId,
+                                                        @RequestBody AddMinute addMinute){
+        logger.info("HIT - POST meeting ---> addDiscussionPoint | User: {} | addMinute : {}", userId, addMinute);
+        return sendResponse(meetingService.addDiscussionPoint(userId,addMinute));
+    }
+
+    @ApiOperation(value = "Get discussion points", notes = "Get Discussion Points of a meeting")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/{meetingId}")
     public ResponseEntity<Object> getDiscussionPointOfMeeting(@RequestHeader("user") String userId,
@@ -52,4 +63,7 @@ public class MeetingController extends ResponseController {
         logger.info("HIT - GET meeting/{{meetingId}} ---> getDiscussionPointOfMeeting | User: {} | meetingId : {} | projectId{}", userId, meetingId, projectId);
         return sendResponse(meetingService.getDiscussionPointOfMeeting(userId,meetingId,projectId));
     }
+
+
+
 }

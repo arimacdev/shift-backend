@@ -60,7 +60,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     @Override
     public void addDiscussionPoint(Minute minute) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Minute (minuteId, meetingId, discussionPoint, description, remarks, actionBy, actionByGuest, addedBy, isDeleted ) VALUES(?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Minute (minuteId, meetingId, discussionPoint, description, remarks, actionBy, actionByGuest, addedBy, isDeleted, dueDate ) VALUES(?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, minute.getMinuteId());
             preparedStatement.setString(2, minute.getMeetingId());
             preparedStatement.setInt(3, minute.getDiscussionPoint());
@@ -70,6 +70,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             preparedStatement.setBoolean(7, minute.isActionByGuest());
             preparedStatement.setString(8, minute.getAddedBy());
             preparedStatement.setBoolean(9, minute.getIsDeleted());
+            preparedStatement.setTimestamp(10, minute.getDueDate());
             return preparedStatement;
         });
     }
@@ -88,6 +89,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
                 discussionPoint.setRemarks(rs.getString("remarks"));
                 discussionPoint.setActionBy(rs.getString("actionBy"));
                 discussionPoint.setActionByGuest(rs.getBoolean("actionByGuest"));
+                discussionPoint.setDueDate(rs.getTimestamp("dueDate"));
                 if (!discussionPoint.isActionByGuest()){
                     discussionPoint.setMeetingUser(new MeetingUser(
                             rs.getString("userId"),

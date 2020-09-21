@@ -79,7 +79,9 @@ public class MeetingServiceImpl implements MeetingService {
         minute.setDescription(addMinute.getDescription());
         minute.setDiscussionPoint(addMinute.getDiscussionPoint());
         minute.setActionByGuest(addMinute.isActionByGuest());
+        minute.setDueDate(addMinute.getDueDate());
         minute.setIsDeleted(false);
+
         meetingRepository.addDiscussionPoint(minute);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);

@@ -1,5 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import java.sql.Timestamp;
+
 public class Minute{
     private String minuteId;
     private String meetingId;
@@ -9,12 +11,13 @@ public class Minute{
     private String actionBy;
     private boolean actionByGuest;
     private String addedBy;
+    private Timestamp dueDate;
     private boolean isDeleted;
 
     public Minute() {
     }
 
-    public Minute(String minuteId, String meetingId, int discussionPoint, String description, String remarks, String actionBy, boolean actionByGuest, String addedBy, boolean isDeleted) {
+    public Minute(String minuteId, String meetingId, int discussionPoint, String description, String remarks, String actionBy, boolean actionByGuest, String addedBy, Timestamp dueDate, boolean isDeleted) {
         this.minuteId = minuteId;
         this.meetingId = meetingId;
         this.discussionPoint = discussionPoint;
@@ -23,6 +26,7 @@ public class Minute{
         this.actionBy = actionBy;
         this.actionByGuest = actionByGuest;
         this.addedBy = addedBy;
+        this.dueDate = dueDate;
         this.isDeleted = isDeleted;
     }
 
@@ -88,6 +92,14 @@ public class Minute{
 
     public void setAddedBy(String addedBy) {
         this.addedBy = addedBy;
+    }
+
+    public Timestamp getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Timestamp dueDate) {
+        this.dueDate = dueDate;
     }
 
     public boolean getIsDeleted() {
