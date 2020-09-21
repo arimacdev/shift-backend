@@ -41,7 +41,7 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/users/project/{projectId}/**").hasRole(USER)
                 .antMatchers(HttpMethod.POST, "/projects").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.DELETE, "/projects/{projectId}").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
-                .antMatchers(HttpMethod.PUT, "/projects/{projectId}").hasAnyRole(SUPER_ADMIN,ORGANIZATION_ADMIN)
+                .antMatchers(HttpMethod.PUT, "/projects/{projectId}").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.PUT, "/projects/{projectId}/weight").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 .antMatchers(HttpMethod.POST, "/projects/{projectId}/users/{userId}/block").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //workload
