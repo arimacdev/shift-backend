@@ -47,9 +47,21 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
     @Override
     public Meeting getMeetingById(String meetingId, String projectId) {
-        String sql = "SELECT * FROM Meeting WHERE meetingId=? AND projectId=?";
+        String sql = "SELECT * FROM Meeting WHERE meetingId=? AND projectId=? AND isDeleted=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Meeting(), meetingId, projectId);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Minute getDiscussionPoint(String discussionId) {
+        String sql = "SELECT * FROM Minute WHERE minuteId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Minute(), discussionId);
         } catch (EmptyResultDataAccessException e){
             return null;
         } catch (Exception e){
@@ -74,6 +86,21 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             return preparedStatement;
         });
     }
+
+    @Override
+    public void updateDiscussionPoint(Minute minute) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Minute SET description=?, remarks=?, actionBy=?, actionByGuest=?, dueDate=? WHERE minuteId=?");
+            preparedStatement.setString(1, minute.getDescription());
+            preparedStatement.setString(2, minute.getRemarks());
+            preparedStatement.setString(3, minute.getActionBy());
+            preparedStatement.setBoolean(4, minute.isActionByGuest());
+            preparedStatement.setTimestamp(5, minute.getDueDate());
+            preparedStatement.setString(6, minute.getMinuteId());
+            return preparedStatement;
+        });
+    }
+
 
     @Override
     public List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId) {

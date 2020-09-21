@@ -1,8 +1,12 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import org.springframework.jdbc.core.RowMapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class Minute{
+public class Minute implements RowMapper<Minute> {
     private String minuteId;
     private String meetingId;
     private int discussionPoint;
@@ -109,4 +113,21 @@ public class Minute{
     public void setIsDeleted(boolean deleted) {
         isDeleted = deleted;
     }
+
+    @Override
+    public Minute mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new Minute(
+                resultSet.getString("minuteId"),
+                resultSet.getString("meetingId"),
+                resultSet.getInt("discussionPoint"),
+                resultSet.getString("description"),
+                resultSet.getString("remarks"),
+                resultSet.getString("actionBy"),
+                resultSet.getBoolean("actionByGuest"),
+                resultSet.getString("addedBy"),
+                resultSet.getTimestamp("dueDate"),
+                resultSet.getBoolean("isDeleted")
+                );
+    }
 }
+

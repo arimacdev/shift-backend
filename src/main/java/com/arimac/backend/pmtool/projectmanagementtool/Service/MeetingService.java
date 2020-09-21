@@ -2,9 +2,11 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
 
 public interface MeetingService {
     Object addMeeting(String userId, AddMeeting addMeeting);
     Object addDiscussionPoint(String userId, AddMinute addMinute);
+    Object updateDiscussionPoint(String userId, String meetingId, String discussionId, UpdateMinute updateMinute);
     Object getDiscussionPointOfMeeting(String userId, String meetingId, String projectId);
 }

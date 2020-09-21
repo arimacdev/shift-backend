@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
@@ -85,6 +86,36 @@ public class MeetingServiceImpl implements MeetingService {
         meetingRepository.addDiscussionPoint(minute);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object updateDiscussionPoint(String userId, String meetingId, String discussionId, UpdateMinute updateMinute) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(updateMinute.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Meeting meeting = meetingRepository.getMeetingById(meetingId, updateMinute.getProjectId());
+        if (meeting == null)
+            return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Minute minute = meetingRepository.getDiscussionPoint(discussionId);
+        if (minute == null)
+            return new ErrorMessage(ResponseMessage.DISCUSSION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (updateMinute.getDescription() != null)
+            minute.setDescription(updateMinute.getDescription());
+        if (updateMinute.getRemarks() != null)
+            minute.setRemarks(updateMinute.getRemarks());
+        if (updateMinute.getActionBy() != null)
+            minute.setActionBy(updateMinute.getActionBy());
+        if (updateMinute.isActionByGuest() != null)
+            minute.setActionByGuest(updateMinute.isActionByGuest());
+        if (updateMinute.getDueDate() != null)
+            minute.setDueDate(updateMinute.getDueDate());
+
+        meetingRepository.updateDiscussionPoint(minute);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+
     }
 
     @Override

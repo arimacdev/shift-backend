@@ -11,5 +11,7 @@ public interface MeetingRepository {
     void addMeeting(Meeting meeting);
     Meeting getMeetingById(String meetingId, String projectId);
     void addDiscussionPoint(Minute minute);
+    Minute getDiscussionPoint(String discussionId);
+    void updateDiscussionPoint(Minute minute);
     List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId);
 }

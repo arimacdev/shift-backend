@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class MeetingController extends ResponseController {
     @PostMapping("/discussion")
     public ResponseEntity<Object> addDiscussionPoint(@RequestHeader("user") String userId,
                                              @Valid @RequestBody AddMinute addMinute){
-        logger.info("HIT - POST meeting ---> addDiscussionPoint | User: {} | addMinute : {}", userId, addMinute);
+        logger.info("HIT - POST meeting/discussion ---> addDiscussionPoint | User: {} | addMinute : {}", userId, addMinute);
         return sendResponse(meetingService.addDiscussionPoint(userId,addMinute));
     }
 
@@ -49,9 +50,9 @@ public class MeetingController extends ResponseController {
     public ResponseEntity<Object> updateDiscussionPoint(@RequestHeader("user") String userId,
                                                         @PathVariable("meetingId") String meetingId,
                                                         @PathVariable("discussionId") String discussionId,
-                                                        @RequestBody AddMinute addMinute){
-        logger.info("HIT - POST meeting ---> addDiscussionPoint | User: {} | addMinute : {}", userId, addMinute);
-        return sendResponse(meetingService.addDiscussionPoint(userId,addMinute));
+                                                        @Valid @RequestBody UpdateMinute updateMinute){
+        logger.info("HIT - PUT meeting/<meetingId>/discussion/<discussionId> ---> updateDiscussionPoint | User: {} | meetingId: {} | discussionId: {} | updateMinute : {}", userId, meetingId, discussionId, updateMinute);
+        return sendResponse(meetingService.updateDiscussionPoint(userId,meetingId,discussionId,updateMinute));
     }
 
     @ApiOperation(value = "Get discussion points", notes = "Get Discussion Points of a meeting")
