@@ -13,5 +13,6 @@ public interface MeetingRepository {
     void addDiscussionPoint(Minute minute);
     Minute getDiscussionPoint(String discussionId);
     void updateDiscussionPoint(Minute minute);
+    void flagDiscussionPoint(String discussionId);
     List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId);
 }

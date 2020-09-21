@@ -101,6 +101,16 @@ public class MeetingRepositoryImpl implements MeetingRepository {
         });
     }
 
+    @Override
+    public void flagDiscussionPoint(String discussionId) {
+        String sql = "UPDATE Minute SET isDeleted=true WHERE minuteId=?";
+        try {
+            jdbcTemplate.update(sql, discussionId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
 
     @Override
     public List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId) {

@@ -55,6 +55,18 @@ public class MeetingController extends ResponseController {
         return sendResponse(meetingService.updateDiscussionPoint(userId,meetingId,discussionId,updateMinute));
     }
 
+    @ApiOperation(value = "Delete Discussion Point of a Meeting", notes = "Delete Discussion Point of a Meeting")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @DeleteMapping("/{meetingId}/discussion/{discussionId}")
+    public ResponseEntity<Object> deleteDiscussionPoint(@RequestHeader("user") String userId,
+                                                        @PathVariable("meetingId") String meetingId,
+                                                        @PathVariable("discussionId") String discussionId,
+                                                        @RequestParam("projectId") String projectId){
+        logger.info("HIT - PUT meeting/<meetingId>/discussion/<discussionId> ---> deleteDiscussionPoint | User: {} | meetingId: {} | discussionId: {} | projectId : {}", userId, meetingId, discussionId, projectId);
+        return sendResponse(meetingService.deleteDiscussionPoint(userId,meetingId,discussionId,projectId));
+    }
+
+
     @ApiOperation(value = "Get discussion points", notes = "Get Discussion Points of a meeting")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/{meetingId}")

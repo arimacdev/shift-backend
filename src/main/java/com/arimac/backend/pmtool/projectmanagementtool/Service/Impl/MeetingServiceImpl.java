@@ -119,6 +119,25 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    public Object deleteDiscussionPoint(String userId, String meetingId, String discussionId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        Meeting meeting = meetingRepository.getMeetingById(meetingId, projectId);
+        if (meeting == null)
+            return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Minute minute = meetingRepository.getDiscussionPoint(discussionId);
+        if (minute == null)
+            return new ErrorMessage(ResponseMessage.DISCUSSION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        meetingRepository.flagDiscussionPoint(discussionId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
     public Object getDiscussionPointOfMeeting(String userId, String meetingId, String projectId) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
