@@ -46,6 +46,17 @@ public class MeetingController extends ResponseController {
         return sendResponse(meetingService.updateMeeting(userId,meetingId,updateMeeting));
     }
 
+    @ApiOperation(value = "Delete a meeting", notes = "Delete a meeting")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @DeleteMapping("/{meetingId}")
+    public ResponseEntity<Object> deleteMeeting(@RequestHeader("user") String userId,
+                                                @PathVariable("meetingId") String meetingId,
+                                                @RequestParam("projectId") String projectId
+                                               ){
+        logger.info("HIT -/<meetingId> DELETE meeting ---> deleteMeeting | User: {} | meeting : {} | projectId: {}", userId, meetingId, projectId);
+        return sendResponse(meetingService.deleteMeeting(userId,meetingId,projectId));
+    }
+
     @ApiOperation(value = "Add discusstion points", notes = "Add discusstion points")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PostMapping("/discussion")
