@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute
 
 public interface MeetingService {
     Object addMeeting(String userId, AddMeeting addMeeting);
+    Object getMeetingsOfProject(String userId, String projectId, int startIndex, int endIndex);
     Object updateMeeting(String userId, String meetingId, UpdateMeeting updateMeeting);
     Object deleteMeeting(String userId, String meetingId, String projectId);
     Object addDiscussionPoint(String userId, AddMinute addMinute);

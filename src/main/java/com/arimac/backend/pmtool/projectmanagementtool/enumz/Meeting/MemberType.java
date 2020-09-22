@@ -1,9 +1,11 @@
 package com.arimac.backend.pmtool.projectmanagementtool.enumz.Meeting;
 
 public enum  MemberType {
-    ATTENDED("ATTENDED",1),
-    ABSENT("ABSENT",2),
-    SEND_COPIES("SEND_COPIES",3);
+    CHAIRED("CHAIRED", 1),
+    ATTENDED("ATTENDED",2),
+    ABSENT("ABSENT",3),
+    SEND_COPIES("SEND_COPIES",4),
+    MINUTES_PREPARED("MINUTES_PREPARED", 5);
 
 
     private final String memberType;

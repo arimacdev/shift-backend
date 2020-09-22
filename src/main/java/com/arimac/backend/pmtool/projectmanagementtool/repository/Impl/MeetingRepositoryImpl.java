@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.DiscussionPo
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.MeetingUser;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting_Attendee;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Minute;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.MeetingRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -41,6 +42,18 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             preparedStatement.setString(10, meeting.getMeetingCreatedBy());
             preparedStatement.setBoolean(11, meeting.getIsDeleted());
 
+            return preparedStatement;
+        });
+    }
+
+    @Override
+    public void addMeetingAttendee(Meeting_Attendee meeting_attendee) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Meeting_Attendee (meetingId, attendeeId, attendeeType, isGuest) VALUES (?,?,?,?)");
+            preparedStatement.setString(1, meeting_attendee.getMeetingId());
+            preparedStatement.setString(2, meeting_attendee.getAttendeeId());
+            preparedStatement.setInt(3, meeting_attendee.getMemberType());
+            preparedStatement.setBoolean(4, meeting_attendee.isGuest());
             return preparedStatement;
         });
     }

@@ -3,23 +3,20 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.MeetingService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMeeting;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Meeting.MemberType;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Minute;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.MeetingRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class MeetingServiceImpl implements MeetingService {
@@ -60,7 +57,44 @@ public class MeetingServiceImpl implements MeetingService {
         meeting.setIsDeleted(false);
         meetingRepository.addMeeting(meeting);
 
+        if (!addMeeting.getMeetingAttended().isEmpty())
+           addMeetingAttendees(addMeeting.getMeetingAttended(), meeting.getMeetingId(), MemberType.ATTENDED.getEntityId());
+        if (!addMeeting.getMeetingChaired().isEmpty())
+            addMeetingAttendees(addMeeting.getMeetingChaired(), meeting.getMeetingId(), MemberType.CHAIRED.getEntityId());
+        if (!addMeeting.getMeetingAbsent().isEmpty())
+            addMeetingAttendees(addMeeting.getMeetingAbsent(), meeting.getMeetingId(), MemberType.ABSENT.getEntityId());
+        if (!addMeeting.getMeetingCopiesTo().isEmpty())
+            addMeetingAttendees(addMeeting.getMeetingCopiesTo(), meeting.getMeetingId(), MemberType.SEND_COPIES.getEntityId());
+        if (!addMeeting.getMeetingPrepared().isEmpty())
+            addMeetingAttendees(addMeeting.getMeetingPrepared(), meeting.getMeetingId(), MemberType.MINUTES_PREPARED.getEntityId());
+
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    private void addMeetingAttendees(List<MeetingAttendee> attendees, String meetingId, int memberType){
+        for(MeetingAttendee meetingAttendee : attendees) {
+            if (meetingAttendee.getAttendeeId() != null) {
+                Meeting_Attendee meeting_attendee = new Meeting_Attendee();
+                meeting_attendee.setAttendeeId(meetingAttendee.getAttendeeId());
+                meeting_attendee.setMeetingId(meetingId);
+                meeting_attendee.setGuest(meetingAttendee.getIsGuest());
+                meeting_attendee.setMemberType(memberType);
+                meetingRepository.addMeetingAttendee(meeting_attendee);
+            }
+        }
+    }
+
+    @Override
+    public Object getMeetingsOfProject(String userId, String projectId, int startIndex, int endIndex) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User  project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        if ((endIndex - startIndex) > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return null;
     }
 
     @Override
