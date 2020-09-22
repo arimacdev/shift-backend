@@ -1,6 +1,5 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting;
 
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;

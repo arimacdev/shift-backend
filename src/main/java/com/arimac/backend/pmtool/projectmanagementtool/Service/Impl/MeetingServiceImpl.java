@@ -222,22 +222,21 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public Object transitionToTask(String userId, String meetingId, String discussionId, String projectId) {
+    public Object transitionToTask(String userId, String meetingId, String discussionId, TaskDto taskDto) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        Project_User project_user = projectRepository.getProjectUser(taskDto.getProjectId(), userId);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        Meeting meeting = meetingRepository.getMeetingById(meetingId,projectId);
+        Meeting meeting = meetingRepository.getMeetingById(meetingId,taskDto.getProjectId());
         if (meeting == null)
             return new ErrorMessage(ResponseMessage.MEETING_NOT_FOUND, HttpStatus.NOT_FOUND);
         Minute minute = meetingRepository.getDiscussionPoint(discussionId);
         if (minute == null)
             return new ErrorMessage(ResponseMessage.DISCUSSION_NOT_FOUND, HttpStatus.NOT_FOUND);
-        TaskDto taskDto = new TaskDto();
-//        taskService.addTaskToProject(projectId, )
-        return null;
+        taskService.addTaskToProject(taskDto.getProjectId(),  taskDto);
+        return new Response(ResponseMessage.SUCCESS,HttpStatus.OK);
     }
 
     @Override

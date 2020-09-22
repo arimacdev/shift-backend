@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMeeting;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.UpdateMinute;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -105,9 +106,10 @@ public class MeetingController extends ResponseController {
     public ResponseEntity<Object> transitionToTask(@RequestHeader("user") String userId,
                                                         @PathVariable("meetingId") String meetingId,
                                                         @PathVariable("discussionId") String discussionId,
-                                                        @RequestParam("projectId") String projectId){
-        logger.info("HIT - POST meeting/<meetingId>/discussion/<discussionId>/transition ---> transitionToTask | User: {} | meetingId: {} | discussionId: {} | projectId : {}", userId, meetingId, discussionId, projectId);
-        return sendResponse(meetingService.transitionToTask(userId,meetingId,discussionId,projectId));
+                                                        @RequestBody TaskDto taskDto){
+        logger.info("HIT - POST meeting/<meetingId>/discussion/<discussionId>/transition ---> transitionToTask | User: {} | meetingId: {} | discussionId: {} | " +
+                " taskDto : {}", userId, meetingId, discussionId, taskDto);
+        return sendResponse(meetingService.transitionToTask(userId,meetingId,discussionId, taskDto));
     }
 
 

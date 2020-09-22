@@ -4,11 +4,14 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskTypeEnum;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class TaskDto {
+    @NotNull
     private String taskName;
+    @NotNull
     private String projectId;
     private String sprintId;
     private TaskStatusEnum taskStatus;
