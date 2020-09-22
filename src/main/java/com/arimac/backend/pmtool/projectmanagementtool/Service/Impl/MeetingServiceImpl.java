@@ -16,6 +16,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -94,7 +95,8 @@ public class MeetingServiceImpl implements MeetingService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if ((endIndex - startIndex) > 10)
             return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
-        return null;
+        HashMap<String, MeetingResponse> meetingResponseHashMap = meetingRepository.getMeetingsOfProject(projectId, startIndex, endIndex);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meetingResponseHashMap);
     }
 
     @Override

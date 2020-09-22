@@ -1,8 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.AddMinute;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.DiscussionPoint;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.MeetingUser;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting.*;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterQueryTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Meeting.MemberType;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Meeting_Attendee;
@@ -67,6 +67,73 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             return null;
         } catch (Exception e){
             throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int endIndex) {
+        String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
+                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
+                "WHERE projectId = ?";
+
+        return jdbcTemplate.query(sql, new Object[]{projectId}, (ResultSet rs) -> {
+            HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
+            while (rs.next()){
+                MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
+                meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
+                meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
+                meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
+
+                meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
+                if (!meetingResponseUser.isGuest()){
+                    meetingResponseUser.setFirstName(rs.getString("firstName"));
+                    meetingResponseUser.setFirstName(rs.getString("lastName"));
+                    meetingResponseUser.setFirstName(rs.getString("profileImage"));
+                }
+                if (!meetingResponseMap.containsKey(rs.getString("meetingId")) ){
+                    MeetingResponse meetingResponse = new MeetingResponse();
+                    meetingResponse.setProjectId(rs.getString("projectId"));
+                    meetingResponse.setMeetingId(rs.getString("meetingId"));
+                    meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
+                    meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
+                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
+                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingActualTime"));
+                    meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
+                    meetingResponse.setActualDuration(rs.getLong("actualDuration"));
+                    meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
+                    meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
+
+                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+                    meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
+
+                } else {
+                    MeetingResponse meetingResponse = meetingResponseMap.get(rs.getString("meetingId"));
+                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+                    meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
+
+                }
+            }
+            return meetingResponseMap;
+        });
+    }
+
+    private void setMemberType(int attendeeType, MeetingResponse meetingResponse, MeetingResponseUser meetingResponseUser){
+        switch (attendeeType){
+            case 1:
+                meetingResponse.getMeetingChaired().add(meetingResponseUser);
+                break;
+            case 2:
+                meetingResponse.getMeetingAttended().add(meetingResponseUser);
+                break;
+            case 3:
+                meetingResponse.getMeetingAbsent().add(meetingResponseUser);
+                break;
+            case 4:
+                meetingResponse.getMeetingCopiesTo().add(meetingResponseUser);
+                break;
+            case 5:
+                meetingResponse.getMeetingPrepared().add(meetingResponseUser);
+                break;
         }
     }
 
