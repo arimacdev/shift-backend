@@ -154,19 +154,19 @@ public class MeetingServiceImpl implements MeetingService {
         }
         if (updateMeeting.getMeetingChaired().getIsUpdated()){
             meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.CHAIRED.getEntityId());
-            addMeetingAttendees(updateMeeting.getMeetingAttended().getAttendees(), meetingId, MemberType.CHAIRED.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingChaired().getAttendees(), meetingId, MemberType.CHAIRED.getEntityId());
         }
         if (updateMeeting.getMeetingAbsent().getIsUpdated()){
             meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.ABSENT.getEntityId());
-            addMeetingAttendees(updateMeeting.getMeetingAttended().getAttendees(), meetingId, MemberType.ABSENT.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingAbsent().getAttendees(), meetingId, MemberType.ABSENT.getEntityId());
         }
         if (updateMeeting.getMeetingCopiesTo().getIsUpdated()){
             meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.SEND_COPIES.getEntityId());
-            addMeetingAttendees(updateMeeting.getMeetingAttended().getAttendees(), meetingId, MemberType.SEND_COPIES.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingCopiesTo().getAttendees(), meetingId, MemberType.SEND_COPIES.getEntityId());
         }
         if (updateMeeting.getMeetingPrepared().getIsUpdated()){
             meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.MINUTES_PREPARED.getEntityId());
-            addMeetingAttendees(updateMeeting.getMeetingAttended().getAttendees(), meetingId, MemberType.MINUTES_PREPARED.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingPrepared().getAttendees(), meetingId, MemberType.MINUTES_PREPARED.getEntityId());
         }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
