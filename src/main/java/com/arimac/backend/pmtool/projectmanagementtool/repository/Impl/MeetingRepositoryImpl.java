@@ -97,7 +97,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
                     meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
                     meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
                     meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
-                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingActualTime"));
+                    meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
                     meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
                     meetingResponse.setActualDuration(rs.getLong("actualDuration"));
                     meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
