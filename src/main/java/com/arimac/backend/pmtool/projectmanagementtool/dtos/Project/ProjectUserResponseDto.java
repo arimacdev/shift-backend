@@ -22,12 +22,13 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private boolean blockedStatus;
     private String projectAlias;
     private WeightTypeEnum weightMeasure;
+    private boolean isPinned;
 
     public ProjectUserResponseDto() {
     }
 
 
-    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias, WeightTypeEnum weightMeasure) {
+    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias, WeightTypeEnum weightMeasure, boolean isStarred) {
         this.projectId = projectId;
         this.clientId = clientId;
         this.assigneeId = assigneeId;
@@ -42,6 +43,7 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.blockedStatus = blockedStatus;
         this.projectAlias = projectAlias;
         this.weightMeasure = weightMeasure;
+        this.isPinned = isStarred;
     }
 
     public String getAssigneeJobRole() {
@@ -160,6 +162,14 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         return WeightTypeEnum.get(weightId);
     }
 
+    public boolean getIsStarred() {
+        return isPinned;
+    }
+
+    public void setIsStarred(boolean starred) {
+        isPinned = starred;
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
@@ -176,8 +186,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getBoolean("isDeleted"),
                 resultSet.getBoolean("blockedStatus"),
                 resultSet.getString("projectAlias"),
-                getWeightMeasureOf(resultSet.getInt("weightMeasure"))
-                );
+                getWeightMeasureOf(resultSet.getInt("weightMeasure")),
+                resultSet.getBoolean("isPinned"));
     }
 
     @Override

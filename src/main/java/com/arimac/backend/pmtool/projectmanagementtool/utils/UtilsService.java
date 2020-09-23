@@ -32,8 +32,7 @@ public class UtilsService {
 
     public DateTime getCurrentDateTime(){
         DateTime now = DateTime.now();
-        DateTime nowCol = new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
-        return nowCol;
+        return new DateTime(now, DateTimeZone.forID("Asia/Colombo"));
     }
 
     public ActivityLog addTaskUpdateLog(LogOperationEnum operation, String actor, String taskId, TaskUpdateTypeEnum updateType, String previous, String updated){

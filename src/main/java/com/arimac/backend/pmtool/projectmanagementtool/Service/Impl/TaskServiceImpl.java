@@ -222,6 +222,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Object getAllParentTasksOfProject(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAllParentTasksOfProject(projectId));
+    }
+
+    @Override
     public Object getAllUserAssignedTasks(String userId, String projectId, int startIndex, int endIndex) {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
@@ -660,13 +668,6 @@ public class TaskServiceImpl implements TaskService {
                     } else {
                         mapItem.setTotal(mapItem.getTotal() + 1);
                     }
-//                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-//                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-//                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-//                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-//                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-//                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-//                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                     List<WorkLoadProjectDto> taskList = mapItem.getTaskList();
                     taskList.add(workLoadTaskItem);
                     mapItem.setTaskList(taskList); /** check here */
@@ -680,13 +681,6 @@ public class TaskServiceImpl implements TaskService {
                 //Add Tasks if exists
                 if (workLoadTaskItem.getTaskId() != null){
                     if (workLoadTaskItem.getTaskAssignee().equals(userId)) {
-//                        ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-//                        projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-//                        projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-//                        projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-//                        projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-//                        projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-//                        projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                         List<WorkLoadProjectDto> taskList = new ArrayList<>();
                         taskList.add(workLoadTaskItem);
                         projectWorkLoad.setTaskList(taskList);

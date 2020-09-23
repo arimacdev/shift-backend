@@ -366,6 +366,16 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public List<Task> getAllParentTasksOfProject(String projectId) {
+        String sql = "SELECT * FROM Task WHERE isParent=true AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new Task());
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public boolean checkChildTasksOfAParentTask(String taskId) {
         String sql = "SELECT * FROM Task WHERE parentId=? AND isDeleted=false";
         List<Task> children = jdbcTemplate.query(sql, new Task(), taskId);
