@@ -57,7 +57,8 @@ public enum ResponseMessage {
     CANNOT_UPDATE_TASK_FOLDER("Cannot Update Task Folders"),
     PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist"),
     DISCUSSION_NOT_FOUND("Discussion Not Found"),
-    MEETING_NOT_FOUND("Meeting Not Found");
+    MEETING_NOT_FOUND("Meeting Not Found"),
+    ALREADY_PINNED("You have already Pinned/Unpinned this project");
 
 
     private String message;

@@ -87,19 +87,29 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Object PinUnpinProjects(ProjectPinUnPin projectPinUnPin) {
+       User user = userRepository.getUserByUserId(projectPinUnPin.getUser());
+       if (user == null)
+           return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+       Project_User project_user = projectRepository.getProjectUser(projectPinUnPin.getProject(), projectPinUnPin.getUser());
+       if (project_user == null)
+           return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+       if (project_user.getIsPinned() == projectPinUnPin.getIsPin()){
+           return new ErrorMessage(ResponseMessage.ALREADY_PINNED, HttpStatus.CONFLICT);
+       }
+       projectRepository.pinUnpinProjects(projectPinUnPin);
+       return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+
+    }
+
+    @Override
     public Object getAllUserAssignedProjects(String userId) {
         //TODO check role of a user
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         List<ProjectUserResponseDto> projectList;
-
         projectList = projectRepository.getAllUserAssignedProjects(userId);
-//        projectList = transactionRepository.getAllProjects();
-
-//        if (projectList.isEmpty())
-//            return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST,projectList);
-//      return new Response(ResponseMessage.NO_RECORD, HttpStatus.BAD_REQUEST, projectList);
         return new Response(ResponseMessage.SUCCESS, projectList);
 
     }

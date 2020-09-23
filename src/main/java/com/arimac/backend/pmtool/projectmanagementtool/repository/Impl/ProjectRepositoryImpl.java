@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
@@ -115,6 +116,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             return null;
         }
         return project_user;
+    }
+
+    @Override
+    public void pinUnpinProjects(ProjectPinUnPin projectPinUnPin) {
+        String sql = "UPDATE Project_User SET isPinned=? WHERE assigneeId=? AND projectId=? AND isBlocked=false";
+        try {
+            jdbcTemplate.update(sql, projectPinUnPin.getIsPin(), projectPinUnPin.getUser(), projectPinUnPin.getProject());
+        } catch (Exception e){
+            throw new PMException(e.getCause());
+        }
     }
 
     @Override
@@ -263,6 +274,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setAssigneeJobRole(resultSet.getString("assigneeJobRole"));
         projectUserResponseDto.setAssigneeProjectRole(resultSet.getInt("assigneeProjectRole"));
         projectUserResponseDto.setBlockedStatus(resultSet.getBoolean("isBlocked"));
+        projectUserResponseDto.setIsStarred(resultSet.getBoolean("isPinned"));
         projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
         projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
         return projectUserResponseDto;

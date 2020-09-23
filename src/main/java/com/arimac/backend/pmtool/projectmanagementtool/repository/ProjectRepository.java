@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
@@ -23,6 +24,7 @@ public interface ProjectRepository {
     List<String> getProjectTaskIds(String projectId);
     ProjectUserResponseDto getProjectByIdAndUserId(String projectId, String userId);
     Project_User getProjectUser(String projectId, String userId);
+    void pinUnpinProjects(ProjectPinUnPin projectPinUnPin);
     Project_User getProjectUserWithBlockedStatus(String projectId, String userId);
     List<ProjectUserResponseDto> getAllUserAssignedProjects(String userId);
     void updateProject(Project project, String projectId);

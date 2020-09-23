@@ -14,17 +14,19 @@ public class Project_User implements RowMapper<Project_User> {
     private String assigneeJobRole;
     private int assigneeProjectRole;
     private boolean isBlocked;
+    private boolean isPinned;
 
     public Project_User() {
     }
 
-    public Project_User(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, boolean isBlocked) {
+    public Project_User(String projectId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, boolean isBlocked, boolean isPinned) {
         this.projectId = projectId;
         this.assigneeId = assigneeId;
         this.assignedAt = assignedAt;
         this.assigneeJobRole = assigneeJobRole;
         this.assigneeProjectRole = assigneeProjectRole;
         this.isBlocked = isBlocked;
+        this.isPinned = isPinned;
     }
 
     public String getProjectId() {
@@ -75,6 +77,14 @@ public class Project_User implements RowMapper<Project_User> {
         isBlocked = blocked;
     }
 
+    public boolean getIsPinned() {
+        return isPinned;
+    }
+
+    public void setIsPinned(boolean pinned) {
+        isPinned = pinned;
+    }
+
     @Override
     public Project_User mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project_User(
@@ -83,7 +93,8 @@ public class Project_User implements RowMapper<Project_User> {
                 resultSet.getTimestamp("assignedAt"),
                 resultSet.getString("assigneeJobRole"),
                 resultSet.getInt("assigneeProjectRole"),
-                resultSet.getBoolean("isBlocked")
+                resultSet.getBoolean("isBlocked"),
+                resultSet.getBoolean("isPinned")
                 );
     }
 }
