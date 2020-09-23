@@ -71,12 +71,12 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
-    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int endIndex) {
+    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit) {
         String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
                 "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
-                "WHERE projectId = ?";
+                "WHERE projectId = ? LIMIT ? OFFSET ?";
 
-        return jdbcTemplate.query(sql, new Object[]{projectId}, (ResultSet rs) -> {
+        return jdbcTemplate.query(sql, new Object[]{ projectId, limit, startIndex }, (ResultSet rs) -> {
             HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();

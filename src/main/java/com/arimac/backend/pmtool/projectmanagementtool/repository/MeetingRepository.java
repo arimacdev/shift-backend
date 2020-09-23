@@ -14,7 +14,7 @@ public interface MeetingRepository {
     void addMeeting(Meeting meeting);
     void addMeetingAttendee(Meeting_Attendee meeting_attendee);
     Meeting getMeetingById(String meetingId, String projectId);
-    HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int endIndex);
+    HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit);
     void updateMeeting(Meeting meeting);
     void flagMeeting(String meetingId);
     void flagMeetingAssociatedDiscussionPoints(String meetingId);

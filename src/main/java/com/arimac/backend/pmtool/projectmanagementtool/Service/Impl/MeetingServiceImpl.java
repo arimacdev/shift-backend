@@ -95,7 +95,7 @@ public class MeetingServiceImpl implements MeetingService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if ((endIndex - startIndex) > 10)
             return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
-        HashMap<String, MeetingResponse> meetingResponseHashMap = meetingRepository.getMeetingsOfProject(projectId, startIndex, endIndex);
+        HashMap<String, MeetingResponse> meetingResponseHashMap = meetingRepository.getMeetingsOfProject(projectId, startIndex, (endIndex-startIndex));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meetingResponseHashMap);
     }
 
