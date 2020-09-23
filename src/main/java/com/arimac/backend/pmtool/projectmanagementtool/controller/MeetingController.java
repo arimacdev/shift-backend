@@ -43,9 +43,13 @@ public class MeetingController extends ResponseController {
     public ResponseEntity<Object> getMeetingsOfProject(@RequestHeader("user") String userId,
                                                        @RequestParam("projectId") String projectId,
                                                        @RequestParam("startIndex") int startIndex,
-                                                       @RequestParam("endIndex") int endIndex){
-        logger.info("HIT - GET meeting/?project<>?startIndex?endIndex ---> getMeetingsOfProject | User: {} | projectId : {} | start: {}| end: {}", userId, projectId, startIndex, endIndex);
-        return sendResponse(meetingService.getMeetingsOfProject(userId,projectId, startIndex, endIndex));
+                                                       @RequestParam("endIndex") int endIndex,
+                                                       @RequestParam("filter") boolean filter,
+                                                       @RequestParam("filterKey") String filterKey,
+                                                       @RequestParam("filterDate") String filterDate
+                                                       ){
+        logger.info("HIT - GET meeting/?project<>?startIndex?endIndex ---> getMeetingsOfProject | User: {} | projectId : {} | start: {}| end: {} | filter: {}| filterKey:{} | filterDate {}", userId, projectId, startIndex, endIndex, filter, filterKey, filterDate);
+        return sendResponse(meetingService.getMeetingsOfProject(userId,projectId, startIndex, endIndex, filter, filterKey, filterDate));
     }
 
     @ApiOperation(value = "Update a meeting", notes = "Update a meeting")

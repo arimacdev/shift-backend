@@ -16,6 +16,11 @@ import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -86,7 +91,15 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public Object getMeetingsOfProject(String userId, String projectId, int startIndex, int endIndex) {
+    public Object getMeetingsOfProject(String userId, String projectId, int startIndex, int endIndex, boolean filter, String filterKey, String filterDate) {
+        if (filter && !filterDate.isEmpty()){
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    dateFormat.parse(filterDate);
+                } catch (ParseException e) {
+                    return new ErrorMessage(ResponseMessage.INVALID_DATE_FORMAT, HttpStatus.BAD_REQUEST);
+                }
+        }
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -95,8 +108,7 @@ public class MeetingServiceImpl implements MeetingService {
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
         if ((endIndex - startIndex) > 10)
             return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
-        HashMap<String, MeetingResponse> meetingResponseHashMap = meetingRepository.getMeetingsOfProject(projectId, startIndex, (endIndex-startIndex));
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meetingResponseHashMap);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new ArrayList<>(meetingRepository.getMeetingsOfProject(projectId, startIndex, (endIndex-startIndex), filter, filterKey, filterDate).values()));
     }
 
     @Override

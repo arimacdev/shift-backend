@@ -8,7 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskDto;
 
 public interface MeetingService {
     Object addMeeting(String userId, AddMeeting addMeeting);
-    Object getMeetingsOfProject(String userId, String projectId, int startIndex, int endIndex);
+    Object getMeetingsOfProject(String userId, String projectId, int startIndex, int endIndex, boolean filter, String filterKey, String filterDate);
     Object updateMeeting(String userId, String meetingId, UpdateMeeting updateMeeting);
     Object deleteMeeting(String userId, String meetingId, String projectId);
     Object addDiscussionPoint(String userId, AddMinute addMinute);

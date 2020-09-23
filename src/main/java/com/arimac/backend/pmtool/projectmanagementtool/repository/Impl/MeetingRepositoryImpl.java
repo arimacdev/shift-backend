@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -71,12 +72,24 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
-    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit) {
+    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
         String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
                 "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
-                "WHERE projectId = ? LIMIT ? OFFSET ?";
-
-        return jdbcTemplate.query(sql, new Object[]{ projectId, limit, startIndex }, (ResultSet rs) -> {
+                "WHERE projectId = ?";
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(projectId);
+        String filterQuery = "";
+        if (filter && !filterDate.isEmpty()) {
+            filterQuery = filterQuery + " AND DATE_FORMAT(meetingActualTime,'%Y-%m-%d') =?";
+            parameters.add(filterDate);
+        }
+        if (filter && !filterKey.isEmpty()){
+            filterQuery = filterQuery + " AND MeetingTopic LIKE ?";
+            parameters.add("%" +filterKey + "%");
+        }
+        parameters.add(limit);
+        parameters.add(startIndex);
+        return jdbcTemplate.query(sql + filterQuery + " LIMIT ? OFFSET ?", parameters.toArray(), (ResultSet rs) -> {
             HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
