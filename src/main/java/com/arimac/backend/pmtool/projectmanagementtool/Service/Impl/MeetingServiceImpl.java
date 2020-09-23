@@ -116,6 +116,10 @@ public class MeetingServiceImpl implements MeetingService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(projectId,userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+
         return null;
 
     }
