@@ -52,6 +52,17 @@ public class MeetingController extends ResponseController {
         return sendResponse(meetingService.getMeetingsOfProject(userId,projectId, startIndex, endIndex, filter, filterKey, filterDate));
     }
 
+    @ApiOperation(value = "Get Meeting By Id", notes = "Get Meetings By Id")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping
+    public ResponseEntity<Object> getMeetingById(@RequestHeader("user") String userId,
+                                                 @PathVariable("meetingId") String meetingId,
+                                                 @RequestParam("projectId") String projectId
+    ){
+        logger.info("HIT - GET meeting/<meetingId> ---> getMeetingById | User: {} |  meetingId: {} | projectId : {}", userId, meetingId, projectId);
+        return sendResponse(meetingService.getMeetingById(userId,meetingId, projectId));
+    }
+
     @ApiOperation(value = "Update a meeting", notes = "Update a meeting")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PutMapping("/{meetingId}")

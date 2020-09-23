@@ -74,7 +74,7 @@ public class MeetingServiceImpl implements MeetingService {
         if (!addMeeting.getMeetingPrepared().isEmpty())
             addMeetingAttendees(addMeeting.getMeetingPrepared(), meeting.getMeetingId(), MemberType.MINUTES_PREPARED.getEntityId());
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meeting);
     }
 
     private void addMeetingAttendees(List<MeetingAttendee> attendees, String meetingId, int memberType){
@@ -109,6 +109,15 @@ public class MeetingServiceImpl implements MeetingService {
         if ((endIndex - startIndex) > 10)
             return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new ArrayList<>(meetingRepository.getMeetingsOfProject(projectId, startIndex, (endIndex-startIndex), filter, filterKey, filterDate).values()));
+    }
+
+    @Override
+    public Object getMeetingById(String userId, String meetingId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return null;
+
     }
 
     @Override
