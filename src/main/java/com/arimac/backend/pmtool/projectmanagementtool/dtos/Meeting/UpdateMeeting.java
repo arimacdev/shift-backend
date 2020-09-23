@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.dtos.Meeting;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class UpdateMeeting {
     @NotNull
@@ -15,6 +16,16 @@ public class UpdateMeeting {
     private Long expectedDuration;
     @Min(value = 0L, message = "Actual duration must be positive")
     private Long actualDuration;
+    @NotNull
+    private MeetingUpdateUser meetingChaired;
+    @NotNull
+    private MeetingUpdateUser meetingAttended;
+    @NotNull
+    private MeetingUpdateUser meetingAbsent;
+    @NotNull
+    private MeetingUpdateUser meetingCopiesTo;
+    @NotNull
+    private MeetingUpdateUser meetingPrepared;
 
     public String getProjectId() {
         return projectId;
@@ -72,6 +83,46 @@ public class UpdateMeeting {
         this.actualDuration = actualDuration;
     }
 
+    public MeetingUpdateUser getMeetingChaired() {
+        return meetingChaired;
+    }
+
+    public void setMeetingChaired(MeetingUpdateUser meetingChaired) {
+        this.meetingChaired = meetingChaired;
+    }
+
+    public MeetingUpdateUser getMeetingAttended() {
+        return meetingAttended;
+    }
+
+    public void setMeetingAttended(MeetingUpdateUser meetingAttended) {
+        this.meetingAttended = meetingAttended;
+    }
+
+    public MeetingUpdateUser getMeetingAbsent() {
+        return meetingAbsent;
+    }
+
+    public void setMeetingAbsent(MeetingUpdateUser meetingAbsent) {
+        this.meetingAbsent = meetingAbsent;
+    }
+
+    public MeetingUpdateUser getMeetingCopiesTo() {
+        return meetingCopiesTo;
+    }
+
+    public void setMeetingCopiesTo(MeetingUpdateUser meetingCopiesTo) {
+        this.meetingCopiesTo = meetingCopiesTo;
+    }
+
+    public MeetingUpdateUser getMeetingPrepared() {
+        return meetingPrepared;
+    }
+
+    public void setMeetingPrepared(MeetingUpdateUser meetingPrepared) {
+        this.meetingPrepared = meetingPrepared;
+    }
+
     @Override
     public String toString() {
         return "UpdateMeeting{" +
@@ -82,6 +133,11 @@ public class UpdateMeeting {
                 ", meetingActualTime=" + meetingActualTime +
                 ", expectedDuration=" + expectedDuration +
                 ", actualDuration=" + actualDuration +
+                ", meetingChaired=" + meetingChaired +
+                ", meetingAttended=" + meetingAttended +
+                ", meetingAbsent=" + meetingAbsent +
+                ", meetingCopiesTo=" + meetingCopiesTo +
+                ", meetingPrepared=" + meetingPrepared +
                 '}';
     }
 }

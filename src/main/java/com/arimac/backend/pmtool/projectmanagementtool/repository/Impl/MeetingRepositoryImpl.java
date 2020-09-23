@@ -166,6 +166,16 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
+    public void removeAttendeesOfMeeting(String meetingId, int attendeeType) {
+        String sql = "DELETE FROM Meeting_Attendee WHERE meetingId=? AND attendeeType=?";
+        try {
+            jdbcTemplate.update(sql, meetingId, attendeeType);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void flagMeeting(String meetingId) {
         String sql = "UPDATE Meeting SET isDeleted=true WHERE meetingId=?";
         try {
