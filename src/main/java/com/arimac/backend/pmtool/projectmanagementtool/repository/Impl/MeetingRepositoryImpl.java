@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -81,35 +82,65 @@ public class MeetingRepositoryImpl implements MeetingRepository {
         return jdbcTemplate.query(sql, new Object[]{meetingId, projectId}, (ResultSet rs) -> {
            while (rs.next()){
                MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
-               meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
-               meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
-               meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
-
-               meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
-               if (!rs.getBoolean("isGuest")){
-                   meetingResponseUser.setFirstName(rs.getString("firstName"));
-                   meetingResponseUser.setLastName(rs.getString("lastName"));
-                   meetingResponseUser.setProfileImage(rs.getString("profileImage"));
-               }
+               setMeetingResponseUser(meetingResponseUser, rs);
+//               meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
+//               meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
+//               meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
+//
+//               meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
+//               if (!rs.getBoolean("isGuest")){
+//                   meetingResponseUser.setFirstName(rs.getString("firstName"));
+//                   meetingResponseUser.setLastName(rs.getString("lastName"));
+//                   meetingResponseUser.setProfileImage(rs.getString("profileImage"));
+//               }
                if (meetingResponse.getMeetingId() == null) {
-                   meetingResponse.setProjectId(rs.getString("projectId"));
-                   meetingResponse.setMeetingId(rs.getString("meetingId"));
-                   meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
-                   meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
-                   meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
-                   meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
-                   meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
-                   meetingResponse.setActualDuration(rs.getLong("actualDuration"));
-                   meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
-                   meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
-
-                   setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+//                   meetingResponse.setProjectId(rs.getString("projectId"));
+//                   meetingResponse.setMeetingId(rs.getString("meetingId"));
+//                   meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
+//                   meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
+//                   meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
+//                   meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
+//                   meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
+//                   meetingResponse.setActualDuration(rs.getLong("actualDuration"));
+//                   meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
+//                   meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
+//
+//                   setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+                   setMeetingResponse(rs, meetingResponse, meetingResponseUser);
                } else {
                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
                }
            }
             return meetingResponse;
         });
+    }
+
+    private void setMeetingResponse(ResultSet rs, MeetingResponse meetingResponse, MeetingResponseUser meetingResponseUser) throws SQLException {
+        meetingResponse.setProjectId(rs.getString("projectId"));
+        meetingResponse.setMeetingId(rs.getString("meetingId"));
+        meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
+        meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
+        meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
+        meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
+        meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
+        meetingResponse.setActualDuration(rs.getLong("actualDuration"));
+        meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
+        meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
+
+        setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+    }
+
+    private void setMeetingResponseUser(MeetingResponseUser meetingResponseUser, ResultSet rs) throws SQLException {
+        meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
+        meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
+        meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
+
+        meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
+        if (!rs.getBoolean("isGuest")){
+            meetingResponseUser.setFirstName(rs.getString("firstName"));
+            meetingResponseUser.setLastName(rs.getString("lastName"));
+            meetingResponseUser.setProfileImage(rs.getString("profileImage"));
+        }
     }
 
     @Override
@@ -134,30 +165,32 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
-                meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
-                meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
-                meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
-
-                meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
-                if (!rs.getBoolean("isGuest")){
-                    meetingResponseUser.setFirstName(rs.getString("firstName"));
-                    meetingResponseUser.setLastName(rs.getString("lastName"));
-                    meetingResponseUser.setProfileImage(rs.getString("profileImage"));
-                }
+                setMeetingResponseUser(meetingResponseUser, rs);
+//                meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
+//                meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
+//                meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
+//
+//                meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
+//                if (!rs.getBoolean("isGuest")){
+//                    meetingResponseUser.setFirstName(rs.getString("firstName"));
+//                    meetingResponseUser.setLastName(rs.getString("lastName"));
+//                    meetingResponseUser.setProfileImage(rs.getString("profileImage"));
+//                }
                 if (!meetingResponseMap.containsKey(rs.getString("meetingId")) ){
                     MeetingResponse meetingResponse = new MeetingResponse();
-                    meetingResponse.setProjectId(rs.getString("projectId"));
-                    meetingResponse.setMeetingId(rs.getString("meetingId"));
-                    meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
-                    meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
-                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
-                    meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
-                    meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
-                    meetingResponse.setActualDuration(rs.getLong("actualDuration"));
-                    meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
-                    meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
-
-                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+//                    meetingResponse.setProjectId(rs.getString("projectId"));
+//                    meetingResponse.setMeetingId(rs.getString("meetingId"));
+//                    meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
+//                    meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
+//                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
+//                    meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
+//                    meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
+//                    meetingResponse.setActualDuration(rs.getLong("actualDuration"));
+//                    meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
+//                    meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
+//
+//                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+                    setMeetingResponse(rs,meetingResponse,meetingResponseUser);
                     meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
 
                 } else {
