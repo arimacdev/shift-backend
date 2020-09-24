@@ -83,35 +83,52 @@ public class MeetingRepositoryImpl implements MeetingRepository {
            while (rs.next()){
                MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
                setMeetingResponseUser(meetingResponseUser, rs);
-//               meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
-//               meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
-//               meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
-//
-//               meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
-//               if (!rs.getBoolean("isGuest")){
-//                   meetingResponseUser.setFirstName(rs.getString("firstName"));
-//                   meetingResponseUser.setLastName(rs.getString("lastName"));
-//                   meetingResponseUser.setProfileImage(rs.getString("profileImage"));
-//               }
                if (meetingResponse.getMeetingId() == null) {
-//                   meetingResponse.setProjectId(rs.getString("projectId"));
-//                   meetingResponse.setMeetingId(rs.getString("meetingId"));
-//                   meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
-//                   meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
-//                   meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
-//                   meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
-//                   meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
-//                   meetingResponse.setActualDuration(rs.getLong("actualDuration"));
-//                   meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
-//                   meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
-//
-//                   setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
                    setMeetingResponse(rs, meetingResponse, meetingResponseUser);
                } else {
                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
                }
            }
             return meetingResponse;
+        });
+    }
+
+    @Override
+    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
+        String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
+                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
+                "WHERE projectId = ?";
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(projectId);
+        String filterQuery = "";
+        if (filter && !filterDate.isEmpty()) {
+            filterQuery = filterQuery + " AND DATE_FORMAT(meetingActualTime,'%Y-%m-%d') =?";
+            parameters.add(filterDate);
+        }
+        if (filter && !filterKey.isEmpty()){
+            filterQuery = filterQuery + " AND MeetingTopic LIKE ?";
+            parameters.add("%" +filterKey + "%");
+        }
+        parameters.add(limit);
+        parameters.add(startIndex);
+        return jdbcTemplate.query(sql + filterQuery + " LIMIT ? OFFSET ?", parameters.toArray(), (ResultSet rs) -> {
+            HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
+            while (rs.next()){
+                MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
+                setMeetingResponseUser(meetingResponseUser, rs);
+                if (!meetingResponseMap.containsKey(rs.getString("meetingId")) ){
+                    MeetingResponse meetingResponse = new MeetingResponse();
+                    setMeetingResponse(rs,meetingResponse,meetingResponseUser);
+                    meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
+
+                } else {
+                    MeetingResponse meetingResponse = meetingResponseMap.get(rs.getString("meetingId"));
+                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+                    meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
+
+                }
+            }
+            return meetingResponseMap;
         });
     }
 
@@ -141,67 +158,6 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             meetingResponseUser.setLastName(rs.getString("lastName"));
             meetingResponseUser.setProfileImage(rs.getString("profileImage"));
         }
-    }
-
-    @Override
-    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
-        String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
-                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
-                "WHERE projectId = ?";
-        List<Object> parameters = new ArrayList<>();
-        parameters.add(projectId);
-        String filterQuery = "";
-        if (filter && !filterDate.isEmpty()) {
-            filterQuery = filterQuery + " AND DATE_FORMAT(meetingActualTime,'%Y-%m-%d') =?";
-            parameters.add(filterDate);
-        }
-        if (filter && !filterKey.isEmpty()){
-            filterQuery = filterQuery + " AND MeetingTopic LIKE ?";
-            parameters.add("%" +filterKey + "%");
-        }
-        parameters.add(limit);
-        parameters.add(startIndex);
-        return jdbcTemplate.query(sql + filterQuery + " LIMIT ? OFFSET ?", parameters.toArray(), (ResultSet rs) -> {
-            HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
-            while (rs.next()){
-                MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
-                setMeetingResponseUser(meetingResponseUser, rs);
-//                meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
-//                meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
-//                meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
-//
-//                meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
-//                if (!rs.getBoolean("isGuest")){
-//                    meetingResponseUser.setFirstName(rs.getString("firstName"));
-//                    meetingResponseUser.setLastName(rs.getString("lastName"));
-//                    meetingResponseUser.setProfileImage(rs.getString("profileImage"));
-//                }
-                if (!meetingResponseMap.containsKey(rs.getString("meetingId")) ){
-                    MeetingResponse meetingResponse = new MeetingResponse();
-//                    meetingResponse.setProjectId(rs.getString("projectId"));
-//                    meetingResponse.setMeetingId(rs.getString("meetingId"));
-//                    meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
-//                    meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
-//                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
-//                    meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
-//                    meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
-//                    meetingResponse.setActualDuration(rs.getLong("actualDuration"));
-//                    meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
-//                    meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
-//
-//                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
-                    setMeetingResponse(rs,meetingResponse,meetingResponseUser);
-                    meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
-
-                } else {
-                    MeetingResponse meetingResponse = meetingResponseMap.get(rs.getString("meetingId"));
-                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
-                    meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
-
-                }
-            }
-            return meetingResponseMap;
-        });
     }
 
     private void setMemberType(int attendeeType, MeetingResponse meetingResponse, MeetingResponseUser meetingResponseUser){
