@@ -98,10 +98,10 @@ public class MeetingRepositoryImpl implements MeetingRepository {
                 meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
 
                 meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
-                if (!meetingResponseUser.isGuest()){
+                if (!rs.getBoolean("isGuest")){
                     meetingResponseUser.setFirstName(rs.getString("firstName"));
-                    meetingResponseUser.setFirstName(rs.getString("lastName"));
-                    meetingResponseUser.setFirstName(rs.getString("profileImage"));
+                    meetingResponseUser.setLastName(rs.getString("lastName"));
+                    meetingResponseUser.setProfileImage(rs.getString("profileImage"));
                 }
                 if (!meetingResponseMap.containsKey(rs.getString("meetingId")) ){
                     MeetingResponse meetingResponse = new MeetingResponse();
