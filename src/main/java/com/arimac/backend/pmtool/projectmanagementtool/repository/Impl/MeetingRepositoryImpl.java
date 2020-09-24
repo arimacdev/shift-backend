@@ -72,6 +72,47 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
+    public MeetingResponse getCompleteMeetingById(String meetingId, String projectId) {
+        String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
+                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
+                "WHERE Meeting.meetingId =? AND Meeting.projectId =? AND Meeting.isDeleted=false";
+        MeetingResponse meetingResponse = new MeetingResponse();
+
+        return jdbcTemplate.query(sql, new Object[]{meetingId, projectId}, (ResultSet rs) -> {
+           while (rs.next()){
+               MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
+               meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
+               meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
+               meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
+
+               meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
+               if (!rs.getBoolean("isGuest")){
+                   meetingResponseUser.setFirstName(rs.getString("firstName"));
+                   meetingResponseUser.setLastName(rs.getString("lastName"));
+                   meetingResponseUser.setProfileImage(rs.getString("profileImage"));
+               }
+               if (meetingResponse.getMeetingId() == null) {
+                   meetingResponse.setProjectId(rs.getString("projectId"));
+                   meetingResponse.setMeetingId(rs.getString("meetingId"));
+                   meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
+                   meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
+                   meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
+                   meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
+                   meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
+                   meetingResponse.setActualDuration(rs.getLong("actualDuration"));
+                   meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
+                   meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
+
+                   setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+               } else {
+                   setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+               }
+           }
+            return meetingResponse;
+        });
+    }
+
+    @Override
     public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
         String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
                 "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +

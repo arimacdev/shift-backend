@@ -119,7 +119,12 @@ public class MeetingServiceImpl implements MeetingService {
         Project_User project_user = projectRepository.getProjectUser(projectId,userId);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meetingRepository.getMeetingById(meetingId, projectId));
+       MeetingResponse meetingResponse = meetingRepository.getCompleteMeetingById(meetingId, projectId);
+        List<DiscussionPoint> discussionPoints = new ArrayList<>();
+       if (meetingResponse!= null)
+           discussionPoints = meetingRepository.getDiscussionPointOfMeeting(meetingId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new MeetingDiscussionResponse(meetingResponse, discussionPoints));
     }
 
     @Override
