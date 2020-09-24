@@ -218,7 +218,7 @@ public class MeetingServiceImpl implements MeetingService {
 
         meetingRepository.addDiscussionPoint(minute);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, minute);
     }
 
     @Override
