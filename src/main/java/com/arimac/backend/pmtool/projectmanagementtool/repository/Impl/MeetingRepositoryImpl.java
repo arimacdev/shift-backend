@@ -95,10 +95,12 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
     @Override
     public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
-        String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
+        String sql = "SELECT * FROM (SELECT * FROM Meeting  ORDER BY createdAt DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
                 "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
                 "WHERE projectId = ?";
         List<Object> parameters = new ArrayList<>();
+                parameters.add(limit);
+        parameters.add(startIndex);
         parameters.add(projectId);
         String filterQuery = "";
         if (filter && !filterDate.isEmpty()) {
@@ -109,9 +111,8 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             filterQuery = filterQuery + " AND MeetingTopic LIKE ?";
             parameters.add("%" +filterKey + "%");
         }
-        parameters.add(limit);
-        parameters.add(startIndex);
-        return jdbcTemplate.query(sql + filterQuery + " LIMIT ? OFFSET ?", parameters.toArray(), (ResultSet rs) -> {
+
+        return jdbcTemplate.query(sql + filterQuery , parameters.toArray(), (ResultSet rs) -> {
             HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
