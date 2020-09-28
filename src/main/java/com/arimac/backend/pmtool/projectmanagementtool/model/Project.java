@@ -3,10 +3,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.model;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class Project implements RowMapper<Project> {
@@ -20,11 +18,12 @@ public class Project implements RowMapper<Project> {
     private boolean isDeleted;
     private int issueCount;
     private int weightMeasure;
+    private boolean isSupportEnabled;
 
     public Project() {
     }
 
-    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount, int weightMeasure) {
+    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount, int weightMeasure, boolean isSupportEnabled) {
         this.project = project;
         this.projectName = projectName;
         this.projectAlias = projectAlias;
@@ -35,6 +34,7 @@ public class Project implements RowMapper<Project> {
         this.isDeleted = isDeleted;
         this.issueCount = issueCount;
         this.weightMeasure = weightMeasure;
+        this.isSupportEnabled = isSupportEnabled;
     }
 
     public String getProjectId() {
@@ -127,6 +127,14 @@ public class Project implements RowMapper<Project> {
         this.weightMeasure = weightMeasure;
     }
 
+    public boolean getIsSupportEnabled() {
+        return isSupportEnabled;
+    }
+
+    public void setIsSupportEnabled(boolean supportEnabled) {
+        isSupportEnabled = supportEnabled;
+    }
+
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project(
@@ -139,7 +147,7 @@ public class Project implements RowMapper<Project> {
                 ProjectStatusEnum.valueOf(resultSet.getString("projectStatus")),
                 resultSet.getBoolean("isDeleted"),
                 resultSet.getInt("issueCount"),
-                resultSet.getInt("weightMeasure")
-        );
+                resultSet.getInt("weightMeasure"),
+                resultSet.getBoolean("isSupportEnabled"));
     }
 }

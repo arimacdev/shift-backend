@@ -49,7 +49,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Object createProject(ProjectDto projectDto) {
-        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
+        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty())
+                || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty())
+                || (projectDto.getIsSupportEnabled() && (projectDto.getDomain()== null
+                || projectDto.getDomain().isEmpty())))
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(projectDto.getProjectOwner());
         if (user == null)
@@ -71,6 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
         project.setWeightMeasure(projectDto.getWeightType().getWeightId());
+        project.setIsSupportEnabled(projectDto.getIsSupportEnabled());
         projectRepository.createProject(project);
         activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 
@@ -82,6 +86,8 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssigneeProjectRole(ProjectRoleEnum.owner.getRoleValue());
 
         projectRepository.assignUserToProject(projectId,assignment);
+
+//        projectRepository.updateProjectSupportStatus(projectId, );
 
         return new Response(ResponseMessage.SUCCESS, project);
     }
