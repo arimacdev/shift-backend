@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
@@ -49,6 +50,8 @@ public interface ProjectRepository {
     LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex);
     //Project Support
     void addProjectKeys(Project_Keys project_keys);
+    Project_Keys getProjectKey(String projectKey);
+    void updateProjectKeys(ProjectKeys project_keys);
 
 
 }

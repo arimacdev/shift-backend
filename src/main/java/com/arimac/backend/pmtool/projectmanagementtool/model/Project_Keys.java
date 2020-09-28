@@ -9,11 +9,16 @@ public class Project_Keys implements RowMapper<Project_Keys> {
     private String projectId;
     private String domain;
     private String projectKey;
+    private boolean isValid;
 
-    public Project_Keys(String projectId, String domain, String projectKey) {
+    public Project_Keys() {
+    }
+
+    public Project_Keys(String projectId, String domain, String projectKey, boolean isValid) {
         this.projectId = projectId;
         this.domain = domain;
         this.projectKey = projectKey;
+        this.isValid = isValid;
     }
 
     public String getProjectId() {
@@ -40,8 +45,21 @@ public class Project_Keys implements RowMapper<Project_Keys> {
         this.projectKey = projectKey;
     }
 
+    public boolean getIsValid() {
+        return isValid;
+    }
+
+    public void setIsValid(boolean valid) {
+        isValid = valid;
+    }
+
     @Override
     public Project_Keys mapRow(ResultSet resultSet, int i) throws SQLException {
-        return null;
+        return new Project_Keys(
+                resultSet.getString("projectId"),
+                resultSet.getString("domain"),
+                resultSet.getString("projectKey"),
+                resultSet.getBoolean("isValid")
+        );
     }
 }

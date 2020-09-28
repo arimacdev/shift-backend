@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
@@ -473,15 +474,43 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     public void addProjectKeys(Project_Keys project_keys) {
         try {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_Keys(projectId, domain, projectKey) VALUES(?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_Keys(projectId, domain, projectKey, isValid) VALUES(?,?,?,?)");
                 preparedStatement.setString(1,project_keys.getProjectId());
                 preparedStatement.setString(2, project_keys.getDomain());
                 preparedStatement.setString(3, project_keys.getProjectKey());
+                preparedStatement.setBoolean(4, project_keys.getIsValid());
                 return preparedStatement;
             });
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public Project_Keys getProjectKey(String projectKey) {
+        String sql = "SELECT * FROM Project_Keys WHERE projectKey=?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project_Keys(), projectKey);
+        }
+        catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        catch (Exception e){
+            throw  new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateProjectKeys(ProjectKeys project_keys) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Project_Keys SET domain=?, isValid=? WHERE projectKey=?");
+            preparedStatement.setString(1,project_keys.getDomain());
+            preparedStatement.setBoolean(2, project_keys.getValid());
+            preparedStatement.setString(3, project_keys.getProjectKey());
+
+            return preparedStatement;
+        });
     }
 
 

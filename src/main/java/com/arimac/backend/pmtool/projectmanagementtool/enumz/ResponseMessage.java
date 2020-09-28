@@ -21,6 +21,7 @@ public enum ResponseMessage {
     ASSIGNER_NOT_MEMBER("Assigner doesn't belong to the project"),
     ASSIGNEE_NOT_MEMBER("Assignee doesn't belong to the project"),
     USER_NOT_MEMBER("User doesn't belong to the project"),
+    USER_NOT_ADMIN("User is not an Admin of this project"),
     USER_NOT_GROUP_MEMBER("User doesn't belong to this Group"),
     USER_NOT_FOUND("User doesn't exist"),
     ALREADY_DEACTIVATED("User Already Deactivated"),
@@ -58,7 +59,8 @@ public enum ResponseMessage {
     PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist"),
     DISCUSSION_NOT_FOUND("Discussion Not Found"),
     MEETING_NOT_FOUND("Meeting Not Found"),
-    ALREADY_PINNED("You have already Pinned/Unpinned this project");
+    ALREADY_PINNED("You have already Pinned/Unpinned this project"),
+    PROJECT_KEY_NOT_FOUND("Project Key Not Found");
 
 
     private String message;

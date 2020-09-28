@@ -88,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.assignUserToProject(projectId,assignment);
 
         if (project.getIsSupportEnabled()) {
-            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId());
+            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId(), true);
             projectRepository.addProjectKeys(project_keys);
         }
 
@@ -349,5 +349,22 @@ public class ProjectServiceImpl implements ProjectService {
         else
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.ADD_USER, null, projectUserBlockDto.getBlockedUserId()));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object addOrUpdateProjectKeys(String projectId, ProjectKeys projectKeys) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, projectKeys.getAdmin());
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!(project_user.getAssigneeProjectRole()== ProjectRoleEnum.owner.getRoleValue()) || !(project_user.getAssigneeProjectRole()!= ProjectRoleEnum.admin.getRoleValue()))
+            return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
+        if (projectKeys.getProjectKey()!= null){
+            Project_Keys project_keys = projectRepository.getProjectKey(projectKeys.getProjectKey());
+            if (project_keys == null)
+                return new ErrorMessage(ResponseMessage.PROJECT_KEY_NOT_FOUND, HttpStatus.NOT_FOUND);
+            projectRepository.updateProjectKeys(projectKeys);
+        }
+
+        return null;
     }
 }
