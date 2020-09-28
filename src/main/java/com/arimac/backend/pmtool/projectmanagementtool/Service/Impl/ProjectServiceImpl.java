@@ -87,7 +87,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectRepository.assignUserToProject(projectId,assignment);
 
-//        projectRepository.updateProjectSupportStatus(projectId, );
+        if (project.getIsSupportEnabled()) {
+            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId());
+            projectRepository.addProjectKeys(project_keys);
+        }
 
         return new Response(ResponseMessage.SUCCESS, project);
     }

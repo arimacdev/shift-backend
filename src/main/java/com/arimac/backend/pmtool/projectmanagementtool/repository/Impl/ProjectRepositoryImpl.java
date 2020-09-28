@@ -13,6 +13,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -467,8 +468,20 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
     }
 
-
-
+    @Override
+    public void addProjectKeys(Project_Keys project_keys) {
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_Keys(projectId, domain, projectKey) VALUES(?,?,?)");
+                preparedStatement.setString(1,project_keys.getProjectId());
+                preparedStatement.setString(2, project_keys.getDomain());
+                preparedStatement.setString(3, project_keys.getProjectKey());
+                return preparedStatement;
+            });
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 
 
 }
