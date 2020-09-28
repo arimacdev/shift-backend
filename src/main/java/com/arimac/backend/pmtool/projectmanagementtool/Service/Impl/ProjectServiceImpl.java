@@ -237,6 +237,9 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             updatedProject.setProjectAlias(modifierProject.getProjectAlias());
         }
+        if (projectEditDto.getIsSupportEnabled() != null)
+            updatedProject.setIsSupportEnabled(projectEditDto.getIsSupportEnabled());
+        else updatedProject.setIsSupportEnabled(modifierProject.getIsSupportEnabled());
         projectRepository.updateProject(updatedProject, projectId);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);

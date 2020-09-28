@@ -132,7 +132,7 @@ public class Project implements RowMapper<Project> {
     }
 
     public void setIsSupportEnabled(boolean supportEnabled) {
-        isSupportEnabled = supportEnabled;
+        this.isSupportEnabled = supportEnabled;
     }
 
     @Override

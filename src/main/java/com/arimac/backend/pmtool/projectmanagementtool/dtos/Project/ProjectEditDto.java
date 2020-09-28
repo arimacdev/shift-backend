@@ -12,6 +12,7 @@ public class ProjectEditDto {
     private String projectAlias;
     private Timestamp projectStartDate;
     private Timestamp projectEndDate;
+    private Boolean isSupportEnabled;
 
     public String getProjectAlias() {
         return projectAlias;
@@ -69,6 +70,14 @@ public class ProjectEditDto {
         this.projectEndDate = projectEndDate;
     }
 
+    public Boolean getIsSupportEnabled() {
+        return isSupportEnabled;
+    }
+
+    public void setIsSupportEnabled(Boolean supportEnabled) {
+        isSupportEnabled = supportEnabled;
+    }
+
     @Override
     public String toString() {
         return "ProjectEditDto{" +
@@ -79,6 +88,7 @@ public class ProjectEditDto {
                 ", projectAlias='" + projectAlias + '\'' +
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
+                ", isSupportEnabled=" + isSupportEnabled +
                 '}';
     }
 }
