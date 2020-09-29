@@ -364,8 +364,9 @@ public class ProjectServiceImpl implements ProjectService {
             if (project_keys == null)
                 return new ErrorMessage(ResponseMessage.PROJECT_KEY_NOT_FOUND, HttpStatus.NOT_FOUND);
             projectRepository.updateProjectKeys(projectKeys);
+        } else {
+            projectRepository.addProjectKeys(new Project_Keys(projectId, projectKeys.getDomain(), projectKeys.getProjectKey(), projectKeys.getValid()));
         }
-
-        return new Response(ResponseMessage.SUCCESS);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }
