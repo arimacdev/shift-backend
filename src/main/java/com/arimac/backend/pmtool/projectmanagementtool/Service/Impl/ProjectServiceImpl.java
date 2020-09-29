@@ -356,7 +356,8 @@ public class ProjectServiceImpl implements ProjectService {
         Project_User project_user = projectRepository.getProjectUser(projectId, projectKeys.getAdmin());
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        if (!(project_user.getAssigneeProjectRole()== ProjectRoleEnum.owner.getRoleValue()) || !(project_user.getAssigneeProjectRole()!= ProjectRoleEnum.admin.getRoleValue()))
+        if (!(project_user.getAssigneeProjectRole()== ProjectRoleEnum.owner.getRoleValue()) ||
+                !(project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()))
             return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
         if (projectKeys.getProjectKey()!= null){
             Project_Keys project_keys = projectRepository.getProjectKey(projectKeys.getProjectKey());
@@ -365,6 +366,6 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.updateProjectKeys(projectKeys);
         }
 
-        return null;
+        return new Response(ResponseMessage.SUCCESS);
     }
 }
