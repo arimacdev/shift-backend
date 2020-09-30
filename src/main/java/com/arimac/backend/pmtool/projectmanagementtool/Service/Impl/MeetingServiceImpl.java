@@ -74,7 +74,7 @@ public class MeetingServiceImpl implements MeetingService {
         if (!addMeeting.getMeetingPrepared().isEmpty())
             addMeetingAttendees(addMeeting.getMeetingPrepared(), meeting.getMeetingId(), MemberType.MINUTES_PREPARED.getEntityId());
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, meeting);
     }
 
     private void addMeetingAttendees(List<MeetingAttendee> attendees, String meetingId, int memberType){
@@ -112,6 +112,22 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    public Object getMeetingById(String userId, String meetingId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project_User project_user = projectRepository.getProjectUser(projectId,userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+       MeetingResponse meetingResponse = meetingRepository.getCompleteMeetingById(meetingId, projectId);
+        List<DiscussionPoint> discussionPoints = new ArrayList<>();
+       if (meetingResponse!= null)
+           discussionPoints = meetingRepository.getDiscussionPointOfMeeting(meetingId);
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, new MeetingDiscussionResponse(meetingResponse, discussionPoints));
+    }
+
+    @Override
     public Object updateMeeting(String userId, String meetingId, UpdateMeeting updateMeeting) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
@@ -136,6 +152,27 @@ public class MeetingServiceImpl implements MeetingService {
             meeting.setExpectedDuration(updateMeeting.getExpectedDuration());
 
         meetingRepository.updateMeeting(meeting);
+
+        if (updateMeeting.getMeetingAttended().getIsUpdated()){
+            meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.ATTENDED.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingAttended().getAttendees(), meetingId, MemberType.ATTENDED.getEntityId());
+        }
+        if (updateMeeting.getMeetingChaired().getIsUpdated()){
+            meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.CHAIRED.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingChaired().getAttendees(), meetingId, MemberType.CHAIRED.getEntityId());
+        }
+        if (updateMeeting.getMeetingAbsent().getIsUpdated()){
+            meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.ABSENT.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingAbsent().getAttendees(), meetingId, MemberType.ABSENT.getEntityId());
+        }
+        if (updateMeeting.getMeetingCopiesTo().getIsUpdated()){
+            meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.SEND_COPIES.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingCopiesTo().getAttendees(), meetingId, MemberType.SEND_COPIES.getEntityId());
+        }
+        if (updateMeeting.getMeetingPrepared().getIsUpdated()){
+            meetingRepository.removeAttendeesOfMeeting(meetingId, MemberType.MINUTES_PREPARED.getEntityId());
+            addMeetingAttendees(updateMeeting.getMeetingPrepared().getAttendees(), meetingId, MemberType.MINUTES_PREPARED.getEntityId());
+        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
@@ -181,7 +218,7 @@ public class MeetingServiceImpl implements MeetingService {
 
         meetingRepository.addDiscussionPoint(minute);
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, minute);
     }
 
     @Override

@@ -71,7 +71,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
                 //idpUserService.removeAllAssociatedUserSessions(jwt.getSubject(), true);
 
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("token", token);
+                jsonObject.put("Status", "User Created From Email");
                 response.getWriter().write(String.valueOf(jsonObject));
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");

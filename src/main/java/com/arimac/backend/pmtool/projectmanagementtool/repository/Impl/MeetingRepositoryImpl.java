@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,11 +73,34 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
-    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
+    public MeetingResponse getCompleteMeetingById(String meetingId, String projectId) {
         String sql = "SELECT * FROM Meeting LEFT JOIN Meeting_Attendee ON Meeting.meetingId = Meeting_Attendee.meetingId " +
+                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
+                "WHERE Meeting.meetingId =? AND Meeting.projectId =? AND Meeting.isDeleted=false";
+        MeetingResponse meetingResponse = new MeetingResponse();
+
+        return jdbcTemplate.query(sql, new Object[]{meetingId, projectId}, (ResultSet rs) -> {
+           while (rs.next()){
+               MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
+               setMeetingResponseUser(meetingResponseUser, rs);
+               if (meetingResponse.getMeetingId() == null) {
+                   setMeetingResponse(rs, meetingResponse, meetingResponseUser);
+               } else {
+                   setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+               }
+           }
+            return meetingResponse;
+        });
+    }
+
+    @Override
+    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
+        String sql = "SELECT * FROM (SELECT * FROM Meeting WHERE isDeleted=false ORDER BY createdAt DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
                 "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
                 "WHERE projectId = ?";
         List<Object> parameters = new ArrayList<>();
+                parameters.add(limit);
+        parameters.add(startIndex);
         parameters.add(projectId);
         String filterQuery = "";
         if (filter && !filterDate.isEmpty()) {
@@ -87,36 +111,15 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             filterQuery = filterQuery + " AND MeetingTopic LIKE ?";
             parameters.add("%" +filterKey + "%");
         }
-        parameters.add(limit);
-        parameters.add(startIndex);
-        return jdbcTemplate.query(sql + filterQuery + " LIMIT ? OFFSET ?", parameters.toArray(), (ResultSet rs) -> {
+
+        return jdbcTemplate.query(sql + filterQuery , parameters.toArray(), (ResultSet rs) -> {
             HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
-                meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
-                meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
-                meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
-
-                meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
-                if (!meetingResponseUser.isGuest()){
-                    meetingResponseUser.setFirstName(rs.getString("firstName"));
-                    meetingResponseUser.setFirstName(rs.getString("lastName"));
-                    meetingResponseUser.setFirstName(rs.getString("profileImage"));
-                }
+                setMeetingResponseUser(meetingResponseUser, rs);
                 if (!meetingResponseMap.containsKey(rs.getString("meetingId")) ){
                     MeetingResponse meetingResponse = new MeetingResponse();
-                    meetingResponse.setProjectId(rs.getString("projectId"));
-                    meetingResponse.setMeetingId(rs.getString("meetingId"));
-                    meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
-                    meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
-                    meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
-                    meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
-                    meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
-                    meetingResponse.setActualDuration(rs.getLong("actualDuration"));
-                    meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
-                    meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
-
-                    setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+                    setMeetingResponse(rs,meetingResponse,meetingResponseUser);
                     meetingResponseMap.put(meetingResponse.getMeetingId(), meetingResponse);
 
                 } else {
@@ -128,6 +131,34 @@ public class MeetingRepositoryImpl implements MeetingRepository {
             }
             return meetingResponseMap;
         });
+    }
+
+    private void setMeetingResponse(ResultSet rs, MeetingResponse meetingResponse, MeetingResponseUser meetingResponseUser) throws SQLException {
+        meetingResponse.setProjectId(rs.getString("projectId"));
+        meetingResponse.setMeetingId(rs.getString("meetingId"));
+        meetingResponse.setMeetingTopic(rs.getString("meetingTopic"));
+        meetingResponse.setMeetingVenue(rs.getString("meetingVenue"));
+        meetingResponse.setMeetingExpectedTime(rs.getTimestamp("meetingExpectedTime"));
+        meetingResponse.setMeetingActualTime(rs.getTimestamp("meetingActualTime"));
+        meetingResponse.setExpectedDuration(rs.getLong("expectedDuration"));
+        meetingResponse.setActualDuration(rs.getLong("actualDuration"));
+        meetingResponse.setCreatedAt(rs.getTimestamp("createdAt"));
+        meetingResponse.setMeetingCreatedBy(rs.getString("meetingCreatedBy"));
+
+        setMemberType(rs.getInt("attendeeType"), meetingResponse, meetingResponseUser);
+    }
+
+    private void setMeetingResponseUser(MeetingResponseUser meetingResponseUser, ResultSet rs) throws SQLException {
+        meetingResponseUser.setAttendeeId(rs.getString("attendeeId"));
+        meetingResponseUser.setGuest(rs.getBoolean("isGuest"));
+        meetingResponseUser.setMemberType(rs.getInt("attendeeType"));
+
+        meetingResponseUser.setMemberTypeName(MemberType.getMemberType(rs.getInt("attendeeType")));
+        if (!rs.getBoolean("isGuest")){
+            meetingResponseUser.setFirstName(rs.getString("firstName"));
+            meetingResponseUser.setLastName(rs.getString("lastName"));
+            meetingResponseUser.setProfileImage(rs.getString("profileImage"));
+        }
     }
 
     private void setMemberType(int attendeeType, MeetingResponse meetingResponse, MeetingResponseUser meetingResponseUser){
@@ -163,6 +194,16 @@ public class MeetingRepositoryImpl implements MeetingRepository {
           preparedStatement.setString(7, meeting.getMeetingId());
           return preparedStatement;
       });
+    }
+
+    @Override
+    public void removeAttendeesOfMeeting(String meetingId, int attendeeType) {
+        String sql = "DELETE FROM Meeting_Attendee WHERE meetingId=? AND attendeeType=?";
+        try {
+            jdbcTemplate.update(sql, meetingId, attendeeType);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     @Override
