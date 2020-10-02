@@ -356,16 +356,25 @@ public class ProjectServiceImpl implements ProjectService {
         Project_User project_user = projectRepository.getProjectUser(projectId, projectKeys.getAdmin());
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
-        if (!(project_user.getAssigneeProjectRole()== ProjectRoleEnum.owner.getRoleValue()) ||
-                !(project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue()))
+        if (!((project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) ||
+                (project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
             return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
         if (projectKeys.getProjectKey()!= null){
             Project_Keys project_keys = projectRepository.getProjectKey(projectKeys.getProjectKey());
             if (project_keys == null)
                 return new ErrorMessage(ResponseMessage.PROJECT_KEY_NOT_FOUND, HttpStatus.NOT_FOUND);
             projectRepository.updateProjectKeys(projectKeys);
+        } else {
+            projectRepository.addProjectKeys(new Project_Keys(projectId, projectKeys.getDomain(), utilsService.getUUId(), true));
         }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
 
-        return new Response(ResponseMessage.SUCCESS);
+    @Override
+    public Object getProjectKeys(String projectId, String userId) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectRepository.getProjectKeys(projectId));
     }
 }

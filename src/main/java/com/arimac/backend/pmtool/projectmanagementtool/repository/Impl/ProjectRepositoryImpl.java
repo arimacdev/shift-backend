@@ -513,5 +513,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         });
     }
 
+    @Override
+    public List<Project_Keys> getProjectKeys(String projectId) {
+        String sql = "SELECT * FROM Project_Keys as PK INNER JOIN project as P ON P.project = PK.projectId WHERE projectId=?";
+        try {
+            return jdbcTemplate.query(sql, new Project_Keys(), projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
 
 }

@@ -18,5 +18,6 @@ public interface ProjectService {
     Object flagProject(String userId, String projectId);
     Object blockOrUnBlockProjectUser(String userId, String projectId, ProjectUserBlockDto projectUserBlockDto);
     Object addOrUpdateProjectKeys(String projectId, ProjectKeys projectKeys);
+    Object getProjectKeys(String projectId, String userId);
 
 }

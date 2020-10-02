@@ -52,6 +52,7 @@ public interface ProjectRepository {
     void addProjectKeys(Project_Keys project_keys);
     Project_Keys getProjectKey(String projectKey);
     void updateProjectKeys(ProjectKeys project_keys);
+    List<Project_Keys> getProjectKeys(String projectId);
 
 
 }
