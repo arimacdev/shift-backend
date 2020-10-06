@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddTicke
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.TicketStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ServiceTicket;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -35,6 +36,7 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         String domain = addTicket.getEmail().split("@")[1];
         if (!project_keys.getDomain().equals(domain))
             return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.NOT_FOUND);
+//        Project project = projectRepository.getProjectById()
 
         ServiceTicket serviceTicket = new ServiceTicket();
         serviceTicket.setTicketId(utilsService.getUUId());

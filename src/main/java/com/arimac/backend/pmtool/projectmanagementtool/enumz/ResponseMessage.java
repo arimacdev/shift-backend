@@ -60,6 +60,7 @@ public enum ResponseMessage {
     DISCUSSION_NOT_FOUND("Discussion Not Found"),
     MEETING_NOT_FOUND("Meeting Not Found"),
     ALREADY_PINNED("You have already Pinned/Unpinned this project"),
+    SUPPPORT_SERVICE_NOT_ENABLED("Support Service not enabled for this project"),
     INVALID_KEY_COMBINAITON("Invalid Email and Project Key combination"),
     PROJECT_KEY_NOT_FOUND("Project Key Not Found");
 

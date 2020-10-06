@@ -359,6 +359,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (!((project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) ||
                 (project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
             return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(projectId).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         if (projectKeys.getProjectKey()!= null){
             Project_Keys project_keys = projectRepository.getProjectKey(projectKeys.getProjectKey());
             if (project_keys == null)
@@ -375,6 +377,8 @@ public class ProjectServiceImpl implements ProjectService {
         Project_User project_user = projectRepository.getProjectUser(projectId, userId);
         if (project_user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(projectId).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectRepository.getProjectKeys(projectId));
     }
 }
