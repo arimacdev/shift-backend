@@ -1,6 +1,8 @@
 package com.arimac.backend.pmtool.projectmanagementtool.controller;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.ServiceDeskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddTicket;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -15,12 +18,18 @@ import java.util.List;
 public class ServiceDeskController extends ResponseController {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDeskController.class);
 
-    @ApiOperation(value = "Get Overview of Organization", notes = "Get Overview of Organization")
+    private final ServiceDeskService serviceDeskService;
+
+    public ServiceDeskController(ServiceDeskService serviceDeskService) {
+        this.serviceDeskService = serviceDeskService;
+    }
+
+    @ApiOperation(value = "Add Ticket to a Project", notes = "Add Ticket to a Project")
     @ApiResponse(code = 200, message = "Success", response = List.class)
-    @GetMapping("/overview")
-    public ResponseEntity<Object> getOrgOverview(){
-//        logger.info("HIT - GET analytics/overview ---> getOrgOverview | User: {} | from: {} | to: {}", userId, from, to);
-        return sendResponse(123);
+    @PostMapping("/ticket")
+    public ResponseEntity<Object> createSupportTicket(@Valid @RequestBody AddTicket addTicket){
+        logger.info("POST - GET support/ticket ---> createSupportTicket | addTicket: {}", addTicket);
+        return sendResponse(serviceDeskService.createSupportTicket(addTicket));
     }
 
 }
