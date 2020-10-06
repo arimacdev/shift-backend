@@ -36,8 +36,8 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         String domain = addTicket.getEmail().split("@")[1];
         if (!project_keys.getDomain().equals(domain))
             return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.NOT_FOUND);
-//        Project project = projectRepository.getProjectById()
-
+        if (!projectRepository.getProjectById(project_keys.getProjectKey()).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         ServiceTicket serviceTicket = new ServiceTicket();
         serviceTicket.setTicketId(utilsService.getUUId());
         serviceTicket.setDescription(addTicket.getIssueTopic());
