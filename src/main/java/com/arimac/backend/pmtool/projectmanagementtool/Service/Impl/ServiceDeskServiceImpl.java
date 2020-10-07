@@ -41,7 +41,7 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!project.getIsSupportEnabled())
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, project);
     }
 
     @Override

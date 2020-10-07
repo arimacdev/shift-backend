@@ -99,8 +99,13 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
             response.sendError(400);
             return false;
         }
-    } else
-        return false;
+    } else {
+//            JSONObject jsonObject = new JSONObject();
+//            response.setContentType("application/json");
+//            response.setCharacterEncoding("UTF-8");
+//            response.setStatus(401);
+            return true;
+        }
 }
 
 
