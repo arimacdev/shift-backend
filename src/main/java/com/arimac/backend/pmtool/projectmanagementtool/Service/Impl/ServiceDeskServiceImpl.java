@@ -8,7 +8,6 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.RequestK
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.TicketStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ServiceTicket;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -28,6 +27,17 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         this.serviceDeskRepository = serviceDeskRepository;
         this.projectRepository = projectRepository;
         this.utilsService = utilsService;
+    }
+
+    @Override
+    public Object clientValidation(RequestKey requestKey) {
+        String domain = requestKey.getEmail().split("@")[1];
+        Project_Keys project_keys = projectRepository.getProjectKeyByDomain(requestKey.getProjectKey(), domain);
+        if (project_keys == null)
+            return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(project_keys.getProjectKey()).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddTicke
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.RequestKey;
 
 public interface ServiceDeskService {
+    Object clientValidation(RequestKey requestKey);
     Object createSupportTicket(AddTicket addTicket);
     Object requestNewServiceKey(RequestKey requestKey);
 }

@@ -25,11 +25,19 @@ public class ServiceDeskController extends ResponseController {
         this.serviceDeskService = serviceDeskService;
     }
 
+    @ApiOperation(value = "Client Dashboard Validation", notes = "Client Dashboard Validation")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/validation")
+    public ResponseEntity<Object> clientValidation(@Valid @RequestBody RequestKey requestKey){
+        logger.info("POST - support/ticket ---> clientValidation | addTicket: {}", requestKey);
+        return sendResponse(serviceDeskService.clientValidation(requestKey));
+    }
+
     @ApiOperation(value = "Add Ticket to a Project", notes = "Add Ticket to a Project")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PostMapping("/ticket")
     public ResponseEntity<Object> createSupportTicket(@Valid @RequestBody AddTicket addTicket){
-        logger.info("POST - POST support/ticket ---> createSupportTicket | addTicket: {}", addTicket);
+        logger.info("POST - support/ticket ---> createSupportTicket | addTicket: {}", addTicket);
         return sendResponse(serviceDeskService.createSupportTicket(addTicket));
     }
 
