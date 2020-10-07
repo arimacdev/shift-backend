@@ -18,6 +18,10 @@ public class ServiceTicket implements RowMapper<ServiceTicket> {
     private int severity;
     private int serviceLevel;
 
+    private boolean isProjectTicket;
+    private String taskReference;
+    private boolean isFinished;
+
     private Timestamp ticketCreation;
     private Timestamp ticketAcceptance;
     private Timestamp ticketResolution;
@@ -37,6 +41,31 @@ public class ServiceTicket implements RowMapper<ServiceTicket> {
         this.ticketCreation = ticketCreation;
         this.ticketAcceptance = ticketAcceptance;
         this.ticketResolution = ticketResolution;
+    }
+
+
+    public boolean getIsProjectTicket() {
+        return isProjectTicket;
+    }
+
+    public void setIsProjectTicket(boolean projectTicket) {
+        isProjectTicket = projectTicket;
+    }
+
+    public String getTaskReference() {
+        return taskReference;
+    }
+
+    public void setTaskReference(String taskReference) {
+        this.taskReference = taskReference;
+    }
+
+    public boolean getIsFinished() {
+        return isFinished;
+    }
+
+    public void setIsFinished(boolean finished) {
+        isFinished = finished;
     }
 
     public String getTicketId() {
