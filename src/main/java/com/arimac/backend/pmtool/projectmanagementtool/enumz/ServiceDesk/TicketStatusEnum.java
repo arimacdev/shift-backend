@@ -5,8 +5,11 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.Meeting.MemberType;
 import java.util.HashMap;
 
 public enum TicketStatusEnum {
-    OPEN(1,"OPEN"),
-    CLOSED(2,"CLOSED");
+    CLOSED(0,"CLOSED"),
+    PENDING(1, "PENDING"),
+    ACKNOWLEDGED(2,"ACKNOWLEDGED"),
+    FIXED(3,"FIXED"),
+    SOLVED(4, "SOLVED");
 
     private final int statusId;
     private final String statusType;
