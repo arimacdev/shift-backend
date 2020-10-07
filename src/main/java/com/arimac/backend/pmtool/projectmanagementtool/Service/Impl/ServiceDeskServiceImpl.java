@@ -2,7 +2,9 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ServiceDeskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddTicket;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.RequestKey;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.TicketStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -48,6 +50,19 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         serviceTicket.setTicketCreation(utilsService.getCurrentTimestamp());
 
         serviceDeskRepository.addServiceTicket(serviceTicket);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object requestNewServiceKey(RequestKey requestKey) {
+        String domain = requestKey.getEmail().split("@")[1];
+        Project_Keys project_keys = projectRepository.getProjectKeyByDomain(requestKey.getProjectKey(), domain);
+        if (project_keys == null)
+            return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.NOT_FOUND);
+        if (!projectRepository.getProjectById(project_keys.getProjectKey()).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        projectRepository.updateProjectKeys(new ProjectKeys(requestKey.getProjectKey(), domain, false));
+        //Email Sending
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

@@ -502,6 +502,18 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
+    public Project_Keys getProjectKeyByDomain(String projectKey, String domain) {
+        String sql = "SELECT * FROM Project_Keys WHERE projectKey=? AND domain=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project_Keys(), projectKey, domain);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void updateProjectKeys(ProjectKeys project_keys) {
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Project_Keys SET domain=?, isValid=? WHERE projectKey=?");

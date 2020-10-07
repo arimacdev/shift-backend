@@ -11,6 +11,12 @@ public class ProjectKeys {
     @NotNull
     private boolean isValid;
 
+    public ProjectKeys(String projectKey, @NotNull String domain, @NotNull boolean isValid) {
+        this.projectKey = projectKey;
+        this.domain = domain;
+        this.isValid = isValid;
+    }
+
     public String getAdmin() {
         return admin;
     }
