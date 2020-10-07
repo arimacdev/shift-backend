@@ -488,7 +488,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project_Keys getProjectKey(String projectKey) {
-        String sql = "SELECT * FROM Project_Keys WHERE projectKey=?";
+        String sql = "SELECT * FROM Project_Keys WHERE projectKey=? AND isValid=true";
 
         try {
             return jdbcTemplate.queryForObject(sql, new Project_Keys(), projectKey);
@@ -503,7 +503,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project_Keys getProjectKeyByDomain(String projectKey, String domain) {
-        String sql = "SELECT * FROM Project_Keys WHERE projectKey=? AND domain=?";
+        String sql = "SELECT * FROM Project_Keys WHERE projectKey=? AND domain=? AND isValid=true";
         try {
             return jdbcTemplate.queryForObject(sql, new Project_Keys(), projectKey, domain);
         } catch (EmptyResultDataAccessException e){

@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.RequestK
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.TicketStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.ServiceTicket;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -35,7 +36,10 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         Project_Keys project_keys = projectRepository.getProjectKeyByDomain(requestKey.getProjectKey(), domain);
         if (project_keys == null)
             return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.UNAUTHORIZED);
-        if (!projectRepository.getProjectById(project_keys.getProjectKey()).getIsSupportEnabled())
+        Project project = projectRepository.getProjectById(project_keys.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportEnabled())
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
@@ -48,7 +52,10 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         String domain = addTicket.getEmail().split("@")[1];
         if (!project_keys.getDomain().equals(domain))
             return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.NOT_FOUND);
-        if (!projectRepository.getProjectById(project_keys.getProjectKey()).getIsSupportEnabled())
+        Project project = projectRepository.getProjectById(project_keys.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportEnabled())
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         ServiceTicket serviceTicket = new ServiceTicket();
         serviceTicket.setTicketId(utilsService.getUUId());
@@ -69,7 +76,10 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         Project_Keys project_keys = projectRepository.getProjectKeyByDomain(requestKey.getProjectKey(), domain);
         if (project_keys == null)
             return new ErrorMessage(ResponseMessage.INVALID_KEY_COMBINAITON, HttpStatus.NOT_FOUND);
-        if (!projectRepository.getProjectById(project_keys.getProjectKey()).getIsSupportEnabled())
+        Project project = projectRepository.getProjectById(project_keys.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportEnabled())
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         projectRepository.updateProjectKeys(new ProjectKeys(requestKey.getProjectKey(), domain, false));
         //Email Sending
