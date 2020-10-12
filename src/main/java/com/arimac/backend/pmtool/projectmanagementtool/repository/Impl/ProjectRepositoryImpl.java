@@ -69,7 +69,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project getProjectById(String projectId) {
-        String sql = "SELECT * FROM project WHERE project=?";
+        String sql = "SELECT * FROM project WHERE project=? AND isDeleted=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Project(), projectId);
         } catch (EmptyResultDataAccessException e){

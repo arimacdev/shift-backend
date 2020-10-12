@@ -155,4 +155,9 @@ public class InternalServiceImpl implements InternalService {
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, count);
     }
+
+    @Override
+    public Object getProjectById(String projectId) {
+        return projectRepository.getProjectById(projectId);
+    }
 }

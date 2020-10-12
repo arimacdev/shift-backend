@@ -6,4 +6,5 @@ public interface InternalService {
     Object addUserRole();
     Object addUserNameToUsers();
     Object addUserToAllProjects(String userId);
+    Object getProjectById(String projectId);
 }

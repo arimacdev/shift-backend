@@ -47,6 +47,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
             logger.info("jwt subject {}", jwt.getSubject());
             User user = userRepository.getUserByIdpUserId(jwt.getSubject());
             //logger.info("INTERCEPTOR USER {}", user);
+            //TODO CHECK THIS STEP
             JSONObject idpUser = idpUserService.getUserByIdpUserId(jwt.getSubject(), true);
             if (idpUser == null) {
                 response.sendError(400);

@@ -65,7 +65,7 @@ public enum ResponseMessage {
     PROJECT_KEY_NOT_FOUND("Project Key Not Found");
 
 
-    private String message;
+    private final String message;
     ResponseMessage(String message){
         this.message = message;
     }

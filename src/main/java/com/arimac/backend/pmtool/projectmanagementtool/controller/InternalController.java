@@ -39,5 +39,13 @@ public class InternalController extends ResponseController {
     public ResponseEntity<Object> addUserToAllProjects(@RequestHeader("userId") String userId){
         return sendResponse(internalService.addUserToAllProjects(userId));
     }
+    @GetMapping("projects")
+    public ResponseEntity<Object> getAllOrganizationProjects(@RequestHeader("userId") String userId){
+        return sendResponse(internalService.addUserToAllProjects(userId));
+    }
+    @GetMapping("project/{projectId}")
+    public ResponseEntity<Object> getProjectById(@PathVariable("projectId") String projectId){
+        return sendResponse(internalService.getProjectById(projectId));
+    }
 
 }
