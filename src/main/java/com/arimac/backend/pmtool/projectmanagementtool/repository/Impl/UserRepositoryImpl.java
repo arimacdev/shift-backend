@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserN
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
@@ -293,19 +294,20 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public HashMap<String, User> getUsersByIds(Set<String> userList) {
+    public HashMap<String, UserDto> getUsersByIds(Set<String> userList) {
         String sql = "SELECT * FROM User WHERE userId IN (:userIds)";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("userIds", userList);
-        HashMap<String, User> userHashMap = new HashMap<>();
+        HashMap<String, UserDto> userHashMap = new HashMap<>();
         try {
             return namedParameterJdbcTemplate.query(sql, parameters , (ResultSet rs) -> {
                 while (rs.next()) {
                     if (!userHashMap.containsKey(rs.getString("userId"))) {
-                        User user = new User();
+                        UserDto user = new UserDto();
                         user.setUserId(rs.getString("userId"));
                         user.setFirstName(rs.getString("firstName"));
                         user.setLastName(rs.getString("lastName"));
+                        user.setProfileImage(rs.getString("profileImage"));
                         userHashMap.put(rs.getString("userId"), user);
                     }
                 }

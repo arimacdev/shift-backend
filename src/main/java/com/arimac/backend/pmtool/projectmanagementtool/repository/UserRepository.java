@@ -6,6 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserN
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
@@ -39,6 +40,6 @@ public interface UserRepository {
     HashMap<String,UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria);
     //REMOVE
     void updateUserName(String userId, String username);
-    HashMap<String, User> getUsersByIds(Set<String> userList);
+    HashMap<String, UserDto> getUsersByIds(Set<String> userList);
 
 }
