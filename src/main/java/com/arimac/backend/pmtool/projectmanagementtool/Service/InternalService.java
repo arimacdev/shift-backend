@@ -1,5 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import java.util.Set;
+
 public interface InternalService {
     Object updateProjectAlias();
     Object migratePersonalTask();
@@ -7,4 +9,5 @@ public interface InternalService {
     Object addUserNameToUsers();
     Object addUserToAllProjects(String userId);
     Object getProjectById(String projectId);
+    Object getUsersByIds(Set<String> users);
 }

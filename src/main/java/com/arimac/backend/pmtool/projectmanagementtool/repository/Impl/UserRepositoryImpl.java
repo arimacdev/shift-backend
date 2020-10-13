@@ -12,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.Chart
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -289,6 +290,31 @@ public class UserRepositoryImpl implements UserRepository {
             return preparedStatement;
         });
 
+    }
+
+    @Override
+    public HashMap<String, User> getUsersByIds(Set<String> userList) {
+        String sql = "SELECT * FROM User WHERE userId IN (:userIds)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("userIds", userList);
+        HashMap<String, User> userHashMap = new HashMap<>();
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameters , (ResultSet rs) -> {
+                while (rs.next()) {
+                    if (!userHashMap.containsKey(rs.getString("userId"))) {
+                        User user = new User();
+                        user.setUserId(rs.getString("userId"));
+                        user.setFirstName(rs.getString("firstName"));
+                        user.setLastName(rs.getString("lastName"));
+                        userHashMap.put(rs.getString("userId"), user);
+                    }
+                }
+                return userHashMap;
+            });
+
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
 }

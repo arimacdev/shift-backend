@@ -39,5 +39,6 @@ public interface UserRepository {
     HashMap<String,UserActivityDto> getUserActivity(String from, String to, ChartCriteriaEnum criteria);
     //REMOVE
     void updateUserName(String userId, String username);
+    HashMap<String, User> getUsersByIds(Set<String> userList);
 
 }
