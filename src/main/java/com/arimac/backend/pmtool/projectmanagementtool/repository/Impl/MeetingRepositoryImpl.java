@@ -283,7 +283,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
     @Override
     public List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId) {
-        String sql = "SELECT * FROM Minute AS M LEFT JOIN User AS U ON U.userId = M.actionBy WHERE M.meetingId=? AND M.isDeleted=false";
+        String sql = "SELECT * FROM Minute AS M LEFT JOIN User AS U ON U.userId = M.actionBy WHERE M.meetingId=? AND M.isDeleted=false ORDER BY discussionPoint ASC";
         List<DiscussionPoint> discussionPoints = new ArrayList<>();
         return jdbcTemplate.query(sql, new Object[] {meetingId}, (ResultSet rs) -> {
             while (rs.next()){
