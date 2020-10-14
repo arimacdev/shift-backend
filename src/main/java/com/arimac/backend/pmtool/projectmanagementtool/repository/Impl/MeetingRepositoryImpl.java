@@ -95,24 +95,27 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
     @Override
     public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
-        String sql = "SELECT * FROM (SELECT * FROM Meeting WHERE isDeleted=false ORDER BY createdAt DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
-                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
-                "WHERE projectId = ?";
+        String sql = "SELECT * FROM (SELECT * FROM Meeting WHERE isDeleted=false AND projectId = ?";
+        String orderBy = " ORDER BY meetingActualTime DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
+                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId ";
         List<Object> parameters = new ArrayList<>();
-                parameters.add(limit);
-        parameters.add(startIndex);
         parameters.add(projectId);
-        String filterQuery = "";
+        parameters.add(limit);
+        parameters.add(startIndex);
+        StringBuilder filterQ = new StringBuilder();
         if (filter && !filterDate.isEmpty()) {
-            filterQuery = filterQuery + " AND DATE_FORMAT(meetingActualTime,'%Y-%m-%d') =?";
-            parameters.add(filterDate);
+            filterQ.append(" AND DATE_FORMAT(meetingActualTime,'%Y-%m-%d') =");
+            filterQ.append("'");
+            filterQ.append(filterDate);
+            filterQ.append("'");
         }
         if (filter && !filterKey.isEmpty()){
-            filterQuery = filterQuery + " AND MeetingTopic LIKE ?";
-            parameters.add("%" +filterKey + "%");
+            filterQ.append("AND MeetingTopic LIKE '%");
+            filterQ.append(filterKey);
+            filterQ.append("%'");
         }
 
-        return jdbcTemplate.query(sql + filterQuery , parameters.toArray(), (ResultSet rs) -> {
+        return jdbcTemplate.query(sql +  filterQ.toString() + orderBy, parameters.toArray(), (ResultSet rs) -> {
             HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
@@ -283,7 +286,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
     @Override
     public List<DiscussionPoint> getDiscussionPointOfMeeting(String meetingId) {
-        String sql = "SELECT * FROM Minute AS M LEFT JOIN User AS U ON U.userId = M.actionBy WHERE M.meetingId=? AND M.isDeleted=false";
+        String sql = "SELECT * FROM Minute AS M LEFT JOIN User AS U ON U.userId = M.actionBy WHERE M.meetingId=? AND M.isDeleted=false ORDER BY discussionPoint ASC";
         List<DiscussionPoint> discussionPoints = new ArrayList<>();
         return jdbcTemplate.query(sql, new Object[] {meetingId}, (ResultSet rs) -> {
             while (rs.next()){
