@@ -95,13 +95,13 @@ public class MeetingRepositoryImpl implements MeetingRepository {
 
     @Override
     public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
-        String sql = "SELECT * FROM (SELECT * FROM Meeting WHERE isDeleted=false ORDER BY createdAt DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
-                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId " +
-                "WHERE projectId = ?";
+        String sql = "SELECT * FROM (SELECT * FROM Meeting WHERE isDeleted=false AND projectId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
+                "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId ";
+//                "WHERE projectId = ?";
         List<Object> parameters = new ArrayList<>();
-                parameters.add(limit);
-        parameters.add(startIndex);
         parameters.add(projectId);
+        parameters.add(limit);
+        parameters.add(startIndex);
         String filterQuery = "";
         if (filter && !filterDate.isEmpty()) {
             filterQuery = filterQuery + " AND DATE_FORMAT(meetingActualTime,'%Y-%m-%d') =?";
