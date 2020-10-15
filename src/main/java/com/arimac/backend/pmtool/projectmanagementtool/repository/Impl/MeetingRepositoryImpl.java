@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MeetingRepositoryImpl implements MeetingRepository {
@@ -94,7 +91,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
     }
 
     @Override
-    public HashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
+    public LinkedHashMap<String, MeetingResponse> getMeetingsOfProject(String projectId, int startIndex, int limit, boolean filter, String filterKey, String filterDate) {
         String sql = "SELECT * FROM (SELECT * FROM Meeting WHERE isDeleted=false AND projectId = ?";
         String orderBy = " ORDER BY meetingActualTime DESC LIMIT ? OFFSET ?) AS M LEFT JOIN Meeting_Attendee ON M.meetingId = Meeting_Attendee.meetingId " +
                 "LEFT JOIN User ON userId = Meeting_Attendee.attendeeId ";
@@ -116,7 +113,7 @@ public class MeetingRepositoryImpl implements MeetingRepository {
         }
 
         return jdbcTemplate.query(sql +  filterQ.toString() + orderBy, parameters.toArray(), (ResultSet rs) -> {
-            HashMap<String, MeetingResponse> meetingResponseMap = new HashMap<>();
+            LinkedHashMap<String, MeetingResponse> meetingResponseMap = new LinkedHashMap<>();
             while (rs.next()){
                 MeetingResponseUser meetingResponseUser = new MeetingResponseUser();
                 setMeetingResponseUser(meetingResponseUser, rs);
