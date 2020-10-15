@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class OrganizationRepositoryImpl implements OrganizationRepository {
@@ -46,6 +47,16 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
             return null;
         }
         catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Organization> getAllOrganizations(int limit, int offset) {
+        String sql = "SELECT * FROM Organization WHERE isDeleted=false LIMIT ? OFFSET ?";
+        try {
+            return jdbcTemplate.query(sql, new Organization(), limit, offset);
+        } catch (Exception e){
             throw new PMException(e.getMessage());
         }
     }

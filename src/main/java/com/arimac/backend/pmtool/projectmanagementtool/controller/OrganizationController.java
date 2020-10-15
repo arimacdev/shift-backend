@@ -34,6 +34,16 @@ public class OrganizationController extends ResponseController {
         return sendResponse(organizationService.addOrganization(userId,addOrganization));
     }
 
+    @ApiOperation(value = "Get All Organizations", notes = "Get All Organizations")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping
+    public ResponseEntity<Object> getAllOrganizations(@RequestHeader("user") String userId,
+                                                  @RequestParam("startIndex") int startIndex,
+                                                  @RequestParam("endIndex") int endIndex){
+        logger.info("HIT - GET getAllOrganizations ---> | User: {} | start : {}| end :{}", userId, startIndex, endIndex);
+        return sendResponse(organizationService.getAllOrganizations(userId,startIndex,endIndex));
+    }
+
     @ApiOperation(value = "Update an Organization", notes = "Update an Organization")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PutMapping("/{organizationId}")
