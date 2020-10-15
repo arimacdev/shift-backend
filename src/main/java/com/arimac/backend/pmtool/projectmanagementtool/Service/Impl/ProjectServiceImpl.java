@@ -37,19 +37,21 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final UtilsService utilsService;
+    private final OrganizationRepository organizationRepository;
 
-    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService, OrganizationRepository organizationRepository) {
         this.taskService = taskService;
         this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.utilsService = utilsService;
+        this.organizationRepository = organizationRepository;
     }
 
     @Override
     public Object createProject(ProjectDto projectDto) {
-        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
+        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) || (projectDto.getClientId() == null || projectDto.getClientId().isEmpty() ))
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(projectDto.getProjectOwner());
         if (user == null)
@@ -58,6 +60,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (checkAlias){
             return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.UNPROCESSABLE_ENTITY);
         }
+        if (organizationRepository.getOrganizationById(projectDto.getClientId()) == null)
+            return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
         Project project = new Project();
         //TODO check role of user
         String projectId = utilsService.getUUId();
