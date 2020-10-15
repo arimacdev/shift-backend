@@ -53,4 +53,13 @@ public class OrganizationController extends ResponseController {
         logger.info("HIT - PUT organization/<id> ---> updateOrganization | Org. {} }  User: {} | updateOrganization : {}", organizationId, userId, updateOrganization);
         return sendResponse(organizationService.updateOrganization(userId, organizationId, updateOrganization));
     }
+
+    @ApiOperation(value = "Flag an Organization", notes = "Flag an Organization")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @DeleteMapping("/{organizationId}")
+    public ResponseEntity<Object> flagOrganization(@RequestHeader("user") String userId,
+                                                     @PathVariable("organizationId") String organizationId){
+        logger.info("HIT - DELETE organization/<id> ---> flagOrganization | Org. {} }  User: {} ", organizationId, userId);
+        return sendResponse(organizationService.flagOrganization(userId, organizationId));
+    }
 }

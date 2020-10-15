@@ -73,4 +73,14 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
             return preparedStatement;
         });
     }
+
+    @Override
+    public void flagOrganization(String organizationId) {
+        try {
+            String sql = "UPDATE Organization SET isDeleted=true WHERE organizationId=?";
+            jdbcTemplate.update(sql, organizationId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 }

@@ -9,4 +9,5 @@ public interface OrganizationRepository {
     Organization getOrganizationById(String organizationId);
     List<Organization> getAllOrganizations(int limit, int offset);
     void updateOrganization(Organization organization);
+    void flagOrganization(String organizationId);
 }

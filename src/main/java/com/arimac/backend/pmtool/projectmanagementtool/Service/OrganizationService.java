@@ -7,4 +7,5 @@ public interface OrganizationService {
     Object addOrganization(String userId, AddOrganization addOrganization);
     Object getAllOrganizations(String userId, int startIndex, int endIndex);
     Object updateOrganization(String userId, String organizationId, UpdateOrganization updateOrganization);
+    Object flagOrganization(String userId, String organizationId);
 }
