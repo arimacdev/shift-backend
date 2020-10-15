@@ -58,7 +58,9 @@ public enum ResponseMessage {
     PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist"),
     DISCUSSION_NOT_FOUND("Discussion Not Found"),
     MEETING_NOT_FOUND("Meeting Not Found"),
-    ALREADY_PINNED("You have already Pinned/Unpinned this project");
+    ALREADY_PINNED("You have already Pinned/Unpinned this project"),
+    ORGANIZATION_NOT_FOUND("Organization Not found");
+
 
 
     private String message;

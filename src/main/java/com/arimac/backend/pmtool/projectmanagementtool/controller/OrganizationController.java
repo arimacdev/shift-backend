@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.OrganizationService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Organization.AddOrganization;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Organization.UpdateOrganization;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -29,7 +30,17 @@ public class OrganizationController extends ResponseController {
     @PostMapping
     public ResponseEntity<Object> addOrganization(@RequestHeader("user") String userId,
                                              @Valid @RequestBody AddOrganization addOrganization){
-        logger.info("HIT - POST client ---> addOrganization | User: {} | addOrganization : {}", userId, addOrganization);
+        logger.info("HIT - POST organization ---> addOrganization | User: {} | addOrganization : {}", userId, addOrganization);
         return sendResponse(organizationService.addOrganization(userId,addOrganization));
+    }
+
+    @ApiOperation(value = "Update an Organization", notes = "Update an Organization")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PutMapping("/{organizationId}")
+    public ResponseEntity<Object> updateOrganization(@RequestHeader("user") String userId,
+                                                    @PathVariable("organizationId") String organizationId,
+                                                    @Valid @RequestBody UpdateOrganization updateOrganization){
+        logger.info("HIT - PUT organization/<id> ---> updateOrganization | Org. {} }  User: {} | updateOrganization : {}", organizationId, userId, updateOrganization);
+        return sendResponse(organizationService.updateOrganization(userId, organizationId, updateOrganization));
     }
 }

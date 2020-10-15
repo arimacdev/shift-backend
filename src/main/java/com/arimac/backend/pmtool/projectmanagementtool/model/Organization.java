@@ -1,9 +1,13 @@
 package com.arimac.backend.pmtool.projectmanagementtool.model;
 
+import org.springframework.jdbc.core.RowMapper;
+
 import javax.validation.constraints.NotNull;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class Organization {
+public class Organization implements RowMapper<Organization> {
     private String organizationId;
     private String organizationName;
     private String country;
@@ -71,5 +75,17 @@ public class Organization {
 
     public void setOrganizationLogo(String organizationLogo) {
         this.organizationLogo = organizationLogo;
+    }
+
+    @Override
+    public Organization mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new Organization(
+                resultSet.getString("organizationId"),
+                resultSet.getString("organizationName"),
+                resultSet.getString("country"),
+                resultSet.getString("organizationLogo"),
+                resultSet.getString("createdBy"),
+                resultSet.getTimestamp("createdAt")
+                );
     }
 }
