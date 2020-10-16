@@ -222,6 +222,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Object getAllParentTasksOfProject(String userId, String projectId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAllParentTasksOfProject(projectId));
+    }
+
+    @Override
     public Object getAllUserAssignedTasks(String userId, String projectId, int startIndex, int endIndex) {
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
             return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
@@ -338,49 +346,49 @@ public class TaskServiceImpl implements TaskService {
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
-        if (taskUpdateDto.getTaskAssignee() != null) {
+        if (taskUpdateDto.getTaskAssignee() != null && !taskUpdateDto.getTaskAssignee().equals(userId)) {
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ASSIGNEE, task.getTaskAssignee(), taskUpdateDto.getTaskAssignee()));
             });
         }
-        if (taskUpdateDto.getTaskStatus() != null){
+        if (taskUpdateDto.getTaskStatus() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_STATUS, task.getTaskStatus().toString(), taskUpdateDto.getTaskStatus().toString()));
 
             });
         }
-        if (taskUpdateDto.getIssueType() !=null){
+        if (taskUpdateDto.getIssueType() !=null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(() -> {
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ISSUE_TYPE, task.getIssueType().toString(), taskUpdateDto.getIssueType().toString()));
             });
         }
-        if (taskUpdateDto.getTaskName() != null){
+        if (taskUpdateDto.getTaskName() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NAME, task.getTaskName(), taskUpdateDto.getTaskName()));
             });
         }
-        if (taskUpdateDto.getTaskNotes() != null){
+        if (taskUpdateDto.getTaskNotes() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
             });
         }
-        if (taskUpdateDto.getEstimatedWeight()!= null){
+        if (taskUpdateDto.getEstimatedWeight()!= null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(()->{
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, ESTIMATED_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ESTIMATED_WEIGHT, task.getEstimatedWeight().toString(), taskUpdateDto.getEstimatedWeight().toString()));
             });
         }
-        if (taskUpdateDto.getActualWeight()!= null){
+        if (taskUpdateDto.getActualWeight()!= null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(()->{
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, ACTUAL_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ACTUAL_WEIGHT, task.getActualWeight().toString(), taskUpdateDto.getActualWeight().toString()));
             });
         }
-        if (taskUpdateDto.getTaskDueDate() != null){
+        if (taskUpdateDto.getTaskDueDate() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
             CompletableFuture.runAsync(()-> {
                 notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
                 String previousDate = null;
@@ -660,13 +668,6 @@ public class TaskServiceImpl implements TaskService {
                     } else {
                         mapItem.setTotal(mapItem.getTotal() + 1);
                     }
-//                    ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-//                    projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-//                    projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-//                    projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-//                    projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-//                    projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-//                    projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                     List<WorkLoadProjectDto> taskList = mapItem.getTaskList();
                     taskList.add(workLoadTaskItem);
                     mapItem.setTaskList(taskList); /** check here */
@@ -680,13 +681,6 @@ public class TaskServiceImpl implements TaskService {
                 //Add Tasks if exists
                 if (workLoadTaskItem.getTaskId() != null){
                     if (workLoadTaskItem.getTaskAssignee().equals(userId)) {
-//                        ProjectTaskWorkLoadDto projectTaskWorkLoad = new ProjectTaskWorkLoadDto();
-//                        projectTaskWorkLoad.setTaskId(workLoadTaskItem.getTaskId());
-//                        projectTaskWorkLoad.setTaskName(workLoadTaskItem.getTaskName());
-//                        projectTaskWorkLoad.setAssigneeId(workLoadTaskItem.getTaskAssignee());
-//                        projectTaskWorkLoad.setTaskStatus(TaskStatusEnum.valueOf(workLoadTaskItem.getTaskStatus()));
-//                        projectTaskWorkLoad.setDueDate(workLoadTaskItem.getTaskDueDateAt());
-//                        projectTaskWorkLoad.setTaskNotes(workLoadTaskItem.getTaskNote());
                         List<WorkLoadProjectDto> taskList = new ArrayList<>();
                         taskList.add(workLoadTaskItem);
                         projectWorkLoad.setTaskList(taskList);

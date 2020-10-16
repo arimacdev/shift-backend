@@ -33,7 +33,8 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Add task to a project", notes = "Create tasks for a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks") // DONE
-    public ResponseEntity<Object> addTaskToProject(@PathVariable("projectId") String projectId, @RequestBody TaskDto taskDto){
+    public ResponseEntity<Object> addTaskToProject(@PathVariable("projectId") String projectId,
+                                                   @RequestBody TaskDto taskDto){
         logger.info("HIT - POST /projects/<projectId>/tasks ---> addTaskToProject | projectId: {} |  dto: {}", projectId, taskDto);
         return sendResponse(taskService.addTaskToProject(projectId, taskDto));
     }
@@ -41,7 +42,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get a single Task", notes = "Get single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}") // DONE
-    public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+    public ResponseEntity<Object> getProjectTask(@RequestHeader("user") String userId,
+                                                 @PathVariable("projectId") String projectId,
+                                                 @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId> ---> getProjectTask | projectId: {} | userId: {} | taskId: {} ", projectId, userId, taskId);
         return sendResponse(taskService.getProjectTask(userId, projectId, taskId));
     }
@@ -49,7 +52,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get a files of a single Task", notes = "Get file of  single task in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}/files") //DONE
-    public ResponseEntity<Object> getProjectTaskFiles(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+    public ResponseEntity<Object> getProjectTaskFiles(@RequestHeader("user") String userId,
+                                                      @PathVariable("projectId") String projectId,
+                                                      @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/files ---> getProjectTaskFiles | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(taskService.getProjectTaskFiles(userId, projectId, taskId));
     }
@@ -58,7 +63,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Update a single Task", notes = "Update a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}")// DONE
-    public ResponseEntity<Object> updateProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskUpdateDto taskUpdateDto){
+    public ResponseEntity<Object> updateProjectTask(@RequestHeader("user") String userId,
+                                                    @PathVariable("projectId") String projectId,
+                                                    @PathVariable("taskId") String taskId,
+                                                    @RequestBody TaskUpdateDto taskUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId> ---> updateProjectTask | projectId: {} | userId: {} | taskId: {} | taskUpdateDto: {}", projectId, userId, taskId, taskUpdateDto);
         return sendResponse(taskService.updateProjectTask(userId, projectId, taskId, taskUpdateDto));
     }
@@ -66,7 +74,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Delete a single Task", notes = "Delete a single task of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping("/{projectId}/tasks/{taskId}")
-    public ResponseEntity<Object> flagProjectTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+    public ResponseEntity<Object> flagProjectTask(@RequestHeader("user") String userId,
+                                                  @PathVariable("projectId") String projectId,
+                                                  @PathVariable("taskId") String taskId){
         logger.info("HIT - DELETE /projects/<projectId>/tasks/<taskId> ---> flagProjectTask | projectId: {} | userId: {} | taskId: {}", projectId, userId, taskId);
         return sendResponse(taskService.flagProjectTask(userId, projectId, taskId));
     }
@@ -74,7 +84,11 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all Tasks of a project of all Users", notes = "(All Tasks) Get all Tasks in a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks") //DONE
-    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex, @RequestParam("allTasks") boolean allTasks, @PathVariable("projectId") String projectId){
+    public ResponseEntity<Object> getAllProjectTasksByUser(@RequestParam("userId") String userId,
+                                                           @RequestParam("startIndex") int startIndex,
+                                                           @RequestParam("endIndex") int endIndex,
+                                                           @RequestParam("allTasks") boolean allTasks,
+                                                           @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}| startIndex: {} | endIndex: {} | allTasks {}", projectId, userId, startIndex, endIndex, allTasks);
         return sendResponse(taskService.getAllProjectTasksByUser(userId, projectId, startIndex, endIndex, allTasks));
     }
@@ -82,15 +96,28 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all Tasks count of a project", notes = "(All Tasks) Get all Tasks count of a project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/count")
-    public ResponseEntity<Object> getAllParentTasksCount(@PathVariable("projectId") String projectId, @RequestHeader("userId") String userId){
+    public ResponseEntity<Object> getAllParentTasksCount(@PathVariable("projectId") String projectId,
+                                                         @RequestHeader("userId") String userId){
         logger.info("HIT - GET /projects/<projectId>/tasks/count ---> getAllTasksCount | projectId: {} | userId: {}", projectId, userId);
         return sendResponse(taskService.getAllParentTasksCount(userId, projectId));
+    }
+
+    @ApiOperation(value = "Get all parent tasks of a project", notes = "Get all parent tasks of a project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/parent")
+    public ResponseEntity<Object> getAllParentTasksOfProject(@PathVariable("projectId") String projectId,
+                                                             @RequestHeader("userId") String userId){
+        logger.info("HIT - GET /projects/<projectId>/tasks/parent ---> getAllParentTasksOfProject | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(taskService.getAllParentTasksOfProject(userId, projectId));
     }
 
     @ApiOperation(value = "Get all Tasks of a project assigned to a user", notes = "(My Tasks) Get all Tasks in a project assigned to user")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/user")
-    public ResponseEntity<Object> getAllUserAssignedTask(@RequestParam("userId") String userId, @RequestParam("startIndex") int startIndex, @RequestParam("endIndex") int endIndex, @PathVariable("projectId") String projectId){
+    public ResponseEntity<Object> getAllUserAssignedTask(@RequestParam("userId") String userId,
+                                                         @RequestParam("startIndex") int startIndex,
+                                                         @RequestParam("endIndex") int endIndex,
+                                                         @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllProjectTasksByUser | projectId: {} | userId: {}", projectId, userId);
         return sendResponse(taskService.getAllUserAssignedTasks(userId, projectId, startIndex, endIndex));
     }
@@ -98,7 +125,8 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get My Task Count", notes = "(My Tasks) Count")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/user/count")
-    public ResponseEntity<Object> getAllUserAssignedTaskCount(@RequestParam("userId") String userId, @PathVariable("projectId") String projectId){
+    public ResponseEntity<Object> getAllUserAssignedTaskCount(@RequestParam("userId") String userId,
+                                                              @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks ---> getAllUserAssignedTaskCount | projectId: {} | userId: {}", projectId, userId);
         return sendResponse(taskService.getAllUserAssignedTaskCount(userId, projectId));
     }
@@ -106,7 +134,8 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Task completion of an Entity By User", notes = "(People Tab) Get Task completion of a Project By User")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{userId}/completion/details") // DONE
-    public ResponseEntity<Object> getProjectTaskCompletionUserDetails(@PathVariable("userId") String userId, @PathVariable("projectId") String projectId){
+    public ResponseEntity<Object> getProjectTaskCompletionUserDetails(@PathVariable("userId") String userId,
+                                                                      @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<userId>/completion/details ---> getProjectTaskCompletionUserDetails | entityId: {} | userId: {}", projectId, userId);
         return sendResponse(taskService.getProjectTaskCompletionUserDetails(userId, projectId));
     }
@@ -114,7 +143,8 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Project Task completion status of a Project", notes = "(Projects Tab) Get All Task completion status of a Project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/completion")
-    public ResponseEntity<Object> getProjectTaskCompletion(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId){
+    public ResponseEntity<Object> getProjectTaskCompletion(@RequestHeader("user") String userId,
+                                                           @PathVariable("projectId") String projectId){
         logger.info("HIT - GET /projects/<projectId>/tasks/completion ---> getProjectTaskCompletion | projectId: {} | userId: {} ", projectId, userId);
         return sendResponse(taskService.getProjectTaskCompletion(userId, projectId));
     }
@@ -122,7 +152,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/tasks/users/workload")
-    public ResponseEntity<Object> getAllUsersWithTaskCompletion(@RequestHeader("user") String userId, @RequestHeader("from") String from, @RequestHeader("to") String to, @RequestParam("assignee")List<String> assignees){
+    public ResponseEntity<Object> getAllUsersWithTaskCompletion(@RequestHeader("user") String userId,
+                                                                @RequestHeader("from") String from,
+                                                                @RequestHeader("to") String to,
+                                                                @RequestParam("assignee")List<String> assignees){
         logger.info("HIT - GET /projects/tasks/users/workload ---> getAllUsersWithTaskCompletion | userId: {} | Assignees: {} From: {} | To: {}",  userId, assignees, from, to);
         return sendResponse(taskService.getAllUsersWithTaskCompletion(userId, assignees, from, to));
     }
@@ -130,7 +163,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get all users with all task completion status of all projects", notes = "(WorkLoad I) Get all users with all task completion status of all projects")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/tasks/users/{userId}/workload")
-    public ResponseEntity<Object> getAllUserAssignedTaskWithCompletion(@PathVariable("userId") String userId, @RequestHeader("user") String user, @RequestHeader("from") String from, @RequestHeader("to") String to){
+    public ResponseEntity<Object> getAllUserAssignedTaskWithCompletion(@PathVariable("userId") String userId,
+                                                                       @RequestHeader("user") String user,
+                                                                       @RequestHeader("from") String from,
+                                                                       @RequestHeader("to") String to){
         logger.info("HIT - GET /projects/tasks/users/<userId>/workload ---> getAllUserAssignedTaskWithCompletion | from user: {} || about userId: {} || from {} || to {}",  user, userId, from, to);
         return sendResponse(taskService.getAllUserAssignedTaskWithCompletion(user,userId, from, to));
     }
@@ -138,7 +174,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Update Sprint of a  Task", notes = "Update Sprint of a  Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}/sprint")
-    public ResponseEntity<Object> updateProjectTaskSprint(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskSprintUpdateDto taskSprintUpdateDto){
+    public ResponseEntity<Object> updateProjectTaskSprint(@RequestHeader("user") String userId,
+                                                          @PathVariable("projectId") String projectId,
+                                                          @PathVariable("taskId") String taskId,
+                                                          @RequestBody TaskSprintUpdateDto taskSprintUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/sprint ---> updateProjectTaskSprint | projectId: {} | userId: {} | taskId: {} | TaskSprintUpdateDto: {}", projectId, userId, taskId, taskSprintUpdateDto);
         return sendResponse(taskService.updateProjectTaskSprint(userId, projectId, taskId, taskSprintUpdateDto));
     }
@@ -146,7 +185,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Update Parent of a  Task", notes = "Update Parent of a  Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}/parent")
-    public ResponseEntity<Object> updateProjectTaskParent(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+    public ResponseEntity<Object> updateProjectTaskParent(@RequestHeader("user") String userId,
+                                                          @PathVariable("projectId") String projectId,
+                                                          @PathVariable("taskId") String taskId,
+                                                          @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent ---> updateProjectTaskParent | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
         return sendResponse(taskService.updateProjectTaskParent(userId, projectId, taskId, taskParentChildUpdateDto));
     }
@@ -154,7 +196,9 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Get Children of a Parent Task", notes = "Get all Children of a Parent")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/{taskId}/children")
-    public ResponseEntity<Object> getAllChildrenOfParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId){
+    public ResponseEntity<Object> getAllChildrenOfParentTask(@RequestHeader("user") String userId,
+                                                             @PathVariable("projectId") String projectId,
+                                                             @PathVariable("taskId") String taskId){
         logger.info("HIT - GET /projects/<projectId>/tasks/<taskId>/children ---> getAllChildrenOfParentTask | projectId: {} | userId: {} | taskId: {} ", projectId, userId, taskId);
         return sendResponse(taskService.getAllChildrenOfParentTask(userId, projectId, taskId));
     }
@@ -162,7 +206,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Transition from Parent to Child Task", notes = "Transition from Parent to Child Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PutMapping("/{projectId}/tasks/{taskId}/parent/transition")
-    public ResponseEntity<Object> transitionFromParentToChild(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+    public ResponseEntity<Object> transitionFromParentToChild(@RequestHeader("user") String userId,
+                                                              @PathVariable("projectId") String projectId,
+                                                              @PathVariable("taskId") String taskId,
+                                                              @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent/transition ---> transitionFromParentToChild | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
         return sendResponse(taskService.transitionFromParentToChild(userId, projectId, taskId, taskParentChildUpdateDto));
     }
@@ -171,7 +218,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Add Parent to a  Parent Task", notes = "Add Parent to a  Parent Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks/{taskId}/parent")
-    public ResponseEntity<Object> addParentToParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+    public ResponseEntity<Object> addParentToParentTask(@RequestHeader("user") String userId,
+                                                        @PathVariable("projectId") String projectId,
+                                                        @PathVariable("taskId") String taskId,
+                                                        @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/parent ---> addParentToParentTask | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
         return sendResponse(taskService.addParentToParentTask(userId, projectId, taskId, taskParentChildUpdateDto));
     }
@@ -180,7 +230,10 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Update Parent of a  Task", notes = "Add Child to a Parent Task")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @PostMapping("/{projectId}/tasks/{taskId}/child")
-    public ResponseEntity<Object> addChildToParentTask(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @PathVariable("taskId") String taskId, @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
+    public ResponseEntity<Object> addChildToParentTask(@RequestHeader("user") String userId,
+                                                       @PathVariable("projectId") String projectId,
+                                                       @PathVariable("taskId") String taskId,
+                                                       @RequestBody TaskParentChildUpdateDto taskParentChildUpdateDto){
         logger.info("HIT - PUT /projects/<projectId>/tasks/<taskId>/child ---> addChildToParentTask | projectId: {} | userId: {} | taskId: {} | TaskParentChildUpdateDto: {}", projectId, userId, taskId, taskParentChildUpdateDto);
         return sendResponse(taskService.addChildToParentTask(userId, projectId, taskId, taskParentChildUpdateDto));
     }
@@ -189,7 +242,13 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Filter Tasks", notes = "Filter Tasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/{projectId}/tasks/filter")
-    public ResponseEntity<Object> filterTasks(@RequestHeader("user") String userId, @PathVariable("projectId") String projectId, @RequestHeader("filterType")FilterTypeEnum filterType, @RequestHeader("issueType") String issueType, @RequestHeader("from")String from, @RequestHeader("to")String to, @RequestHeader("assignee")String assignee){
+    public ResponseEntity<Object> filterTasks(@RequestHeader("user") String userId,
+                                              @PathVariable("projectId") String projectId,
+                                              @RequestHeader("filterType")FilterTypeEnum filterType,
+                                              @RequestHeader("issueType") String issueType,
+                                              @RequestHeader("from")String from,
+                                              @RequestHeader("to")String to,
+                                              @RequestHeader("assignee")String assignee){
         logger.info("HIT - GET /projects/<projectId>/tasks/filter ---> filterTasks | projectId: {} | userId: {}" ,projectId, userId);
         return sendResponse(taskService.filterTasks(userId, projectId, filterType, issueType, from, to, assignee));
     }
@@ -197,7 +256,8 @@ public class TaskController extends ResponseController {
     @ApiOperation(value = "Queried Filter Tasks", notes = "Queried Filter Tasks")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @GetMapping("/workload/filter")
-    public ResponseEntity<Object> workloadQueryFilter(@RequestHeader("user") String userId, @RequestParam("query") String query){
+    public ResponseEntity<Object> workloadQueryFilter(@RequestHeader("user") String userId,
+                                                      @RequestParam("query") String query){
         logger.info("HIT - GET /tasks/workload/filter?query=<query> --->  query: {}" ,query);
         return sendResponse(taskService.workloadQueryFilter(userId, query));
     }

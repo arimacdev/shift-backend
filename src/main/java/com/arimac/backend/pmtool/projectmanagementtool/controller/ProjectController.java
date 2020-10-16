@@ -5,10 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectEditDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -37,6 +34,14 @@ public class ProjectController extends ResponseController {
     public ResponseEntity<Object> createProject(@RequestBody @Valid ProjectDto projectDto){
         logger.info("HIT - createProject - /projects POST  dto: {}", projectDto);
         return sendResponse(projectService.createProject(projectDto));
+    }
+
+    @ApiOperation(value = "Pin/UnPin Projects to users", notes = "Pin/UnPin Projects to users")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/pin")
+    public ResponseEntity<Object> PinUnpinProjects(@RequestBody @Valid ProjectPinUnPin projectPinUnPin){
+        logger.info("HIT - PinUnpinProjects /projects/pin POST  dto: {}", projectPinUnPin);
+        return sendResponse(projectService.PinUnpinProjects(projectPinUnPin));
     }
 
     @ApiOperation(value = "Get all user assigned projects", notes = "Get all user assigned projects")

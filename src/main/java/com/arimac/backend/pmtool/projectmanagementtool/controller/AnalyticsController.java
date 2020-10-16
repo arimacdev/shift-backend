@@ -91,16 +91,15 @@ public class AnalyticsController extends ResponseController {
         return sendResponse(analyticsService.getTaskRate(userId, from, to, criteria));
     }
 
-    //USER ANALYTICS
     @ApiOperation(value = "Get Overview of Projects", notes = "Get Overview of Projects")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/details/users")
     public ResponseEntity<Object> getDetailedUserDetails(@RequestHeader("user") String userId,
-                                                            @RequestParam("orderBy") UserDetailsEnum orderBy,
-                                                            @RequestParam("orderType") FilterOrderEnum orderType,
-                                                            @RequestParam("startIndex")int startIndex,
-                                                            @RequestParam("endIndex")int endIndex,
-                                                            @RequestParam("userId") Set<String> userList){
+                                                        @RequestParam("orderBy") UserDetailsEnum orderBy,
+                                                        @RequestParam("orderType") FilterOrderEnum orderType,
+                                                        @RequestParam("startIndex")int startIndex,
+                                                        @RequestParam("endIndex")int endIndex,
+                                                        @RequestParam("userId") Set<String> userList){
         logger.info("HIT - GET analytics/details/users ---> getDetailedUserDetails | User: {} |orderBy {} | orderType{} | startIndex {} | endIndex{} | userList {}", userId, orderBy, orderType,startIndex,endIndex,userList);
         return sendResponse(analyticsService.getDetailedUserDetails(userId,orderBy, orderType, startIndex, endIndex,userList));
     }

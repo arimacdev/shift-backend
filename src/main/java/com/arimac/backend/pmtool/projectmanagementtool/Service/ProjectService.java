@@ -1,14 +1,12 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectEditDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserUpdateDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectWeightUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.*;
 
 
 public interface ProjectService {
     Object createProject(ProjectDto projectDto);
+    Object PinUnpinProjects(ProjectPinUnPin projectPinUnPin);
     Object getAllUserAssignedProjects(String userId);
     Object getAllProjects(String userId);
     Object getProjectByUser(String projectId, String userId);
