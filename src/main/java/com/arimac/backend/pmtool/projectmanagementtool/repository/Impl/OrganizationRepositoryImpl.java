@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Organization;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.OrganizationRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,6 +57,16 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
         String sql = "SELECT * FROM Organization WHERE isDeleted=false LIMIT ? OFFSET ?";
         try {
             return jdbcTemplate.query(sql, new Organization(), limit, offset);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Project> getProjectsOfOrganization(String organizationId) {
+        String sql = "SELECT * FROM project WHERE clientId=? AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new Project(), organizationId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

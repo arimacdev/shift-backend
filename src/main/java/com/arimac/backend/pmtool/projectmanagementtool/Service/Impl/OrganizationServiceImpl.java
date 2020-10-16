@@ -58,6 +58,17 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    public Object getProjectsOfOrganization(String userId, String organizationId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Organization organization = organizationRepository.getOrganizationById(organizationId);
+        if (organization == null)
+            return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, organizationRepository.getProjectsOfOrganization(organizationId));
+    }
+
+    @Override
     public Object updateOrganization(String userId, String organizationId, UpdateOrganization updateOrganization) {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
