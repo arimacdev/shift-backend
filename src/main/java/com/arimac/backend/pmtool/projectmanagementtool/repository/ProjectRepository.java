@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
@@ -11,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.Proje
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 
 import java.util.LinkedHashMap;
@@ -46,6 +48,12 @@ public interface ProjectRepository {
     List<ProjectStatusCountDto> getActiveProjectCountByStatus(String from, String to);
     List<ProjectSummaryDto> getProjectSummary(String from, String to, Set<String> status, Set<String> project, ProjectSummaryTypeEnum orderBy,FilterOrderEnum orderType,int startIndex, int limit);
     LinkedHashMap<String, ProjectDetailAnalysis> getDetailedProjectDetails(String from, String to, ProjectDetailsEnum orderBy, FilterOrderEnum orderType, int startIndex, int endIndex);
+    //Project Support
+    void addProjectKeys(Project_Keys project_keys);
+    Project_Keys getProjectKey(String projectKey);
+    Project_Keys getProjectKeyByDomain(String projectKey, String domain);
+    void updateProjectKeys(ProjectKeys project_keys);
+    List<Project_Keys> getProjectKeys(String projectId);
 
 
 }

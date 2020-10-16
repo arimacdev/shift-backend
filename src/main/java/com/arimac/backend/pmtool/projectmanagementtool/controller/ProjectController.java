@@ -126,6 +126,22 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.blockOrUnBlockProjectUser(userId, projectId, projectUserBlockDto));
     }
 
+    @ApiOperation(value = "Add/Update Project Keys", notes = "Add/Update Project Keys")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PutMapping("/{projectId}/keys")
+    public ResponseEntity<Object> addOrUpdateProjectKeys(@PathVariable("projectId") String projectId, @Valid @RequestBody ProjectKeys projectKeys){
+        logger.info("HIT - PUT /project/<projectId>/keys ---> addOrUpdateProjectKeys | projectId: {} | projectUpdateDto: {}", projectId, projectKeys);
+        return sendResponse(projectService.addOrUpdateProjectKeys(projectId, projectKeys));
+    }
+
+    @ApiOperation(value = "Get Project Keys", notes = "Get Project Keys")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/keys")
+    public ResponseEntity<Object> getProjectKeys(@PathVariable("projectId") String projectId, @RequestHeader("user")String userId){
+        logger.info("HIT - GET /project/<projectId>/keys ---> getProjectKeys | projectId: {} | userId: {}", projectId, userId);
+        return sendResponse(projectService.getProjectKeys(projectId, userId));
+    }
+
 
 
 }

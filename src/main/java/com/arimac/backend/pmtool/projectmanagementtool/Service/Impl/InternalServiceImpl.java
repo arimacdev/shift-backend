@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class InternalServiceImpl implements InternalService {
@@ -154,5 +155,15 @@ public class InternalServiceImpl implements InternalService {
             }
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, count);
+    }
+
+    @Override
+    public Object getProjectById(String projectId) {
+        return projectRepository.getProjectById(projectId);
+    }
+
+    @Override
+    public Object getUsersByIds(Set<String> users) {
+        return userRepository.getUsersByIds(users);
     }
 }

@@ -2,7 +2,6 @@ package com.arimac.backend.pmtool.projectmanagementtool.model;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -16,17 +15,20 @@ public class Organization implements RowMapper<Organization> {
     private String createdBy;
     private Timestamp createdAt;
 
+    private boolean hasSupportProjects;
+
 
     public Organization() {
     }
 
-    public Organization(String organizationId, String organizationName, String country, String organizationLogo, String createdBy, Timestamp createdAt) {
+    public Organization(String organizationId, String organizationName, String country, String organizationLogo, String createdBy, Timestamp createdAt, boolean hasSupportProjects) {
         this.organizationId = organizationId;
         this.organizationName = organizationName;
         this.country = country;
         this.organizationLogo = organizationLogo;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+        this.hasSupportProjects = hasSupportProjects;
     }
 
     public String getCreatedBy() {
@@ -77,6 +79,14 @@ public class Organization implements RowMapper<Organization> {
         this.organizationLogo = organizationLogo;
     }
 
+    public boolean isHasSupportProjects() {
+        return hasSupportProjects;
+    }
+
+    public void setHasSupportProjects(boolean hasSupportProjects) {
+        this.hasSupportProjects = hasSupportProjects;
+    }
+
     @Override
     public Organization mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Organization(
@@ -85,7 +95,7 @@ public class Organization implements RowMapper<Organization> {
                 resultSet.getString("country"),
                 resultSet.getString("organizationLogo"),
                 resultSet.getString("createdBy"),
-                resultSet.getTimestamp("createdAt")
-                );
+                resultSet.getTimestamp("createdAt"),
+                resultSet.getBoolean("hasSupportProjects"));
     }
 }

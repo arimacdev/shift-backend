@@ -5,6 +5,8 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/internal/")
 public class InternalController extends ResponseController {
@@ -38,6 +40,18 @@ public class InternalController extends ResponseController {
     @GetMapping("add/user/projects")
     public ResponseEntity<Object> addUserToAllProjects(@RequestHeader("userId") String userId){
         return sendResponse(internalService.addUserToAllProjects(userId));
+    }
+    @GetMapping("projects")
+    public ResponseEntity<Object> getAllOrganizationProjects(@RequestHeader("userId") String userId){
+        return sendResponse(internalService.addUserToAllProjects(userId));
+    }
+    @GetMapping("project/{projectId}")
+    public ResponseEntity<Object> getProjectById(@PathVariable("projectId") String projectId){
+        return sendResponse(internalService.getProjectById(projectId));
+    }
+    @GetMapping("user")
+    public ResponseEntity<Object> getUsersByIds(@RequestParam("user")Set<String> users){
+        return sendResponse(internalService.getUsersByIds(users));
     }
 
 }

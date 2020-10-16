@@ -37,21 +37,22 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final UtilsService utilsService;
-    private final OrganizationRepository organizationRepository;
 
-    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService, OrganizationRepository organizationRepository) {
+    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
         this.taskService = taskService;
         this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.utilsService = utilsService;
-        this.organizationRepository = organizationRepository;
     }
 
     @Override
     public Object createProject(ProjectDto projectDto) {
-        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) || (projectDto.getClientId() == null || projectDto.getClientId().isEmpty() ))
+        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty())
+                || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty())
+                || (projectDto.getIsSupportEnabled() && (projectDto.getDomain()== null
+                || projectDto.getDomain().isEmpty())))
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(projectDto.getProjectOwner());
         if (user == null)
@@ -60,8 +61,6 @@ public class ProjectServiceImpl implements ProjectService {
         if (checkAlias){
             return new ErrorMessage(ResponseMessage.PROJECT_ALIAS_EXIST, HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        if (organizationRepository.getOrganizationById(projectDto.getClientId()) == null)
-            return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
         Project project = new Project();
         //TODO check role of user
         String projectId = utilsService.getUUId();
@@ -75,6 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
         project.setWeightMeasure(projectDto.getWeightType().getWeightId());
+        project.setIsSupportEnabled(projectDto.getIsSupportEnabled());
         projectRepository.createProject(project);
         activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 
@@ -86,6 +86,11 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssigneeProjectRole(ProjectRoleEnum.owner.getRoleValue());
 
         projectRepository.assignUserToProject(projectId,assignment);
+
+        if (project.getIsSupportEnabled()) {
+            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId(), true);
+            projectRepository.addProjectKeys(project_keys);
+        }
 
         return new Response(ResponseMessage.SUCCESS, project);
     }
@@ -232,6 +237,9 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             updatedProject.setProjectAlias(modifierProject.getProjectAlias());
         }
+        if (projectEditDto.getIsSupportEnabled() != null)
+            updatedProject.setIsSupportEnabled(projectEditDto.getIsSupportEnabled());
+        else updatedProject.setIsSupportEnabled(modifierProject.getIsSupportEnabled());
         projectRepository.updateProject(updatedProject, projectId);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
@@ -341,5 +349,36 @@ public class ProjectServiceImpl implements ProjectService {
         else
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.ADD_USER, null, projectUserBlockDto.getBlockedUserId()));
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object addOrUpdateProjectKeys(String projectId, ProjectKeys projectKeys) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, projectKeys.getAdmin());
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!((project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) ||
+                (project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+            return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(projectId).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (projectKeys.getProjectKey()!= null){
+            Project_Keys project_keys = projectRepository.getProjectKey(projectKeys.getProjectKey());
+            if (project_keys == null)
+                return new ErrorMessage(ResponseMessage.PROJECT_KEY_NOT_FOUND, HttpStatus.NOT_FOUND);
+            projectRepository.updateProjectKeys(projectKeys);
+        } else {
+            projectRepository.addProjectKeys(new Project_Keys(projectId, projectKeys.getDomain(), utilsService.getUUId(), true));
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getProjectKeys(String projectId, String userId) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(projectId).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectRepository.getProjectKeys(projectId));
     }
 }

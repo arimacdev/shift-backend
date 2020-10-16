@@ -21,6 +21,7 @@ public enum ResponseMessage {
     ASSIGNER_NOT_MEMBER("Assigner doesn't belong to the project"),
     ASSIGNEE_NOT_MEMBER("Assignee doesn't belong to the project"),
     USER_NOT_MEMBER("User doesn't belong to the project"),
+    USER_NOT_ADMIN("User is not an Admin of this project"),
     USER_NOT_GROUP_MEMBER("User doesn't belong to this Group"),
     USER_NOT_FOUND("User doesn't exist"),
     ALREADY_DEACTIVATED("User Already Deactivated"),
@@ -59,11 +60,13 @@ public enum ResponseMessage {
     DISCUSSION_NOT_FOUND("Discussion Not Found"),
     MEETING_NOT_FOUND("Meeting Not Found"),
     ALREADY_PINNED("You have already Pinned/Unpinned this project"),
-    ORGANIZATION_NOT_FOUND("Organization Not found");
+    SUPPPORT_SERVICE_NOT_ENABLED("Support Service not enabled for this project"),
+    INVALID_KEY_COMBINAITON("Invalid Email and Project Key combination"),
+    ORGANIZATION_NOT_FOUND("Organization Not Found"),
+    PROJECT_KEY_NOT_FOUND("Project Key Not Found");
 
 
-
-    private String message;
+    private final String message;
     ResponseMessage(String message){
         this.message = message;
     }

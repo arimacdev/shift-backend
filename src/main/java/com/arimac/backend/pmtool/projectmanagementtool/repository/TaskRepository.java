@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface TaskRepository {
-    Task addTaskToProject(Task task); // done
+    void addTaskToProject(Task task); // done
     List<Task> getAllProjectTasksByUser(String projectId);
     List<TaskUserResponseDto> getAllProjectTasksWithProfile(String projectId);
     List<TaskUserResponseDto> getAllParentTasksWithProfile(String projectId, int limit, int offset, boolean allTasks);
