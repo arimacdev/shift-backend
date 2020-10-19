@@ -346,54 +346,54 @@ public class TaskServiceImpl implements TaskService {
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
 
-        if (taskUpdateDto.getTaskAssignee() != null && !taskUpdateDto.getTaskAssignee().equals(userId)) {
+        if (taskUpdateDto.getTaskAssignee() != null) {
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
+                if (!task.getTaskAssignee().equals(userId)) notificationService.sendTaskAssigneeUpdateNotification(task, userId, taskUpdateDto.getTaskAssignee());;
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ASSIGNEE, task.getTaskAssignee(), taskUpdateDto.getTaskAssignee()));
             });
         }
-        if (taskUpdateDto.getTaskStatus() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getTaskStatus() != null ){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
+                if (!task.getTaskAssignee().equals(userId)) notificationService.sendTaskModificationNotification(task, taskUpdateDto, STATUS, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_STATUS, task.getTaskStatus().toString(), taskUpdateDto.getTaskStatus().toString()));
 
             });
         }
-        if (taskUpdateDto.getIssueType() !=null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getIssueType() !=null ){
             CompletableFuture.runAsync(() -> {
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ISSUE_TYPE, task.getIssueType().toString(), taskUpdateDto.getIssueType().toString()));
             });
         }
-        if (taskUpdateDto.getTaskName() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getTaskName() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
+                if (!task.getTaskAssignee().equals(userId)) notificationService.sendTaskModificationNotification(task, taskUpdateDto, NAME, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NAME, task.getTaskName(), taskUpdateDto.getTaskName()));
             });
         }
-        if (taskUpdateDto.getTaskNotes() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getTaskNotes() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
+                if (!task.getTaskAssignee().equals(userId))notificationService.sendTaskModificationNotification(task, taskUpdateDto, NOTES, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.TASK_NOTES, task.getTaskNote(), taskUpdateDto.getTaskNotes()));
             });
         }
-        if (taskUpdateDto.getEstimatedWeight()!= null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getEstimatedWeight()!= null){
             CompletableFuture.runAsync(()->{
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, ESTIMATED_WEIGHT, userId);
+                if (!task.getTaskAssignee().equals(userId))notificationService.sendTaskModificationNotification(task, taskUpdateDto, ESTIMATED_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ESTIMATED_WEIGHT, task.getEstimatedWeight().toString(), taskUpdateDto.getEstimatedWeight().toString()));
             });
         }
-        if (taskUpdateDto.getActualWeight()!= null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getActualWeight()!= null){
             CompletableFuture.runAsync(()->{
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, ACTUAL_WEIGHT, userId);
+                if (!task.getTaskAssignee().equals(userId)) notificationService.sendTaskModificationNotification(task, taskUpdateDto, ACTUAL_WEIGHT, userId);
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.ACTUAL_WEIGHT, task.getActualWeight().toString(), taskUpdateDto.getActualWeight().toString()));
             });
         }
-        if (taskUpdateDto.getTaskDueDate() != null && !taskUpdateDto.getTaskAssignee().equals(userId)){
+        if (taskUpdateDto.getTaskDueDate() != null){
             CompletableFuture.runAsync(()-> {
-                notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
+                if (!task.getTaskAssignee().equals(userId)) notificationService.sendTaskModificationNotification(task, taskUpdateDto, DUE_DATE, userId);
                 String previousDate = null;
                 if (task.getTaskDueDateAt() != null)
-                previousDate =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(task.getTaskDueDateAt());
+                    previousDate =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(task.getTaskDueDateAt());
                 String updatedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(taskUpdateDto.getTaskDueDate());
                 activityLogService.addTaskLog(utilsService.addTaskUpdateLog(LogOperationEnum.UPDATE, userId, taskId, TaskUpdateTypeEnum.DUE_DATE, previousDate, updatedDate));
             });
