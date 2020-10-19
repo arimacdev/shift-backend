@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
@@ -32,14 +33,16 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String OWNER = "Owner";
 
     private final TaskService taskService;
+    private final InternalSupportService internalSupportService;
     private final ActivityLogService activityLogService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, InternalSupportService internalSupportService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
         this.taskService = taskService;
+        this.internalSupportService = internalSupportService;
         this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -396,7 +399,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_ALREADY_ADDED, HttpStatus.CONFLICT);
         projectRepository.addProjectSupport(project.getProjectId());
-
+        internalSupportService.createSupportProject();
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }
