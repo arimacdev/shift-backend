@@ -6,6 +6,8 @@ public class UpdateOrganization {
     private String organizationName;
     private String country;
     private String organizationLogo;
+    private String organizationEmail;
+    private String organizationContact;
 
 
     public String getOrganizationName() {
@@ -32,12 +34,30 @@ public class UpdateOrganization {
         this.organizationLogo = organizationLogo;
     }
 
+    public String getOrganizationEmail() {
+        return organizationEmail;
+    }
+
+    public void setOrganizationEmail(String organizationEmail) {
+        this.organizationEmail = organizationEmail;
+    }
+
+    public String getOrganizationContact() {
+        return organizationContact;
+    }
+
+    public void setOrganizationContact(String organizationContact) {
+        this.organizationContact = organizationContact;
+    }
+
     @Override
     public String toString() {
         return "UpdateOrganization{" +
                 "organizationName='" + organizationName + '\'' +
                 ", country='" + country + '\'' +
                 ", organizationLogo='" + organizationLogo + '\'' +
+                ", organizationEmail='" + organizationEmail + '\'' +
+                ", organizationContact='" + organizationContact + '\'' +
                 '}';
     }
 }

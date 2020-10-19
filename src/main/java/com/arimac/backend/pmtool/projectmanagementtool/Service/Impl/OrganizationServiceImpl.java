@@ -84,6 +84,10 @@ public class OrganizationServiceImpl implements OrganizationService {
             organization.setCountry(updateOrganization.getCountry());
         if (!updateOrganization.getOrganizationLogo().isEmpty() || updateOrganization.getOrganizationLogo() != null)
             organization.setOrganizationLogo(updateOrganization.getOrganizationLogo());
+        if (!updateOrganization.getOrganizationEmail().isEmpty() || updateOrganization.getOrganizationEmail() != null)
+            organization.setOrganizationEmail(updateOrganization.getOrganizationEmail());
+        if (!updateOrganization.getOrganizationContact().isEmpty() || updateOrganization.getOrganizationContact() != null)
+            organization.setOrganizationContact(updateOrganization.getOrganizationContact());
 
         organizationRepository.updateOrganization(organization);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);

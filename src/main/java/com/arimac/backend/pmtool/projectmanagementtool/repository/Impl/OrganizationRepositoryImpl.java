@@ -77,11 +77,13 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
     @Override
     public void updateOrganization(Organization organization) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Organization SET organizationName=?, country=?, organizationLogo=? WHERE organizationId=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Organization SET organizationName=?, country=?, organizationLogo=?, organizationEmail=?, organizationContact=?  WHERE organizationId=?");
             preparedStatement.setString(1, organization.getOrganizationName());
             preparedStatement.setString(2, organization.getCountry());
             preparedStatement.setString(3, organization.getOrganizationLogo());
-            preparedStatement.setString(4, organization.getOrganizationId());
+            preparedStatement.setString(4, organization.getOrganizationEmail());
+            preparedStatement.setString(5, organization.getOrganizationContact());
+            preparedStatement.setString(6, organization.getOrganizationId());
 
             return preparedStatement;
         });
