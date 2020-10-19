@@ -381,4 +381,22 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectRepository.getProjectKeys(projectId));
     }
+
+    @Override
+    public Object transitionToSupport(String userId, ProjectSupport projectSupport) {
+        Project_User project_user = projectRepository.getProjectUser(projectSupport.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!((project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) ||
+                (project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+            return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
+        Project project = projectRepository.getProjectById(projectSupport.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_ALREADY_ADDED, HttpStatus.CONFLICT);
+        projectRepository.addProjectSupport(project.getProjectId());
+
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
 }

@@ -142,6 +142,14 @@ public class ProjectController extends ResponseController {
         return sendResponse(projectService.getProjectKeys(projectId, userId));
     }
 
+    @ApiOperation(value = "Transition to Support Stage", notes = "Transition to Support Stage")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @PostMapping("/support")
+    public ResponseEntity<Object> transitionToSupport(@RequestHeader("userId") String userId, @Valid @RequestBody ProjectSupport projectSupport){
+        logger.info("HIT - POST /support ---> transitionToSupport | userId: {} | dto: {}",  userId, projectSupport);
+        return sendResponse(projectService.transitionToSupport(userId, projectSupport));
+    }
+
 
 
 }

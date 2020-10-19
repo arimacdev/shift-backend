@@ -19,11 +19,12 @@ public class Project implements RowMapper<Project> {
     private int issueCount;
     private int weightMeasure;
     private boolean isSupportEnabled;
+    private boolean isSupportAdded;
 
     public Project() {
     }
 
-    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount, int weightMeasure, boolean isSupportEnabled) {
+    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount, int weightMeasure, boolean isSupportEnabled, boolean isSupportAdded) {
         this.project = project;
         this.projectName = projectName;
         this.projectAlias = projectAlias;
@@ -35,6 +36,7 @@ public class Project implements RowMapper<Project> {
         this.issueCount = issueCount;
         this.weightMeasure = weightMeasure;
         this.isSupportEnabled = isSupportEnabled;
+        this.isSupportAdded = isSupportAdded;
     }
 
     public String getProjectId() {
@@ -135,6 +137,14 @@ public class Project implements RowMapper<Project> {
         this.isSupportEnabled = supportEnabled;
     }
 
+    public boolean getIsSupportAdded() {
+        return isSupportAdded;
+    }
+
+    public void setIsSupportAdded(boolean supportAdded) {
+        isSupportAdded = supportAdded;
+    }
+
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project(
@@ -148,6 +158,7 @@ public class Project implements RowMapper<Project> {
                 resultSet.getBoolean("isDeleted"),
                 resultSet.getInt("issueCount"),
                 resultSet.getInt("weightMeasure"),
-                resultSet.getBoolean("isSupportEnabled"));
+                resultSet.getBoolean("isSupportEnabled"),
+                resultSet.getBoolean("isSupportAdded"));
     }
 }
