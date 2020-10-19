@@ -1,13 +1,18 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.Organization;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 public class AddOrganization {
     @NotNull
     private String organizationName;
-    @NotNull
     private String country;
     private String organizationLogo;
+    @Email
+    private String organizationEmail;
+//    @Pattern(regexp = "/^[0]?[789]\\d{9}$/")
+    private String organizationContact;
 
 
     public String getOrganizationName() {
@@ -34,12 +39,31 @@ public class AddOrganization {
         this.organizationLogo = organizationLogo;
     }
 
+
+    public String getOrganizationEmail() {
+        return organizationEmail;
+    }
+
+    public void setOrganizationEmail(String organizationEmail) {
+        this.organizationEmail = organizationEmail;
+    }
+
+    public String getOrganizationContact() {
+        return organizationContact;
+    }
+
+    public void setOrganizationContact(String organizationContact) {
+        this.organizationContact = organizationContact;
+    }
+
     @Override
     public String toString() {
         return "AddOrganization{" +
                 "organizationName='" + organizationName + '\'' +
                 ", country='" + country + '\'' +
                 ", organizationLogo='" + organizationLogo + '\'' +
+                ", organizationEmail='" + organizationEmail + '\'' +
+                ", organizationContact='" + organizationContact + '\'' +
                 '}';
     }
 }

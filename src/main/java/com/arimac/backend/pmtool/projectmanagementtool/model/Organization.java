@@ -11,6 +11,8 @@ public class Organization implements RowMapper<Organization> {
     private String organizationName;
     private String country;
     private String organizationLogo;
+    private String organizationEmail;
+    private String organizationContact;
 
     private String createdBy;
     private Timestamp createdAt;
@@ -21,13 +23,15 @@ public class Organization implements RowMapper<Organization> {
     public Organization() {
     }
 
-    public Organization(String organizationId, String organizationName, String country, String organizationLogo, String createdBy, Timestamp createdAt, boolean hasSupportProjects) {
+    public Organization(String organizationId, String organizationName, String country, String organizationLogo, String createdBy, Timestamp createdAt, String organizationEmail, String organizationContact, boolean hasSupportProjects) {
         this.organizationId = organizationId;
         this.organizationName = organizationName;
         this.country = country;
         this.organizationLogo = organizationLogo;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+        this.organizationEmail = organizationEmail;
+        this.organizationContact = organizationContact;
         this.hasSupportProjects = hasSupportProjects;
     }
 
@@ -87,6 +91,22 @@ public class Organization implements RowMapper<Organization> {
         this.hasSupportProjects = hasSupportProjects;
     }
 
+    public String getOrganizationEmail() {
+        return organizationEmail;
+    }
+
+    public void setOrganizationEmail(String organizationEmail) {
+        this.organizationEmail = organizationEmail;
+    }
+
+    public String getOrganizationContact() {
+        return organizationContact;
+    }
+
+    public void setOrganizationContact(String organizationContact) {
+        this.organizationContact = organizationContact;
+    }
+
     @Override
     public Organization mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Organization(
@@ -96,6 +116,8 @@ public class Organization implements RowMapper<Organization> {
                 resultSet.getString("organizationLogo"),
                 resultSet.getString("createdBy"),
                 resultSet.getTimestamp("createdAt"),
+                resultSet.getString("organizationEmail"),
+                resultSet.getString("organizationContact"),
                 resultSet.getBoolean("hasSupportProjects"));
     }
 }

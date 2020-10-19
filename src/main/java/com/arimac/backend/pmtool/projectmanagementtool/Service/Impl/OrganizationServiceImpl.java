@@ -39,6 +39,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setOrganizationLogo(addOrganization.getOrganizationLogo());
         organization.setCreatedBy(userId);
         organization.setCreatedAt(utilsService.getCurrentTimestamp());
+        organization.setOrganizationContact(addOrganization.getOrganizationContact());
+        organization.setOrganizationEmail(addOrganization.getOrganizationEmail());
 
         organizationRepository.addOrganization(organization);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);

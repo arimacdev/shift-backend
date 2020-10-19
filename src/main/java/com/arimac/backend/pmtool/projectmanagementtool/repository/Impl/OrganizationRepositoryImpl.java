@@ -24,13 +24,15 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
     public void addOrganization(Organization organization) {
         try {
             jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Organization(organizationId,organizationName,country,organizationLogo,createdBy,createdAt) VALUES(?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Organization(organizationId,organizationName,country,organizationLogo,createdBy,createdAt,organizationEmail,organizationContact) VALUES(?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, organization.getOrganizationId());
                 preparedStatement.setString(2, organization.getOrganizationName());
                 preparedStatement.setString(3, organization.getCountry());
                 preparedStatement.setString(4, organization.getOrganizationLogo());
                 preparedStatement.setString(5, organization.getCreatedBy());
                 preparedStatement.setTimestamp(6, organization.getCreatedAt());
+                preparedStatement.setString(7,organization.getOrganizationEmail());
+                preparedStatement.setString(8, organization.getOrganizationContact());
                return preparedStatement;
             });
 
