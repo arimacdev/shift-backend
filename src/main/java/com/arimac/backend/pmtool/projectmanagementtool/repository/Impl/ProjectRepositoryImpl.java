@@ -538,13 +538,12 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void addOrRemoveProjectSupport(String projectId, boolean status) {
-        String sql = "UPDATE project SET isSupportAdded=? WHERE project=?";
+        String sql = "UPDATE project SET isSupportAdded=?, isSupportEnabled=? WHERE project=?";
         try {
-            jdbcTemplate.update(sql, status, projectId);
+            jdbcTemplate.update(sql, status, status,projectId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
     }
-
 
 }
