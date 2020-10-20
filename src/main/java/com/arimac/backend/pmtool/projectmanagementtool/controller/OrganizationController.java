@@ -39,9 +39,10 @@ public class OrganizationController extends ResponseController {
     @GetMapping
     public ResponseEntity<Object> getAllOrganizations(@RequestHeader("user") String userId,
                                                   @RequestParam("startIndex") int startIndex,
-                                                  @RequestParam("endIndex") int endIndex){
-        logger.info("HIT - GET getAllOrganizations ---> | User: {} | start : {}| end :{}", userId, startIndex, endIndex);
-        return sendResponse(organizationService.getAllOrganizations(userId,startIndex,endIndex));
+                                                  @RequestParam("endIndex") int endIndex,
+                                                  @RequestParam("allRecords") boolean allRecords){
+        logger.info("HIT - GET getAllOrganizations ---> | User: {} | start : {}| end :{} | allRecords :{}", userId, startIndex, endIndex, allRecords);
+        return sendResponse(organizationService.getAllOrganizations(userId,startIndex,endIndex,allRecords));
     }
 
     @ApiOperation(value = "Get Projects of an Organization", notes = "Get Projects of an Organization")

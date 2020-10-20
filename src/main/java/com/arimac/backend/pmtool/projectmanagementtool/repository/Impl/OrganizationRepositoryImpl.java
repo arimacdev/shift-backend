@@ -55,12 +55,21 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
     }
 
     @Override
-    public List<Organization> getAllOrganizations(int limit, int offset) {
-        String sql = "SELECT * FROM Organization WHERE isDeleted=false LIMIT ? OFFSET ?";
-        try {
-            return jdbcTemplate.query(sql, new Organization(), limit, offset);
-        } catch (Exception e){
-            throw new PMException(e.getMessage());
+    public List<Organization> getAllOrganizations(int limit, int offset, boolean allRecords) {
+        if (!allRecords) {
+            String sql = "SELECT * FROM Organization WHERE isDeleted=false LIMIT ? OFFSET ?";
+            try {
+                return jdbcTemplate.query(sql, new Organization(), limit, offset);
+            } catch (Exception e) {
+                throw new PMException(e.getMessage());
+            }
+        } else {
+            String sql = "SELECT * FROM Organization WHERE isDeleted=false";
+            try {
+                return jdbcTemplate.query(sql, new Organization());
+            } catch (Exception e) {
+                throw new PMException(e.getMessage());
+            }
         }
     }
 

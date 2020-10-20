@@ -47,16 +47,18 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Object getAllOrganizations(String userId, int startIndex, int endIndex) {
+    public Object getAllOrganizations(String userId, int startIndex, int endIndex, boolean allRecords) {
         int limit = endIndex - startIndex;
-        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
-            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
-        if (limit > 10)
-            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!allRecords) {
+            if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+                return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+            if (limit > 10)
+                return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        }
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, organizationRepository.getAllOrganizations(limit, startIndex));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, organizationRepository.getAllOrganizations(limit, startIndex, allRecords));
     }
 
     @Override

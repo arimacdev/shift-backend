@@ -8,7 +8,7 @@ import java.util.List;
 public interface OrganizationRepository {
     void addOrganization(Organization organization);
     Organization getOrganizationById(String organizationId);
-    List<Organization> getAllOrganizations(int limit, int offset);
+    List<Organization> getAllOrganizations(int limit, int offset, boolean allRecords);
     List<Project> getProjectsOfOrganization(String organizationId);
     void updateOrganization(Organization organization);
     void flagOrganization(String organizationId);
