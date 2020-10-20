@@ -282,6 +282,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setIsStarred(resultSet.getBoolean("isPinned"));
         projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
         projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
+        projectUserResponseDto.setIsSupportAdded(resultSet.getBoolean("isSupportAdded"));
+        projectUserResponseDto.setIsSupportEnabled(resultSet.getBoolean("isSupportEnabled"));
         return projectUserResponseDto;
     };
 

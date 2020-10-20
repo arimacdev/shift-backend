@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -243,6 +244,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectEditDto.getIsSupportEnabled() != null) {
             if (!modifierProject.getIsSupportAdded()) return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
             updatedProject.setIsSupportEnabled(projectEditDto.getIsSupportEnabled());
+            internalSupportService.updateSupportProject(new UpdateStatus(projectId,projectEditDto.getIsSupportEnabled()));
         }
         else updatedProject.setIsSupportEnabled(modifierProject.getIsSupportEnabled());
         projectRepository.updateProject(updatedProject, projectId);
