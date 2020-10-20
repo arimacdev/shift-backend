@@ -63,6 +63,7 @@ public enum ResponseMessage {
     SUPPPORT_SERVICE_NOT_ENABLED("Support Service not enabled for this project"),
     INVALID_KEY_COMBINAITON("Invalid Email and Project Key combination"),
     ORGANIZATION_NOT_FOUND("Organization Not Found"),
+    PROJECT_SUPPORT_NOT_ADDED("Project Support Not Added"),
     PROJECT_SUPPORT_ALREADY_ADDED("Project Support Already Added"),
     PROJECT_KEY_NOT_FOUND("Project Key Not Found");
 

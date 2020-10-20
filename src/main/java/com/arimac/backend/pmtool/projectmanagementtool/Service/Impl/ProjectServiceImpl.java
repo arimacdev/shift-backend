@@ -240,8 +240,10 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             updatedProject.setProjectAlias(modifierProject.getProjectAlias());
         }
-        if (projectEditDto.getIsSupportEnabled() != null)
+        if (projectEditDto.getIsSupportEnabled() != null) {
+            if (!modifierProject.getIsSupportAdded()) return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
             updatedProject.setIsSupportEnabled(projectEditDto.getIsSupportEnabled());
+        }
         else updatedProject.setIsSupportEnabled(modifierProject.getIsSupportEnabled());
         projectRepository.updateProject(updatedProject, projectId);
 
