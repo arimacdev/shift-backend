@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -77,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
         project.setWeightMeasure(projectDto.getWeightType().getWeightId());
-        project.setIsSupportEnabled(projectDto.getIsSupportEnabled());
+        project.setIsSupportEnabled(projectDto.getIsSupportEnabled()); //TODO REMOVE
         projectRepository.createProject(project);
         activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 
@@ -398,8 +399,16 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_ALREADY_ADDED, HttpStatus.CONFLICT);
-        projectRepository.addProjectSupport(project.getProjectId());
-        internalSupportService.createSupportProject();
+        projectRepository.addOrRemoveProjectSupport(project.getProjectId(), true);
+        CreateSupportProject createSupportProject = new CreateSupportProject();
+        createSupportProject.setProjectId(project.getProjectId());
+        createSupportProject.setOrganizationId(project.getClientId());
+        createSupportProject.setCreatedBy(userId);
+        try {
+            internalSupportService.createSupportProject(createSupportProject);
+        } catch (Exception e){
+            projectRepository.addOrRemoveProjectSupport(project.getProjectId(), false);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

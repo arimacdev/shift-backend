@@ -78,15 +78,15 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization organization = organizationRepository.getOrganizationById(organizationId);
         if (organization == null)
             return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
-        if (!updateOrganization.getOrganizationName().isEmpty() || updateOrganization.getOrganizationName() != null)
+        if (!updateOrganization.getOrganizationName().isEmpty() && updateOrganization.getOrganizationName() != null)
             organization.setOrganizationName(updateOrganization.getOrganizationName());
-        if (!updateOrganization.getCountry().isEmpty() || updateOrganization.getCountry() != null)
+        if (!updateOrganization.getCountry().isEmpty() && updateOrganization.getCountry() != null)
             organization.setCountry(updateOrganization.getCountry());
-        if (!updateOrganization.getOrganizationLogo().isEmpty() || updateOrganization.getOrganizationLogo() != null)
+        if (!updateOrganization.getOrganizationLogo().isEmpty() && updateOrganization.getOrganizationLogo() != null)
             organization.setOrganizationLogo(updateOrganization.getOrganizationLogo());
-        if (!updateOrganization.getOrganizationEmail().isEmpty() || updateOrganization.getOrganizationEmail() != null)
+        if (!updateOrganization.getOrganizationEmail().isEmpty() && updateOrganization.getOrganizationEmail() != null)
             organization.setOrganizationEmail(updateOrganization.getOrganizationEmail());
-        if (!updateOrganization.getOrganizationContact().isEmpty() || updateOrganization.getOrganizationContact() != null)
+        if (!updateOrganization.getOrganizationContact().isEmpty() && updateOrganization.getOrganizationContact() != null)
             organization.setOrganizationContact(updateOrganization.getOrganizationContact());
 
         organizationRepository.updateOrganization(organization);

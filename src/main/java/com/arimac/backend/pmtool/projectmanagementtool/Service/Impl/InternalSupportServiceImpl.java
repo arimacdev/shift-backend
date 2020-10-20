@@ -18,9 +18,8 @@ public class InternalSupportServiceImpl implements InternalSupportService {
 
 
     @Override
-    public void createSupportProject() {
+    public void createSupportProject(CreateSupportProject createSupportProject) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        CreateSupportProject createSupportProject = new CreateSupportProject();
         HttpEntity<Object> httpEntity = new HttpEntity<>(createSupportProject, httpHeaders);
         restTemplate.exchange("http://localhost:8081/api/support-service/internal/project", HttpMethod.POST, httpEntity, String.class);
     }

@@ -54,7 +54,7 @@ public interface ProjectRepository {
     Project_Keys getProjectKeyByDomain(String projectKey, String domain);
     void updateProjectKeys(ProjectKeys project_keys);
     List<Project_Keys> getProjectKeys(String projectId);
-    void addProjectSupport(String projectId);
+    void addOrRemoveProjectSupport(String projectId, boolean status);
 
 
 }

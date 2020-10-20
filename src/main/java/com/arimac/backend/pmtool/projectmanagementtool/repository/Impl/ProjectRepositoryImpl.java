@@ -536,10 +536,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public void addProjectSupport(String projectId) {
-        String sql = "UPDATE project SET isSupportAdded=true WHERE project=?";
+    public void addOrRemoveProjectSupport(String projectId, boolean status) {
+        String sql = "UPDATE project SET isSupportAdded=? WHERE project=?";
         try {
-            jdbcTemplate.update(sql, projectId);
+            jdbcTemplate.update(sql, status, projectId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
