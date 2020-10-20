@@ -78,7 +78,6 @@ public class ProjectServiceImpl implements ProjectService {
         project.setIsDeleted(false);
         project.setIssueCount(ISSUE_START);
         project.setWeightMeasure(projectDto.getWeightType().getWeightId());
-        project.setIsSupportEnabled(projectDto.getIsSupportEnabled()); //TODO REMOVE
         projectRepository.createProject(project);
         activityLogService.addTaskLog(utilsService.addProjectAddorFlagLog(LogOperationEnum.CREATE, projectDto.getProjectOwner(), projectId));
 
@@ -91,10 +90,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectRepository.assignUserToProject(projectId,assignment);
 
-        if (project.getIsSupportEnabled()) {
-            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId(), true);
-            projectRepository.addProjectKeys(project_keys);
-        }
+//        if (project.getIsSupportEnabled()) {
+//            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId(), true);
+//            projectRepository.addProjectKeys(project_keys);
+//        }
 
         return new Response(ResponseMessage.SUCCESS, project);
     }
