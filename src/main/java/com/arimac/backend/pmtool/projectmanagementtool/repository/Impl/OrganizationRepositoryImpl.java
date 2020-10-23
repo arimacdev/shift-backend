@@ -99,6 +99,16 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
     }
 
     @Override
+    public void updateOrganizationSupportStatus(String organizationId, boolean status) {
+        String sql = "UPDATE Organization SET hasSupportProjects=? WHERE organizationId=?";
+        try {
+            jdbcTemplate.update(sql, status, organizationId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void flagOrganization(String organizationId) {
         try {
             String sql = "UPDATE Organization SET isDeleted=true WHERE organizationId=?";

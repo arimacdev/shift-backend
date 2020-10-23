@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
 import org.springframework.http.HttpEntity;
@@ -30,5 +31,14 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<Object> httpEntity = new HttpEntity<>(updateStatus, httpHeaders);
         restTemplate.exchange("http://localhost:8081/api/support-service/internal/project", HttpMethod.PUT, httpEntity, String.class);
+    }
+
+    @Override
+    public Object createAdminForSupportProject(String project, AddSupportUserDto addSupportUserDto) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("isInternal", "true");
+        httpHeaders.add("project", project);
+        HttpEntity<Object> httpEntity = new HttpEntity<>(addSupportUserDto, httpHeaders);
+       return restTemplate.exchange("http://localhost:8081/api/support-service/internal/user/admin", HttpMethod.POST, httpEntity, String.class);
     }
 }

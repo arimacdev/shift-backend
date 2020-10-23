@@ -13,10 +13,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Task;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.PersonalTaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.TaskRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -38,15 +35,17 @@ public class InternalServiceImpl implements InternalService {
     private final PersonalTaskRepository personalTaskRepository;
     private final IdpUserService idpUserService;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
     private final UtilsService utilsService;
 
-    public InternalServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, NpTaskService npTaskService, PersonalTaskRepository personalTaskRepository, IdpUserService idpUserService, UserRepository userRepository, UtilsService utilsService) {
+    public InternalServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, NpTaskService npTaskService, PersonalTaskRepository personalTaskRepository, IdpUserService idpUserService, UserRepository userRepository, OrganizationRepository organizationRepository, UtilsService utilsService) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.npTaskService = npTaskService;
         this.personalTaskRepository = personalTaskRepository;
         this.idpUserService = idpUserService;
         this.userRepository = userRepository;
+        this.organizationRepository = organizationRepository;
         this.utilsService = utilsService;
     }
 
@@ -165,5 +164,10 @@ public class InternalServiceImpl implements InternalService {
     @Override
     public Object getUsersByIds(Set<String> users) {
         return userRepository.getUsersByIds(users);
+    }
+
+    @Override
+    public Object getOrganizationById(String organizationId) {
+        return organizationRepository.getOrganizationById(organizationId);
     }
 }

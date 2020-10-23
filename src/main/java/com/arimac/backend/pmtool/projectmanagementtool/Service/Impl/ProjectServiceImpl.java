@@ -40,15 +40,17 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final OrganizationRepository organizationRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TaskService taskService, InternalSupportService internalSupportService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, InternalSupportService internalSupportService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, UtilsService utilsService) {
         this.taskService = taskService;
         this.internalSupportService = internalSupportService;
         this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.organizationRepository = organizationRepository;
         this.utilsService = utilsService;
     }
 
@@ -402,15 +404,22 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_ALREADY_ADDED, HttpStatus.CONFLICT);
+        Organization organization = organizationRepository.getOrganizationById(project.getClientId());
+        if (organization == null)
+            return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        //TODO Org. Validation
         projectRepository.addOrRemoveProjectSupport(project.getProjectId(), true);
+        organizationRepository.updateOrganizationSupportStatus(project.getClientId(), true);
         CreateSupportProject createSupportProject = new CreateSupportProject();
         createSupportProject.setProjectId(project.getProjectId());
         createSupportProject.setOrganizationId(project.getClientId());
         createSupportProject.setCreatedBy(userId);
         try {
             internalSupportService.createSupportProject(createSupportProject);
-        } catch (Exception e){
+        } catch (Exception e) {
             projectRepository.addOrRemoveProjectSupport(project.getProjectId(), false);
+            organizationRepository.updateOrganizationSupportStatus(project.getClientId(), false);
+            return new ErrorMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }

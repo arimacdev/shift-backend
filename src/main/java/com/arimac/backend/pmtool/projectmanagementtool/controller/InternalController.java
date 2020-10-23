@@ -53,5 +53,9 @@ public class InternalController extends ResponseController {
     public ResponseEntity<Object> getUsersByIds(@RequestParam("user")Set<String> users){
         return sendResponse(internalService.getUsersByIds(users));
     }
+    @GetMapping("organization/{organizationId}")
+    public ResponseEntity<Object> getOrganizationById(@PathVariable("organizationId")String organizationId){
+        return sendResponse(internalService.getOrganizationById(organizationId));
+    }
 
 }

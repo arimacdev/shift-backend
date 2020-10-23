@@ -10,4 +10,5 @@ public interface InternalService {
     Object addUserToAllProjects(String userId);
     Object getProjectById(String projectId);
     Object getUsersByIds(Set<String> users);
+    Object getOrganizationById(String organizationId);
 }
