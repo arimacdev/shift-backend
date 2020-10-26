@@ -7,4 +7,5 @@ public interface SupportProjectService {
     Object createAdminForSupportProject(String user, String project, AddSupportUserDto addSupportUserDto);
     Object getSupportUserByEmail(String user, String email);
     Object getSupportProjects(String userId);
+    Object getSupportUsersByOrganization(String userId, String organizationId);
 }

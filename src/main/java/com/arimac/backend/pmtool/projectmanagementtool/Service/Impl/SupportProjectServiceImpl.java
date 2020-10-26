@@ -59,4 +59,12 @@ public class SupportProjectServiceImpl implements SupportProjectService {
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK,projectRepository.getSupportProjects());
     }
+
+    @Override
+    public Object getSupportUsersByOrganization(String userId, String organizationId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByOrganization(organizationId));
+    }
 }

@@ -41,7 +41,7 @@ public class SupportProjectController extends ResponseController {
     @GetMapping("/user")
     public ResponseEntity<Object> getSupportUserByEmail(@RequestHeader("user") String user,
                                                         @RequestParam("email") String email){
-        logger.info("POST - support/user?email---> getSupportUserByEmail | email: {} | User: {} ", email, user);
+        logger.info("GET - support/user?email---> getSupportUserByEmail | email: {} | User: {} ", email, user);
         return sendResponse(supportProjectService.getSupportUserByEmail(user,email));
     }
 
@@ -49,8 +49,17 @@ public class SupportProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/projects")
     public ResponseEntity<Object> getSupportProjects(@RequestHeader("user") String user){
-        logger.info("POST - support/projects---> getSupportProjects | User: {} ", user);
+        logger.info("GET - support/projects---> getSupportProjects | User: {} ", user);
         return sendResponse(supportProjectService.getSupportProjects(user));
+    }
+
+    @ApiOperation(value = "Get Support Users By Organization", notes = "Get Support Users By Organization")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/user/organization/{organizationId}")
+    public ResponseEntity<Object> getSupportUsersByOrganization(@RequestHeader("user") String user,
+                                                             @PathVariable("organizationId") String organizationId){
+        logger.info("GET - support/user/organization/<Org.Id>---> getSupportUsersByOrganization | User: {} || Org. Id {} ", user, organizationId);
+        return sendResponse(supportProjectService.getSupportUsersByOrganization(user, organizationId));
     }
 
 }

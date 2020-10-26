@@ -7,9 +7,12 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.Updat
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public interface InternalSupportService {
     void createSupportProject(CreateSupportProject createSupportProject);
     void updateSupportProject(UpdateStatus updateStatus);
     Object createAdminForSupportProject(String project, AddSupportUserDto addSupportUserDto);
     SupportUser getSupportUserByEmail(String email);
+    List<SupportUser> getSupportUsersByOrganization(String organization);
 }

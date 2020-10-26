@@ -16,6 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @Service
 public class InternalSupportServiceImpl implements InternalSupportService {
     private final RestTemplate restTemplate;
@@ -59,6 +61,22 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             return objectMapper.readValue(new JSONObject(user).get("data").toString(), SupportUser.class);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SupportUser> getSupportUsersByOrganization(String organization) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("isInternal", "true");
+        httpHeaders.add("user", "internal");
+        HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+        String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/user/organization/" + organization, HttpMethod.GET, httpEntity, String.class).getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), List.class);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
