@@ -418,7 +418,7 @@ public class ProjectServiceImpl implements ProjectService {
             internalSupportService.createSupportProject(createSupportProject);
         } catch (Exception e) {
             projectRepository.addOrRemoveProjectSupport(project.getProjectId(), false);
-            organizationRepository.updateOrganizationSupportStatus(project.getClientId(), false);
+            organizationRepository.updateOrganizationSupportStatus(project.getClientId(), organization.isHasSupportProjects());
             return new ErrorMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);

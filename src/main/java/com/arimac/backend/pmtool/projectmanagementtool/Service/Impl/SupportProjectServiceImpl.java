@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -11,6 +12,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.OrganizationRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,5 +42,14 @@ public class SupportProjectServiceImpl implements SupportProjectService {
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
         internalSupportService.createAdminForSupportProject(project, addSupportUserDto);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getSupportUserByEmail(String userId, String email){
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
+        SupportUser supportUser = internalSupportService.getSupportUserByEmail(email);
+        return new Response(ResponseMessage.SUCCESS, supportUser );
     }
 }

@@ -11,6 +11,6 @@ public interface OrganizationRepository {
     List<Organization> getAllOrganizations(int limit, int offset, boolean allRecords);
     List<Project> getProjectsOfOrganization(String organizationId);
     void updateOrganization(Organization organization);
-    void updateOrganizationSupportStatus(String organizationId, boolean status);
+    void    updateOrganizationSupportStatus(String organizationId, boolean status);
     void flagOrganization(String organizationId);
 }
