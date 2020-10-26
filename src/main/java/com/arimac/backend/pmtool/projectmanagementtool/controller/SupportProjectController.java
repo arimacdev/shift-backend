@@ -45,4 +45,12 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportUserByEmail(user,email));
     }
 
+    @ApiOperation(value = "Get Support Projects", notes = "Get Support Projects")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/projects")
+    public ResponseEntity<Object> getSupportProjects(@RequestHeader("user") String user){
+        logger.info("POST - support/projects---> getSupportProjects | User: {} ", user);
+        return sendResponse(supportProjectService.getSupportProjects(user));
+    }
+
 }

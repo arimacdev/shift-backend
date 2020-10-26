@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportProjectResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
@@ -55,6 +56,7 @@ public interface ProjectRepository {
     void updateProjectKeys(ProjectKeys project_keys);
     List<Project_Keys> getProjectKeys(String projectId);
     void addOrRemoveProjectSupport(String projectId, boolean status);
+    List<SupportProjectResponse> getSupportProjects();
 
 
 }

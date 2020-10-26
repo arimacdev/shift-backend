@@ -7,6 +7,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportProjectResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
@@ -544,6 +545,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         try {
             jdbcTemplate.update(sql, status, status,projectId);
         } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SupportProjectResponse> getSupportProjects() {
+        String sql = "SELECT * FROM project WHERE isSupportAdded=true AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new SupportProjectResponse());
+        } catch (Exception e) {
             throw new PMException(e.getMessage());
         }
     }
