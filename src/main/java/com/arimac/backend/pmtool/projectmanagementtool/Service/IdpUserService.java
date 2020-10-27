@@ -13,6 +13,7 @@ public interface IdpUserService {
     void addUserAttributes(String idpUserId, String UUID, boolean firstRequest);
     void changeUserActiveSatatus(String idpUserId, boolean status, boolean firstRequest);
     JSONArray getAllRealmRoles(boolean firstRequest);
+    JSONArray getUsersByRole(String roleId, boolean firstRequest);
     void addRoleToUser(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
     void removerUserRole(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest);
     JSONArray getAllUserRoleMappings(String idpUserId, boolean firstRequest);

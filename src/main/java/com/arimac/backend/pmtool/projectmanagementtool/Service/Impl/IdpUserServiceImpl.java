@@ -302,6 +302,36 @@ public class IdpUserServiceImpl implements IdpUserService {
     }
 
     @Override
+    public JSONArray getUsersByRole(String roleId, boolean firstRequest) {
+        try {
+            HttpEntity<Object> userGetEntity = new HttpEntity<>(null, getIdpTokenHeader());
+            StringBuilder userByRoleUrl = new StringBuilder();
+            userByRoleUrl.append(ENVConfig.KEYCLOAK_HOST);
+            userByRoleUrl.append("/auth/admin/realms/");
+            userByRoleUrl.append(ENVConfig.KEYCLOAK_REALM);
+            userByRoleUrl.append("/roles/");
+            userByRoleUrl.append(roleId);
+            userByRoleUrl.append("/users");
+//            userRetrieveUrl.append(idpUserId);
+            logger.info("User By Role Url : {}", userByRoleUrl);
+            ResponseEntity<String> idpUser = restTemplate.exchange(userByRoleUrl.toString(), HttpMethod.GET, userGetEntity, String.class);
+            return new JSONArray(idpUser.getBody());
+        }
+        catch(HttpClientErrorException | HttpServerErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getUsersByRole(roleId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new PMException(e);
+        }
+    }
+
+    @Override
     public void addRoleToUser(String idpUserId, UserRoleDto userRoleDto, boolean firstRequest) {
         try {
             HttpHeaders httpHeaders = getIdpTokenHeader();
