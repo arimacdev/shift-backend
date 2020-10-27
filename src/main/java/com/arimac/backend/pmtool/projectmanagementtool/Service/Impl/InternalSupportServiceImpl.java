@@ -78,7 +78,6 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
-//            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), SupportUser[].class);
             return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportUser>>(){});
 
         } catch (Exception e){
@@ -96,7 +95,6 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
-//            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), SupportUser[].class);
             return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportMemberResponse>>(){});
 
         } catch (Exception e){
