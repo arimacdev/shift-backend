@@ -13,6 +13,7 @@ public class AddSupportUserDto {
     private String email;
     @NotNull
     private String clientId;
+    private String supportUserId;
 
     public String getFirstName() {
         return firstName;
@@ -46,6 +47,14 @@ public class AddSupportUserDto {
         this.clientId = clientId;
     }
 
+    public String getSupportUserId() {
+        return supportUserId;
+    }
+
+    public void setSupportUserId(String supportUserId) {
+        this.supportUserId = supportUserId;
+    }
+
     @Override
     public String toString() {
         return "AddSupportUserDto{" +
@@ -53,6 +62,7 @@ public class AddSupportUserDto {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", clientId='" + clientId + '\'' +
+                ", supportUserId='" + supportUserId + '\'' +
                 '}';
     }
 }
