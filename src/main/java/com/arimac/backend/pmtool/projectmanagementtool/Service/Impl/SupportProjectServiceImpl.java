@@ -8,6 +8,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSu
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Organization;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.OrganizationRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -66,5 +67,19 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByOrganization(organizationId));
+    }
+
+    @Override
+    public Object getSupportUsersByProject(String userId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
+        //TODO Verify Support Disabling
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByProject(projectId));
     }
 }

@@ -62,4 +62,13 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportUsersByOrganization(user, organizationId));
     }
 
+    @ApiOperation(value = "Get Support Users By Project", notes = "Get Support Users By Project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/user/project/{projectId}")
+    public ResponseEntity<Object> getSupportUsersByProject(@RequestHeader("user") String user,
+                                                           @PathVariable("projectId") String projectId){
+        logger.info("GET - support/user/project/<projectId>---> getSupportUsersByProject | User: {} || project {} ", user, projectId);
+        return sendResponse(supportProjectService.getSupportUsersByProject(user, projectId));
+    }
+
 }

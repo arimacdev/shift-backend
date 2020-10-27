@@ -1,12 +1,14 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportMemberResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
@@ -76,7 +78,27 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
-            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), List.class);
+//            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), SupportUser[].class);
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportUser>>(){});
+
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SupportMemberResponse> getSupportUsersByProject(String projectId) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("isInternal", "true");
+        httpHeaders.add("user", "internal");
+        HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+        String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/user/project/" + projectId, HttpMethod.GET, httpEntity, String.class).getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+//            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), SupportUser[].class);
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportMemberResponse>>(){});
+
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportMemberResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
@@ -15,4 +16,5 @@ public interface InternalSupportService {
     Object createAdminForSupportProject(String project, AddSupportUserDto addSupportUserDto);
     SupportUser getSupportUserByEmail(String email);
     List<SupportUser> getSupportUsersByOrganization(String organization);
+    List<SupportMemberResponse> getSupportUsersByProject(String projectId);
 }
