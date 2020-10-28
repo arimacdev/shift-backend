@@ -22,6 +22,7 @@ public enum ResponseMessage {
     ASSIGNEE_NOT_MEMBER("Assignee doesn't belong to the project"),
     USER_NOT_MEMBER("User doesn't belong to the project"),
     USER_NOT_ADMIN("User is not an Admin of this project"),
+    USER_NOT_OWNER("User is not an Owner of this project"),
     USER_NOT_GROUP_MEMBER("User doesn't belong to this Group"),
     USER_NOT_FOUND("User doesn't exist"),
     ALREADY_DEACTIVATED("User Already Deactivated"),
@@ -65,7 +66,11 @@ public enum ResponseMessage {
     ORGANIZATION_NOT_FOUND("Organization Not Found"),
     PROJECT_SUPPORT_NOT_ADDED("Project Support Not Added"),
     PROJECT_SUPPORT_ALREADY_ADDED("Project Support Already Added"),
-    PROJECT_KEY_NOT_FOUND("Project Key Not Found");
+    PROJECT_KEY_NOT_FOUND("Project Key Not Found"),
+    //Support Member
+    SUPPORT_MEMBER_NOT_FOUND("Support Member doesn't exist"),
+    SUPPORT_MEMBER_ALREADY_ASSIGNED("Support Member Already Assigned")
+    ;
 
 
     private final String message;
