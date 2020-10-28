@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class SupportMemberRepositoryImpl implements SupportMemberRepository {
@@ -47,6 +48,16 @@ public class SupportMemberRepositoryImpl implements SupportMemberRepository {
         String sql = "UPDATE Project_SupportMember SET isEnabled=? WHERE assigneeId=? AND projectId=?";
         try {
             jdbcTemplate.update(sql, status, memberId, projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Project_SupportMember> getSupportMemberByProject(String projectId) {
+        String sql = "SELECT * FROM Project_SupportMember WHERE projectId=? AND isEnabled=true";
+        try {
+            return jdbcTemplate.query(sql, new Project_SupportMember(), projectId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }

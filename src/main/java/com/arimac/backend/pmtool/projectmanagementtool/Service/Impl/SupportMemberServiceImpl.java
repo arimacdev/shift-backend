@@ -64,4 +64,17 @@ public class SupportMemberServiceImpl implements SupportMemberService {
             supportMemberRepository.changeStatusOfSupportMember(addSupportMember.getMemberId(), addSupportMember.getProjectId(), true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
+
+    @Override
+    public Object getSupportMemberByProject(String userId, String projectId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, supportMemberRepository.getSupportMemberByProject(projectId));
+    }
 }

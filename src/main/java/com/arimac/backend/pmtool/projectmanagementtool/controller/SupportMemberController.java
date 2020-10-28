@@ -33,4 +33,13 @@ public class SupportMemberController extends ResponseController {
         logger.info("HIT - POST /member ---> addSupportMember | dto: {} | user: {}", addSupportMember, user);
         return sendResponse(supportMemberService.addSupportMember(user,addSupportMember));
     }
+
+    @ApiOperation(value = "Get Support Members By Project", notes = "Get Support Members By Project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<Object> getSupportMemberByProject(@PathVariable("projectId") String projectId,
+                                                   @RequestHeader("user") String user){
+        logger.info("HIT - GET /member/project/<projectId> ---> getSupportMemberByProject | project: {} | user: {}", projectId, user);
+        return sendResponse(supportMemberService.getSupportMemberByProject(user,projectId));
+    }
 }
