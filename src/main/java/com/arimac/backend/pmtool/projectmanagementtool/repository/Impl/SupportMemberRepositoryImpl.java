@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.repository.Impl;
 
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportMember.SupportMemberDetails;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_SupportMember;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.SupportMemberRepository;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -54,10 +56,10 @@ public class SupportMemberRepositoryImpl implements SupportMemberRepository {
     }
 
     @Override
-    public List<Project_SupportMember> getSupportMemberByProject(String projectId) {
-        String sql = "SELECT * FROM Project_SupportMember WHERE projectId=? AND isEnabled=true";
+    public List<SupportMemberDetails> getSupportMemberByProject(String projectId) {
+        String sql = "SELECT projectId,assigneeId,assignedAt,assignedBy,isEnabled,firstName,lastName,profileImage FROM Project_SupportMember INNER JOIN User ON userId = assigneeId WHERE projectId=? AND isEnabled=true AND isActive=true";
         try {
-            return jdbcTemplate.query(sql, new Project_SupportMember(), projectId);
+            return jdbcTemplate.query(sql, new SupportMemberDetails(), projectId);
         } catch (Exception e){
             throw new PMException(e.getMessage());
         }
