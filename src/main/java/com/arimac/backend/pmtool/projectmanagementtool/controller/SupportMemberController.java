@@ -42,4 +42,13 @@ public class SupportMemberController extends ResponseController {
         logger.info("HIT - GET /member/project/<projectId> ---> getSupportMemberByProject | project: {} | user: {}", projectId, user);
         return sendResponse(supportMemberService.getSupportMemberByProject(user,projectId));
     }
+
+    @ApiOperation(value = "Remove Member from Project", notes = "Remove Member from Project")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @DeleteMapping
+    public ResponseEntity<Object> removeSupportMemberFromProject(@Valid @RequestBody AddSupportMember addSupportMember,
+                                                   @RequestHeader("user") String user){
+        logger.info("HIT - DELETE /member ---> removeSupportMemberFromProject | dto: {} | user: {}", addSupportMember, user);
+        return sendResponse(supportMemberService.removeSupportMemberFromProject(user,addSupportMember));
+    }
 }

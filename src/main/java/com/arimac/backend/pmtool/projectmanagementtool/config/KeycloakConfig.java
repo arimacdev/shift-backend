@@ -158,6 +158,8 @@ public class KeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .antMatchers("/category").hasAnyRole(ADMIN,SUPER_ADMIN,ORGANIZATION_ADMIN)
                 //Analytics Endpoint
                 .antMatchers("/analytics/**").hasAnyRole(ORGANIZATION_ADMIN,SUPER_ADMIN,ADMIN)
+                //Support Member Endpoint
+                //.antMatchers("/member/**").hasAnyRole(USER,SUPER_ADMIN,ADMIN,ORGANIZATION_ADMIN)
                 .anyRequest()
                 //.authenticated()
                 .permitAll();
