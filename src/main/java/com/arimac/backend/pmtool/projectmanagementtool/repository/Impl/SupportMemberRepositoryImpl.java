@@ -21,7 +21,7 @@ public class SupportMemberRepositoryImpl implements SupportMemberRepository {
     public Project_SupportMember getSupportMember(String memberId, String projectId) {
         String sql = "SELECT * FROM Project_SupportMember WHERE projectId=? AND assigneeId=?";
         try {
-            return jdbcTemplate.queryForObject(sql, new Project_SupportMember(), memberId, projectId);
+            return jdbcTemplate.queryForObject(sql, new Project_SupportMember(), projectId, memberId);
         } catch (EmptyResultDataAccessException e){
             return null;
         } catch (Exception e){
