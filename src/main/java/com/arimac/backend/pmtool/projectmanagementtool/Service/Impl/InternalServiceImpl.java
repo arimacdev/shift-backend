@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NpTaskService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Internal.Support.ProjectDetails;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Internal.UpdateAliasDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.PersonalTask.PersonalTaskDto;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -173,6 +175,9 @@ public class InternalServiceImpl implements InternalService {
 
     @Override
     public Object getProjectMapByIds(List<String> projectIds) {
+        HashMap<String, ProjectDetails> projectMap = projectRepository.getProjectMapByIds(projectIds);
+        if (projectMap.isEmpty())
+            return null;
         return projectRepository.getProjectMapByIds(projectIds);
     }
 }

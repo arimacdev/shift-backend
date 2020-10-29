@@ -4,11 +4,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Internal.Support.ProjectDetails;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportProjectResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
@@ -561,12 +563,26 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public HashMap<String, Project> getProjectMapByIds(List<String> projectIds) {
-        String sql = "SELECT * FROM project WHERE project IN (:projectIds)";
+    public HashMap<String, ProjectDetails> getProjectMapByIds(List<String> projectIds) {
+        String sql = "SELECT project,projectName,projectAlias FROM project WHERE project IN (:projectIds) AND isDeleted=false AND isSupportEnabled=true";
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("projectIds", projectIds);
-//        HashMap<String, ProjectDto>
-        return null;
+        HashMap<String, ProjectDetails> projectMap = new HashMap<>();
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameters, (ResultSet rs) -> {
+                while (rs.next()) {
+                    if (!projectMap.containsKey(rs.getString("project"))) {
+                        ProjectDetails project = new ProjectDetails();
+                        project.setProjectName(rs.getString("projectName"));
+                        project.setProjectAlias(rs.getString("projectAlias"));
+                        projectMap.put(rs.getString("project"), project);
+                    }
+                }
+                return projectMap;
+            });
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

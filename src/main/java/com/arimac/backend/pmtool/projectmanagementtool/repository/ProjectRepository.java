@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Internal.Support.ProjectDetails;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
@@ -58,7 +59,7 @@ public interface ProjectRepository {
     List<Project_Keys> getProjectKeys(String projectId);
     void addOrRemoveProjectSupport(String projectId, boolean status);
     List<SupportProjectResponse> getSupportProjects();
-    HashMap<String, Project> getProjectMapByIds(List<String> projectIds);
+    HashMap<String, ProjectDetails> getProjectMapByIds(List<String> projectIds);
 
 
 }
