@@ -1,5 +1,6 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
+import java.util.List;
 import java.util.Set;
 
 public interface InternalService {
@@ -11,4 +12,5 @@ public interface InternalService {
     Object getProjectById(String projectId);
     Object getUsersByIds(Set<String> users);
     Object getOrganizationById(String organizationId);
+    Object getProjectMapByIds(List<String> projectIds);
 }

@@ -170,4 +170,9 @@ public class InternalServiceImpl implements InternalService {
     public Object getOrganizationById(String organizationId) {
         return organizationRepository.getOrganizationById(organizationId);
     }
+
+    @Override
+    public Object getProjectMapByIds(List<String> projectIds) {
+        return projectRepository.getProjectMapByIds(projectIds);
+    }
 }

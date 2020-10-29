@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -56,6 +57,10 @@ public class InternalController extends ResponseController {
     @GetMapping("organization/{organizationId}")
     public ResponseEntity<Object> getOrganizationById(@PathVariable("organizationId")String organizationId){
         return sendResponse(internalService.getOrganizationById(organizationId));
+    }
+    @PostMapping("projects")
+    public ResponseEntity<Object> getProjectMapByIds(@RequestBody List<String> projectIds){
+        return sendResponse(internalService.getProjectMapByIds(projectIds));
     }
 
 }

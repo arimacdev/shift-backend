@@ -16,6 +16,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -57,6 +58,7 @@ public interface ProjectRepository {
     List<Project_Keys> getProjectKeys(String projectId);
     void addOrRemoveProjectSupport(String projectId, boolean status);
     List<SupportProjectResponse> getSupportProjects();
+    HashMap<String, Project> getProjectMapByIds(List<String> projectIds);
 
 
 }

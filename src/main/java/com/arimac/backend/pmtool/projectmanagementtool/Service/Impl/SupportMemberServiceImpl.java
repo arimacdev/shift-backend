@@ -79,30 +79,30 @@ public class SupportMemberServiceImpl implements SupportMemberService {
     }
 
     @Override
-    public Object removeSupportMemberFromProject(String userId, AddSupportMember addSupportMember) {
-        if (userId.equals(addSupportMember.getMemberId()))
+    public Object removeSupportMemberFromProject(String userId, String memberId, String projectId) {
+        if (userId.equals(memberId))
             return new ErrorMessage(ResponseMessage.CANNOT_REMOVE_YOURSELF, HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
-        Project project = projectRepository.getProjectById(addSupportMember.getProjectId());
+        Project project = projectRepository.getProjectById(projectId);
         if (project == null)
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!project.getIsSupportEnabled())
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
-        Project_User projectUser = projectRepository.getProjectUser(addSupportMember.getProjectId(), userId);
+        Project_User projectUser = projectRepository.getProjectUser(projectId, userId);
         if (projectUser == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
         if (projectUser.getAssigneeProjectRole() != ProjectRoleEnum.owner.getRoleValue())
             return new ErrorMessage(ResponseMessage.USER_NOT_OWNER, HttpStatus.UNAUTHORIZED);
-        if (userRepository.getUserByUserId(addSupportMember.getMemberId()) == null) //TODO essential
+        if (userRepository.getUserByUserId(memberId) == null) //TODO essential
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        Project_SupportMember supportMember = supportMemberRepository.getSupportMember(addSupportMember.getMemberId(), addSupportMember.getProjectId());
+        Project_SupportMember supportMember = supportMemberRepository.getSupportMember(memberId, projectId);
         if (supportMember == null)
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!supportMember.getIsEnabled())
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_ALREADY_REMOVED, HttpStatus.UNPROCESSABLE_ENTITY);
-        supportMemberRepository.changeStatusOfSupportMember(addSupportMember.getMemberId(), addSupportMember.getProjectId(), false);
+        supportMemberRepository.changeStatusOfSupportMember(memberId, projectId, false);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

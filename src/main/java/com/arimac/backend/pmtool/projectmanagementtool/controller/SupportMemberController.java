@@ -46,9 +46,10 @@ public class SupportMemberController extends ResponseController {
     @ApiOperation(value = "Remove Member from Project", notes = "Remove Member from Project")
     @ApiResponse(code = 200, message = "Success", response = Response.class)
     @DeleteMapping
-    public ResponseEntity<Object> removeSupportMemberFromProject(@Valid @RequestBody AddSupportMember addSupportMember,
-                                                   @RequestHeader("user") String user){
-        logger.info("HIT - DELETE /member ---> removeSupportMemberFromProject | dto: {} | user: {}", addSupportMember, user);
-        return sendResponse(supportMemberService.removeSupportMemberFromProject(user,addSupportMember));
+    public ResponseEntity<Object> removeSupportMemberFromProject(@RequestHeader("user") String user,
+                                                                 @RequestParam("memberId") String memberId,
+                                                                 @RequestParam("projectId") String projectId){
+        logger.info("HIT - DELETE /member ---> removeSupportMemberFromProject | memberId: {} | projectId: {} | user: {}", memberId, projectId, user);
+        return sendResponse(supportMemberService.removeSupportMemberFromProject(user, memberId, projectId));
     }
 }

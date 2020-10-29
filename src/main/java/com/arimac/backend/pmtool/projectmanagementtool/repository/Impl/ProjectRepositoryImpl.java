@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
@@ -557,6 +558,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         } catch (Exception e) {
             throw new PMException(e.getMessage());
         }
+    }
+
+    @Override
+    public HashMap<String, Project> getProjectMapByIds(List<String> projectIds) {
+        String sql = "SELECT * FROM project WHERE project IN (:projectIds)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("projectIds", projectIds);
+//        HashMap<String, ProjectDto>
+        return null;
     }
 
 }
