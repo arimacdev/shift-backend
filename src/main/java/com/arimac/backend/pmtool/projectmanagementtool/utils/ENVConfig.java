@@ -22,6 +22,10 @@ public class ENVConfig {
     public static final String ONE_SIGNAL_TOKEN = System.getenv("ONE_SIGNAL_TOKEN");
     public static final String ONE_SIGNAL_APP_ID = System.getenv("ONE_SIGNAL_APP_ID");
 
+    public static final String SUPPORT_CLIENT_NAME = System.getenv("SUPPORT_CLIENT_NAME");
+    public static final String SUPPORT_CLIENT_SECRET = System.getenv("SUPPORT_CLIENT_SECRET");
+    public static final String SUPPORT_REALM = System.getenv("SUPPORT_REALM");
+
     public static final String ENABLE_SCHEDULER = System.getenv("ENABLE_SCHEDULER");
     public static final String MAX_FILE_SIZE = System.getenv("MAX_FILE_SIZE");
 

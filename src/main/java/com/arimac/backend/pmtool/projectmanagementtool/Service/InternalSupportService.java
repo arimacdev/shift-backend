@@ -10,10 +10,10 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.Updat
 import java.util.List;
 
 public interface InternalSupportService {
-    void createSupportProject(CreateSupportProject createSupportProject);
-    void updateSupportProject(UpdateStatus updateStatus);
-    Object createAdminForSupportProject(String project, AddSupportUserDto addSupportUserDto);
-    SupportUser getSupportUserByEmail(String email);
-    List<SupportUser> getSupportUsersByOrganization(String organization);
-    List<SupportMemberResponse> getSupportUsersByProject(String projectId);
+    void createSupportProject(CreateSupportProject createSupportProject, boolean firstRequest);
+    void updateSupportProject(UpdateStatus updateStatus, boolean firstRequest);
+    Object createAdminForSupportProject(String project, AddSupportUserDto addSupportUserDto, boolean firstRequest);
+    SupportUser getSupportUserByEmail(String email, boolean firstRequest);
+    List<SupportUser> getSupportUsersByOrganization(String organization, boolean firstRequest);
+    List<SupportMemberResponse> getSupportUsersByProject(String projectId, boolean firstRequest);
 }

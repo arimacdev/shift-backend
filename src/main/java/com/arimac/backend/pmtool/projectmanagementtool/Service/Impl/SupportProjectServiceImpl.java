@@ -40,7 +40,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
             return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!organization.isHasSupportProjects())
             return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
-        internalSupportService.createAdminForSupportProject(project, addSupportUserDto);
+        internalSupportService.createAdminForSupportProject(project, addSupportUserDto, true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -49,7 +49,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
-        SupportUser supportUser = internalSupportService.getSupportUserByEmail(email);
+        SupportUser supportUser = internalSupportService.getSupportUserByEmail(email,true);
         return new Response(ResponseMessage.SUCCESS, supportUser );
     }
 
@@ -66,7 +66,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByOrganization(organizationId));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByOrganization(organizationId, true));
     }
 
     @Override
@@ -80,6 +80,6 @@ public class SupportProjectServiceImpl implements SupportProjectService {
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByProject(projectId));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByProject(projectId, true));
     }
 }

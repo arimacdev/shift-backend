@@ -246,7 +246,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectEditDto.getIsSupportEnabled() != null) {
             if (!modifierProject.getIsSupportAdded()) return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
             updatedProject.setIsSupportEnabled(projectEditDto.getIsSupportEnabled());
-            internalSupportService.updateSupportProject(new UpdateStatus(projectId,projectEditDto.getIsSupportEnabled()));
+            internalSupportService.updateSupportProject(new UpdateStatus(projectId,projectEditDto.getIsSupportEnabled()), true);
         }
         else updatedProject.setIsSupportEnabled(modifierProject.getIsSupportEnabled());
         projectRepository.updateProject(updatedProject, projectId);
@@ -415,7 +415,7 @@ public class ProjectServiceImpl implements ProjectService {
         createSupportProject.setOrganizationId(project.getClientId());
         createSupportProject.setCreatedBy(userId);
         try {
-            internalSupportService.createSupportProject(createSupportProject);
+            internalSupportService.createSupportProject(createSupportProject, true);
         } catch (Exception e) {
             projectRepository.addOrRemoveProjectSupport(project.getProjectId(), false);
             organizationRepository.updateOrganizationSupportStatus(project.getClientId(), organization.isHasSupportProjects());
