@@ -138,6 +138,7 @@ public class InternalServiceImpl implements InternalService {
     public Object addUserToAllProjects(String userId) {
         List<Project> projects = projectRepository.getAllProjects();
         int count = 0;
+        int alreadyAdded = 0;
         logger.info("Total Projects {}", projects.size());
         for (Project project : projects) {
             Project_User currentUser = projectRepository.getProjectUser(project.getProjectId(), userId);
@@ -149,8 +150,12 @@ public class InternalServiceImpl implements InternalService {
                 project_user.setAssigneeId(userId);
                 project_user.setProjectId(project.getProjectId());
                 project_user.setIsBlocked(false);
-                projectRepository.assignUserToProject(project.getProjectId(), project_user);
-                count += 1;
+                try {
+                    projectRepository.assignUserToProject(project.getProjectId(), project_user);
+                    count += 1;
+                } catch (Exception e){
+                    logger.info("Already Added {}", alreadyAdded+=1 );
+                }
             }
         }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, count);
