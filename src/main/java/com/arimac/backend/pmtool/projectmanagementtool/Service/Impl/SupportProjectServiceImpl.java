@@ -74,7 +74,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
-        //TODO Verify Support Disabling
+//        TODO Verify Support Disabling
         Project project = projectRepository.getProjectById(projectId);
         if (project == null)
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);

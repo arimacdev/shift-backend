@@ -38,7 +38,7 @@ public class InternalController extends ResponseController {
         return sendResponse(internalService.addUserNameToUsers());
     }
 
-    @GetMapping("add/user/projects")
+    @PostMapping("add/user/projects")
     public ResponseEntity<Object> addUserToAllProjects(@RequestHeader("userId") String userId){
         return sendResponse(internalService.addUserToAllProjects(userId));
     }
