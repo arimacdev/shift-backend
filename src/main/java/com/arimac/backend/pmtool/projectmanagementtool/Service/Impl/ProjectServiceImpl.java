@@ -2,10 +2,13 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.*;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.ProjectUpdateTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectRoleEnum;
@@ -32,24 +35,31 @@ public class ProjectServiceImpl implements ProjectService {
     private static final String OWNER = "Owner";
 
     private final TaskService taskService;
+    private final InternalSupportService internalSupportService;
     private final ActivityLogService activityLogService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final OrganizationRepository organizationRepository;
     private final UtilsService utilsService;
 
-    public ProjectServiceImpl(TaskService taskService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, UtilsService utilsService) {
+    public ProjectServiceImpl(TaskService taskService, InternalSupportService internalSupportService, ActivityLogService activityLogService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, UtilsService utilsService) {
         this.taskService = taskService;
+        this.internalSupportService = internalSupportService;
         this.activityLogService = activityLogService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.organizationRepository = organizationRepository;
         this.utilsService = utilsService;
     }
 
     @Override
     public Object createProject(ProjectDto projectDto) {
-        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty()) || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) )
+        if ( (projectDto.getProjectAlias() == null || projectDto.getProjectAlias().isEmpty())
+                || (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty())
+                || (projectDto.getIsSupportEnabled() && (projectDto.getDomain()== null
+                || projectDto.getDomain().isEmpty())))
             return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         User user = userRepository.getUserByUserId(projectDto.getProjectOwner());
         if (user == null)
@@ -82,6 +92,11 @@ public class ProjectServiceImpl implements ProjectService {
         assignment.setAssigneeProjectRole(ProjectRoleEnum.owner.getRoleValue());
 
         projectRepository.assignUserToProject(projectId,assignment);
+
+//        if (project.getIsSupportEnabled()) {
+//            Project_Keys project_keys = new Project_Keys(projectId, projectDto.getDomain(), utilsService.getUUId(), true);
+//            projectRepository.addProjectKeys(project_keys);
+//        }
 
         return new Response(ResponseMessage.SUCCESS, project);
     }
@@ -228,6 +243,12 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             updatedProject.setProjectAlias(modifierProject.getProjectAlias());
         }
+        if (projectEditDto.getIsSupportEnabled() != null) {
+            if (!modifierProject.getIsSupportAdded()) return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
+            updatedProject.setIsSupportEnabled(projectEditDto.getIsSupportEnabled());
+            internalSupportService.updateSupportProject(new UpdateStatus(projectId,projectEditDto.getIsSupportEnabled()), true);
+        }
+        else updatedProject.setIsSupportEnabled(modifierProject.getIsSupportEnabled());
         projectRepository.updateProject(updatedProject, projectId);
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
@@ -336,6 +357,70 @@ public class ProjectServiceImpl implements ProjectService {
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.REMOVE_USER, projectUserBlockDto.getBlockedUserId(), null));
         else
             activityLogService.addTaskLog(utilsService.addProjectUpdateLog(LogOperationEnum.UPDATE, userId, projectId, ProjectUpdateTypeEnum.ADD_USER, null, projectUserBlockDto.getBlockedUserId()));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object addOrUpdateProjectKeys(String projectId, ProjectKeys projectKeys) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, projectKeys.getAdmin());
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!((project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) ||
+                (project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+            return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(projectId).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (projectKeys.getProjectKey()!= null){
+            Project_Keys project_keys = projectRepository.getProjectKey(projectKeys.getProjectKey());
+            if (project_keys == null)
+                return new ErrorMessage(ResponseMessage.PROJECT_KEY_NOT_FOUND, HttpStatus.NOT_FOUND);
+            projectRepository.updateProjectKeys(projectKeys);
+        } else {
+            projectRepository.addProjectKeys(new Project_Keys(projectId, projectKeys.getDomain(), utilsService.getUUId(), true));
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object getProjectKeys(String projectId, String userId) {
+        Project_User project_user = projectRepository.getProjectUser(projectId, userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!projectRepository.getProjectById(projectId).getIsSupportEnabled())
+            return new ErrorMessage(ResponseMessage.SUPPPORT_SERVICE_NOT_ENABLED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, projectRepository.getProjectKeys(projectId));
+    }
+
+    @Override
+    public Object transitionToSupport(String userId, ProjectSupport projectSupport) {
+        Project_User project_user = projectRepository.getProjectUser(projectSupport.getProjectId(), userId);
+        if (project_user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_MEMBER, HttpStatus.UNAUTHORIZED);
+        if (!((project_user.getAssigneeProjectRole() == ProjectRoleEnum.owner.getRoleValue()) ||
+                (project_user.getAssigneeProjectRole() == ProjectRoleEnum.admin.getRoleValue())))
+            return new ErrorMessage(ResponseMessage.USER_NOT_ADMIN, HttpStatus.UNAUTHORIZED);
+        Project project = projectRepository.getProjectById(projectSupport.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_ALREADY_ADDED, HttpStatus.CONFLICT);
+        Organization organization = organizationRepository.getOrganizationById(project.getClientId());
+        if (organization == null)
+            return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        //TODO Org. Validation
+        projectRepository.addOrRemoveProjectSupport(project.getProjectId(), true);
+        organizationRepository.updateOrganizationSupportStatus(project.getClientId(), true);
+        CreateSupportProject createSupportProject = new CreateSupportProject();
+        createSupportProject.setProjectId(project.getProjectId());
+        createSupportProject.setOrganizationId(project.getClientId());
+        createSupportProject.setCreatedBy(userId);
+        try {
+            internalSupportService.createSupportProject(createSupportProject, true);
+        } catch (Exception e) {
+            projectRepository.addOrRemoveProjectSupport(project.getProjectId(), false);
+            organizationRepository.updateOrganizationSupportStatus(project.getClientId(), organization.isHasSupportProjects());
+            return new ErrorMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

@@ -23,12 +23,14 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
     private String projectAlias;
     private WeightTypeEnum weightMeasure;
     private boolean isPinned;
+    private boolean isSupportEnabled;
+    private boolean isSupportAdded;
 
     public ProjectUserResponseDto() {
     }
 
 
-    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias, WeightTypeEnum weightMeasure, boolean isStarred) {
+    public ProjectUserResponseDto(String projectId, String clientId, String assigneeId, Timestamp assignedAt, String assigneeJobRole, int assigneeProjectRole, String projectName, String projectStatus, Timestamp projectStartDate, Timestamp projectEndDate, boolean isDeleted, boolean blockedStatus, String projectAlias, WeightTypeEnum weightMeasure, boolean isStarred, boolean isSupportEnabled, boolean isSupportAdded) {
         this.projectId = projectId;
         this.clientId = clientId;
         this.assigneeId = assigneeId;
@@ -44,6 +46,8 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         this.projectAlias = projectAlias;
         this.weightMeasure = weightMeasure;
         this.isPinned = isStarred;
+        this.isSupportEnabled = isSupportEnabled;
+        this.isSupportAdded = isSupportAdded;
     }
 
     public String getAssigneeJobRole() {
@@ -170,6 +174,22 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
         isPinned = starred;
     }
 
+    public boolean getIsSupportEnabled() {
+        return isSupportEnabled;
+    }
+
+    public void setIsSupportEnabled(boolean supportEnabled) {
+        isSupportEnabled = supportEnabled;
+    }
+
+    public boolean getIsSupportAdded() {
+        return isSupportAdded;
+    }
+
+    public void setIsSupportAdded(boolean supportAdded) {
+        isSupportAdded = supportAdded;
+    }
+
     @Override
     public ProjectUserResponseDto mapRow(ResultSet resultSet, int i) throws SQLException {
         return new ProjectUserResponseDto(
@@ -187,7 +207,9 @@ public class ProjectUserResponseDto implements RowMapper<ProjectUserResponseDto>
                 resultSet.getBoolean("blockedStatus"),
                 resultSet.getString("projectAlias"),
                 getWeightMeasureOf(resultSet.getInt("weightMeasure")),
-                resultSet.getBoolean("isPinned"));
+                resultSet.getBoolean("isPinned"),
+                resultSet.getBoolean("isSupportEnabled"),
+                resultSet.getBoolean("isSupportAdded"));
     }
 
     @Override

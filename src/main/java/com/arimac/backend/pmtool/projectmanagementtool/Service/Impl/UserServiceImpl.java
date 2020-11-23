@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.IdpUserService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.UserService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserActiveStatusDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -15,6 +16,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +163,28 @@ public class UserServiceImpl implements UserService {
         userResponseDto.setIsActive(user.getIsActive());
 
         return new Response(ResponseMessage.SUCCESS, userResponseDto);
+    }
+
+    @Override
+    public Object getUsersByRole(String userId, String roleId) {
+        User user = userRepository.getUserByUserId(userId);
+        if (user == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        JSONArray userList = idpUserService.getUsersByRole(roleId, true);
+        List<UserDto> UsersInRole = new ArrayList<>();
+        for (int i=0; i<userList.length(); i++){
+            JSONObject JsonUser = userList.getJSONObject(i);
+            User internalUser = userRepository.getUserByIdpUserId(JsonUser.getString("id"));
+            if (internalUser != null) {
+                UserDto userDto = new UserDto();
+                userDto.setUserId(internalUser.getUserId());
+                userDto.setFirstName(internalUser.getFirstName());
+                userDto.setLastName(internalUser.getLastName());
+                userDto.setProfileImage(internalUser.getProfileImage());
+                UsersInRole.add(userDto);
+            }
+        }
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, UsersInRole);
     }
 
     @Override

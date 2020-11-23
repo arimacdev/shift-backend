@@ -100,7 +100,7 @@ public class ActivityLogRepositoryImpl implements ActivityLogRepository {
             if (from.equals(ALL) && to.equals(ALL)){
                 sql = "SELECT " + dateFormat +  "as Date, COUNT(entityId) as taskCount " +
                         "FROM ActivityLog WHERE entityType = 'Task' AND operation = 'UPDATE' AND updatedvalue = 'closed' AND isDeleted=false" +
-                        "GROUP BY " + dateFormat;
+                        " GROUP BY " + dateFormat;
                 return jdbcTemplate.query(sql, (ResultSet rs) -> {
                     HashMap<String,Integer> dateCountMap = new HashMap<>();
                     while (rs.next()) {

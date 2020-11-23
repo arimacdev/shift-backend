@@ -192,6 +192,8 @@ public class FileUploadServiceImpl implements FileUploadService {
     public Object uploadProfilePicture(String userId, FileUploadEnum fileType, MultipartFile multipartFile) {
         if (checkFileSize(multipartFile))
             return new ErrorMessage(ResponseMessage.FILE_SIZE_TOO_LARGE, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (userRepository.getUserByUserId(userId) == null)
+            return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
         String url = fileQueue(multipartFile, fileType);
         userRepository.updateProfilePicture(userId, url);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, url);

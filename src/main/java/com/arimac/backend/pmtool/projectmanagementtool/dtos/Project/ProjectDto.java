@@ -14,6 +14,9 @@ public class ProjectDto {
     private Timestamp projectEndDate;
     @NotNull
     private WeightTypeEnum weightType;
+    @NotNull
+    private boolean isSupportEnabled;
+    private String domain;
 
     public ProjectDto() {
     }
@@ -75,6 +78,22 @@ public class ProjectDto {
         this.weightType = weightType;
     }
 
+    public boolean getIsSupportEnabled() {
+        return isSupportEnabled;
+    }
+
+    public void setIsSupportEnabled(boolean supportEnabled) {
+        isSupportEnabled = supportEnabled;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
     @Override
     public String toString() {
         return "ProjectDto{" +
@@ -85,6 +104,7 @@ public class ProjectDto {
                 ", projectStartDate=" + projectStartDate +
                 ", projectEndDate=" + projectEndDate +
                 ", weightType=" + weightType +
+                ", isSupportEnabled=" + isSupportEnabled +
                 '}';
     }
 }
