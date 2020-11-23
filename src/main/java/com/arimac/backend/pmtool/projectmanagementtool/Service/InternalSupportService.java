@@ -16,4 +16,5 @@ public interface InternalSupportService {
     SupportUser getSupportUserByEmail(String email, boolean firstRequest);
     List<SupportUser> getSupportUsersByOrganization(String organization, boolean firstRequest);
     List<SupportMemberResponse> getSupportUsersByProject(String projectId, boolean firstRequest);
+    Object getSupportTicketStatusByProject(String projectId, boolean firstRequest);
 }

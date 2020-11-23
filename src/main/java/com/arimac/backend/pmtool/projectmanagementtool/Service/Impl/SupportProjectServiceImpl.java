@@ -12,6 +12,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.OrganizationRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.SupportMemberRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,14 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final OrganizationRepository organizationRepository;
+    private final SupportMemberRepository supportMemberRepository;
     private final InternalSupportService internalSupportService;
 
-    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, OrganizationRepository organizationRepository, InternalSupportService internalSupportService) {
+    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.organizationRepository = organizationRepository;
+        this.supportMemberRepository = supportMemberRepository;
         this.internalSupportService = internalSupportService;
     }
 
@@ -81,5 +84,16 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         if (!project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportUsersByProject(projectId, true));
+    }
+
+    @Override
+    public Object getSupportTicketStatusByProject(String userId, String projectId) {
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        Object  ticketStatus = internalSupportService.getSupportTicketStatusByProject(projectId, true);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

@@ -195,6 +195,11 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         }
     }
 
+    @Override
+    public Object getSupportTicketStatusByProject(String projectId, boolean firstRequest) {
+        return null;
+    }
+
     private void getClientAccessToken(){
         HttpHeaders httpHeaders = getHeader();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

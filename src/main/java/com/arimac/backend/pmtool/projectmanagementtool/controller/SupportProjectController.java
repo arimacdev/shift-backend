@@ -71,4 +71,13 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportUsersByProject(user, projectId));
     }
 
+    @ApiOperation(value = "Get Support Tickets of a Project", notes = "Get Support Tickets of a Project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/project/{projectId}/status")
+    public ResponseEntity<Object> getSupportTicketStatusByProject(@RequestHeader("user") String user,
+                                                             @PathVariable("projectId") String projectId){
+        logger.info("GET - support/ticket/project/<projectId>/status---> getSupportTicketStatusByProject | User: {} | project: {}", user, projectId);
+        return sendResponse(supportProjectService.getSupportTicketStatusByProject(user, projectId));
+    }
+
 }
