@@ -38,7 +38,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         User user = userRepository.getUserByUserId(userId);
         if (user == null)
             return new ErrorMessage(ResponseMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
-        Organization organization = organizationRepository.getOrganizationById(addSupportUserDto.getClientId());
+        Organization organization = organizationRepository.getOrganizationById(addSupportUserDto.getOrganizationId());
         if (organization == null)
             return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!organization.isHasSupportProjects())
