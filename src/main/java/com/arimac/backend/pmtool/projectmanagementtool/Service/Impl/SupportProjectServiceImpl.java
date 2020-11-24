@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportSe
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Organization;
@@ -93,7 +94,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
             return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
         if (!project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
-        Object  ticketStatus = internalSupportService.getSupportTicketStatusByProject(projectId, true);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        ServiceTicketStatus ticketStatus = internalSupportService.getSupportTicketStatusByProject(userId, projectId, true);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, ticketStatus);
     }
 }

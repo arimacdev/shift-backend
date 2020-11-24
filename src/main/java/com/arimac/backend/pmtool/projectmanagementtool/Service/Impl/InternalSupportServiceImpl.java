@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportM
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
@@ -196,8 +197,31 @@ public class InternalSupportServiceImpl implements InternalSupportService {
     }
 
     @Override
-    public Object getSupportTicketStatusByProject(String projectId, boolean firstRequest) {
-        return null;
+    public ServiceTicketStatus getSupportTicketStatusByProject(String userId, String projectId, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("userId", userId);
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/project/" + projectId + "/status", HttpMethod.GET, httpEntity, String.class).getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), ServiceTicketStatus.class);
+        }
+        catch(HttpClientErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getSupportTicketStatusByProject(userId, projectId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     private void getClientAccessToken(){

@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportM
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
 
 
@@ -16,5 +17,5 @@ public interface InternalSupportService {
     SupportUser getSupportUserByEmail(String email, boolean firstRequest);
     List<SupportUser> getSupportUsersByOrganization(String organization, boolean firstRequest);
     List<SupportMemberResponse> getSupportUsersByProject(String projectId, boolean firstRequest);
-    Object getSupportTicketStatusByProject(String projectId, boolean firstRequest);
+    ServiceTicketStatus getSupportTicketStatusByProject(String userId, String projectId, boolean firstRequest);
 }
