@@ -4,8 +4,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.Pr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectNumberDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectStatusCountDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.Project.ProjectSummaryDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Internal.Support.ProjectDetails;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectPinUnPin;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportProjectResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ProjectSummaryTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
@@ -13,6 +18,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.enumz.ProjectStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.WeightTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_User;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -46,7 +52,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public Project createProject(Project project) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount, weightMeasure) values (?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO project(project, projectName, projectAlias, clientId, projectStartDate, projectEndDate, projectStatus, isDeleted, issueCount, weightMeasure, isSupportEnabled, isSupportAdded) values (?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, project.getProjectId());
             preparedStatement.setString(2, project.getProjectName());
             preparedStatement.setString(3, project.getProjectAlias());
@@ -57,6 +63,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
             preparedStatement.setBoolean(8, project.getIsDeleted());
             preparedStatement.setInt(9, project.getIssueCount());
             preparedStatement.setInt(10, project.getWeightMeasure());
+            preparedStatement.setBoolean(11,false);
+            preparedStatement.setBoolean(12,false);
 
             return preparedStatement;
         });
@@ -66,7 +74,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public Project getProjectById(String projectId) {
-        String sql = "SELECT * FROM project WHERE project=?";
+        String sql = "SELECT * FROM project WHERE project=? AND isDeleted=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Project(), projectId);
         } catch (EmptyResultDataAccessException e){
@@ -152,14 +160,15 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     public void updateProject(Project project, String projectId) {
         logger.info("step 03 {}", project);
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=? WHERE project=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE project SET projectName=?, clientId=?,  projectStartDate=?, projectEndDate=?, projectStatus=?, projectAlias=?, isSupportEnabled=? WHERE project=?");
             preparedStatement.setString(1, project.getProjectName());
             preparedStatement.setString(2, project.getClientId());
             preparedStatement.setTimestamp(3,  new java.sql.Timestamp(project.getProjectStartDate().getTime()));
             preparedStatement.setTimestamp(4, new java.sql.Timestamp(project.getProjectEndDate().getTime()));
             preparedStatement.setString(5, project.getProjectStatus().toString());
             preparedStatement.setString(6, project.getProjectAlias());
-            preparedStatement.setString(7, projectId);
+            preparedStatement.setString(8, projectId);
+            preparedStatement.setBoolean(7, project.getIsSupportEnabled());
 
             return preparedStatement;
         });
@@ -282,6 +291,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         projectUserResponseDto.setIsStarred(resultSet.getBoolean("isPinned"));
         projectUserResponseDto.setProjectAlias(resultSet.getString("projectAlias"));
         projectUserResponseDto.setWeightMeasure(getWeightMeasure(resultSet.getInt("weightMeasure")));
+        projectUserResponseDto.setIsSupportAdded(resultSet.getBoolean("isSupportAdded"));
+        projectUserResponseDto.setIsSupportEnabled(resultSet.getBoolean("isSupportEnabled"));
         return projectUserResponseDto;
     };
 
@@ -471,8 +482,112 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         }
     }
 
+    @Override
+    public void addProjectKeys(Project_Keys project_keys) {
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Project_Keys(projectId, domain, projectKey, isValid) VALUES(?,?,?,?)");
+                preparedStatement.setString(1,project_keys.getProjectId());
+                preparedStatement.setString(2, project_keys.getDomain());
+                preparedStatement.setString(3, project_keys.getProjectKey());
+                preparedStatement.setBoolean(4, project_keys.getIsValid());
+                return preparedStatement;
+            });
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
 
+    @Override
+    public Project_Keys getProjectKey(String projectKey) {
+        String sql = "SELECT * FROM Project_Keys WHERE projectKey=? AND isValid=true";
 
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project_Keys(), projectKey);
+        }
+        catch (EmptyResultDataAccessException e){
+            return null;
+        }
+        catch (Exception e){
+            throw  new PMException(e.getMessage());
+        }
+    }
 
+    @Override
+    public Project_Keys getProjectKeyByDomain(String projectKey, String domain) {
+        String sql = "SELECT * FROM Project_Keys WHERE projectKey=? AND domain=? AND isValid=true";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Project_Keys(), projectKey, domain);
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateProjectKeys(ProjectKeys project_keys) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Project_Keys SET domain=?, isValid=? WHERE projectKey=?");
+            preparedStatement.setString(1,project_keys.getDomain());
+            preparedStatement.setBoolean(2, project_keys.getValid());
+            preparedStatement.setString(3, project_keys.getProjectKey());
+
+            return preparedStatement;
+        });
+    }
+
+    @Override
+    public List<Project_Keys> getProjectKeys(String projectId) {
+        String sql = "SELECT * FROM Project_Keys as PK INNER JOIN project as P ON P.project = PK.projectId WHERE projectId=?";
+        try {
+            return jdbcTemplate.query(sql, new Project_Keys(), projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void addOrRemoveProjectSupport(String projectId, boolean status) {
+        String sql = "UPDATE project SET isSupportAdded=?, isSupportEnabled=? WHERE project=?";
+        try {
+            jdbcTemplate.update(sql, status, status,projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SupportProjectResponse> getSupportProjects() {
+        String sql = "SELECT * FROM project WHERE isSupportAdded=true AND isDeleted=false";
+        try {
+            return jdbcTemplate.query(sql, new SupportProjectResponse());
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public HashMap<String, ProjectDetails> getProjectMapByIds(List<String> projectIds) {
+        String sql = "SELECT project,projectName,projectAlias FROM project WHERE project IN (:projectIds) AND isDeleted=false AND isSupportEnabled=true";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("projectIds", projectIds);
+        HashMap<String, ProjectDetails> projectMap = new HashMap<>();
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameters, (ResultSet rs) -> {
+                while (rs.next()) {
+                    if (!projectMap.containsKey(rs.getString("project"))) {
+                        ProjectDetails project = new ProjectDetails();
+                        project.setProjectName(rs.getString("projectName"));
+                        project.setProjectAlias(rs.getString("projectAlias"));
+                        projectMap.put(rs.getString("project"), project);
+                    }
+                }
+                return projectMap;
+            });
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
 }

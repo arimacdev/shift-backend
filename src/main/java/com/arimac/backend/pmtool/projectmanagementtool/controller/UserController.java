@@ -121,4 +121,13 @@ public class UserController extends ResponseController {
         return sendResponse(userService.deactivateUser(userActiveStatusDto));
     }
 
+    @ApiOperation(value = "Get users by role", notes = "Get users by role")
+    @ApiResponse(code = 200, message = "Success", response = User.class)
+    @GetMapping("role/{roleId}")
+    public ResponseEntity<Object> getUsersByRole(@PathVariable("roleId") String roleId,
+                                                 @RequestHeader("user") String userId){
+        logger.info("HIT - GET /users/role/<roleId> ---> getUsersByRole | userId: {} | role: {}",userId,roleId);
+        return sendResponse(userService.getUsersByRole(userId, roleId));
+    }
+
 }

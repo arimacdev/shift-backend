@@ -5,6 +5,9 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/internal/")
 public class InternalController extends ResponseController {
@@ -35,9 +38,29 @@ public class InternalController extends ResponseController {
         return sendResponse(internalService.addUserNameToUsers());
     }
 
-    @GetMapping("add/user/projects")
+    @PostMapping("add/user/projects")
     public ResponseEntity<Object> addUserToAllProjects(@RequestHeader("userId") String userId){
         return sendResponse(internalService.addUserToAllProjects(userId));
+    }
+    @GetMapping("projects")
+    public ResponseEntity<Object> getAllOrganizationProjects(@RequestHeader("userId") String userId){
+        return sendResponse(internalService.addUserToAllProjects(userId));
+    }
+    @GetMapping("project/{projectId}")
+    public ResponseEntity<Object> getProjectById(@PathVariable("projectId") String projectId){
+        return sendResponse(internalService.getProjectById(projectId));
+    }
+    @PostMapping("user")
+    public ResponseEntity<Object> getUsersByIds(@RequestBody Set<String> users){
+        return sendResponse(internalService.getUsersByIds(users));
+    }
+    @GetMapping("organization/{organizationId}")
+    public ResponseEntity<Object> getOrganizationById(@PathVariable("organizationId")String organizationId){
+        return sendResponse(internalService.getOrganizationById(organizationId));
+    }
+    @PostMapping("projects")
+    public ResponseEntity<Object> getProjectMapByIds(@RequestBody List<String> projectIds){
+        return sendResponse(internalService.getProjectMapByIds(projectIds));
     }
 
 }

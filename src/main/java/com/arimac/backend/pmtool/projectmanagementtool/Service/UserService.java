@@ -10,6 +10,7 @@ public interface UserService {
     Object createFirstUser(UserRegistrationDto userRegistrationDto);
     Object getAllUsers();
     Object getUserByUserId(String userId);
+    Object getUsersByRole(String userId, String roleId);
     Object updateUserByUserId(String userId, UserUpdateDto userUpdateDto);
     Object getAllProjectUsers(String projectId);
     Object getAllBlockedProjectUsers(String projectId);

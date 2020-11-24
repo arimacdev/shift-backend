@@ -16,15 +16,15 @@ public class UpdateMeeting {
     private Long expectedDuration;
     @Min(value = 0L, message = "Actual duration must be positive")
     private Long actualDuration;
-    @NotNull
+//    @NotNull
     private MeetingUpdateUser meetingChaired;
-    @NotNull
+//    @NotNull
     private MeetingUpdateUser meetingAttended;
-    @NotNull
+//    @NotNull
     private MeetingUpdateUser meetingAbsent;
-    @NotNull
+//    @NotNull
     private MeetingUpdateUser meetingCopiesTo;
-    @NotNull
+//    @NotNull
     private MeetingUpdateUser meetingPrepared;
 
     public String getProjectId() {

@@ -6,12 +6,14 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Analytics.User.UserN
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project_UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SlackNotificationDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.TaskGroup.UserTaskGroupDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.User.UserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserProjectDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.UserUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.ChartCriteriaEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.AnalyticsEnum.UserDetailsEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.FilterOrderEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskFile;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -289,6 +291,32 @@ public class UserRepositoryImpl implements UserRepository {
             return preparedStatement;
         });
 
+    }
+
+    @Override
+    public HashMap<String, UserDto> getUsersByIds(Set<String> userList) {
+        String sql = "SELECT * FROM User WHERE userId IN (:userIds)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("userIds", userList);
+        HashMap<String, UserDto> userHashMap = new HashMap<>();
+        try {
+            return namedParameterJdbcTemplate.query(sql, parameters , (ResultSet rs) -> {
+                while (rs.next()) {
+                    if (!userHashMap.containsKey(rs.getString("userId"))) {
+                        UserDto user = new UserDto();
+                        user.setUserId(rs.getString("userId"));
+                        user.setFirstName(rs.getString("firstName"));
+                        user.setLastName(rs.getString("lastName"));
+                        user.setProfileImage(rs.getString("profileImage"));
+                        userHashMap.put(rs.getString("userId"), user);
+                    }
+                }
+                return userHashMap;
+            });
+
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
 }

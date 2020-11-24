@@ -21,6 +21,8 @@ public enum ResponseMessage {
     ASSIGNER_NOT_MEMBER("Assigner doesn't belong to the project"),
     ASSIGNEE_NOT_MEMBER("Assignee doesn't belong to the project"),
     USER_NOT_MEMBER("User doesn't belong to the project"),
+    USER_NOT_ADMIN("User is not an Admin of this project"),
+    USER_NOT_OWNER("User is not an Owner of this project"),
     USER_NOT_GROUP_MEMBER("User doesn't belong to this Group"),
     USER_NOT_FOUND("User doesn't exist"),
     ALREADY_DEACTIVATED("User Already Deactivated"),
@@ -58,10 +60,22 @@ public enum ResponseMessage {
     PARENT_FOLDER_NOT_EXISTS("Parent Folder doesn't exist"),
     DISCUSSION_NOT_FOUND("Discussion Not Found"),
     MEETING_NOT_FOUND("Meeting Not Found"),
-    ALREADY_PINNED("You have already Pinned/Unpinned this project");
+    ALREADY_PINNED("You have already Pinned/Unpinned this project"),
+    SUPPPORT_SERVICE_NOT_ENABLED("Support Service not enabled for this project"),
+    INVALID_KEY_COMBINAITON("Invalid Email and Project Key combination"),
+    ORGANIZATION_NOT_FOUND("Organization Not Found"),
+    PROJECT_SUPPORT_NOT_ADDED("Project Support Not Added"),
+    PROJECT_SUPPORT_ALREADY_ADDED("Project Support Already Added"),
+    PROJECT_KEY_NOT_FOUND("Project Key Not Found"),
+    //Support Member
+    SUPPORT_MEMBER_NOT_FOUND("Support Member doesn't exist"),
+    SUPPORT_MEMBER_ALREADY_ASSIGNED("Support Member Already Assigned"),
+    SUPPORT_MEMBER_ALREADY_REMOVED("Support Member Already Removed"),
+    CANNOT_REMOVE_YOURSELF("You cannot remove yourself")
+    ;
 
 
-    private String message;
+    private final String message;
     ResponseMessage(String message){
         this.message = message;
     }
