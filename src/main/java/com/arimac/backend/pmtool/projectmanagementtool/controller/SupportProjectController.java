@@ -57,7 +57,7 @@ public class SupportProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/user/organization/{organizationId}")
     public ResponseEntity<Object> getSupportUsersByOrganization(@RequestHeader("user") String user,
-                                                             @PathVariable("organizationId") String organizationId){
+                                                                @PathVariable("organizationId") String organizationId){
         logger.info("GET - support/user/organization/<Org.Id>---> getSupportUsersByOrganization | User: {} || Org. Id {} ", user, organizationId);
         return sendResponse(supportProjectService.getSupportUsersByOrganization(user, organizationId));
     }
