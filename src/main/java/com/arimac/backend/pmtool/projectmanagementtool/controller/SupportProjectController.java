@@ -71,13 +71,24 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportUsersByProject(user, projectId));
     }
 
-    @ApiOperation(value = "Get Support Tickets of a Project", notes = "Get Support Tickets of a Project")
+    @ApiOperation(value = "Get Support Ticket status of a Project", notes = "Get Support Ticket status of a Project")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/ticket/project/{projectId}/status")
     public ResponseEntity<Object> getSupportTicketStatusByProject(@RequestHeader("user") String user,
-                                                             @PathVariable("projectId") String projectId){
+                                                                  @PathVariable("projectId") String projectId){
         logger.info("GET - support/ticket/project/<projectId>/status---> getSupportTicketStatusByProject | User: {} | project: {}", user, projectId);
         return sendResponse(supportProjectService.getSupportTicketStatusByProject(user, projectId));
+    }
+
+    @ApiOperation(value = "Get Support Tickets of a project", notes = "Get Support Tickets of a project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/project/{projectId}")
+    public ResponseEntity<Object> getSupportTicketsByProject(@RequestHeader("user") String user,
+                                                             @PathVariable("projectId") String projectId,
+                                                             @RequestParam("startIndex") int startIndex,
+                                                             @RequestParam("endIndex") int endIndex){
+        logger.info("GET - support/ticket/project/<projectId>---> getSupportTicketsByProject | User: {} | project: {} | startIndex : {}, endIndex: {}", user, projectId, startIndex, endIndex);
+        return sendResponse(supportProjectService.getSupportTicketsByProject(user, projectId, startIndex, endIndex));
     }
 
 }

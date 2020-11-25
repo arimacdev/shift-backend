@@ -97,4 +97,28 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         ServiceTicketStatus ticketStatus = internalSupportService.getSupportTicketStatusByProject(userId, projectId, true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, ticketStatus);
     }
+
+    @Override
+    public Object getSupportTicketsByProject(String userId, String projectId,  int startIndex, int endIndex) {
+        int limit = endIndex - startIndex;
+        if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
+            return new ErrorMessage("Invalid Start/End Index", HttpStatus.BAD_REQUEST);
+        if (limit > 10)
+            return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        Object projectStatus = checkProjectStatus(projectId);
+        if (checkProjectStatus(projectId) instanceof ErrorMessage)
+            return projectStatus;
+        Object tickets = internalSupportService.getSupportTicketsByProject(projectId, startIndex, limit, true);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, tickets);
+    }
+
+    private Object checkProjectStatus(String projectId){
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        return true;
+    }
+
 }

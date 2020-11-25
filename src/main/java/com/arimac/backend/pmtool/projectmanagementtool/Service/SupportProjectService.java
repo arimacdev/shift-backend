@@ -10,4 +10,5 @@ public interface SupportProjectService {
     Object getSupportUsersByOrganization(String userId, String organizationId);
     Object getSupportUsersByProject(String userId, String projectId);
     Object getSupportTicketStatusByProject(String userId, String projectId);
+    Object getSupportTicketsByProject(String userId, String projectId, int startIndex, int endIndex);
 }
