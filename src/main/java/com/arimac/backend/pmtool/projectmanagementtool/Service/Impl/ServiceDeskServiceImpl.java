@@ -6,7 +6,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectKeys;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddTicket;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.RequestKey;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.TicketStatusEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.ServiceTicketStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project_Keys;
@@ -62,7 +62,7 @@ public class ServiceDeskServiceImpl implements ServiceDeskService {
         serviceTicket.setDescription(addTicket.getIssueTopic());
         serviceTicket.setProjectId(project_keys.getProjectId());
         serviceTicket.setReporter(addTicket.getEmail());
-        serviceTicket.setTicketStatus(TicketStatusEnum.PENDING.getStatusId());
+        serviceTicket.setTicketStatus(ServiceTicketStatusEnum.PENDING.getStatusId());
         serviceTicket.setSeverity(addTicket.getSeverity());
         serviceTicket.setTicketCreation(utilsService.getCurrentTimestamp());
 

@@ -22,7 +22,7 @@ public class SupportMemberRepositoryImpl implements SupportMemberRepository {
 
     @Override
     public Project_SupportMember getSupportMember(String memberId, String projectId) {
-        String sql = "SELECT * FROM Project_SupportMember WHERE projectId=? AND assigneeId=?";
+        String sql = "SELECT * FROM Project_SupportMember WHERE projectId=? AND assigneeId=? AND isEnabled=false";
         try {
             return jdbcTemplate.queryForObject(sql, new Project_SupportMember(), projectId, memberId);
         } catch (EmptyResultDataAccessException e){

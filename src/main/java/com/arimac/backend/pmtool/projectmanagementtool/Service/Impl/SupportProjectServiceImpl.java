@@ -6,10 +6,12 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectSer
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketStatus;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Organization;
 import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
+import com.arimac.backend.pmtool.projectmanagementtool.model.Project_SupportMember;
 import com.arimac.backend.pmtool.projectmanagementtool.model.User;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.OrganizationRepository;
 import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
@@ -106,10 +108,24 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         if (limit > 10)
             return new ErrorMessage(ResponseMessage.REQUEST_ITEM_LIMIT_EXCEEDED, HttpStatus.UNPROCESSABLE_ENTITY);
         Object projectStatus = checkProjectStatus(projectId);
-        if (checkProjectStatus(projectId) instanceof ErrorMessage)
+        if (projectStatus instanceof ErrorMessage)
             return projectStatus;
         Object tickets = internalSupportService.getSupportTicketsByProject(projectId, startIndex, limit, true);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, tickets);
+    }
+
+    @Override
+    public Object supportTicketInternalUpdate(String user, String ticketId, ServiceTicketUpdate serviceTicketUpdate) {
+        if (serviceTicketUpdate.getServiceLevel() == null && serviceTicketUpdate.getTicketStatus() == null)
+            return new ErrorMessage(ResponseMessage.INVALID_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        Object projectStatus = checkProjectStatus(serviceTicketUpdate.getProjectId());
+        if (projectStatus instanceof ErrorMessage)
+            return projectStatus;
+        Project_SupportMember member  = supportMemberRepository.getSupportMember(user, serviceTicketUpdate.getProjectId());
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        internalSupportService.supportTicketInternalUpdate(ticketId, serviceTicketUpdate, false);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     private Object checkProjectStatus(String projectId){

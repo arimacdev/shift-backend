@@ -5,6 +5,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseControll
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportProject;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -90,5 +91,16 @@ public class SupportProjectController extends ResponseController {
         logger.info("GET - support/ticket/project/<projectId>---> getSupportTicketsByProject | User: {} | project: {} | startIndex : {}, endIndex: {}", user, projectId, startIndex, endIndex);
         return sendResponse(supportProjectService.getSupportTicketsByProject(user, projectId, startIndex, endIndex));
     }
+
+    @ApiOperation(value = "Update Support Ticket of a Project", notes = "Update Support Ticket of a Project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PutMapping("/ticket/{ticketId}")
+    public ResponseEntity<Object> supportTicketInternalUpdate(@PathVariable("ticketId") String ticketId,
+                                                              @Valid @RequestBody ServiceTicketUpdate ticketUpdateDto,
+                                                              @RequestHeader("user") String user){
+        logger.info("PUT -/ticket/<ticketId>---> supportTicketInternalUpdate | user : {}ticketId: {} | ticketUpdateDto: {}", user, ticketId, ticketUpdateDto);
+        return sendResponse(supportProjectService.supportTicketInternalUpdate(user, ticketId, ticketUpdateDto));
+    }
+
 
 }

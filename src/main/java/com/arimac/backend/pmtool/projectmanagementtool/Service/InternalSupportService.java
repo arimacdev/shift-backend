@@ -16,4 +16,5 @@ public interface InternalSupportService {
     List<SupportMemberResponse> getSupportUsersByProject(String projectId, boolean firstRequest);
     ServiceTicketStatus getSupportTicketStatusByProject(String userId, String projectId, boolean firstRequest);
     List<ServiceTicketUser> getSupportTicketsByProject(String projectId, int startIndex, int limit, boolean firstRequest);
+    void supportTicketInternalUpdate(String ticketId, ServiceTicketUpdate serviceTicketUpdate, boolean firstRequest);
 }

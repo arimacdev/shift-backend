@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportSe
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportMemberResponse;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.*;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -242,6 +243,38 @@ public class InternalSupportServiceImpl implements InternalSupportService {
                 return getSupportTicketsByProject(projectId, startIndex, limit, false);
             }
             throw new PMException(e.getResponseBodyAsString());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void supportTicketInternalUpdate(String ticketId, ServiceTicketUpdate serviceTicketUpdate, boolean firstRequest)  {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(serviceTicketUpdate, httpHeaders);
+            String ticketStatus =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/" + ticketId , HttpMethod.PUT, httpEntity, String.class).getBody();
+        }
+        catch(HttpClientErrorException e) {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//            try {
+//                PMException exp = objectMapper.readValue(new JSONObject(e).toString(), PMException.class);
+//                throw new PMException(exp.getMessage());
+//            } catch (Exception e1){
+//
+//            }
+//            String response = e.getResponseBodyAsString();
+//            logger.error("Error response | Status/ : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                supportTicketInternalUpdate(ticketId, serviceTicketUpdate, false);
+            }
+            throw new PMException(e.getMessage());
         }
         catch (Exception e){
             throw new PMException(e.getMessage());
