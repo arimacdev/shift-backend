@@ -3,37 +3,43 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddServiceTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Organization;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project;
-import com.arimac.backend.pmtool.projectmanagementtool.model.Project_SupportMember;
-import com.arimac.backend.pmtool.projectmanagementtool.model.User;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.OrganizationRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.ProjectRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.SupportMemberRepository;
-import com.arimac.backend.pmtool.projectmanagementtool.repository.UserRepository;
+import com.arimac.backend.pmtool.projectmanagementtool.model.*;
+import com.arimac.backend.pmtool.projectmanagementtool.repository.*;
+import com.arimac.backend.pmtool.projectmanagementtool.utils.UtilsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class SupportProjectServiceImpl implements SupportProjectService {
+    private static final String DEFAULT = "default";
+
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
     private final OrganizationRepository organizationRepository;
     private final SupportMemberRepository supportMemberRepository;
     private final InternalSupportService internalSupportService;
+    private final UtilsService utilsService;
 
-    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService) {
+    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService, UtilsService utilsService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
+        this.taskRepository = taskRepository;
         this.organizationRepository = organizationRepository;
         this.supportMemberRepository = supportMemberRepository;
         this.internalSupportService = internalSupportService;
+        this.utilsService = utilsService;
     }
 
     @Override
@@ -125,6 +131,47 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         if (member == null)
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         internalSupportService.supportTicketInternalUpdate(ticketId, serviceTicketUpdate, false);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @Override
+    public Object createTaskFromServiceTicket(String user, String ticketId, AddServiceTask addServiceTask) {
+        //TODO Check User Role
+        Project_SupportMember member = supportMemberRepository.getSupportMember(user, addServiceTask.getProjectId());
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        Project project = projectRepository.getProjectById(addServiceTask.getProjectId());
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        Task task = new Task();
+        task.setTaskId(utilsService.getUUId());
+        task.setProjectId(addServiceTask.getProjectId());
+        if (addServiceTask.getParentTask() != null){
+            Task parent = taskRepository.getTaskByProjectIdTaskId(addServiceTask.getProjectId(), addServiceTask.getParentTask());
+            if (parent == null)
+                return new ErrorMessage(ResponseMessage.PARENT_TASK_NOT_FOUND, HttpStatus.NOT_FOUND);
+            if (parent.getTaskStatus() == TaskStatusEnum.closed)
+                return new ErrorMessage(ResponseMessage.PARENT_TASK_CLOSED, HttpStatus.UNPROCESSABLE_ENTITY);
+            task.setIsParent(false);
+            task.setParentId(addServiceTask.getParentTask());
+            task.setSprintId(parent.getSprintId());
+        } else {
+            task.setIsParent(true);
+            task.setSprintId(DEFAULT);
+        }
+        task.setEstimatedWeight(new BigDecimal("0.00"));
+        task.setTaskCreatedAt(utilsService.getCurrentTimestamp());
+        task.setSecondaryTaskId(project.getProjectAlias() + "-" + project.getIssueCount() + 1);
+        task.setTaskName(addServiceTask.getIssueTopic());
+        task.setTaskNote(addServiceTask.getIssueDescription());
+        task.setTaskAssignee(user);
+        task.setTaskInitiator(user);
+        task.setIssueType(IssueTypeEnum.support);
+        task.setTaskStatus(TaskStatusEnum.open);
+        taskRepository.addTaskToProject(task);
+
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

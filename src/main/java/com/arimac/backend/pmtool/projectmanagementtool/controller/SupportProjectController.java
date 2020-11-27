@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddServiceTask;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportProject;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
@@ -100,6 +101,16 @@ public class SupportProjectController extends ResponseController {
                                                               @RequestHeader("user") String user){
         logger.info("PUT -/ticket/<ticketId>---> supportTicketInternalUpdate | user : {}ticketId: {} | ticketUpdateDto: {}", user, ticketId, ticketUpdateDto);
         return sendResponse(supportProjectService.supportTicketInternalUpdate(user, ticketId, ticketUpdateDto));
+    }
+
+    @ApiOperation(value = "Update Support Ticket of a Project", notes = "Update Support Ticket of a Project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/ticket/{ticketId}/task")
+    public ResponseEntity<Object> createTaskFromServiceTicket(@PathVariable("ticketId") String ticketId,
+                                                              @Valid @RequestBody AddServiceTask addServiceTask,
+                                                              @RequestHeader("user") String user){
+        logger.info("POST -/ticket/<ticketId>/task---> supportTicketInternalUpdate | user : {}ticketId: {} | addServiceTask: {}", user, ticketId, addServiceTask);
+        return sendResponse(supportProjectService.createTaskFromServiceTicket(user, ticketId, addServiceTask));
     }
 
 

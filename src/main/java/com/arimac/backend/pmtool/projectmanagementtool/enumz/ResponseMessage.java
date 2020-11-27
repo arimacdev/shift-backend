@@ -29,6 +29,7 @@ public enum ResponseMessage {
     ALREADY_ACTIVATED("User Already Activated"),
     UNAUTHORIZED_OPERATION("This Operation is not permitted!"),
     TASK_NOT_CHILD_TASK("This Task is not a child task"),
+    PARENT_TASK_CLOSED("This Parent Task is Closed"),
     TASK_NOT_PARENT_TASK("This Task is not a Parent task"),
     CANNOT_TRANSITION_CHILD_TASK("Cannot Transition a Child Task"),
     PARENT_TASK_NOT_FOUND("Parent Task Not Found"),
