@@ -113,5 +113,16 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.createTaskFromServiceTicket(user, ticketId, addServiceTask));
     }
 
+    @ApiOperation(value = "Get Support Files of Support Ticket", notes = "Get Support Files of Support Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/{ticketId}/files")
+    public ResponseEntity<Object> getSupportFilesOfSupportTicket(@PathVariable("ticketId") String ticketId,
+                                                              @RequestHeader("createTicket") boolean createTicket,
+                                                              @RequestHeader("projectId") String projectId,
+                                                              @RequestHeader("user") String user){
+        logger.info("PUT -/ticket/<ticketId>/files ---> getSupportFilesOfSupportTicket | user : {} ticketId: {} | projectId: {} | createTicket: {}", user, ticketId, projectId, createTicket);
+        return sendResponse(supportProjectService.getSupportFilesOfSupportTicket(user, ticketId, projectId, createTicket));
+    }
+
 
 }

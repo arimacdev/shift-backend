@@ -212,6 +212,17 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
+    @Override
+    public Object getSupportFilesOfSupportTicket(String user, String ticketId, String projectId, boolean createTicket) {
+        Object projectStatus = checkProjectStatus(projectId);
+        if (projectStatus instanceof ErrorMessage)
+            return projectStatus;
+        Project_SupportMember member  = supportMemberRepository.getSupportMember(user, projectId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getFilesOfSupportTicket(projectId,ticketId, createTicket, true));
+    }
+
     private Object checkProjectStatus(String projectId){
         Project project = projectRepository.getProjectById(projectId);
         if (project == null)
