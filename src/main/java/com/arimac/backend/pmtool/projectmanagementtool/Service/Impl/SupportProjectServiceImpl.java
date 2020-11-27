@@ -115,6 +115,19 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     }
 
     @Override
+    public Object getSupportTicketById(String userId, String projectId, String ticketId) {
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null)
+            return new ErrorMessage(ResponseMessage.PROJECT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (!project.getIsSupportAdded())
+            return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
+        Project_SupportMember member  = supportMemberRepository.getSupportMember(userId, projectId);
+        if (member == null)
+            return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getSupportTicketById(projectId, ticketId, true));
+    }
+
+    @Override
     public Object getSupportTicketsByProject(String userId, String projectId,  int startIndex, int endIndex) {
         int limit = endIndex - startIndex;
         if (startIndex < 0 || endIndex < 0 || endIndex < startIndex)
@@ -145,6 +158,8 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     @Override
     public Object createTaskFromServiceTicket(String user, String ticketId, AddServiceTask addServiceTask) {
         //TODO Check User Role
+        //Check Service Ticket
+        //if ticket belongs to project
         Project_SupportMember member = supportMemberRepository.getSupportMember(user, addServiceTask.getProjectId());
         if (member == null)
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -180,7 +195,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         task.setTaskStatus(TaskStatusEnum.open);
         taskRepository.addTaskToProject(task);
 
-        List<SupportTicketFile> ticketFiles = internalSupportService.getFilesOfSupportTicket(addServiceTask.getProjectId(), ticketId, true, true);
+        List<SupportTicketFile> ticketFiles = internalSupportService.getFilesOfSupportTicket(addServiceTask.getProjectId(), ticketId, true);
         String taskFolderId;
         if (!ticketFiles.isEmpty()) {
             Folder folder = new Folder();
@@ -213,14 +228,14 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     }
 
     @Override
-    public Object getSupportFilesOfSupportTicket(String user, String ticketId, String projectId, boolean createTicket) {
+    public Object getSupportFilesOfSupportTicket(String user, String ticketId, String projectId) {
         Object projectStatus = checkProjectStatus(projectId);
         if (projectStatus instanceof ErrorMessage)
             return projectStatus;
         Project_SupportMember member  = supportMemberRepository.getSupportMember(user, projectId);
         if (member == null)
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getFilesOfSupportTicket(projectId,ticketId, createTicket, true));
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, internalSupportService.getFilesOfSupportTicket(projectId,ticketId,  true));
     }
 
     private Object checkProjectStatus(String projectId){

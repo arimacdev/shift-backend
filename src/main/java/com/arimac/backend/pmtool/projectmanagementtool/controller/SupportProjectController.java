@@ -84,12 +84,12 @@ public class SupportProjectController extends ResponseController {
 
     @ApiOperation(value = "Get Support Ticket By Id", notes = "Get Support Ticket By Id")
     @ApiResponse(code = 200, message = "Success", response = List.class)
-    @GetMapping("/ticket/project/{projectId}/ticket/{ticketId}")
+    @GetMapping("/project/{projectId}/ticket/{ticketId}")
     public ResponseEntity<Object> getSupportTicketById(@RequestHeader("user") String user,
                                                        @PathVariable("ticketId") String ticketId,
                                                        @PathVariable("projectId") String projectId){
-        logger.info("GET - support/ticket/project/<projectId>/ticket/<ticketId> ---> getSupportTicketById | User: {} | project: {} | ticket: {}", user, projectId, ticketId);
-        return sendResponse(supportProjectService.getSupportTicketStatusByProject(user, projectId));
+        logger.info("GET - support/project/<projectId>/ticket/<ticketId> ---> getSupportTicketById | User: {} | project: {} | ticket: {}", user, projectId, ticketId);
+        return sendResponse(supportProjectService.getSupportTicketById(user, projectId, ticketId));
     }
 
     @ApiOperation(value = "Get Support Tickets of a project", notes = "Get Support Tickets of a project")
@@ -127,11 +127,10 @@ public class SupportProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/ticket/{ticketId}/files")
     public ResponseEntity<Object> getSupportFilesOfSupportTicket(@PathVariable("ticketId") String ticketId,
-                                                              @RequestHeader("createTicket") boolean createTicket,
                                                               @RequestHeader("projectId") String projectId,
                                                               @RequestHeader("user") String user){
-        logger.info("PUT -/ticket/<ticketId>/files ---> getSupportFilesOfSupportTicket | user : {} ticketId: {} | projectId: {} | createTicket: {}", user, ticketId, projectId, createTicket);
-        return sendResponse(supportProjectService.getSupportFilesOfSupportTicket(user, ticketId, projectId, createTicket));
+        logger.info("PUT -/ticket/<ticketId>/files ---> getSupportFilesOfSupportTicket | user : {} ticketId: {} | projectId: {}", user, ticketId, projectId);
+        return sendResponse(supportProjectService.getSupportFilesOfSupportTicket(user, ticketId, projectId));
     }
 
 
