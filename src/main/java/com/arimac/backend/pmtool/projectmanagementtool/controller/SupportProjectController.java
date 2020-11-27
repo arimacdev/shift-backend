@@ -82,6 +82,16 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportTicketStatusByProject(user, projectId));
     }
 
+    @ApiOperation(value = "Get Support Ticket By Id", notes = "Get Support Ticket By Id")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/project/{projectId}/ticket/{ticketId}")
+    public ResponseEntity<Object> getSupportTicketById(@RequestHeader("user") String user,
+                                                       @PathVariable("ticketId") String ticketId,
+                                                       @PathVariable("projectId") String projectId){
+        logger.info("GET - support/ticket/project/<projectId>/ticket/<ticketId> ---> getSupportTicketById | User: {} | project: {} | ticket: {}", user, projectId, ticketId);
+        return sendResponse(supportProjectService.getSupportTicketStatusByProject(user, projectId));
+    }
+
     @ApiOperation(value = "Get Support Tickets of a project", notes = "Get Support Tickets of a project")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/ticket/project/{projectId}")
