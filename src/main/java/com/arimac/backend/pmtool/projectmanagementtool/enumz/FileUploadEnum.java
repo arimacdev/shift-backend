@@ -4,5 +4,7 @@ public enum  FileUploadEnum {
     profileImage,
     taskFile,
     projectFile,
-    comment
+    comment,
+    ticketFile,
+    supportUserProfile
 }

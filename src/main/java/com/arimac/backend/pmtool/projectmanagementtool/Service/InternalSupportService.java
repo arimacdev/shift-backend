@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.Service;
 
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportMemberResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTicketFile;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.*;
 
@@ -17,4 +18,5 @@ public interface InternalSupportService {
     ServiceTicketStatus getSupportTicketStatusByProject(String userId, String projectId, boolean firstRequest);
     List<ServiceTicketUser> getSupportTicketsByProject(String projectId, int startIndex, int limit, boolean firstRequest);
     void supportTicketInternalUpdate(String ticketId, ServiceTicketUpdate serviceTicketUpdate, boolean firstRequest);
+    List<SupportTicketFile> getFilesOfSupportTicket(String projectId, String ticketId, boolean createTicket, boolean firstRequest);
 }

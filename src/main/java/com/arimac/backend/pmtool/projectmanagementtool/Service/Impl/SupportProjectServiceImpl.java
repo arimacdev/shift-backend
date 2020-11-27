@@ -4,10 +4,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddServiceTask;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTicketFile;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketStatus;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.File.FileTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.Folder.FolderTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.IssueTypeEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.TaskStatusEnum;
@@ -19,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class SupportProjectServiceImpl implements SupportProjectService {
@@ -30,15 +34,19 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     private final OrganizationRepository organizationRepository;
     private final SupportMemberRepository supportMemberRepository;
     private final InternalSupportService internalSupportService;
+    private final TaskFileRepository taskFileRepository;
+    private final FolderRepository folderRepository;
     private final UtilsService utilsService;
 
-    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService, UtilsService utilsService) {
+    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService, TaskFileRepository taskFileRepository, FolderRepository folderRepository, UtilsService utilsService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.organizationRepository = organizationRepository;
         this.supportMemberRepository = supportMemberRepository;
         this.internalSupportService = internalSupportService;
+        this.taskFileRepository = taskFileRepository;
+        this.folderRepository = folderRepository;
         this.utilsService = utilsService;
     }
 
@@ -171,6 +179,35 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         task.setIssueType(IssueTypeEnum.support);
         task.setTaskStatus(TaskStatusEnum.open);
         taskRepository.addTaskToProject(task);
+
+        List<SupportTicketFile> ticketFiles = internalSupportService.getFilesOfSupportTicket(addServiceTask.getProjectId(), ticketId, true, true);
+        String taskFolderId;
+        if (!ticketFiles.isEmpty()) {
+            Folder folder = new Folder();
+            folder.setFolderId(utilsService.getUUId());
+            folder.setProjectId(addServiceTask.getProjectId());
+            folder.setFolderName(task.getSecondaryTaskId() + " - " + task.getTaskName());
+            folder.setFolderCreator(user);
+            folder.setFolderCreatedAt(utilsService.getCurrentTimestamp());
+            folder.setTaskId(task.getTaskId());
+            folder.setFolderType(FolderTypeEnum.TASK);
+            folderRepository.createFolder(folder);
+            taskFolderId = folder.getFolderId();
+
+            for (SupportTicketFile supportTicketFile : ticketFiles) {
+                TaskFile taskFile = new TaskFile();
+                taskFile.setTaskFileId(utilsService.getUUId());
+                taskFile.setTaskId(task.getTaskId());
+                taskFile.setTaskFileName(supportTicketFile.getTicketFileName());
+                taskFile.setTaskFileUrl(supportTicketFile.getTicketFileUrl());
+                taskFile.setTaskFileCreator(supportTicketFile.getFileCreatedBy());
+                taskFile.setTaskFileSize(supportTicketFile.getTicketFileSize());
+                taskFile.setTaskFileDate(supportTicketFile.getTicketFileDate());
+                taskFile.setFileType(FileTypeEnum.TASK);
+                taskFile.setTaskFolder(taskFolderId);
+                taskFileRepository.uploadTaskFile(taskFile);
+            }
+        }
 
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }

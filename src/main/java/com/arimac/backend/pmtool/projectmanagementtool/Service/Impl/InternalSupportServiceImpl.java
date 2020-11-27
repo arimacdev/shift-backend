@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportMemberResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTicketFile;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.*;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
@@ -275,6 +276,34 @@ public class InternalSupportServiceImpl implements InternalSupportService {
                 supportTicketInternalUpdate(ticketId, serviceTicketUpdate, false);
             }
             throw new PMException(e.getMessage());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SupportTicketFile> getFilesOfSupportTicket(String projectId, String ticketId, boolean createTicket, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            httpHeaders.add("createTicket", "true");
+            HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId + "/files", HttpMethod.GET, httpEntity, String.class).getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportTicketFile>>(){});
+        }
+        catch(HttpClientErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getFilesOfSupportTicket(projectId, ticketId, createTicket, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
         }
         catch (Exception e){
             throw new PMException(e.getMessage());
