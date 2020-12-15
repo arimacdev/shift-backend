@@ -279,12 +279,13 @@ public class InternalSupportServiceImpl implements InternalSupportService {
     }
 
     @Override
-    public void supportTicketInternalUpdate(String ticketId, ServiceTicketUpdate serviceTicketUpdate, boolean firstRequest)  {
+    public void supportTicketInternalUpdate(String userId, String ticketId, ServiceTicketUpdate serviceTicketUpdate, boolean firstRequest)  {
         try {
             if (clientAccessToken == null)
                 getClientAccessToken();
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            httpHeaders.add("user", userId);
             HttpEntity<Object> httpEntity = new HttpEntity<>(serviceTicketUpdate, httpHeaders);
             String ticketStatus =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/" + ticketId , HttpMethod.PUT, httpEntity, String.class).getBody();
         }
@@ -301,7 +302,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
 //            logger.error("Error response | Status/ : {} Response: {}", e.getStatusCode(), response);
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();
-                supportTicketInternalUpdate(ticketId, serviceTicketUpdate, false);
+                supportTicketInternalUpdate(userId,ticketId, serviceTicketUpdate, false);
             }
             throw new PMException(e.getMessage());
         }

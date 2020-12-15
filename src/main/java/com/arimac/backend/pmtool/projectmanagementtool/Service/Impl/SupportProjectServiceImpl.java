@@ -151,7 +151,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         Project_SupportMember member  = supportMemberRepository.getSupportMember(user, serviceTicketUpdate.getProjectId());
         if (member == null)
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        internalSupportService.supportTicketInternalUpdate(ticketId, serviceTicketUpdate, false);
+        internalSupportService.supportTicketInternalUpdate(user, ticketId, serviceTicketUpdate, false);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -169,6 +169,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         if (!project.getIsSupportAdded())
             return new ErrorMessage(ResponseMessage.PROJECT_SUPPORT_NOT_ADDED, HttpStatus.UNPROCESSABLE_ENTITY);
         Task task = new Task();
+        task.setServiceTicketId(ticketId);
         task.setTaskId(utilsService.getUUId());
         task.setProjectId(addServiceTask.getProjectId());
         if (addServiceTask.getParentTask() != null){

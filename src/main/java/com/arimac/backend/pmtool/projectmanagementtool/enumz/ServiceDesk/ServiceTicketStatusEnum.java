@@ -7,7 +7,8 @@ public enum ServiceTicketStatusEnum {
     PENDING(1, "PENDING"),
     ACKNOWLEDGED(2,"ACKNOWLEDGED"),
     FIXED(3,"FIXED"),
-    SOLVED(4, "SOLVED");
+    SOLVED(4, "SOLVED"),
+    REOPEN(5, "REOPEN");
 
     private final int statusId;
     private final String statusType;

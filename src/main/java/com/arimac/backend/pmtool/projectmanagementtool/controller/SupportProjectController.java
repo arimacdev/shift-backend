@@ -113,13 +113,13 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.supportTicketInternalUpdate(user, ticketId, ticketUpdateDto));
     }
 
-    @ApiOperation(value = "Update Support Ticket of a Project", notes = "Update Support Ticket of a Project")
+    @ApiOperation(value = "Create a Task from Service Ticket", notes = "Create a Task from Service Ticket")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @PostMapping("/ticket/{ticketId}/task")
     public ResponseEntity<Object> createTaskFromServiceTicket(@PathVariable("ticketId") String ticketId,
                                                               @Valid @RequestBody AddServiceTask addServiceTask,
                                                               @RequestHeader("user") String user){
-        logger.info("POST -/ticket/<ticketId>/task---> supportTicketInternalUpdate | user : {}ticketId: {} | addServiceTask: {}", user, ticketId, addServiceTask);
+        logger.info("POST -/ticket/<ticketId>/task---> createTaskFromServiceTicket | user : {}ticketId: {} | addServiceTask: {}", user, ticketId, addServiceTask);
         return sendResponse(supportProjectService.createTaskFromServiceTicket(user, ticketId, addServiceTask));
     }
 

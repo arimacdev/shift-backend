@@ -33,6 +33,8 @@ public class Task implements RowMapper<Task> {
     private BigDecimal estimatedWeight;
     private BigDecimal actualWeight;
 
+    private String serviceTicketId;
+
     public Task() {
     }
 
@@ -207,6 +209,14 @@ public class Task implements RowMapper<Task> {
 
     public void setActualWeight(BigDecimal actualWeight) {
         this.actualWeight = actualWeight;
+    }
+
+    public String getServiceTicketId() {
+        return serviceTicketId;
+    }
+
+    public void setServiceTicketId(String serviceTicketId) {
+        this.serviceTicketId = serviceTicketId;
     }
 
     @Override

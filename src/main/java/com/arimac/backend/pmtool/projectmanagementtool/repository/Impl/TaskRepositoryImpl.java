@@ -43,7 +43,7 @@ public class TaskRepositoryImpl implements TaskRepository {
     @Override
     public void addTaskToProject(Task task) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, sprintId, issueType, parentId, isParent, secondaryTaskId, estimatedWeight) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Task (taskId, projectId, taskName, taskInitiator, taskAssignee, taskNote, taskStatus, taskCreatedAt, taskDueDateAt, taskReminderAt, isDeleted, sprintId, issueType, parentId, isParent, secondaryTaskId, estimatedWeight, serviceTicketId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             preparedStatement.setString(1, task.getTaskId());
             preparedStatement.setString(2, task.getProjectId());
             preparedStatement.setString(3, task.getTaskName());
@@ -62,6 +62,7 @@ public class TaskRepositoryImpl implements TaskRepository {
             preparedStatement.setBoolean(15, task.getIsParent());
             preparedStatement.setString(16, task.getSecondaryTaskId());
             preparedStatement.setBigDecimal(17, task.getEstimatedWeight());
+            preparedStatement.setString(18, task.getServiceTicketId());
 
             return preparedStatement;
         });
