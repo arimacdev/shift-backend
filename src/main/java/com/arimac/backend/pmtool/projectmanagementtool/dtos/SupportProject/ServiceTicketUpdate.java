@@ -11,6 +11,11 @@ public class ServiceTicketUpdate {
     private ServiceLevelEnum serviceLevel;
     private ServiceTicketStatusEnum ticketStatus;
 
+    public ServiceTicketUpdate(@NotNull String projectId, ServiceTicketStatusEnum ticketStatus) {
+        this.projectId = projectId;
+        this.ticketStatus = ticketStatus;
+    }
+
     public String getProjectId() {
         return projectId;
     }

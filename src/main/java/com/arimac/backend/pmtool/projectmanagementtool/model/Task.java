@@ -38,7 +38,7 @@ public class Task implements RowMapper<Task> {
     public Task() {
     }
 
-    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight) {
+    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight, String serviceTicketId) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -57,6 +57,7 @@ public class Task implements RowMapper<Task> {
         this.isParent = isParent;
         this.estimatedWeight = estimatedWeight;
         this.actualWeight = actualWeight;
+        this.serviceTicketId = serviceTicketId;
     }
 
     public boolean getIsDeleted() {
@@ -239,7 +240,8 @@ public class Task implements RowMapper<Task> {
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent"),
                 resultSet.getBigDecimal("estimatedWeight"),
-                resultSet.getBigDecimal("actualWeight")
+                resultSet.getBigDecimal("actualWeight"),
+                resultSet.getString("serviceTicketId")
         );
     }
 

@@ -2,6 +2,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.ActivityLogService;
+import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.NotificationService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.TaskService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.*;
@@ -9,11 +10,13 @@ import com.arimac.backend.pmtool.projectmanagementtool.dtos.Files.TaskFileUserPr
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Filteration.WorkloadFilteration;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Project.ProjectUserResponseDto;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Sprint.TaskSprintUpdateDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChild;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.Task.TaskParentChildUpdateDto;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.*;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.LogOperationEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ActivityLog.TaskUpdateTypeEnum;
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.ServiceTicketStatusEnum;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
 import com.arimac.backend.pmtool.projectmanagementtool.model.*;
@@ -65,8 +68,9 @@ public class TaskServiceImpl implements TaskService {
     private final TaskGroupRepository taskGroupRepository;
     private final SprintRepository sprintRepository;
     private final ActivityLogService activityLogService;
+    private final InternalSupportService internalSupportService;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, ActivityLogService activityLogService) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, ActivityLogService activityLogService, InternalSupportService internalSupportService) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -78,6 +82,7 @@ public class TaskServiceImpl implements TaskService {
         this.taskGroupRepository = taskGroupRepository;
         this.sprintRepository = sprintRepository;
         this.activityLogService = activityLogService;
+        this.internalSupportService = internalSupportService;
     }
 
     //TASK GROUP && PROJECT
@@ -345,6 +350,10 @@ public class TaskServiceImpl implements TaskService {
         else updateDto.setEstimatedWeight(taskUpdateDto.getEstimatedWeight());
 
         Object updateTask = taskRepository.updateProjectTask(taskId, updateDto);
+        if (task.getIssueType() == IssueTypeEnum.support){
+            if (taskUpdateDto.getTaskStatus() != null && taskUpdateDto.getTaskStatus() == TaskStatusEnum.closed)
+                internalSupportService.supportTicketInternalUpdate(userId, task.getServiceTicketId(), new ServiceTicketUpdate(task.getProjectId(), ServiceTicketStatusEnum.FIXED), true);
+        }
 
         if (taskUpdateDto.getTaskAssignee() != null) {
             CompletableFuture.runAsync(()-> {
