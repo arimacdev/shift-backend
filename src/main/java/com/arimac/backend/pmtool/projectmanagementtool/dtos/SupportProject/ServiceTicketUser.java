@@ -1,5 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject;
 
+import com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk.ServiceLevelEnum;
+
 import java.sql.Timestamp;
 
 public class ServiceTicketUser {
@@ -10,6 +12,7 @@ public class ServiceTicketUser {
 
     private String ticketStatus;
     private SeverityEnum severity;
+    private ServiceLevelEnum serviceLevel;
     private boolean isFinished;
 
     private Timestamp ticketCreation;
@@ -113,5 +116,13 @@ public class ServiceTicketUser {
 
     public void setReporter(UserDto reporter) {
         this.reporter = reporter;
+    }
+
+    public ServiceLevelEnum getServiceLevel() {
+        return serviceLevel;
+    }
+
+    public void setServiceLevel(ServiceLevelEnum serviceLevel) {
+        this.serviceLevel = serviceLevel;
     }
 }
