@@ -487,6 +487,16 @@ public class TaskRepositoryImpl implements TaskRepository {
     }
 
     @Override
+    public List<Task> getAssociatedTaskOfTicket(String ticketId) {
+        String sql = "SELECT * FROM Task WHERE serviceTicketId=?";
+        try {
+            return jdbcTemplate.query(sql, new Task(), ticketId);
+        } catch (Exception e) {
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public void updateProjectAlias(String taskId, String alias) {
        jdbcTemplate.update(connection -> {
            PreparedStatement preparedStatement  = connection.prepareStatement("UPDATE Task SET secondaryTaskId=? WHERE taskId=?");

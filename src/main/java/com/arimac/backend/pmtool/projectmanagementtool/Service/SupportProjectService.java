@@ -17,4 +17,5 @@ public interface SupportProjectService {
     Object supportTicketInternalUpdate(String user,String ticketId, ServiceTicketUpdate serviceTicketUpdate);
     Object createTaskFromServiceTicket(String user, String ticketId, AddServiceTask addServiceTask);
     Object getSupportFilesOfSupportTicket(String user, String ticketId, String projectId);
+    Object getAssociatedTaskOfTicket(String user, String projectId, String ticketId);
 }

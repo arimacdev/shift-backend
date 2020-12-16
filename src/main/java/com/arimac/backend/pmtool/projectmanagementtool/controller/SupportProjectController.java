@@ -133,5 +133,15 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportFilesOfSupportTicket(user, ticketId, projectId));
     }
 
+    @ApiOperation(value = "Get Tasks Associated With a Ticket", notes = "Get Tasks Associated With a Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/{ticketId}/task")
+    public ResponseEntity<Object> getAssociatedTaskOfTicket(@PathVariable("ticketId") String ticketId,
+                                                            @RequestHeader("projectId") String projectId,
+                                                            @RequestHeader("user") String user){
+        logger.info("PUT -/ticket/<ticketId>/task ---> getAssociatedTaskOfTicket | user : {} ticketId: {} project :{}", user, ticketId, projectId);
+        return sendResponse(supportProjectService.getAssociatedTaskOfTicket(user, projectId, ticketId));
+    }
+
 
 }
