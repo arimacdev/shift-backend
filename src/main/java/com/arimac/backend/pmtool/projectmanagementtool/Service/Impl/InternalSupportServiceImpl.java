@@ -197,17 +197,18 @@ public class InternalSupportServiceImpl implements InternalSupportService {
     }
 
     @Override
-    public ServiceTicket getSupportTicketById(String projectId, String ticketId, boolean firstRequest) {
+    public ServiceTicketUser getSupportTicketById(String projectId, String ticketId, boolean firstRequest) {
         try {
             if (clientAccessToken == null)
                 getClientAccessToken();
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-            String user =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId , HttpMethod.GET, httpEntity, String.class).getBody();
+            String serviceTicket =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId , HttpMethod.GET, httpEntity, String.class).getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return objectMapper.readValue(new JSONObject(user).get("data").toString(), ServiceTicket.class);
+            return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), ServiceTicketUser.class);
+//            return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), new TypeReference<List<ServiceTicketUser>>(){});
         }
         catch(HttpClientErrorException e) {
             String response = e.getResponseBodyAsString();
