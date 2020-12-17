@@ -72,8 +72,9 @@ public enum ResponseMessage {
     SUPPORT_MEMBER_NOT_FOUND("Support Member doesn't exist"),
     SUPPORT_MEMBER_ALREADY_ASSIGNED("Support Member Already Assigned"),
     SUPPORT_MEMBER_ALREADY_REMOVED("Support Member Already Removed"),
-    CANNOT_REMOVE_YOURSELF("You cannot remove yourself")
-    ;
+    CANNOT_REMOVE_YOURSELF("You cannot remove yourself"),
+    LINK_FROM_NOT_FOUND("Link From Task Not Found"),
+    LINK_TO_NOT_FOUND("Link To Task Not Found");
 
 
     private final String message;

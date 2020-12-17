@@ -4,6 +4,7 @@ import com.arimac.backend.pmtool.projectmanagementtool.Response.Response;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddServiceTask;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTaskLink;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTicketFile;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
@@ -35,10 +36,11 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     private final SupportMemberRepository supportMemberRepository;
     private final InternalSupportService internalSupportService;
     private final TaskFileRepository taskFileRepository;
+    private final TaskRelationshipRepository taskRelationshipRepository;
     private final FolderRepository folderRepository;
     private final UtilsService utilsService;
 
-    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService, TaskFileRepository taskFileRepository, FolderRepository folderRepository, UtilsService utilsService) {
+    public SupportProjectServiceImpl(UserRepository userRepository, ProjectRepository projectRepository, TaskRepository taskRepository, OrganizationRepository organizationRepository, SupportMemberRepository supportMemberRepository, InternalSupportService internalSupportService, TaskFileRepository taskFileRepository, TaskRelationshipRepository taskRelationshipRepository, FolderRepository folderRepository, UtilsService utilsService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
@@ -46,6 +48,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         this.supportMemberRepository = supportMemberRepository;
         this.internalSupportService = internalSupportService;
         this.taskFileRepository = taskFileRepository;
+        this.taskRelationshipRepository = taskRelationshipRepository;
         this.folderRepository = folderRepository;
         this.utilsService = utilsService;
     }
@@ -248,6 +251,19 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         if (member == null)
             return new ErrorMessage(ResponseMessage.SUPPORT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRepository.getAssociatedTaskOfTicket(ticketId));
+    }
+
+    @Override
+    public Object createTaskFromServiceTicket(String user, String ticketId, TaskRelationship taskRelationship) {
+        Object projectStatus = checkProjectStatus(taskRelationship.getProjectId());
+        if (projectStatus instanceof ErrorMessage)
+            return projectStatus;
+        if (taskRepository.getTaskByProjectIdTaskId(taskRelationship.getProjectId(),taskRelationship.getFromLink()) == null)
+            return new ErrorMessage(ResponseMessage.LINK_FROM_NOT_FOUND, HttpStatus.NOT_FOUND);
+        if (taskRepository.getTaskByProjectIdTaskId(taskRelationship.getProjectId(), taskRelationship.getToLink()) == null)
+            return new ErrorMessage(ResponseMessage.LINK_TO_NOT_FOUND, HttpStatus.NOT_FOUND);
+        taskRelationshipRepository.createTaskRelationship(taskRelationship);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     private Object checkProjectStatus(String projectId){
