@@ -20,5 +20,5 @@ public interface SupportProjectService {
     Object createTaskFromServiceTicket(String user, String ticketId, AddServiceTask addServiceTask);
     Object getSupportFilesOfSupportTicket(String user, String ticketId, String projectId);
     Object getAssociatedTaskOfTicket(String user, String projectId, String ticketId);
-    Object createTaskFromServiceTicket(String user, String ticketId, TaskRelationship taskRelationship);
+    Object createLinkBetweenSupportTask(String user, String ticketId, TaskRelationship taskRelationship);
 }

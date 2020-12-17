@@ -254,7 +254,9 @@ public class SupportProjectServiceImpl implements SupportProjectService {
     }
 
     @Override
-    public Object createTaskFromServiceTicket(String user, String ticketId, TaskRelationship taskRelationship) {
+    public Object createLinkBetweenSupportTask(String user, String ticketId, TaskRelationship taskRelationship) {
+        if (taskRelationship.getFromLink().equals(taskRelationship.getToLink()))
+            return new ErrorMessage(ResponseMessage.CANNOT_LINK_TO_SAME_TICKET, HttpStatus.BAD_REQUEST);
         Object projectStatus = checkProjectStatus(taskRelationship.getProjectId());
         if (projectStatus instanceof ErrorMessage)
             return projectStatus;

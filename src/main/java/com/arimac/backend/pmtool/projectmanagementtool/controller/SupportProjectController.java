@@ -152,7 +152,7 @@ public class SupportProjectController extends ResponseController {
                                                               @Valid @RequestBody TaskRelationship taskRelationship,
                                                               @RequestHeader("user") String user){
         logger.info("POST -/ticket/<ticketId>/link---> createLinkBetweenSupportTask | user : {}ticketId: {} | supportTaskLink: {}", user, ticketId, taskRelationship);
-        return sendResponse(supportProjectService.createTaskFromServiceTicket(user, ticketId, taskRelationship));
+        return sendResponse(supportProjectService.createLinkBetweenSupportTask(user, ticketId, taskRelationship));
     }
 
 

@@ -74,6 +74,7 @@ public enum ResponseMessage {
     SUPPORT_MEMBER_ALREADY_REMOVED("Support Member Already Removed"),
     CANNOT_REMOVE_YOURSELF("You cannot remove yourself"),
     LINK_FROM_NOT_FOUND("Link From Task Not Found"),
+    CANNOT_LINK_TO_SAME_TICKET("Cannot Link to same Ticket"),
     LINK_TO_NOT_FOUND("Link To Task Not Found");
 
 
