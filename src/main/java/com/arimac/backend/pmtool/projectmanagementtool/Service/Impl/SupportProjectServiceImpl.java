@@ -228,7 +228,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
             }
         }
 
-        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, task.getTaskId());
     }
 
     @Override
