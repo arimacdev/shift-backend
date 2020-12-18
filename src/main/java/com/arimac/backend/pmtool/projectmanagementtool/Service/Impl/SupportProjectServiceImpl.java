@@ -193,7 +193,7 @@ public class SupportProjectServiceImpl implements SupportProjectService {
         task.setSecondaryTaskId(project.getProjectAlias() + "-" + project.getIssueCount() + 1);
         task.setTaskName(addServiceTask.getIssueTopic());
         task.setTaskNote(addServiceTask.getIssueDescription());
-        task.setTaskAssignee(user);
+        task.setTaskAssignee(project.getDefaultAssignee());
         task.setTaskInitiator(user);
         task.setIssueType(IssueTypeEnum.support);
         task.setTaskStatus(TaskStatusEnum.open);
