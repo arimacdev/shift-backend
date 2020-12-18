@@ -58,6 +58,7 @@ public interface ProjectRepository {
     void updateProjectKeys(ProjectKeys project_keys);
     List<Project_Keys> getProjectKeys(String projectId);
     void addOrRemoveProjectSupport(String projectId, boolean status);
+    void addDefaultAssignee(String projectId, String defaultAssignee);
     List<SupportProjectResponse> getSupportProjects();
     HashMap<String, ProjectDetails> getProjectMapByIds(List<String> projectIds);
 

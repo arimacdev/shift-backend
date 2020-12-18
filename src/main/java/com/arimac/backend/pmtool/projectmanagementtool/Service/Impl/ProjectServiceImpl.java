@@ -407,6 +407,7 @@ public class ProjectServiceImpl implements ProjectService {
             return new ErrorMessage(ResponseMessage.ORGANIZATION_NOT_FOUND, HttpStatus.NOT_FOUND);
         //TODO Org. Validation
         projectRepository.addOrRemoveProjectSupport(project.getProjectId(), true);
+        projectRepository.addDefaultAssignee(projectSupport.getProjectId(), projectSupport.getDefaultAssignee());
         organizationRepository.updateOrganizationSupportStatus(project.getClientId(), true);
         CreateSupportProject createSupportProject = new CreateSupportProject();
         createSupportProject.setProjectId(project.getProjectId());

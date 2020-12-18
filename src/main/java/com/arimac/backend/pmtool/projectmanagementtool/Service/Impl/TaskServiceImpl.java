@@ -69,8 +69,9 @@ public class TaskServiceImpl implements TaskService {
     private final SprintRepository sprintRepository;
     private final ActivityLogService activityLogService;
     private final InternalSupportService internalSupportService;
+    private final TaskRelationshipRepository taskRelationshipRepository;
 
-    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, ActivityLogService activityLogService, InternalSupportService internalSupportService) {
+    public TaskServiceImpl(SubTaskRepository subTaskRepository, TaskRepository taskRepository, ProjectRepository projectRepository, UserRepository userRepository, TaskFileRepository taskFileRepository, UtilsService utilsService, NotificationService notificationService, NotificationRepository notificationRepository, TaskGroupRepository taskGroupRepository, SprintRepository sprintRepository, ActivityLogService activityLogService, InternalSupportService internalSupportService, TaskRelationshipRepository taskRelationshipRepository) {
         this.subTaskRepository = subTaskRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
@@ -83,6 +84,7 @@ public class TaskServiceImpl implements TaskService {
         this.sprintRepository = sprintRepository;
         this.activityLogService = activityLogService;
         this.internalSupportService = internalSupportService;
+        this.taskRelationshipRepository = taskRelationshipRepository;
     }
 
     //TASK GROUP && PROJECT
@@ -911,6 +913,17 @@ public class TaskServiceImpl implements TaskService {
         }
         List<WorkloadFilteration> list = taskRepository.taskFilteration(decodedQuery, OrderBySubString);
         return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, list);
+    }
+
+    @Override
+    public Object getLinkofTask(String projectId, String taskId, String userId) {
+        ProjectUserResponseDto projectUser = projectRepository.getProjectByIdAndUserId(projectId, userId);
+        if (projectUser == null)
+            return new ErrorMessage(ResponseMessage.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        Task task = taskRepository.getTaskByProjectIdTaskId(projectId, taskId);
+        if (task == null)
+            return new ErrorMessage(ResponseMessage.NO_RECORD, HttpStatus.NOT_FOUND);
+        return new Response(ResponseMessage.SUCCESS, HttpStatus.OK, taskRelationshipRepository.getTaskRelationship(taskId));
     }
 
 }

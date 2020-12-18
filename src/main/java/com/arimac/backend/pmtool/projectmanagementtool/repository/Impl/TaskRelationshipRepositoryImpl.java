@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 
 @Service
 public class TaskRelationshipRepositoryImpl implements TaskRelationshipRepository {
@@ -29,6 +30,16 @@ public class TaskRelationshipRepositoryImpl implements TaskRelationshipRepositor
             });
         } catch (Exception e){
             throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<TaskRelationship> getTaskRelationship(String taskId) {
+        String sql = "SELECT * FROM TaskRelationship WHERE fromLink=? OR toLink=?";
+        try {
+            return jdbcTemplate.query(sql, new TaskRelationship(), taskId, taskId);
+        } catch (Exception e){
+            throw  new PMException(e.getMessage());
         }
     }
 }
