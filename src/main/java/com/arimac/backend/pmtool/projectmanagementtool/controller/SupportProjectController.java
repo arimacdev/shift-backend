@@ -145,6 +145,17 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getAssociatedTaskOfTicket(user, projectId, ticketId));
     }
 
+    @ApiOperation(value = "Create Link", notes = "Create a Task from Service Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/ticket/{ticketId}/link")
+    public ResponseEntity<Object> createLinkBetweenSupportTask(@PathVariable("ticketId") String ticketId,
+                                                               @Valid @RequestBody TaskRelationship taskRelationship,
+                                                               @RequestHeader("user") String user){
+        logger.info("POST -/ticket/<ticketId>/link---> createLinkBetweenSupportTask | user : {}ticketId: {} | supportTaskLink: {}", user, ticketId, taskRelationship);
+        return sendResponse(supportProjectService.createLinkBetweenSupportTask(user, ticketId, taskRelationship));
+    }
+
+
 
 
 
