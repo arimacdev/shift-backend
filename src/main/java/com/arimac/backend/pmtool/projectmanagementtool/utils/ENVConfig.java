@@ -3,6 +3,7 @@ package com.arimac.backend.pmtool.projectmanagementtool.utils;
 public class ENVConfig {
 
     public static final String BASE_URL = System.getenv("BASE_URL");
+    public static final String SUPPORT_SERVICE_URL = System.getenv("SUPPORT_SERVICE_URL");
     public static final String KEYCLOAK_HOST = System.getenv("KEYCLOAK_HOST");
     public static final String KEYCLOAK_REALM = System.getenv("KEYCLOAK_REALM");
     public static final String KEYCLOAK_ROLE_CLIENT_ID = System.getenv("KEYCLOAK_ROLE_CLIENT_ID");

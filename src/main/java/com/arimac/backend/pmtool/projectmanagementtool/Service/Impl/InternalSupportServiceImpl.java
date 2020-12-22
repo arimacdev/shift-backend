@@ -48,7 +48,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(createSupportProject, httpHeaders);
-            restTemplate.exchange("http://localhost:8081/api/support-service/internal/project", HttpMethod.POST, httpEntity, String.class);
+            restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/project", HttpMethod.POST, httpEntity, String.class);
         } catch(HttpClientErrorException e) {
             String response = e.getResponseBodyAsString();
             logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
@@ -69,7 +69,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(updateStatus, httpHeaders);
-            restTemplate.exchange("http://localhost:8081/api/support-service/internal/project", HttpMethod.PUT, httpEntity, String.class);
+            restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/project", HttpMethod.PUT, httpEntity, String.class);
         }  catch(HttpClientErrorException e) {
             String response = e.getResponseBodyAsString();
             logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
@@ -94,7 +94,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             httpHeaders.add("isInternal", "true");
             httpHeaders.add("project", project);
             HttpEntity<Object> httpEntity = new HttpEntity<>(addSupportUserDto, httpHeaders);
-            return restTemplate.exchange("http://localhost:8081/api/support-service/internal/user/admin", HttpMethod.POST, httpEntity, String.class);
+            return restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL+"/api/support-service/internal/user/admin", HttpMethod.POST, httpEntity, String.class);
         } catch(HttpClientErrorException e) {
             String response = e.getResponseBodyAsString();
             logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
@@ -119,7 +119,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         httpHeaders.add("isInternal", "true");
         httpHeaders.add("user", "internal");
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-        String user =  restTemplate.exchange("http://localhost:8081/api/support-service/user?email=" + email, HttpMethod.GET, httpEntity, String.class).getBody();
+        String user =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/user?email=" + email, HttpMethod.GET, httpEntity, String.class).getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(user).get("data").toString(), SupportUser.class);
@@ -148,7 +148,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         httpHeaders.add("isInternal", "true");
         httpHeaders.add("user", "internal");
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-        String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/user/organization/" + organization, HttpMethod.GET, httpEntity, String.class).getBody();
+        String userList =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/user/organization/" + organization, HttpMethod.GET, httpEntity, String.class).getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportUser>>(){});
@@ -176,7 +176,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
         httpHeaders.add("user", "internal");
         httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-        String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/user/project/" + projectId, HttpMethod.GET, httpEntity, String.class).getBody();
+        String userList =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL+ "/api/support-service/user/project/" + projectId, HttpMethod.GET, httpEntity, String.class).getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportMemberResponse>>(){});
