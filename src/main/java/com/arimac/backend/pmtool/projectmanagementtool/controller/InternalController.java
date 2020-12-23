@@ -60,6 +60,7 @@ public class InternalController extends ResponseController {
     }
     @PostMapping("projects")
     public ResponseEntity<Object> getProjectMapByIds(@RequestBody List<String> projectIds){
+        System.out.println("getProjectMapByIds called");
         return sendResponse(internalService.getProjectMapByIds(projectIds));
     }
 
