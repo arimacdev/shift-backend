@@ -181,9 +181,9 @@ public class InternalServiceImpl implements InternalService {
 
     @Override
     public Object getProjectMapByIds(List<String> projectIds) {
-        System.out.println("InternalServiceImpl");
+        logger.info("Impl: {}", projectIds);
         HashMap<String, ProjectDetails> projectMap = projectRepository.getProjectMapByIds(projectIds);
-        System.out.println(projectMap);
+        logger.info("projectMap :{}", projectMap);
         if (projectMap.isEmpty())
             return null;
         return projectRepository.getProjectMapByIds(projectIds);

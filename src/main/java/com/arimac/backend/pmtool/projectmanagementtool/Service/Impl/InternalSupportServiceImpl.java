@@ -204,7 +204,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-            String serviceTicket =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId , HttpMethod.GET, httpEntity, String.class).getBody();
+            String serviceTicket =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL+ "/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId , HttpMethod.GET, httpEntity, String.class).getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), ServiceTicketUser.class);
@@ -233,7 +233,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             httpHeaders.add("userId", userId);
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-            String ticketStatus =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/project/" + projectId + "/status", HttpMethod.GET, httpEntity, String.class).getBody();
+            String ticketStatus =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/project/" + projectId + "/status", HttpMethod.GET, httpEntity, String.class).getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(ticketStatus).get("data").toString(), ServiceTicketStatus.class);
@@ -260,7 +260,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-            String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/project/" + projectId + "?startIndex="+ startIndex + "&limit=" + limit, HttpMethod.GET, httpEntity, String.class).getBody();
+            String userList =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/project/" + projectId + "?startIndex="+ startIndex + "&limit=" + limit, HttpMethod.GET, httpEntity, String.class).getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<ServiceTicketUser>>(){});
@@ -288,7 +288,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             httpHeaders.add("user", userId);
             HttpEntity<Object> httpEntity = new HttpEntity<>(serviceTicketUpdate, httpHeaders);
-            String ticketStatus =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/" + ticketId , HttpMethod.PUT, httpEntity, String.class).getBody();
+            String ticketStatus =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/" + ticketId , HttpMethod.PUT, httpEntity, String.class).getBody();
         }
         catch(HttpClientErrorException e) {
 //            ObjectMapper objectMapper = new ObjectMapper();
@@ -320,7 +320,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
-            String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId + "/files", HttpMethod.GET, httpEntity, String.class).getBody();
+            String userList =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId + "/files", HttpMethod.GET, httpEntity, String.class).getBody();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportTicketFile>>(){});

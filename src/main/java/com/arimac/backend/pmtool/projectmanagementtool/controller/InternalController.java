@@ -2,6 +2,8 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +14,8 @@ import java.util.Set;
 @RequestMapping("/internal/")
 public class InternalController extends ResponseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(InternalController.class);
     private final InternalService internalService;
-
     public InternalController(InternalService internalService) {
         this.internalService = internalService;
     }
@@ -60,7 +62,7 @@ public class InternalController extends ResponseController {
     }
     @PostMapping("projects")
     public ResponseEntity<Object> getProjectMapByIds(@RequestBody List<String> projectIds){
-        System.out.println("getProjectMapByIds called");
+        logger.info("getProjectMapByIds : {}", projectIds.toString());
         return sendResponse(internalService.getProjectMapByIds(projectIds));
     }
 
