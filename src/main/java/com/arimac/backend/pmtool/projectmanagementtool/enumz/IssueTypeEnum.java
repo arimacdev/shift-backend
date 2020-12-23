@@ -7,5 +7,6 @@ public enum IssueTypeEnum {
     design,
     operational,
     preSales,
-    general
+    general,
+    support
 }

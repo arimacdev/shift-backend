@@ -1,21 +1,20 @@
 package com.arimac.backend.pmtool.projectmanagementtool.enumz.ServiceDesk;
 
-import com.arimac.backend.pmtool.projectmanagementtool.enumz.Meeting.MemberType;
-
 import java.util.HashMap;
 
-public enum TicketStatusEnum {
+public enum ServiceTicketStatusEnum {
     CLOSED(0,"CLOSED"),
     PENDING(1, "PENDING"),
     ACKNOWLEDGED(2,"ACKNOWLEDGED"),
     FIXED(3,"FIXED"),
-    SOLVED(4, "SOLVED");
+    SOLVED(4, "SOLVED"),
+    REOPEN(5, "REOPEN");
 
     private final int statusId;
     private final String statusType;
 
 
-    TicketStatusEnum(int statusId, String statusType) {
+    ServiceTicketStatusEnum(int statusId, String statusType) {
         this.statusId = statusId;
         this.statusType = statusType;
     }
@@ -23,7 +22,7 @@ public enum TicketStatusEnum {
     private static final HashMap<Integer, String> ticketTypes = new HashMap<>();
 
     static {
-        for (TicketStatusEnum ticketStatus : TicketStatusEnum.values()){
+        for (ServiceTicketStatusEnum ticketStatus : ServiceTicketStatusEnum.values()){
             ticketTypes.put(ticketStatus.statusId, ticketStatus.statusType);
         }
     }

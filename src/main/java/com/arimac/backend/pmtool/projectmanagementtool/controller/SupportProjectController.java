@@ -3,8 +3,12 @@ package com.arimac.backend.pmtool.projectmanagementtool.controller;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Response.ResponseController;
 import com.arimac.backend.pmtool.projectmanagementtool.Service.SupportProjectService;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.AddServiceTask;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTaskLink;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportProject;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.ServiceTicketUpdate;
+import com.arimac.backend.pmtool.projectmanagementtool.model.TaskRelationship;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
@@ -57,7 +61,7 @@ public class SupportProjectController extends ResponseController {
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/user/organization/{organizationId}")
     public ResponseEntity<Object> getSupportUsersByOrganization(@RequestHeader("user") String user,
-                                                             @PathVariable("organizationId") String organizationId){
+                                                                @PathVariable("organizationId") String organizationId){
         logger.info("GET - support/user/organization/<Org.Id>---> getSupportUsersByOrganization | User: {} || Org. Id {} ", user, organizationId);
         return sendResponse(supportProjectService.getSupportUsersByOrganization(user, organizationId));
     }
@@ -71,13 +75,88 @@ public class SupportProjectController extends ResponseController {
         return sendResponse(supportProjectService.getSupportUsersByProject(user, projectId));
     }
 
-    @ApiOperation(value = "Get Support Tickets of a Project", notes = "Get Support Tickets of a Project")
+    @ApiOperation(value = "Get Support Ticket status of a Project", notes = "Get Support Ticket status of a Project")
     @ApiResponse(code = 200, message = "Success", response = List.class)
     @GetMapping("/ticket/project/{projectId}/status")
     public ResponseEntity<Object> getSupportTicketStatusByProject(@RequestHeader("user") String user,
-                                                             @PathVariable("projectId") String projectId){
+                                                                  @PathVariable("projectId") String projectId){
         logger.info("GET - support/ticket/project/<projectId>/status---> getSupportTicketStatusByProject | User: {} | project: {}", user, projectId);
         return sendResponse(supportProjectService.getSupportTicketStatusByProject(user, projectId));
     }
+
+    @ApiOperation(value = "Get Support Ticket By Id", notes = "Get Support Ticket By Id")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/project/{projectId}/ticket/{ticketId}")
+    public ResponseEntity<Object> getSupportTicketById(@RequestHeader("user") String user,
+                                                       @PathVariable("ticketId") String ticketId,
+                                                       @PathVariable("projectId") String projectId){
+        logger.info("GET - support/project/<projectId>/ticket/<ticketId> ---> getSupportTicketById | User: {} | project: {} | ticket: {}", user, projectId, ticketId);
+        return sendResponse(supportProjectService.getSupportTicketById(user, projectId, ticketId));
+    }
+
+    @ApiOperation(value = "Get Support Tickets of a project", notes = "Get Support Tickets of a project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/project/{projectId}")
+    public ResponseEntity<Object> getSupportTicketsByProject(@RequestHeader("user") String user,
+                                                             @PathVariable("projectId") String projectId,
+                                                             @RequestParam("startIndex") int startIndex,
+                                                             @RequestParam("endIndex") int endIndex){
+        logger.info("GET - support/ticket/project/<projectId>---> getSupportTicketsByProject | User: {} | project: {} | startIndex : {}, endIndex: {}", user, projectId, startIndex, endIndex);
+        return sendResponse(supportProjectService.getSupportTicketsByProject(user, projectId, startIndex, endIndex));
+    }
+
+    @ApiOperation(value = "Update Support Ticket of a Project", notes = "Update Support Ticket of a Project")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PutMapping("/ticket/{ticketId}")
+    public ResponseEntity<Object> supportTicketInternalUpdate(@PathVariable("ticketId") String ticketId,
+                                                              @Valid @RequestBody ServiceTicketUpdate ticketUpdateDto,
+                                                              @RequestHeader("user") String user){
+        logger.info("PUT -/ticket/<ticketId>---> supportTicketInternalUpdate | user : {}ticketId: {} | ticketUpdateDto: {}", user, ticketId, ticketUpdateDto);
+        return sendResponse(supportProjectService.supportTicketInternalUpdate(user, ticketId, ticketUpdateDto));
+    }
+
+    @ApiOperation(value = "Create a Task from Service Ticket", notes = "Create a Task from Service Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/ticket/{ticketId}/task")
+    public ResponseEntity<Object> createTaskFromServiceTicket(@PathVariable("ticketId") String ticketId,
+                                                              @Valid @RequestBody AddServiceTask addServiceTask,
+                                                              @RequestHeader("user") String user){
+        logger.info("POST -/ticket/<ticketId>/task---> createTaskFromServiceTicket | user : {}ticketId: {} | addServiceTask: {}", user, ticketId, addServiceTask);
+        return sendResponse(supportProjectService.createTaskFromServiceTicket(user, ticketId, addServiceTask));
+    }
+
+    @ApiOperation(value = "Get Support Files of Support Ticket", notes = "Get Support Files of Support Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/{ticketId}/files")
+    public ResponseEntity<Object> getSupportFilesOfSupportTicket(@PathVariable("ticketId") String ticketId,
+                                                              @RequestHeader("projectId") String projectId,
+                                                              @RequestHeader("user") String user){
+        logger.info("PUT -/ticket/<ticketId>/files ---> getSupportFilesOfSupportTicket | user : {} ticketId: {} | projectId: {}", user, ticketId, projectId);
+        return sendResponse(supportProjectService.getSupportFilesOfSupportTicket(user, ticketId, projectId));
+    }
+
+    @ApiOperation(value = "Get Tasks Associated With a Ticket", notes = "Get Tasks Associated With a Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @GetMapping("/ticket/{ticketId}/task")
+    public ResponseEntity<Object> getAssociatedTaskOfTicket(@PathVariable("ticketId") String ticketId,
+                                                            @RequestHeader("projectId") String projectId,
+                                                            @RequestHeader("user") String user){
+        logger.info("PUT -/ticket/<ticketId>/task ---> getAssociatedTaskOfTicket | user : {} ticketId: {} project :{}", user, ticketId, projectId);
+        return sendResponse(supportProjectService.getAssociatedTaskOfTicket(user, projectId, ticketId));
+    }
+
+    @ApiOperation(value = "Create Link", notes = "Create a Task from Service Ticket")
+    @ApiResponse(code = 200, message = "Success", response = List.class)
+    @PostMapping("/ticket/{ticketId}/link")
+    public ResponseEntity<Object> createLinkBetweenSupportTask(@PathVariable("ticketId") String ticketId,
+                                                               @Valid @RequestBody TaskRelationship taskRelationship,
+                                                               @RequestHeader("user") String user){
+        logger.info("POST -/ticket/<ticketId>/link---> createLinkBetweenSupportTask | user : {}ticketId: {} | supportTaskLink: {}", user, ticketId, taskRelationship);
+        return sendResponse(supportProjectService.createLinkBetweenSupportTask(user, ticketId, taskRelationship));
+    }
+
+
+
+
 
 }

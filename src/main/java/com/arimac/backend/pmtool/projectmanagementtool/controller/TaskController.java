@@ -262,6 +262,16 @@ public class TaskController extends ResponseController {
         return sendResponse(taskService.workloadQueryFilter(userId, query));
     }
 
+    @ApiOperation(value = "Get Link of a Task", notes = "Get Link of a Task")
+    @ApiResponse(code = 200, message = "Success", response = Response.class)
+    @GetMapping("/{projectId}/tasks/{taskId}/link")
+    public ResponseEntity<Object> getLinkofTask(@PathVariable("projectId") String projectId,
+                                                @PathVariable("taskId") String taskId,
+                                                @RequestHeader("user")String userId){
+        logger.info("HIT - GET /project/<projectId>/link ---> getLinkofTask | projectId: {} | task: {} userId: {}", projectId, taskId, userId);
+        return sendResponse(taskService.getLinkofTask(projectId, taskId, userId));
+    }
+
 
 
 }

@@ -50,7 +50,8 @@ public interface TaskRepository {
     int getActiveTaskCount(String from, String to);
     int getClosedTaskCount(String from, String to);
     HashMap<String, Integer> getTaskCreationByDate(String from, String to, ChartCriteriaEnum criteria);
-
+    //
+    List<Task> getAssociatedTaskOfTicket(String ticketId);
 
     //QUERIES FOR INTERNAL PURPOSES
     void updateProjectAlias(String taskId, String taskAlias);

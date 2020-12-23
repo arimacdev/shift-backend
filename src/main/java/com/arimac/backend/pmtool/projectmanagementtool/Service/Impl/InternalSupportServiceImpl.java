@@ -2,11 +2,12 @@ package com.arimac.backend.pmtool.projectmanagementtool.Service.Impl;
 
 import com.arimac.backend.pmtool.projectmanagementtool.Service.InternalSupportService;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportMemberResponse;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportTicketFile;
 import com.arimac.backend.pmtool.projectmanagementtool.dtos.ServiceDesk.SupportUser;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.AddSupportUserDto;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.CreateSupportProject;
-import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.UpdateStatus;
+import com.arimac.backend.pmtool.projectmanagementtool.dtos.SupportProject.*;
+import com.arimac.backend.pmtool.projectmanagementtool.exception.ErrorMessage;
 import com.arimac.backend.pmtool.projectmanagementtool.exception.PMException;
+import com.arimac.backend.pmtool.projectmanagementtool.model.ServiceTicket;
 import com.arimac.backend.pmtool.projectmanagementtool.utils.ENVConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -196,8 +197,146 @@ public class InternalSupportServiceImpl implements InternalSupportService {
     }
 
     @Override
-    public Object getSupportTicketStatusByProject(String projectId, boolean firstRequest) {
-        return null;
+    public ServiceTicketUser getSupportTicketById(String projectId, String ticketId, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            String serviceTicket =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId , HttpMethod.GET, httpEntity, String.class).getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), ServiceTicketUser.class);
+//            return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), new TypeReference<List<ServiceTicketUser>>(){});
+        }
+        catch(HttpClientErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getSupportTicketById(projectId, ticketId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public ServiceTicketStatus getSupportTicketStatusByProject(String userId, String projectId, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("userId", userId);
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            String ticketStatus =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/project/" + projectId + "/status", HttpMethod.GET, httpEntity, String.class).getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(new JSONObject(ticketStatus).get("data").toString(), ServiceTicketStatus.class);
+        }
+        catch(HttpClientErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getSupportTicketStatusByProject(userId, projectId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<ServiceTicketUser> getSupportTicketsByProject(String projectId, int startIndex, int limit, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/project/" + projectId + "?startIndex="+ startIndex + "&limit=" + limit, HttpMethod.GET, httpEntity, String.class).getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<ServiceTicketUser>>(){});
+        }
+        catch(HttpClientErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getSupportTicketsByProject(projectId, startIndex, limit, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void supportTicketInternalUpdate(String userId, String ticketId, ServiceTicketUpdate serviceTicketUpdate, boolean firstRequest)  {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            httpHeaders.add("user", userId);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(serviceTicketUpdate, httpHeaders);
+            String ticketStatus =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/ticket/" + ticketId , HttpMethod.PUT, httpEntity, String.class).getBody();
+        }
+        catch(HttpClientErrorException e) {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//            try {
+//                PMException exp = objectMapper.readValue(new JSONObject(e).toString(), PMException.class);
+//                throw new PMException(exp.getMessage());
+//            } catch (Exception e1){
+//
+//            }
+//            String response = e.getResponseBodyAsString();
+//            logger.error("Error response | Status/ : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                supportTicketInternalUpdate(userId,ticketId, serviceTicketUpdate, false);
+            }
+            throw new PMException(e.getMessage());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<SupportTicketFile> getFilesOfSupportTicket(String projectId, String ticketId, boolean firstRequest) {
+        try {
+            if (clientAccessToken == null)
+                getClientAccessToken();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            String userList =  restTemplate.exchange("http://localhost:8081/api/support-service/internal/project/" + projectId + "/ticket/" + ticketId + "/files", HttpMethod.GET, httpEntity, String.class).getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(new JSONObject(userList).get("data").toString(), new TypeReference<List<SupportTicketFile>>(){});
+        }
+        catch(HttpClientErrorException e) {
+            String response = e.getResponseBodyAsString();
+            logger.error("Error response | Status : {} Response: {}", e.getStatusCode(), response);
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
+                getClientAccessToken();
+                return getFilesOfSupportTicket(projectId, ticketId, false);
+            }
+            throw new PMException(e.getResponseBodyAsString());
+        }
+        catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
     }
 
     private void getClientAccessToken(){
