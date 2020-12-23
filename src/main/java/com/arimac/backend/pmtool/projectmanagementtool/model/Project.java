@@ -20,11 +20,12 @@ public class Project implements RowMapper<Project> {
     private int weightMeasure;
     private boolean isSupportEnabled;
     private boolean isSupportAdded;
+    private String defaultAssignee;
 
     public Project() {
     }
 
-    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount, int weightMeasure, boolean isSupportEnabled, boolean isSupportAdded) {
+    public Project(String project, String projectName, String projectAlias, String clientId, Date projectStartDate, Date projectEndDate, ProjectStatusEnum projectStatus, boolean isDeleted, int issueCount, int weightMeasure, boolean isSupportEnabled, boolean isSupportAdded, String defaultAssignee) {
         this.project = project;
         this.projectName = projectName;
         this.projectAlias = projectAlias;
@@ -37,6 +38,7 @@ public class Project implements RowMapper<Project> {
         this.weightMeasure = weightMeasure;
         this.isSupportEnabled = isSupportEnabled;
         this.isSupportAdded = isSupportAdded;
+        this.defaultAssignee = defaultAssignee;
     }
 
     public String getProjectId() {
@@ -145,6 +147,14 @@ public class Project implements RowMapper<Project> {
         isSupportAdded = supportAdded;
     }
 
+    public String getDefaultAssignee() {
+        return defaultAssignee;
+    }
+
+    public void setDefaultAssignee(String defaultAssignee) {
+        this.defaultAssignee = defaultAssignee;
+    }
+
     @Override
     public Project mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Project(
@@ -159,7 +169,8 @@ public class Project implements RowMapper<Project> {
                 resultSet.getInt("issueCount"),
                 resultSet.getInt("weightMeasure"),
                 resultSet.getBoolean("isSupportEnabled"),
-                resultSet.getBoolean("isSupportAdded"));
+                resultSet.getBoolean("isSupportAdded"),
+                resultSet.getString("defaultAssignee"));
     }
 
     @Override

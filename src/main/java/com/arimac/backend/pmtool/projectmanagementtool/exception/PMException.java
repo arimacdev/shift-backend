@@ -1,6 +1,7 @@
 package com.arimac.backend.pmtool.projectmanagementtool.exception;
 
 import com.arimac.backend.pmtool.projectmanagementtool.enumz.ResponseMessage;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
 public class PMException  extends  RuntimeException{
@@ -11,6 +12,7 @@ public class PMException  extends  RuntimeException{
         super(error.getMessage());
         this.error = error;
     }
+
 
     public PMException(String message) {
         this(new ErrorMessage(message, HttpStatus.BAD_REQUEST));

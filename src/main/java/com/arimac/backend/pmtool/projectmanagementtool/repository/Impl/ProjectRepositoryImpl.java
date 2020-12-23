@@ -558,6 +558,16 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
+    public void addDefaultAssignee(String projectId, String defaultAssignee) {
+        String sql = "UPDATE project SET defaultAssignee=? WHERE project=?";
+        try {
+            jdbcTemplate.update(sql,defaultAssignee, projectId);
+        } catch (Exception e){
+            throw new PMException(e.getMessage());
+        }
+    }
+
+    @Override
     public List<SupportProjectResponse> getSupportProjects() {
         String sql = "SELECT * FROM project WHERE isSupportAdded=true AND isDeleted=false";
         try {

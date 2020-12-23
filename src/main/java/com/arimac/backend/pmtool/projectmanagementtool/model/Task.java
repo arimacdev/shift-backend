@@ -33,10 +33,12 @@ public class Task implements RowMapper<Task> {
     private BigDecimal estimatedWeight;
     private BigDecimal actualWeight;
 
+    private String serviceTicketId;
+
     public Task() {
     }
 
-    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight) {
+    public Task(String taskId, String secondaryTaskId, String taskName, String projectId, String sprintId, String taskAssignee, String taskInitiator, String taskNote, Timestamp taskCreatedAt, Timestamp taskDueDateAt, Timestamp taskReminderAt, boolean isDeleted, TaskStatusEnum taskStatus, IssueTypeEnum issueType, String parentId, boolean isParent, BigDecimal estimatedWeight, BigDecimal actualWeight, String serviceTicketId) {
         this.taskId = taskId;
         this.secondaryTaskId = secondaryTaskId;
         this.taskName = taskName;
@@ -55,6 +57,7 @@ public class Task implements RowMapper<Task> {
         this.isParent = isParent;
         this.estimatedWeight = estimatedWeight;
         this.actualWeight = actualWeight;
+        this.serviceTicketId = serviceTicketId;
     }
 
     public boolean getIsDeleted() {
@@ -209,6 +212,14 @@ public class Task implements RowMapper<Task> {
         this.actualWeight = actualWeight;
     }
 
+    public String getServiceTicketId() {
+        return serviceTicketId;
+    }
+
+    public void setServiceTicketId(String serviceTicketId) {
+        this.serviceTicketId = serviceTicketId;
+    }
+
     @Override
     public Task mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Task(
@@ -229,7 +240,8 @@ public class Task implements RowMapper<Task> {
                 resultSet.getString("parentId"),
                 resultSet.getBoolean("isParent"),
                 resultSet.getBigDecimal("estimatedWeight"),
-                resultSet.getBigDecimal("actualWeight")
+                resultSet.getBigDecimal("actualWeight"),
+                resultSet.getString("serviceTicketId")
         );
     }
 
