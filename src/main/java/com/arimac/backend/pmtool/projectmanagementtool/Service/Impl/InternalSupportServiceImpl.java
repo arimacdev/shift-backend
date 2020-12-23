@@ -140,7 +140,8 @@ public class InternalSupportServiceImpl implements InternalSupportService {
     }
 
     @Override
-    public List<SupportUser> getSupportUsersByOrganization(String organization, boolean firstRequest) {
+    public List<SupportUser>
+    getSupportUsersByOrganization(String organization, boolean firstRequest) {
         try {
         if (clientAccessToken == null)
             getClientAccessToken();
@@ -233,7 +234,10 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             httpHeaders.add("userId", userId);
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
+            logger.info("status token :{}", clientAccessToken);
+            logger.info("ticket status URL :{}", ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/project/" + projectId + "/status" );
             String ticketStatus =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/project/" + projectId + "/status", HttpMethod.GET, httpEntity, String.class).getBody();
+            logger.info("response :{}", ticketStatus);
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(ticketStatus).get("data").toString(), ServiceTicketStatus.class);
