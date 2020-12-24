@@ -209,7 +209,6 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), ServiceTicketUser.class);
-//            return objectMapper.readValue(new JSONObject(serviceTicket).get("data").toString(), new TypeReference<List<ServiceTicketUser>>(){});
         }
         catch(HttpClientErrorException e) {
             String response = e.getResponseBodyAsString();
@@ -296,16 +295,6 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             String ticketStatus =  restTemplate.exchange(ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/" + ticketId , HttpMethod.PUT, httpEntity, String.class).getBody();
         }
         catch(HttpClientErrorException e) {
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//            try {
-//                PMException exp = objectMapper.readValue(new JSONObject(e).toString(), PMException.class);
-//                throw new PMException(exp.getMessage());
-//            } catch (Exception e1){
-//
-//            }
-//            String response = e.getResponseBodyAsString();
-//            logger.error("Error response | Status/ : {} Response: {}", e.getStatusCode(), response);
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && firstRequest) {
                 getClientAccessToken();
                 supportTicketInternalUpdate(userId,ticketId, serviceTicketUpdate, false);
