@@ -233,6 +233,7 @@ public class InternalSupportServiceImpl implements InternalSupportService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("userId", userId);
             httpHeaders.add("Authorization", "Bearer " + clientAccessToken);
+            logger.info("headers :{}", httpHeaders);
             HttpEntity<Object> httpEntity = new HttpEntity<>(null, httpHeaders);
             logger.info("status token :{}", clientAccessToken);
             logger.info("ticket status URL :{}", ENVConfig.SUPPORT_SERVICE_URL + "/api/support-service/internal/ticket/project/" + projectId + "/status" );
